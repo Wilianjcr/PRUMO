@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Gestão Operacional</title>
+    <meta name="theme-color" content="#2b1b18">
+    <link rel="icon" type="image/png" href="1000146124.png">
+    <link rel="apple-touch-icon" href="1000146124.png">
+    
+    <script>
+        const manifestData = {
+            "name": "Gestão Operacional",
+            "short_name": "Gestão Op",
+            "description": "Aplicativo para gestão.",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#2b1b18",
+            "icons": [{"src": "1000146124.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
+        document.write('<link rel="manifest" href="' + URL.createObjectURL(manifestBlob) + '">');
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Outfit', 'sans-serif'] },
+                    colors: { coffee: { 50: '#fdfbf7', 100: '#f4ede4', 200: '#e6d5c3', 300: '#d5bba1', 400: '#c5a080', 500: '#b8865c', 600: '#9b6c43', 700: '#7c5332', 800: '#5c3d2e', 900: '#3e2723', 950: '#2b1b18' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; -webkit-tap-highlight-color: transparent; }
+        h1, h2, h3, .heading-font { font-family: 'Outfit', sans-serif; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .view-hidden { opacity: 0; pointer-events: none; position: absolute; transform: translateX(20px); transition: all 0.3s ease; width: 100%; height: 100%; }
+        .view-active { opacity: 1; pointer-events: auto; position: relative; transform: translateX(0); transition: all 0.3s ease; width: 100%; height: 100%; }
+        .toast-enter { transform: translateY(0) translateX(-50%); opacity: 1; }
+        .toast-leave { transform: translateY(100px) translateX(-50%); opacity: 0; }
+        .overlap-warning { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        
+        /* Tabela Unificada ADM */
+        .adm-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; }
+        .adm-table th, .adm-table td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
+        .adm-table th { background-color: #f3f4f6; font-weight: bold; color: #111827; }
+        .adm-table .sector-header { background-color: #3e2723; color: white; font-weight: bold; text-transform: uppercase; }
+    </style>
+</head>
+<body class="fixed inset-0 text-gray-800 flex justify-center items-center p-0 md:p-4">
+
+    <datalist id="clientesList"></datalist>
+
+    <div class="w-full max-w-md bg-white h-full md:h-[750px] md:max-h-[95vh] md:rounded-[2rem] shadow-2xl overflow-hidden relative flex flex-col">
+        
+        <header class="px-5 py-6 flex items-center justify-between bg-coffee-950 shadow-md z-20 relative shrink-0">
+            <button id="btn-voltar" onclick="goBack()" class="hidden p-2 -ml-2 text-coffee-100 hover:bg-coffee-900 active:scale-95 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h1 id="header-title" class="text-lg sm:text-xl font-black uppercase tracking-widest text-coffee-50 absolute left-1/2 transform -translate-x-1/2 w-max heading-font flex items-center gap-1.5">
+                <span class="text-2xl">☕</span> GESTÃO OPERACIONAL
+            </h1>
+            <div class="w-10"></div>
+        </header>
+
+        <div id="action-bar" class="hidden bg-coffee-100/80 backdrop-blur-md border-b border-coffee-200 px-6 py-2 justify-between items-center z-10 transition-all duration-300 shrink-0">
+            <span id="data-indicador" class="text-xs font-bold text-coffee-600"></span>
+            <button id="btn-zerar-dados" onclick="openModalReset()" class="hidden text-[11px] font-extrabold text-red-600 hover:text-red-800 items-center gap-1.5 active:scale-95 transition-all uppercase tracking-wider bg-red-100/80 px-2.5 py-1.5 rounded-lg shadow-sm border border-red-200/50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                Zerar Dados
+            </button>
+        </div>
+
+        <main class="flex-1 relative overflow-x-hidden overflow-y-auto bg-coffee-50 flex flex-col">
+
+            <div id="view-menu" class="view-active w-full h-full flex flex-col p-4 pb-6">
+                
+                <div class="mb-4 mt-2 text-center flex flex-col items-center justify-center shrink-0">
+                    <img src="1000146124.png" alt="Logotipo" class="w-20 h-20 mx-auto rounded-2xl shadow-lg object-cover bg-black" onerror="this.style.display='none'">
+                    <h2 id="welcome-message" class="text-xl font-bold text-coffee-900 tracking-tight whitespace-nowrap heading-font mt-3 hidden"></h2>
+                    <div id="welcome-divider" class="w-10 h-1 bg-coffee-500 mt-2 rounded-full mx-auto hidden"></div>
+                </div>
+
+                <!-- Seletor de Data Ativa (Apenas ADM) -->
+                <div id="date-picker-container" class="hidden w-full bg-white rounded-xl shadow-sm border border-coffee-100 p-2 mb-4 justify-between items-center">
+                    <span class="text-xs font-bold uppercase text-coffee-500 ml-2">Data Ativa:</span>
+                    <input type="date" id="date-picker" onchange="changeWorkingDate()" class="bg-coffee-50 border border-coffee-200 text-coffee-900 font-bold text-sm rounded-lg px-2 py-1 outline-none">
+                </div>
+
+                <div id="adm-panel" class="hidden mb-4 bg-coffee-900 rounded-2xl p-4 shadow-lg text-white border border-coffee-800">
+                    <h3 class="font-black text-xs mb-3 uppercase tracking-widest text-coffee-200 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        Painel do Gestor
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="gerarResumoGeral()" class="bg-coffee-700 hover:bg-coffee-600 text-[11px] font-bold uppercase py-2.5 rounded-xl transition-all shadow-inner">📄 E-mail Unificado</button>
+                        <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-[11px] font-bold uppercase py-2.5 rounded-xl transition-all shadow-inner">📊 Exportar CSV</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 flex-1 min-h-0">
+                    <button onclick="navigate('view-submenu', '📥 Recebimento')" class="w-full h-full min-h-[85px] bg-white rounded-2xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:border-emerald-200 active:scale-95 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl drop-shadow-sm leading-none">📥</span></div>
+                        <h3 class="font-bold text-[13px] text-coffee-900 heading-font leading-tight uppercase">Recebimento</h3>
+                    </button>
+                    <button onclick="navigate('view-submenu', '🚛 Expedição')" class="w-full h-full min-h-[85px] bg-white rounded-2xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:border-blue-200 active:scale-95 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-blue-400 to-indigo-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl drop-shadow-sm leading-none">🚛</span></div>
+                        <h3 class="font-bold text-[13px] text-coffee-900 heading-font leading-tight uppercase">Expedição</h3>
+                    </button>
+                    <button onclick="navigate('view-submenu', '⚙️ Rebenefício')" class="w-full h-full min-h-[85px] bg-white rounded-2xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:border-amber-200 active:scale-95 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-amber-400 to-orange-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl drop-shadow-sm leading-none">⚙️</span></div>
+                        <h3 class="font-bold text-[13px] text-coffee-900 heading-font leading-tight uppercase">Rebenefício</h3>
+                    </button>
+                    <button onclick="navigate('view-submenu', '📦 Embalagem')" class="w-full h-full min-h-[85px] bg-white rounded-2xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:border-purple-200 active:scale-95 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-fuchsia-400 to-purple-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+                        <h3 class="font-bold text-[13px] text-coffee-900 heading-font leading-tight uppercase">Embalagem</h3>
+                    </button>
+                    <button onclick="navigate('view-submenu', '⏱️ Manutenção')" class="w-full h-full min-h-[85px] bg-white rounded-2xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:border-slate-200 active:scale-95 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-slate-500 to-zinc-600 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></div>
+                        <h3 class="font-bold text-[13px] text-coffee-900 heading-font leading-tight uppercase">Manutenção</h3>
+                    </button>
+                    <button onclick="navigate('view-submenu', '📊 Operações')" class="w-full h-full min-h-[85px] bg-white rounded-2xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:border-cyan-200 active:scale-95 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-sky-400 to-cyan-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl drop-shadow-sm leading-none">📊</span></div>
+                        <h3 class="font-bold text-[13px] text-coffee-900 heading-font leading-tight uppercase">Operações</h3>
+                    </button>
+                </div>
+                
+                <button id="btn-install" onclick="installPWA()" class="hidden w-full mt-4 bg-coffee-900 hover:bg-black text-white font-bold py-3.5 rounded-xl items-center justify-center gap-2 active:scale-95 transition-all shadow-md shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Instalar Aplicativo
+                </button>
+            </div>
+
+            <div id="view-submenu" class="view-hidden w-full h-full flex flex-col p-5 pt-8 block">
+                <p class="text-base font-bold text-black uppercase tracking-wider mb-6 text-center">O QUE DESEJA FAZER?</p>
+                <div class="space-y-4">
+                    <button id="btn-menu-atividades" onclick="navigate('view-atividades', currentSector)" class="w-full bg-white rounded-3xl p-5 shadow-[0_4px_15px_rgba(62,39,35,0.06)] border border-coffee-100 flex items-center justify-between group hover:bg-coffee-900 active:scale-95 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 flex items-center justify-center text-coffee-900 group-hover:bg-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-lg font-bold text-coffee-900 group-hover:text-white uppercase tracking-widest heading-font transition-colors">Atividades</h3>
+                                <p class="text-sm text-coffee-500 group-hover:text-coffee-200 transition-colors">Planejamento do dia</p>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300 group-hover:text-white transition-colors transform group-hover:translate-x-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+                    <button id="btn-menu-produtividade" onclick="navigate('view-productivity', currentSector)" class="w-full bg-white rounded-3xl p-5 shadow-[0_4px_15px_rgba(62,39,35,0.06)] border border-coffee-100 flex items-center justify-between group hover:bg-coffee-900 active:scale-95 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 flex items-center justify-center text-coffee-900 group-hover:bg-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-lg font-bold text-coffee-900 group-hover:text-white uppercase tracking-widest heading-font transition-colors">Produtividade</h3>
+                                <p class="text-sm text-coffee-500 group-hover:text-coffee-200 transition-colors">Apontamento diário</p>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300 group-hover:text-white transition-colors transform group-hover:translate-x-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+                    <button id="btn-menu-retencao" onclick="navigate('view-percentage', currentSector)" class="hidden w-full bg-white rounded-3xl p-5 shadow-[0_4px_15px_rgba(62,39,35,0.06)] border border-coffee-100 flex items-center justify-between group hover:bg-coffee-900 active:scale-95 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 flex items-center justify-center text-coffee-900 group-hover:bg-white transition-colors">
+                                <span class="text-2xl font-bold">%</span>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-lg font-bold text-coffee-900 group-hover:text-white uppercase tracking-widest heading-font transition-colors">Retenção</h3>
+                                <p class="text-sm text-coffee-500 group-hover:text-coffee-200 transition-colors">Análise de Peneira</p>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300 group-hover:text-white transition-colors transform group-hover:translate-x-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+                    <button id="btn-menu-horimetro" onclick="navigate('view-horimetro', currentSector)" class="hidden w-full bg-white rounded-3xl p-5 shadow-[0_4px_15px_rgba(62,39,35,0.06)] border border-coffee-100 flex items-center justify-between group hover:bg-coffee-900 active:scale-95 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 flex items-center justify-center text-coffee-900 group-hover:bg-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v2M7 6.5l1.5 1.5M17 6.5l-1.5 1.5M4 12h2M18 12h2"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 11.5l3-3"></path><circle cx="12" cy="11.5" r="1.5"></circle></svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-lg font-bold text-coffee-900 group-hover:text-white uppercase tracking-widest heading-font transition-colors">Horímetro</h3>
+                                <p class="text-sm text-coffee-500 group-hover:text-coffee-200 transition-colors">Cálculo de uso real</p>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300 group-hover:text-white transition-colors transform group-hover:translate-x-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+                <div class="bg-white shadow-[0_4px_20px_rgba(43,27,24,0.05)] border-2 border-coffee-100 rounded-2xl p-6 relative">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 heading-font mb-5">Planejamento Diário</h3>
+                    <div class="space-y-4">
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Serviço</label>
+                            <input type="text" id="atv-servico" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-sm font-bold outline-none text-coffee-900 py-3.5 px-4 focus:bg-white focus:border-coffee-500" placeholder="Descreva o serviço..." oninput="saveData()">
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Quantidade de Sacas Total</label>
+                            <input type="number" id="atv-sacas" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-lg font-bold outline-none text-coffee-900 py-3.5 px-4 focus:bg-white focus:border-coffee-500" placeholder="0" oninput="saveData()">
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Precisa de Ajuda?</label>
+                            <select id="atv-ajuda" onchange="toggleAjudaQtd(); saveData()" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-sm font-bold outline-none text-coffee-900 py-3.5 px-4 focus:bg-white focus:border-coffee-500">
+                                <option value="Não">Não</option><option value="Sim">Sim</option>
+                            </select>
+                        </div>
+                        <div class="w-full hidden transition-all" id="div-ajuda-qtd">
+                            <label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Quantas pessoas?</label>
+                            <input type="number" id="atv-ajuda-qtd" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-lg font-bold outline-none text-coffee-900 py-3.5 px-4 focus:bg-white focus:border-coffee-500" placeholder="Ex: 2" oninput="saveData()">
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Projeção de Entrega (Hora)</label>
+                            <input type="time" id="atv-projecao" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-lg font-bold outline-none text-coffee-900 py-3 px-4 text-center focus:bg-white focus:border-coffee-500" oninput="saveData()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-percentage" class="view-hidden w-full p-5 block">
+                <div class="flex bg-coffee-100 rounded-xl p-1 mb-6 border border-coffee-200 shadow-inner">
+                    <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-coffee-900 shadow-sm transition-all border border-coffee-200">Análise Real</button>
+                    <button id="btn-tab-tolerancia" onclick="switchTab('tolerancia')" class="flex-1 py-2 text-sm font-bold text-coffee-800/60 rounded-lg hover:text-coffee-900 transition-all border border-transparent">Tolerância Esperada</button>
+                </div>
+                <div class="bg-white shadow-[0_4px_20px_rgba(43,27,24,0.05)] border-2 border-coffee-100 rounded-2xl p-6 relative">
+                    <div id="tab-retencao" class="block space-y-4">
+                        <label class="text-sm font-bold text-coffee-900 uppercase tracking-wider mb-2 block heading-font">Cálculo de Retenção</label>
+                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 uppercase mb-1.5 ml-1">Peso Amostra (g)</label><input type="number" id="peso-amostra" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="0" oninput="calcRetencao()"></div>
+                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 uppercase mb-1.5 ml-1">Peso Retido (g)</label><input type="number" id="peso-retido" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="0" oninput="calcRetencao()"></div>
+                        <div class="mt-8 pt-6 border-t border-coffee-100 relative"><span class="text-sm text-coffee-800/70 font-medium block mb-1">Retenção Encontrada:</span><span id="res-retencao" class="text-4xl font-extrabold text-coffee-900 tracking-tighter">0,00%</span></div>
+                    </div>
+                    <div id="tab-tolerancia" class="hidden space-y-4">
+                        <label class="text-sm font-bold text-coffee-900 uppercase tracking-wider mb-2 block heading-font">Limite de Tolerância</label>
+                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 uppercase mb-1.5 ml-1">Peso Amostra (g)</label><input type="number" id="tol-amostra" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="0" oninput="calcTolerancia()"></div>
+                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 uppercase mb-1.5 ml-1">Tolerância Máxima (%)</label><div class="flex items-center gap-3"><input type="number" id="tol-perc" class="flex-1 bg-coffee-50 border-2 border-coffee-200 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="Ex: 5" oninput="calcTolerancia()"><span class="text-coffee-500 font-bold text-xl">%</span></div></div>
+                        <div class="mt-8 pt-6 border-t border-coffee-100 relative"><span class="text-sm text-coffee-800/70 font-medium block mb-1">Peso Máximo Esperado:</span><div class="flex items-end gap-1"><span id="res-tolerancia" class="text-4xl font-extrabold text-coffee-900 tracking-tighter">0,00</span><span class="text-lg font-bold text-coffee-50 mb-1">g</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+                <div class="flex-1 space-y-6 pb-6">
+                    <div>
+                        <div class="flex justify-between items-end mb-4"><h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 heading-font">Períodos de Trabalho</h3></div>
+                        <div id="time-blocks-container" class="space-y-6"></div>
+                        <button onclick="addTimeBlock()" class="mt-4 w-full py-3.5 border-2 border-dashed border-coffee-300 rounded-xl text-coffee-600 font-bold text-sm hover:border-coffee-500 hover:bg-coffee-50 transition-all flex justify-center items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg> Adicionar novo período
+                        </button>
+                    </div>
+                    <div class="h-px w-full bg-coffee-200/50"></div>
+                    <div>
+                        <label id="lbl-prod-total" class="text-sm font-bold uppercase tracking-wider text-coffee-900 block mb-2 heading-font">Quantidade de sacas total (Somatório)</label>
+                        <input type="text" id="prod-total" readonly class="w-full bg-coffee-100/50 border-2 border-coffee-100 rounded-xl text-2xl font-bold outline-none text-coffee-900 py-4 px-4 cursor-default shadow-inner" placeholder="0">
+                    </div>
+                </div>
+                <div class="bg-coffee-950 text-white rounded-2xl p-6 shadow-[0_8px_30px_rgba(43,27,24,0.3)] mt-4 relative">
+                    <div class="grid grid-cols-2 gap-4 pt-1">
+                        <div><span class="text-xs text-coffee-200 font-bold uppercase tracking-wider block mb-1">Horas trabalhadas</span><span id="res-total-horas" class="text-xl font-bold tracking-tight">0h 00m</span></div>
+                        <div class="text-right pr-2"><span class="text-xs text-coffee-200 font-bold uppercase tracking-wider block mb-1">Média / Hora</span><div class="flex items-end justify-end gap-1"><span id="res-media-hora" class="text-3xl font-extrabold tracking-tighter leading-none text-coffee-50">0</span><span class="text-xs text-coffee-300 font-medium pb-1">un/h</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-horimetro" class="view-hidden w-full p-5 block">
+                <div class="bg-white shadow-[0_4px_20px_rgba(43,27,24,0.05)] border-2 border-coffee-100 rounded-2xl p-6 relative">
+                    <label class="text-sm font-bold text-coffee-900 uppercase tracking-wider mb-2 block heading-font">Horas de Uso</label>
+                    <div class="space-y-4">
+                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 uppercase mb-1.5 ml-1">Horímetro Inicial</label><input type="text" inputmode="decimal" id="hor-inicial" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="Ex: 1.234,5" oninput="maskHorimetro(this)"></div>
+                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 uppercase mb-1.5 ml-1">Horímetro Final</label><input type="text" inputmode="decimal" id="hor-final" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="Ex: 1.234,5" oninput="maskHorimetro(this)"></div>
+                        <div class="mt-8 pt-6 border-t border-coffee-100 relative"><span class="text-sm text-coffee-800/70 font-medium block mb-1">Tempo Real Trabalhado:</span><span id="res-horimetro" class="text-4xl font-extrabold text-coffee-900 tracking-tighter">0.00</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="bg-white border-t border-coffee-200/50 flex flex-col mt-auto z-10 shrink-0">
+            <div id="footer-actions" class="hidden px-5 py-4 shadow-[0_-4px_15px_rgba(0,0,0,0.02)] space-y-3">
+                <button onclick="compartilharRelatorio()" class="w-full bg-coffee-800 hover:bg-coffee-900 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2.5 active:scale-95 transition-all shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                    <span id="lbl-share-btn">Compartilhar Boletim</span>
+                </button>
+            </div>
+            <div class="py-3 bg-coffee-50">
+                <p class="text-center text-[10px] font-bold text-coffee-800/40 uppercase tracking-[0.3em]">by Wilian Junior</p>
+            </div>
+        </footer>
+    </div>
+
+    <div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 mb-4 mx-auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></div>
+            <h3 class="text-xl font-bold text-center text-coffee-900 mb-2 heading-font">Zerar os dados?</h3>
+            <p class="text-sm text-center text-coffee-500 mb-6">Apagará todas as informações desta tela.</p>
+            <div class="flex gap-3"><button onclick="closeModalReset()" class="flex-1 py-3 bg-coffee-100 text-coffee-900 font-bold rounded-xl active:scale-95">Cancelar</button><button onclick="executeReset()" class="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl active:scale-95 shadow-md shadow-red-600/20">Apagar</button></div>
+        </div>
+    </div>
+
+    <div id="modal-adm-email" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[80] hidden flex flex-col justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col" id="modal-adm-content">
+            <h3 class="text-xl font-bold text-coffee-900 mb-2 heading-font text-center">Boletim Consolidado</h3>
+            <p class="text-xs text-coffee-500 mb-4 text-center">Tabela unificada pronta para e-mail.</p>
+            <div class="flex-1 overflow-auto border border-gray-200 rounded-lg p-2 bg-gray-50" id="container-tabela-adm"></div>
+            <div class="mt-4 flex gap-3">
+                <button onclick="fecharModalAdm()" class="flex-1 py-3 bg-coffee-100 text-coffee-900 font-bold rounded-xl active:scale-95">Fechar</button>
+                <button onclick="copiarTabelaAdm()" class="flex-1 py-3 bg-coffee-900 text-white font-bold rounded-xl active:scale-95 shadow-md">Copiar Tabela</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-coffee-950 text-white px-5 py-3 rounded-full shadow-lg text-sm font-bold flex items-center gap-2 toast-leave transition-all duration-300 z-[90] pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" id="toast-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+        <span id="toast-msg">Ação realizada!</span>
+    </div>
+
+    <div id="modal-login" class="fixed inset-0 bg-coffee-950/40 backdrop-blur-sm z-[100] flex flex-col justify-center items-center p-6 transition-opacity duration-500 hidden">
+        <div class="w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-8 flex flex-col items-center border border-coffee-100">
+            <div class="w-24 h-24 mb-5 rounded-3xl shadow-lg overflow-hidden bg-coffee-50 flex items-center justify-center text-6xl shadow-coffee-200/50">🪪</div>
+            <h2 class="text-2xl font-bold text-coffee-900 heading-font mb-2 text-center">Bem-vindo</h2>
+            <p class="text-xs text-coffee-500 mb-6 text-center leading-relaxed">Para acessar o sistema, informe seu <b>primeiro nome</b>.</p>
+            <div class="w-full space-y-4">
+                <input type="text" id="input-login-nome" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-lg font-bold outline-none text-coffee-900 py-3.5 px-4 text-center focus:bg-white focus:border-coffee-500" placeholder="Seu nome" onkeypress="if(event.key === 'Enter') realizarLogin()">
+                <button onclick="realizarLogin()" class="w-full bg-coffee-900 hover:bg-black text-white font-bold py-3.5 rounded-xl active:scale-95 shadow-md">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Declaração Correta do mostrarToast no topo ---
+        let toastTimeout;
+        function mostrarToast(msg, error = false) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            if(toast && icon) {
+                document.getElementById('toast-msg').innerText = msg;
+                if (error) {
+                    icon.classList.remove('text-green-400');
+                    icon.classList.add('text-red-400');
+                    icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />`;
+                } else {
+                    icon.classList.remove('text-red-400');
+                    icon.classList.add('text-green-400');
+                    icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />`;
+                }
+                toast.classList.remove('toast-leave');
+                toast.classList.add('toast-enter');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('toast-enter');
+                    toast.classList.add('toast-leave');
+                }, 2500);
+            }
+        }
+
+        let currentRefLabel = "Referência";
+        let currentActivities = [];
+        let currentViewId = 'view-menu';
+        let currentSector = '';
+        let viewHistory = [{ id: 'view-menu', sector: '' }];
+        let abaAtual = 'retencao';
+        let operadorNome = '';
+        let isAdmin = false;
+        
+        let workingDate = new Date().toLocaleDateString('pt-BR');
+        // Banco de Dados Principal (Memória Separada por Data e Setor)
+        let appData = {}; 
+
+        const activityOptions = {
+            'Recebimento': ['Recebimento', 'Pilha Simples', 'Ensaque', 'Embarque'],
+            'Rebenefício': ['Produção', 'Repasse'],
+            'Expedição': ['Pilha Simples', 'Ensaque', 'Embarque', 'Vácuo'],
+            'Embalagem': ['Aplicação de Stickers', 'Aplicação de VDP', 'Coleta', 'Vácuo'],
+            'Manutenção': ['Manutenção Preventiva', 'Manutenção Corretiva', 'Ajuste de Máquinas', 'Outros'],
+            'Operações': ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outros']
+        };
+
+        // --- Core Data Logic ---
+        function getEmptySectorState() {
+            return {
+                timeBlocks: [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }],
+                horInicial: '', horFinal: '',
+                pesoAmostra: '', pesoRetido: '', tolAmostra: '', tolPerc: '',
+                atvServico: '', atvSacas: '', atvAjuda: 'Não', atvAjudaQtd: '', atvProjecao: ''
+            };
+        }
+
+        function carregarMemoriaGeral() {
+            const saved = localStorage.getItem('gestaoOpDatabase');
+            if (saved) {
+                appData = JSON.parse(saved);
+                limparDadosAntigos(30); // Mantém apenas últimos 30 dias
+            }
+            // Garante que o dia de hoje existe
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            if(!appData[hoje]) appData[hoje] = {};
+            
+            // Popula lista de clientes para autocomplete
+            atualizarDataListClientes();
+        }
+
+        function limparDadosAntigos(dias) {
+            const agora = new Date().getTime();
+            Object.keys(appData).forEach(dataStr => {
+                const [d, m, a] = dataStr.split('/');
+                const dataObj = new Date(a, m-1, d).getTime();
+                const diffDias = (agora - dataObj) / (1000 * 3600 * 24);
+                if(diffDias > dias) delete appData[dataStr];
+            });
+            localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData));
+        }
+
+        // --- Manipulação da Data Ativa ---
+        function setWorkingDateInput() {
+            const dp = document.getElementById('date-picker');
+            const [d, m, a] = workingDate.split('/');
+            if(dp) dp.value = `${a}-${m}-${d}`;
+            const di = document.getElementById('data-indicador');
+            if(di) di.innerText = workingDate;
+        }
+
+        function changeWorkingDate() {
+            const dp = document.getElementById('date-picker');
+            if(dp && dp.value) {
+                const [a, m, d] = dp.value.split('-');
+                workingDate = `${d}/${m}/${a}`;
+                const di = document.getElementById('data-indicador');
+                if(di) di.innerText = workingDate;
+                if(!appData[workingDate]) appData[workingDate] = {};
+                mostrarToast("Data alterada para " + workingDate);
+            }
+        }
+
+        // --- Save / Load da Tela Atual ---
+        function saveData() {
+            if(!currentSector || currentViewId === 'view-menu' || currentViewId === 'view-submenu') return;
+            
+            if(!appData[workingDate]) appData[workingDate] = {};
+            if(!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
+
+            let st = appData[workingDate][currentSector];
+            
+            if(currentViewId === 'view-productivity') st.timeBlocks = window.tempTimeBlocks;
+            if(currentViewId === 'view-horimetro') {
+                st.horInicial = document.getElementById('hor-inicial').value;
+                st.horFinal = document.getElementById('hor-final').value;
+            }
+            if(currentViewId === 'view-percentage') {
+                st.pesoAmostra = document.getElementById('peso-amostra').value;
+                st.pesoRetido = document.getElementById('peso-retido').value;
+                st.tolAmostra = document.getElementById('tol-amostra').value;
+                st.tolPerc = document.getElementById('tol-perc').value;
+            }
+            if(currentViewId === 'view-atividades') {
+                st.atvServico = document.getElementById('atv-servico').value;
+                st.atvSacas = document.getElementById('atv-sacas').value;
+                st.atvAjuda = document.getElementById('atv-ajuda').value;
+                st.atvAjudaQtd = document.getElementById('atv-ajuda-qtd').value;
+                st.atvProjecao = document.getElementById('atv-projecao').value;
+            }
+
+            localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData));
+            coletarClientesAuto();
+        }
+
+        function loadDataParaTela() {
+            if(!currentSector || currentViewId === 'view-menu' || currentViewId === 'view-submenu') return;
+            
+            if(!appData[workingDate]) appData[workingDate] = {};
+            if(!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
+
+            let st = appData[workingDate][currentSector];
+
+            // Load variables to screen
+            if(currentViewId === 'view-productivity') {
+                window.tempTimeBlocks = st.timeBlocks || [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
+                renderTimeBlocks();
+                calcTotalProductivity();
+            }
+            if(currentViewId === 'view-horimetro') {
+                document.getElementById('hor-inicial').value = st.horInicial || '';
+                document.getElementById('hor-final').value = st.horFinal || '';
+                calcHorimetro();
+            }
+            if(currentViewId === 'view-percentage') {
+                document.getElementById('peso-amostra').value = st.pesoAmostra || '';
+                document.getElementById('peso-retido').value = st.pesoRetido || '';
+                document.getElementById('tol-amostra').value = st.tolAmostra || '';
+                document.getElementById('tol-perc').value = st.tolPerc || '';
+                calcRetencao(); calcTolerancia();
+            }
+            if(currentViewId === 'view-atividades') {
+                document.getElementById('atv-servico').value = st.atvServico || '';
+                document.getElementById('atv-sacas').value = st.atvSacas || '';
+                document.getElementById('atv-ajuda').value = st.atvAjuda || 'Não';
+                document.getElementById('atv-ajuda-qtd').value = st.atvAjudaQtd || '';
+                document.getElementById('atv-projecao').value = st.atvProjecao || '';
+                toggleAjudaQtd();
+            }
+        }
+
+        // --- Login & ADM ---
+        function checkLogin() {
+            carregarMemoriaGeral();
+            setWorkingDateInput();
+
+            const savedName = localStorage.getItem('operadorNome');
+            if (savedName) {
+                operadorNome = savedName;
+                isAdmin = localStorage.getItem('operadorIsAdmin') === 'true';
+                document.getElementById('modal-login').classList.add('hidden');
+                exibirBoasVindas();
+            } else {
+                document.getElementById('modal-login').classList.remove('hidden');
+                setTimeout(() => document.getElementById('input-login-nome').focus(), 100);
+            }
+        }
+
+        function exibirBoasVindas() {
+            const welcomeMsg = document.getElementById('welcome-message');
+            const welcomeDiv = document.getElementById('welcome-divider');
+            const admPanel = document.getElementById('adm-panel');
+            const datePickerContainer = document.getElementById('date-picker-container');
+            
+            if (welcomeMsg) {
+                welcomeMsg.innerText = `Bem-vindo, ${operadorNome}!`;
+                welcomeMsg.classList.remove('hidden');
+                if(welcomeDiv) welcomeDiv.classList.remove('hidden');
+            }
+            if(isAdmin) {
+                if(admPanel) admPanel.classList.remove('hidden');
+                if(datePickerContainer && currentViewId === 'view-menu') {
+                    datePickerContainer.classList.remove('hidden');
+                    datePickerContainer.classList.add('flex');
+                }
+            } else {
+                if (admPanel) admPanel.classList.add('hidden');
+                if (datePickerContainer) {
+                    datePickerContainer.classList.add('hidden');
+                    datePickerContainer.classList.remove('flex');
+                }
+            }
+        }
+
+        function realizarLogin() {
+            const input = document.getElementById('input-login-nome');
+            let nomeRaw = input.value.trim();
+            if (!nomeRaw) return mostrarToast("Informe seu nome!", true);
+
+            isAdmin = false;
+            if(nomeRaw.toLowerCase().endsWith('adm')) {
+                isAdmin = true;
+                nomeRaw = nomeRaw.slice(0, -3).trim();
+            }
+
+            let nome = nomeRaw.split(' ')[0];
+            nome = nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
+
+            localStorage.setItem('operadorNome', nome);
+            localStorage.setItem('operadorIsAdmin', isAdmin);
+            operadorNome = nome;
+
+            const modal = document.getElementById('modal-login');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 500);
+
+            exibirBoasVindas();
+            mostrarToast(`Bem-vindo, ${nome}!`);
+        }
+
+        // --- Autocomplete Clientes ---
+        let clientesSet = new Set();
+        function atualizarDataListClientes() {
+            let savedClients = localStorage.getItem('clientesMemoria');
+            if(savedClients) {
+                try { JSON.parse(savedClients).forEach(c => clientesSet.add(c)); } catch(e){}
+            }
+            const dl = document.getElementById('clientesList');
+            if(dl) {
+                dl.innerHTML = '';
+                clientesSet.forEach(c => {
+                    if(c.trim().length > 2) {
+                        let opt = document.createElement('option'); opt.value = c; dl.appendChild(opt);
+                    }
+                });
+            }
+        }
+        function coletarClientesAuto() {
+            if(window.tempTimeBlocks) {
+                let changed = false;
+                window.tempTimeBlocks.forEach(b => {
+                    if(b.obs && b.obs.trim().length > 2 && !clientesSet.has(b.obs.trim())) {
+                        clientesSet.add(b.obs.trim()); changed = true;
+                    }
+                });
+                if(changed) {
+                    localStorage.setItem('clientesMemoria', JSON.stringify(Array.from(clientesSet)));
+                    atualizarDataListClientes();
+                }
+            }
+        }
+
+        // --- UI Navegação ---
+        function atualizarUI(viewId) {
+            const actionBar = document.getElementById('action-bar');
+            const footerActions = document.getElementById('footer-actions');
+            const btnZerar = document.getElementById('btn-zerar-dados');
+            const btnVoltar = document.getElementById('btn-voltar');
+            const lblShare = document.getElementById('lbl-share-btn');
+            const hTitle = document.getElementById('header-title');
+            const datePickerContainer = document.getElementById('date-picker-container');
+
+            if(actionBar) actionBar.classList.replace('flex', 'hidden');
+            if(footerActions) footerActions.classList.replace('block', 'hidden');
+            if(btnZerar) btnZerar.classList.replace('flex', 'hidden');
+            
+            if (viewId === 'view-menu') {
+                if(btnVoltar) btnVoltar.classList.add('hidden');
+                if(hTitle) hTitle.innerHTML = '<span class="text-2xl">☕</span> GESTÃO OPERACIONAL';
+                if(isAdmin && datePickerContainer) {
+                    datePickerContainer.classList.remove('hidden');
+                    datePickerContainer.classList.add('flex');
+                }
+            } else {
+                if(btnVoltar) btnVoltar.classList.remove('hidden');
+                if(hTitle) hTitle.innerText = currentSector;
+                if(datePickerContainer) {
+                    datePickerContainer.classList.add('hidden');
+                    datePickerContainer.classList.remove('flex');
+                }
+            }
+
+            if (lblShare) lblShare.innerText = (viewId === 'view-atividades') ? 'Compartilhar Atividades' : 'Compartilhar Boletim';
+
+            if (viewId === 'view-productivity' || viewId === 'view-atividades') {
+                if(actionBar) actionBar.classList.replace('hidden', 'flex');
+                if(footerActions) footerActions.classList.replace('hidden', 'block');
+                if(btnZerar) btnZerar.classList.replace('hidden', 'flex'); 
+            } else if (viewId === 'view-percentage' || viewId === 'view-horimetro') {
+                if(actionBar) actionBar.classList.replace('hidden', 'flex');
+                if(footerActions) footerActions.classList.replace('hidden', 'block');
+            }
+        }
+
+        function navigate(viewId, sectorName = null) {
+            // Salva antes de sair
+            if(currentViewId !== 'view-menu' && currentViewId !== 'view-submenu') saveData();
+
+            if (sectorName) currentSector = sectorName;
+
+            document.querySelectorAll('main > div.view-active, main > div.view-hidden').forEach(el => el.classList.replace('view-active', 'view-hidden'));
+            const nextEl = document.getElementById(viewId);
+            if(nextEl) nextEl.classList.replace('view-hidden', 'view-active');
+
+            const cleanSetor = currentSector.replace(/^[^\w\s]+/g, '').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+            if (cleanSetor.includes('Recebimento')) currentRefLabel = "Lote";
+            else if (cleanSetor.includes('Rebenefício')) currentRefLabel = "Guia";
+            else if (cleanSetor.includes('Expedição')) currentRefLabel = "Guia/Contrato";
+            else if (cleanSetor.includes('Embalagem')) currentRefLabel = "Guia/Contrato";
+            else currentRefLabel = "Referência";
+
+            currentActivities = activityOptions[cleanSetor] || [];
+
+            if (viewId === 'view-submenu') {
+                const bRet = document.getElementById('btn-menu-retencao'), bHor = document.getElementById('btn-menu-horimetro'), bProd = document.getElementById('btn-menu-produtividade');
+                if (cleanSetor === 'Rebenefício') { if(bRet) bRet.classList.remove('hidden'); } else { if(bRet) bRet.classList.add('hidden'); }
+                if (cleanSetor === 'Manutenção') { if(bHor) bHor.classList.remove('hidden'); if(bProd) bProd.classList.add('hidden'); } 
+                else { if(bHor) bHor.classList.add('hidden'); if(bProd) bProd.classList.remove('hidden'); }
+            }
+
+            currentViewId = viewId;
+            atualizarUI(viewId);
+            loadDataParaTela(); // Puxa memória do setor
+            
+            viewHistory.push({ id: viewId, sector: currentSector });
+        }
+        
+        function goBack() {
+            if(currentViewId !== 'view-menu' && currentViewId !== 'view-submenu') saveData();
+
+            if (viewHistory.length > 1) viewHistory.pop();
+            const prev = viewHistory[viewHistory.length - 1];
+            currentSector = prev.sector;
+
+            document.querySelectorAll('main > div.view-active, main > div.view-hidden').forEach(el => el.classList.replace('view-active', 'view-hidden'));
+            const prevEl = document.getElementById(prev.id);
+            if(prevEl) prevEl.classList.replace('view-hidden', 'view-active');
+
+            currentViewId = prev.id;
+            atualizarUI(prev.id);
+            if(currentViewId !== 'view-menu' && currentViewId !== 'view-submenu') loadDataParaTela();
+        }
+
+        // --- Atividades & Produtividade Logic ---
+        function toggleAjudaQtd() {
+            const aV = document.getElementById('atv-ajuda');
+            const dQ = document.getElementById('div-ajuda-qtd');
+            if(aV && dQ) {
+                if (aV.value === 'Sim') dQ.classList.remove('hidden');
+                else { dQ.classList.add('hidden'); document.getElementById('atv-ajuda-qtd').value = ''; }
+            }
+        }
+
+        window.tempTimeBlocks = [];
+        
+        function renderTimeBlocks() {
+            const container = document.getElementById('time-blocks-container');
+            if(!container) return;
+
+            // Sort before rendering
+            window.tempTimeBlocks.sort((a,b) => {
+                if(!a.start || !b.start) return 0;
+                return a.start.localeCompare(b.start);
+            });
+
+            // Find overlaps
+            let overlaps = new Set();
+            for(let i=0; i<window.tempTimeBlocks.length-1; i++){
+                let cur = window.tempTimeBlocks[i], nxt = window.tempTimeBlocks[i+1];
+                if(cur.start && cur.end && nxt.start) {
+                    if(cur.end > nxt.start && cur.start < nxt.end) {
+                        overlaps.add(cur.id); overlaps.add(nxt.id);
+                    }
+                }
+            }
+
+            container.innerHTML = window.tempTimeBlocks.map(block => {
+                let hasOverlap = overlaps.has(block.id);
+                let overClass = hasOverlap ? 'overlap-warning' : 'border-coffee-100';
+                let overText = hasOverlap ? `<p class="absolute -bottom-5 left-1 text-[10px] text-red-500 font-bold">⚠️ Choque de horários detectado!</p>` : '';
+
+                return `
+                <div class="bg-white border-2 p-4 rounded-2xl shadow-[0_4px_20px_rgba(43,27,24,0.05)] relative space-y-4 mb-6 ${overClass}">
+                    ${window.tempTimeBlocks.length > 1 ? `<button onclick="removeTimeBlock(${block.id})" class="absolute -top-3 -right-3 bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-200 transition-all shadow-md border border-red-200 z-10"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>` : ''}
+                    <div>
+                        <label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Atividade</label>
+                        <select onchange="updateBlock(${block.id}, 'activity', this.value)" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-sm font-bold outline-none text-coffee-900 py-3.5 px-4 focus:bg-white focus:border-coffee-500">
+                            <option value="">Selecione...</option>
+                            ${currentActivities.map(opt => `<option value="${opt}" ${block.activity === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex-1"><label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Início</label><input type="time" value="${block.start}" onchange="updateBlock(${block.id}, 'start', this.value)" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-lg font-bold py-3 px-2 text-center outline-none focus:border-coffee-500"></div>
+                        <span class="text-coffee-400 font-bold text-sm mt-5">até</span>
+                        <div class="flex-1"><label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Fim</label><input type="time" value="${block.end}" onchange="updateBlock(${block.id}, 'end', this.value)" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-lg font-bold py-3 px-2 text-center outline-none focus:border-coffee-500"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">${currentRefLabel}</label><input type="text" value="${block.ref}" oninput="updateBlock(${block.id}, 'ref', this.value)" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-sm font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="Informar..."></div>
+                        <div><label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Qtd. Sacas</label><input type="text" inputmode="numeric" value="${block.bags}" oninput="updateBlockMasked(${block.id}, 'bags', this)" class="w-full bg-coffee-50 border-2 border-coffee-100 rounded-lg text-sm font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="0"></div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div><label class="block text-[11px] font-bold text-coffee-600 uppercase tracking-wider mb-1.5 ml-1">Cliente / Obs</label><input type="text" list="clientesList" value="${block.obs}" onchange="updateBlock(${block.id}, 'obs', this.value)" class="w-full bg-coffee-50 border-2 border-coffee-200 rounded-xl text-sm font-bold py-3.5 px-4 outline-none focus:border-coffee-500" placeholder="..."></div>
+                    </div>
+                    ${overText}
+                </div>`}).join('');
+        }
+
+        function updateBlockMasked(id, field, element) {
+            let val = element.value.replace(/\D/g, ''); element.value = val !== "" ? parseInt(val, 10).toLocaleString('pt-BR') : "";
+            updateBlock(id, field, element.value);
+        }
+
+        function addTimeBlock() { window.tempTimeBlocks.push({ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }); renderTimeBlocks(); calcTotalProductivity(); }
+        function removeTimeBlock(id) { window.tempTimeBlocks = window.tempTimeBlocks.filter(b => b.id !== id); renderTimeBlocks(); calcTotalProductivity(); }
+        function updateBlock(id, field, value) { const b = window.tempTimeBlocks.find(x => x.id === id); if(b) b[field] = value; saveData(); if(field==='start'||field==='end') renderTimeBlocks(); calcTotalProductivity(); }
+        
+        function calcTotalProductivity() {
+            let totalMinutos = 0, totalSacas = 0;
+            window.tempTimeBlocks.forEach(block => {
+                if (block.start && block.end) {
+                    let [hI, mI] = block.start.split(':').map(Number), [hF, mF] = block.end.split(':').map(Number);
+                    let mS = (hI * 60) + mI, mE = (hF * 60) + mF;
+                    if (mE < mS) mE += 1440;
+                    totalMinutos += (mE - mS);
+                }
+                if (block.bags) { let b = parseInt(block.bags.replace(/\D/g, ''), 10); if (!isNaN(b)) totalSacas += b; }
+            });
+            const pTotal = document.getElementById('prod-total');
+            if(pTotal) pTotal.value = totalSacas > 0 ? totalSacas.toLocaleString('pt-BR') : '';
+            const rT = document.getElementById('res-total-horas'), rM = document.getElementById('res-media-hora');
+            
+            if (totalMinutos === 0) { if(rT) rT.innerText = '0h 00m'; if(rM) rM.innerText = '0'; return; }
+            if(rT) rT.innerText = `${Math.floor(totalMinutos / 60)}h ${(totalMinutos % 60).toString().padStart(2, '0')}m`;
+            if(rM) rM.innerText = (totalSacas > 0) ? (totalSacas / (totalMinutos / 60)).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '0';
+        }
+
+        // --- Modals e Funções ---
+        function maskHorimetro(input) {
+            let val = input.value.replace(/[^\d,]/g, '').split(',');
+            if (val.length > 2) val = [val[0], val.slice(1).join('')];
+            let iP = val[0] ? parseInt(val[0], 10).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "";
+            input.value = val.length > 1 ? iP + ',' + val[1] : iP;
+            calcHorimetro();
+        }
+        function calcHorimetro() {
+            const elInc = document.getElementById('hor-inicial'), elFnl = document.getElementById('hor-final');
+            if(!elInc || !elFnl) return;
+            const inc = parseFloat(elInc.value.replace(/\./g, '').replace(',', '.'));
+            const fnl = parseFloat(elFnl.value.replace(/\./g, '').replace(',', '.'));
+            const res = document.getElementById('res-horimetro');
+            if(res) {
+                if (!isNaN(inc) && !isNaN(fnl) && fnl >= inc) { const diff = fnl - inc; res.innerText = `${Math.floor(diff)}.${Math.round((diff - Math.floor(diff)) * 60).toString().padStart(2, '0')}`; } 
+                else { res.innerText = fnl < inc ? 'Erro' : '0.00'; }
+            }
+            saveData();
+        }
+        function calcRetencao() {
+            const elAmostra = document.getElementById('peso-amostra'), elRetido = document.getElementById('peso-retido');
+            if(!elAmostra || !elRetido) return;
+            const a = parseFloat(elAmostra.value), r = parseFloat(elRetido.value), res = document.getElementById('res-retencao');
+            if(res) res.innerText = (!isNaN(a) && !isNaN(r) && a > 0) ? ((r / a) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + '%' : '0,00%';
+            saveData();
+        }
+        function calcTolerancia() {
+            const elAmostra = document.getElementById('tol-amostra'), elPerc = document.getElementById('tol-perc');
+            if(!elAmostra || !elPerc) return;
+            const a = parseFloat(elAmostra.value), p = parseFloat(elPerc.value), res = document.getElementById('res-tolerancia');
+            if(res) res.innerText = (!isNaN(a) && !isNaN(p) && a > 0) ? ((a * p) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) : '0,00';
+            saveData();
+        }
+
+        function switchTab(tab) {
+            abaAtual = tab;
+            const tR = document.getElementById('tab-retencao'), tT = document.getElementById('tab-tolerancia'), bR = document.getElementById('btn-tab-retencao'), bT = document.getElementById('btn-tab-tolerancia');
+            if(!tR || !tT || !bR || !bT) return;
+            if (tab === 'retencao') { tR.classList.replace('hidden', 'block'); tT.classList.replace('block', 'hidden'); bR.classList.add('bg-white', 'text-coffee-900', 'shadow-sm', 'border-coffee-200'); bR.classList.remove('text-coffee-800/60', 'border-transparent'); bT.classList.add('text-coffee-800/60', 'border-transparent'); bT.classList.remove('bg-white', 'text-coffee-900', 'shadow-sm', 'border-coffee-200'); } 
+            else { tT.classList.replace('hidden', 'block'); tR.classList.replace('block', 'hidden'); bT.classList.add('bg-white', 'text-coffee-900', 'shadow-sm', 'border-coffee-200'); bT.classList.remove('text-coffee-800/60', 'border-transparent'); bR.classList.add('text-coffee-800/60', 'border-transparent'); bR.classList.remove('bg-white', 'text-coffee-900', 'shadow-sm', 'border-coffee-200'); }
+        }
+
+        function openModalReset() { const m = document.getElementById('modal-confirm'); if(m){ m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95'); }, 10); } }
+        function closeModalReset() { const m = document.getElementById('modal-confirm'); if(m){ m.classList.add('opacity-0'); document.getElementById('modal-content').classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); } }
+        function executeReset() {
+            closeModalReset();
+            if (currentViewId === 'view-productivity') { window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }]; renderTimeBlocks(); calcTotalProductivity(); }
+            else if (currentViewId === 'view-atividades') { document.getElementById('atv-servico').value=''; document.getElementById('atv-sacas').value=''; document.getElementById('atv-ajuda').value='Não'; document.getElementById('atv-ajuda-qtd').value=''; document.getElementById('atv-projecao').value=''; toggleAjudaQtd(); saveData(); }
+            mostrarToast("Dados zerados");
+        }
+
+        // Compartilhar Nativo
+        function gerarRelatorioAtual() {
+            let setor = currentSector.replace(/^[^\w\s]+/g, '').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+            let relatorio = `*Boletim Diário* - ${setor}\n\n*📅 Dia:* ${workingDate}\n\n`;
+
+            if (currentViewId === 'view-atividades') {
+                let serv = document.getElementById('atv-servico').value.trim(), sacas = document.getElementById('atv-sacas').value.trim(), ajuda = document.getElementById('atv-ajuda').value, ajudaQtd = document.getElementById('atv-ajuda-qtd').value.trim(), proj = document.getElementById('atv-projecao').value;
+                relatorio = `*Atividades do dia!*\n\n- *Setor:* ${setor}\n`;
+                if (serv) relatorio += `- *Serviço:* ${serv}\n`;
+                if (sacas) relatorio += `- *Quantidade de sacas total:* ${sacas}\n`;
+                relatorio += `- *Precisa de ajuda?* ${(ajuda === 'Sim') ? `Sim - ${ajudaQtd || '0'} pessoas` : 'Não'}\n`;
+                if (proj) relatorio += `- *Projeção de entrega:* ${proj}\n`;
+                relatorio += `- *Colaborador:* ${operadorNome}\n`;
+            } else if (currentViewId === 'view-productivity') {
+                const horas = document.getElementById('res-total-horas').innerText, sacas = document.getElementById('prod-total').value.trim(), media = document.getElementById('res-media-hora').innerText;
+                let blocos = window.tempTimeBlocks.filter(b => b.start && b.end);
+                if(blocos.length > 0) {
+                    relatorio += blocos.map(b => {
+                        let str = `📋 *Atividade:* ${b.activity || 'Não informada'}\n\n`;
+                        if (b.ref) str += `- *${currentRefLabel}:* ${b.ref}\n`;
+                        str += `- ${b.start} às ${b.end}\n`;
+                        if (b.bags) str += `- *Quantidade de sacas:* ${b.bags}\n`;
+                        if (b.obs) str += `- *Cliente/Obs:* ${b.obs}\n`;
+                        str += `- *Colaborador:* ${operadorNome}`;
+                        return str; 
+                    }).join('\n\n') + '\n\n';
+                }
+                if (horas && horas !== "0h 00m") relatorio += `⏱️ *Horas trabalhadas:* ${horas}\n`;
+                if (sacas) relatorio += `🌾 *Produção do dia:* ${sacas} sacas\n`;
+                if (media !== "0" && media !== "0,0") relatorio += `📊 *Média (Sacas/hora):* ${media} un/h\n`;
+            } else if (currentViewId === 'view-horimetro') {
+                let i = document.getElementById('hor-inicial').value, f = document.getElementById('hor-final').value, r = document.getElementById('res-horimetro').innerText;
+                relatorio += `📋 *Atividade:* Apontamento de Horímetro\n\n`;
+                if(i) relatorio += `- *Início:* ${i}\n`; if(f) relatorio += `- *Fim:* ${f}\n\n`;
+                if (r && r !== "0.00" && r !== "Erro") relatorio += `⏱️ *Uso real:* ${r}h`;
+            } else if (currentViewId === 'view-percentage') {
+                relatorio += (abaAtual === 'retencao') ? `📋 *Atividade:* Análise de Retenção\n\n` : `📋 *Atividade:* Limite de Tolerância\n\n`;
+                relatorio += `- Gerado pelo operador: ${operadorNome}`;
+            }
+            return relatorio.trim();
+        }
+
+        async function compartilharRelatorio() {
+            const texto = gerarRelatorioAtual();
+            if(!texto || texto.trim() === "" || !texto.includes('*')) return mostrarToast("Preencha os dados primeiro", true); 
+            if (navigator.share) {
+                try { await navigator.share({ title: 'Boletim Diário', text: texto }); } catch (err) { if (err.name !== 'AbortError') copiarParaArea(texto); }
+            } else { copiarParaArea(texto); }
+        }
+
+        function copiarParaArea(texto) {
+            const ta = document.createElement("textarea"); ta.value = texto; ta.style.position = "fixed"; ta.style.left = "-9999px";
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            try { document.execCommand('copy'); mostrarToast("Copiado com sucesso!"); } catch (err) { mostrarToast("Erro ao copiar.", true); }
+            document.body.removeChild(ta);
+        }
+
+        // --- PAINEL ADM FUNCIONALIDADES ---
+        function formatarLinhasADM(setorNome, atividadesFilter) {
+            if(!appData[workingDate] || !appData[workingDate][setorNome]) return '';
+            let data = appData[workingDate][setorNome];
+            if(!data.timeBlocks) return '';
+            
+            let html = '';
+            atividadesFilter.forEach(atv => {
+                let blocosAtv = data.timeBlocks.filter(b => b.activity === atv && b.start && b.end);
+                if(blocosAtv.length > 0) {
+                    let totalSacas = 0; let guias = []; let obs = [];
+                    blocosAtv.forEach(b => {
+                        if(b.bags) totalSacas += parseInt(b.bags.replace(/\D/g,'')||0);
+                        if(b.ref && !guias.includes(b.ref)) guias.push(b.ref);
+                        if(b.obs && !obs.includes(b.obs)) obs.push(b.obs);
+                    });
+                    html += `<tr><td>${atv}</td><td>${totalSacas > 0 ? totalSacas : '-'}</td><td>${guias.join(', ') || '-'}</td><td>${obs.join(', ') || '-'}</td></tr>`;
+                } else {
+                    html += `<tr><td>${atv}</td><td>-</td><td>-</td><td>-</td></tr>`;
+                }
+            });
+            return html;
+        }
+
+        function gerarResumoGeral() {
+            let html = `<table class="adm-table" id="tabela-unificada">
+                <thead><tr><th>Atividade</th><th>Produção</th><th>Guias / Lotes</th><th>Detalhes / Observações</th></tr></thead>
+                <tbody>`;
+            
+            html += `<tr class="sector-header"><td colspan="4">SETOR: REBENEFÍCIO</td></tr>`;
+            html += formatarLinhasADM('⚙️ Rebenefício', ['Produção', 'Repasse']);
+
+            html += `<tr class="sector-header"><td colspan="4">SETOR: EXPEDIÇÃO</td></tr>`;
+            html += formatarLinhasADM('🚛 Expedição', ['Embarque', 'Ensaque', 'Pilha Simples']);
+
+            html += `<tr class="sector-header"><td colspan="4">SETOR: EMBALAGEM</td></tr>`;
+            html += formatarLinhasADM('📦 Embalagem', ['Aplicação de Stickers', 'Aplicação de VDP', 'Coleta', 'Vácuo']);
+
+            html += `<tr class="sector-header"><td colspan="4">SETOR: RECEBIMENTO</td></tr>`;
+            html += formatarLinhasADM('📥 Recebimento', ['Recebimento']);
+
+            html += `</tbody></table>`;
+            
+            document.getElementById('container-tabela-adm').innerHTML = html;
+            document.getElementById('modal-adm-email').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('modal-adm-email').classList.remove('opacity-0'); }, 10);
+        }
+
+        function fecharModalAdm() {
+            document.getElementById('modal-adm-email').classList.add('opacity-0');
+            setTimeout(() => { document.getElementById('modal-adm-email').classList.add('hidden'); }, 300);
+        }
+
+        function copiarTabelaAdm() {
+            const el = document.getElementById('container-tabela-adm');
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            sel.removeAllRanges(); sel.addRange(range);
+            try { document.execCommand('copy'); mostrarToast("Tabela copiada (Cole no e-mail)"); fecharModalAdm(); } 
+            catch(err) { mostrarToast("Erro ao copiar", true); }
+            sel.removeAllRanges();
+        }
+
+        function exportarExcel() {
+            let csv = "Data;Setor;Atividade;Inicio;Fim;Referencia;QtdSacas;Cliente_Obs\n";
+            Object.keys(appData).forEach(dataStr => {
+                Object.keys(appData[dataStr]).forEach(setor => {
+                    let st = appData[dataStr][setor];
+                    if(st.timeBlocks) {
+                        st.timeBlocks.forEach(b => {
+                            if(b.start && b.end) {
+                                csv += `${dataStr};${setor.replace(/^[^\w\s]+/g, '').trim()};${b.activity||''};${b.start};${b.end};${b.ref||''};${b.bags||''};${b.obs||''}\n`;
+                            }
+                        });
+                    }
+                });
+            });
+            const blob = new Blob(["\ufeff"+csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob); link.setAttribute("download", `Exportacao_Armazem_${workingDate.replace(/\//g,'-')}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            mostrarToast("Download iniciado!");
+        }
+
+        // Init
+        document.querySelectorAll('main > div.view-hidden').forEach(el => el.classList.remove('block'));
+        checkLogin();
+    </script>
+</body>
+</html>
