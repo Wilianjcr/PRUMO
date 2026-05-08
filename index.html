@@ -138,7 +138,7 @@
             <div id="view-menu" class="view-active w-full h-full flex flex-col p-4 pb-6">
                 <div class="mb-4 mt-2 text-center flex flex-col items-center justify-center shrink-0">
                     <h1 id="user-name-display" class="text-2xl sm:text-3xl font-black text-coffee-900 dark:text-white tracking-tight heading-font mt-2 hidden uppercase"></h1>
-                    <p id="welcome-message" class="text-xs sm:text-sm font-bold text-coffee-500 dark:text-gray-400 tracking-[0.2em] uppercase mt-2 hidden">Bem-vindo(a)</p>
+                    <p id="welcome-message" class="text-xs sm:text-sm font-bold text-coffee-500 dark:text-gray-400 tracking-[0.2em] uppercase mt-2 hidden">Bem-vindo</p>
                     <div id="welcome-divider" class="w-12 h-1.5 bg-coffee-500 mt-4 rounded-full mx-auto hidden"></div>
                 </div>
                 <div id="date-picker-container" class="hidden w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-coffee-100 dark:border-gray-700 p-2 mb-4 justify-between items-center transition-colors">
@@ -153,6 +153,19 @@
                     <div class="grid grid-cols-2 gap-3">
                         <button onclick="gerarResumoGeral()" class="bg-coffee-700 dark:bg-gray-700 hover:bg-coffee-600 text-[11px] font-bold uppercase py-2.5 rounded-xl transition-all shadow-inner">📄 E-mail Unificado</button>
                         <button onclick="exportarExcel()" class="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-500 text-[11px] font-bold uppercase py-2.5 rounded-xl transition-all shadow-inner">📊 Exportar CSV</button>
+                    </div>
+                    <div class="mt-4 border-t border-coffee-800 dark:border-gray-700 pt-3">
+                        <h4 class="text-[10px] font-bold text-coffee-300 uppercase mb-2">Metas (Apenas Rebenefício)</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[9px] text-coffee-400">Meta Hora</label>
+                                <input type="number" id="adm-meta-hora" class="w-full bg-coffee-950 dark:bg-gray-900 border border-coffee-800 dark:border-gray-700 rounded p-1.5 text-xs outline-none focus:border-coffee-500" placeholder="Ex: 55" onchange="salvarMetasAdm()">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-coffee-400">Meta Turno</label>
+                                <input type="number" id="adm-meta-turno" class="w-full bg-coffee-950 dark:bg-gray-900 border border-coffee-800 dark:border-gray-700 rounded p-1.5 text-xs outline-none focus:border-coffee-500" placeholder="Ex: 500" onchange="salvarMetasAdm()">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- Ordem Requisitada: Recebimento & Rebenefício / Expedição & Embalagem / Operações & Manutenção -->
@@ -259,7 +272,7 @@
                         <div class="w-full" id="container-atv-sacas"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade de Sacas Total</label><input type="number" id="atv-sacas" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500" placeholder="0"></div>
                         <div class="w-full" id="container-atv-ajuda"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Precisa de Ajuda?</label><select id="atv-ajuda" onchange="toggleAjudaQtd(); debouncedSave();" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
                         <div class="w-full hidden" id="div-ajuda-qtd"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantas pessoas?</label><input type="number" id="atv-ajuda-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"></div>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Projeção de Entrega</label><input type="time" id="atv-projecao" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 text-center dark:text-white focus:border-coffee-500"></div>
+                        <div class="w-full" id="container-atv-projecao"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Projeção de Entrega</label><input type="time" id="atv-projecao" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 text-center dark:text-white focus:border-coffee-500"></div>
                     </div>
                 </div>
             </div>
@@ -345,6 +358,10 @@
                         <div class="text-right pr-2"><span class="text-xs text-coffee-200 dark:text-gray-400 font-bold uppercase block mb-1">Média / Hora</span><div class="flex items-end justify-end gap-1"><span id="res-media-hora" class="text-3xl font-black text-coffee-50 dark:text-white">0</span><span class="text-xs text-coffee-300 dark:text-gray-400 font-medium pb-1">un/h</span></div></div>
                     </div>
                 </div>
+                <div id="container-justificativa" class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 transition-all">
+                    <label class="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2 block">Atenção: Meta não atingida. Justifique:</label>
+                    <textarea id="justificativa-meta" oninput="debouncedSave()" rows="2" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-3 outline-none text-sm dark:text-white focus:border-red-400" placeholder="Descreva o motivo..."></textarea>
+                </div>
             </div>
 
             <!-- HORÍMETRO -->
@@ -354,7 +371,7 @@
                     <div class="space-y-4">
                         <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Horímetro Inicial</label><input type="text" inputmode="decimal" id="hor-inicial" oninput="maskHorimetro(this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500 dark:text-white" placeholder="Ex: 1.234,5"></div>
                         <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Horímetro Final</label><input type="text" inputmode="decimal" id="hor-final" oninput="maskHorimetro(this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500 dark:text-white" placeholder="Ex: 1.234,5"></div>
-                        <div class="mt-8 pt-6 border-t dark:border-gray-700 relative"><span class="text-sm text-gray-500 font-medium block mb-1">Tempo Real Trabalhado:</span><span id="res-horimetro" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0.00</span></div>
+                        <div class="mt-8 pt-6 border-t dark:border-gray-700 relative"><span class="text-sm text-gray-500 font-medium mb-1 block">Tempo Real Trabalhado:</span><span id="res-horimetro" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0.00</span></div>
                     </div>
                 </div>
             </div>
@@ -578,6 +595,7 @@
         const saved = localStorage.getItem('gestaoOpDatabase');
         if (saved) appData = JSON.parse(saved);
         if (!appData[workingDate]) appData[workingDate] = {};
+        if (!appData.config) appData.config = { metaRebeneficioHora: 55, metaRebeneficioTurno: 500 };
     }
 
     function checkLogin() {
@@ -606,6 +624,9 @@
         if (isAdmin) {
             if (adm) adm.classList.remove('hidden');
             if (dp && currentViewId === 'view-menu') { dp.classList.remove('hidden'); dp.classList.add('flex'); }
+            
+            document.getElementById('adm-meta-hora').value = appData.config?.metaRebeneficioHora || 55;
+            document.getElementById('adm-meta-turno').value = appData.config?.metaRebeneficioTurno || 500;
         } else {
             if (adm) adm.classList.add('hidden');
             if (dp) { dp.classList.add('hidden'); dp.classList.remove('flex'); }
@@ -780,6 +801,15 @@
         }
     }
 
+    function salvarMetasAdm() {
+        if (!appData.config) appData.config = {};
+        appData.config.metaRebeneficioHora = document.getElementById('adm-meta-hora').value || 55;
+        appData.config.metaRebeneficioTurno = document.getElementById('adm-meta-turno').value || 500;
+        localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData));
+        mostrarToast('Metas atualizadas!');
+        if (currentViewId === 'view-productivity') calcTotalProductivity();
+    }
+
     function abrirModalAtividades(type) {
         editingBlockId = type; // pode ser 'planejamento'
         const servicoText = document.getElementById('atv-servico').value || '';
@@ -889,12 +919,15 @@
     function checkPlanejamentoBagsVisibility() {
         const sCont = document.getElementById('container-atv-sacas');
         const aCont = document.getElementById('container-atv-ajuda');
-        if (!sCont || !aCont) return;
+        const pCont = document.getElementById('container-atv-projecao');
+        if (!sCont || !aCont || !pCont) return;
 
         if (currentSector.includes('Manutenção') || currentSector.includes('Operações')) {
             sCont.classList.add('hidden');
             aCont.classList.add('hidden');
+            pCont.classList.add('hidden');
             document.getElementById('atv-ajuda').value = 'Não';
+            document.getElementById('atv-projecao').value = '';
             toggleAjudaQtd();
             return;
         }
@@ -905,6 +938,7 @@
         if (currentSelected.length === 0) {
             sCont.classList.remove('hidden');
             aCont.classList.remove('hidden');
+            pCont.classList.remove('hidden');
             return;
         }
 
@@ -916,12 +950,15 @@
         if (!requiresBags) {
             sCont.classList.add('hidden');
             aCont.classList.add('hidden');
+            pCont.classList.add('hidden');
             document.getElementById('atv-sacas').value = ''; 
             document.getElementById('atv-ajuda').value = 'Não';
+            document.getElementById('atv-projecao').value = '';
             toggleAjudaQtd();
         } else {
             sCont.classList.remove('hidden');
             aCont.classList.remove('hidden');
+            pCont.classList.remove('hidden');
         }
     }
 
@@ -933,7 +970,8 @@
             timeBlocks: [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }],
             horInicial: '', horFinal: '',
             pesoAmostra: '', pesoRetido: '', tolAmostra: '', tolPerc: '',
-            atvServico: '', atvSacas: '', atvAjuda: 'Não', atvAjudaQtd: '', atvProjecao: ''
+            atvServico: '', atvSacas: '', atvAjuda: 'Não', atvAjudaQtd: '', atvProjecao: '',
+            justificativa: ''
         };
     }
 
@@ -951,6 +989,7 @@
         if (currentViewId === 'view-productivity') {
             window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
             if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
+            document.getElementById('justificativa-meta').value = st.justificativa || '';
             renderTimeBlocks();
             calcTotalProductivity();
         }
@@ -990,7 +1029,10 @@
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         const st = appData[workingDate][currentSector];
-        if (currentViewId === 'view-productivity') st.timeBlocks = JSON.parse(JSON.stringify(window.tempTimeBlocks || []));
+        if (currentViewId === 'view-productivity') {
+            st.timeBlocks = JSON.parse(JSON.stringify(window.tempTimeBlocks || []));
+            st.justificativa = document.getElementById('justificativa-meta').value;
+        }
         if (currentViewId === 'view-horimetro') { st.horInicial = document.getElementById('hor-inicial').value; st.horFinal = document.getElementById('hor-final').value; }
         if (currentViewId === 'view-percentage') { st.pesoAmostra = document.getElementById('peso-amostra').value; st.pesoRetido = document.getElementById('peso-retido').value; st.tolAmostra = document.getElementById('tol-amostra').value; st.tolPerc = document.getElementById('tol-perc').value; }
         if (currentViewId === 'view-atividades') { st.atvServico = document.getElementById('atv-servico').value; const s = document.getElementById('atv-sacas'); if (s) st.atvSacas = s.value; st.atvAjuda = document.getElementById('atv-ajuda').value; st.atvAjudaQtd = document.getElementById('atv-ajuda-qtd').value; st.atvProjecao = document.getElementById('atv-projecao').value; }
@@ -1171,7 +1213,7 @@
         const overlappingIds = detectarSobreposicoes(window.tempTimeBlocks);
 
         container.innerHTML = window.tempTimeBlocks.map(b => {
-            const isOverlap = overlappingIds.has(b.id);
+            const isOverlap = currentSector.includes('Rebenefício') ? false : overlappingIds.has(b.id);
             const borderClass = isOverlap
                 ? 'overlap-warning'
                 : 'bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700';
@@ -1256,8 +1298,27 @@
         });
         document.getElementById('prod-total').value = totalSacas > 0 ? totalSacas.toLocaleString('pt-BR') : '0';
         const rT = document.getElementById('res-total-horas'), rM = document.getElementById('res-media-hora');
+        let mediaNum = 0;
         if (rT) rT.innerText = `${Math.floor(totalMin / 60)}h ${(totalMin % 60).toString().padStart(2, '0')}m`;
-        if (rM) rM.innerText = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)).toFixed(1).replace('.', ',') : '0';
+        if (rM) {
+            mediaNum = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+            rM.innerText = mediaNum.toFixed(1).replace('.', ',');
+        }
+
+        const contJust = document.getElementById('container-justificativa');
+        if (contJust) {
+            if (currentSector.includes('Rebenefício')) {
+                const metaHora = parseFloat(appData.config?.metaRebeneficioHora) || 55;
+                const metaTurno = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
+                if (totalMin > 0 && (totalSacas < metaTurno || mediaNum < metaHora)) {
+                    contJust.classList.remove('hidden');
+                } else {
+                    contJust.classList.add('hidden');
+                }
+            } else {
+                contJust.classList.add('hidden');
+            }
+        }
     }
 
     // =========================================================
@@ -1291,6 +1352,7 @@
         closeModalReset();
         if (currentViewId === 'view-productivity') {
             window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
+            document.getElementById('justificativa-meta').value = '';
             renderTimeBlocks(); calcTotalProductivity();
         } else if (currentViewId === 'view-divisao-quebra') {
             document.getElementById('quebra-peso-total').value = '';
@@ -1329,16 +1391,26 @@
 
             if (blocks.length || st.atvServico) {
                 hasData = true;
+                // Cabeçalho de Grupo/Setor rigorosamente como solicitado
                 linhas += `<tr>
                     <td colspan="4" class="sector-header">SETOR: ${cleanSetor.toUpperCase()}</td>
                 </tr>`;
             }
 
             if (blocks.length) {
+                let totalS = 0, totalM = 0;
                 blocks.forEach(b => {
                     const timeStr = (b.start && b.end) ? `<span style="font-size:10px;color:gray;"><br>(${b.start} - ${b.end})</span>` : '';
                     const dispAct = getDisplayActivity(b);
                     const dispBags = getDisplayBags(b);
+                    
+                    if (b.bags && !isNoBagsActivity(b.activity)) totalS += parseInt(b.bags.replace(/\D/g, '') || 0);
+                    if (b.start && b.end) {
+                        let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
+                        let mS = hI * 60 + mI, mE = hF * 60 + mF;
+                        if (mE < mS) mE += 1440;
+                        totalM += (mE - mS);
+                    }
                     
                     linhas += `<tr>
                         <td style="font-weight:600;">${dispAct}${timeStr}</td>
@@ -1347,8 +1419,20 @@
                         <td>${b.obs || '-'}</td>
                     </tr>`;
                 });
+
+                if (cleanSetor.includes('Rebenefício') && st.justificativa) {
+                    const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
+                    const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
+                    const media = (totalS > 0 && totalM > 0) ? (totalS / (totalM / 60)) : 0;
+                    if (totalM > 0 && (totalS < metaT || media < metaH)) {
+                        linhas += `<tr style="background-color:#fef2f2;">
+                            <td colspan="4" style="color:#dc2626; font-size: 11px;"><b>⚠️ Justificativa de Meta:</b> ${st.justificativa}</td>
+                        </tr>`;
+                    }
+                }
             }
 
+            // Linha de atividades planejadas
             if (st.atvServico) {
                 const ajuda = st.atvAjuda === 'Sim' ? ` | +${st.atvAjudaQtd || '?'} pessoas` : '';
                 linhas += `<tr style="background-color:#fefce8;">
@@ -1523,6 +1607,16 @@
         texto += `📅 ${workingDate}  |  👤 ${operadorNome}\n`;
         texto += '─'.repeat(32) + '\n';
         if (linhasBlocks) texto += `*Apontamentos:*\n${linhasBlocks}\n`;
+        
+        if (cleanSetor.includes('Rebenefício') && st.justificativa) {
+            const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
+            const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
+            const media = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+            if (totalMin > 0 && (totalSacas < metaT || media < metaH)) {
+                texto += `⚠️ *Justificativa de Meta:* ${st.justificativa}\n\n`;
+            }
+        }
+        
         if (st.atvServico) texto += `*Planejamento do dia:* ${st.atvServico}\n`;
         texto += '─'.repeat(32) + '\n';
         texto += `⏱️ Tempo: *${horas}* trabalhadas\n`;
