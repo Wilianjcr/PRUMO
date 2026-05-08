@@ -16,7 +16,10 @@
             "display": "standalone",
             "background_color": "#ffffff",
             "theme_color": "#2b1b18",
-            "icons": [{"src": "1000146124.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}]
+            "icons": [
+                {"src": "1000146124.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+                {"src": "1000146124.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+            ]
         };
         const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
         document.write('<link rel="manifest" href="' + URL.createObjectURL(manifestBlob) + '">');
@@ -46,10 +49,10 @@
         .overlap-warning { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
         html.dark .overlap-warning { border-color: #ef4444 !important; background-color: #450a0a !important; }
 
-        .adm-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
-        .adm-table th, .adm-table td { border: 1px solid #d1d5db; padding: 4px 6px; text-align: left; }
+        .adm-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; }
+        .adm-table th, .adm-table td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
         .adm-table th { background-color: #f3f4f6; font-weight: bold; color: #111827; text-transform: uppercase; }
-        .adm-table .sector-header { background-color: #3e2723; color: white; font-weight: bold; text-transform: uppercase; text-align: center; }
+        .adm-table .sector-header { background-color: #3e2723; color: white; font-weight: bold; text-transform: uppercase; text-align: center; letter-spacing: 0.05em;}
         html.dark .adm-table th { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
         html.dark .adm-table td { border-color: #4b5563; color: #f9fafb; }
         html.dark .adm-table .sector-header { background-color: #111827; }
@@ -406,7 +409,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
             <h3 class="text-xl font-bold text-coffee-900 dark:text-white mb-1 heading-font text-center">Boletim Consolidado</h3>
             <p class="text-xs text-coffee-500 dark:text-gray-400 mb-4 text-center" id="adm-modal-date-label"></p>
-            <div class="flex-1 overflow-auto border border-gray-200 dark:border-gray-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-900" id="container-tabela-adm"></div>
+            <div class="flex-1 overflow-auto border border-gray-200 dark:border-gray-700 rounded-lg p-0 bg-gray-50 dark:bg-gray-900" id="container-tabela-adm"></div>
             <div class="mt-4 flex gap-3">
                 <button onclick="fecharModalAdm()" class="flex-1 py-3 bg-coffee-100 dark:bg-gray-700 text-coffee-900 dark:text-gray-200 font-bold rounded-xl active:scale-95">Fechar</button>
                 <button onclick="copiarTabelaAdm()" class="flex-1 py-3 bg-coffee-900 dark:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md">📋 Copiar Tabela</button>
@@ -584,7 +587,6 @@
         localStorage.removeItem('operadorIsAdmin');
         operadorNome = '';
         isAdmin = false;
-        // Limpa estado em memória
         appData = {};
         window.tempTimeBlocks = [];
         workingDate = new Date().toLocaleDateString('pt-BR');
@@ -627,7 +629,7 @@
     }
 
     // =========================================================
-    // HELPERS DE SETOR
+    // HELPERS DE SETOR (De acordo com diretrizes do Boletim)
     // =========================================================
     function limparEmoji(str) {
         return str.replace(/^[^\w\s]+/g, '').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
@@ -639,10 +641,11 @@
         else if (cleanSetor.includes('Embalagem')) currentRefLabel = "Guia/Contrato";
         else currentRefLabel = "Referência";
 
+        // Opções ajustadas conforme diretrizes salvadas do Boletim de Produção
         const activityOptions = {
             'Recebimento': ['Recebimento', 'Pilha Simples', 'Ensaque', 'Embarque'],
             'Rebenefício': ['Produção', 'Repasse'],
-            'Expedição': ['Pilha Simples', 'Ensaque', 'Embarque', 'Vácuo'],
+            'Expedição': ['Embarque', 'Ensaque', 'Pilha Simples (Liga)', 'Vácuo'],
             'Embalagem': ['Aplicação de Stickers', 'Aplicação de VDP', 'Coleta', 'Vácuo'],
             'Manutenção': ['Manutenção Preventiva', 'Manutenção Corretiva', 'Ajuste de Máquinas', 'Outros'],
             'Operações': ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outros']
@@ -728,7 +731,6 @@
         const st = appData[workingDate]?.[currentSector] || getEmptySectorState();
 
         if (currentViewId === 'view-productivity') {
-            // Deep copy para evitar mutação direta do appData
             window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
             if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
             renderTimeBlocks();
@@ -1029,9 +1031,10 @@
     }
 
     // =========================================================
-    // BOLETIM UNIFICADO (ADM)
+    // BOLETIM UNIFICADO (ADM) - FORMATO EXATO CONFORME DIRETRIZES
     // =========================================================
-    const SETORES_ORDEM = ['📥 Recebimento', '🚛 Expedição', '⚙️ Rebenefício', '📦 Embalagem', '⏱️ Manutenção', '📊 Operações'];
+    // Ordem estrita respeitando Rebenefício, Expedição, Embalagem e Recebimento
+    const SETORES_ORDEM = ['⚙️ Rebenefício', '🚛 Expedição', '📦 Embalagem', '📥 Recebimento', '⏱️ Manutenção', '📊 Operações'];
 
     function gerarResumoGeral() {
         const dayData = appData[workingDate] || {};
@@ -1044,15 +1047,21 @@
             const blocks = (st.timeBlocks || []).filter(b => b.start || b.bags || b.ref);
             const cleanSetor = limparEmoji(setor);
 
-            if (blocks.length) {
+            if (blocks.length || st.atvServico) {
                 hasData = true;
+                // Cabeçalho de Grupo/Setor rigorosamente como solicitado
+                linhas += `<tr>
+                    <td colspan="4" class="sector-header">SETOR: ${cleanSetor.toUpperCase()}</td>
+                </tr>`;
+            }
+
+            if (blocks.length) {
                 blocks.forEach(b => {
+                    const timeStr = (b.start && b.end) ? `<span style="font-size:10px;color:gray;"><br>(${b.start} - ${b.end})</span>` : '';
                     linhas += `<tr>
-                        <td class="sector-header" style="white-space:nowrap;">${cleanSetor}</td>
-                        <td>${b.activity || '-'}</td>
-                        <td style="white-space:nowrap;">${b.start && b.end ? b.start + ' – ' + b.end : '-'}</td>
-                        <td>${b.ref || '-'}</td>
+                        <td style="font-weight:600;">${b.activity || '-'}${timeStr}</td>
                         <td style="text-align:right;font-weight:bold;">${b.bags || '-'}</td>
+                        <td>${b.ref || '-'}</td>
                         <td>${b.obs || '-'}</td>
                     </tr>`;
                 });
@@ -1060,13 +1069,12 @@
 
             // Linha de atividades planejadas
             if (st.atvServico) {
-                hasData = true;
                 const ajuda = st.atvAjuda === 'Sim' ? ` | +${st.atvAjudaQtd || '?'} pessoas` : '';
-                linhas += `<tr>
-                    <td class="sector-header">${cleanSetor}</td>
-                    <td colspan="2" style="font-style:italic;color:#6b7280;">Planejamento</td>
-                    <td colspan="2">${st.atvServico}</td>
-                    <td>${st.atvSacas ? st.atvSacas + ' sc' : ''}${ajuda}${st.atvProjecao ? ' | Entrega: ' + st.atvProjecao : ''}</td>
+                linhas += `<tr style="background-color:#fefce8;">
+                    <td style="font-style:italic;color:#854d0e;">Planejamento</td>
+                    <td style="text-align:right;color:#854d0e;">${st.atvSacas || '-'}</td>
+                    <td style="color:#854d0e;">-</td>
+                    <td style="color:#854d0e;">${st.atvServico}${ajuda}${st.atvProjecao ? ' | Entrega: ' + st.atvProjecao : ''}</td>
                 </tr>`;
             }
         });
@@ -1074,20 +1082,22 @@
         const html = hasData
             ? `<table class="adm-table">
                 <tr style="background:#2b1b18;color:white;">
-                    <th colspan="6" style="text-align:center;font-size:13px;padding:10px;color:white;">
-                        BOLETIM OPERACIONAL — ${workingDate} &nbsp;|&nbsp; ${operadorNome}
+                    <th colspan="4" style="text-align:center;font-size:13px;padding:12px;color:white;">
+                        BOLETIM DIÁRIO DE PRODUÇÃO — ${workingDate} &nbsp;|&nbsp; ${operadorNome}
                     </th>
                 </tr>
                 <tr>
-                    <th>Setor</th><th>Atividade</th><th>Horário</th>
-                    <th>Referência</th><th style="text-align:right;">Sacas</th><th>Cliente / Obs</th>
+                    <th style="width:25%">Atividade</th>
+                    <th style="text-align:right; width:15%">Produção</th>
+                    <th style="width:20%">Guias</th>
+                    <th style="width:40%">Detalhes/Clientes/Observações</th>
                 </tr>
                 ${linhas}
                </table>`
             : `<div style="text-align:center;padding:30px;color:#9ca3af;font-size:13px;">Nenhum dado registrado para ${workingDate}.</div>`;
 
         document.getElementById('container-tabela-adm').innerHTML = html;
-        document.getElementById('adm-modal-date-label').innerText = `Data: ${workingDate}`;
+        document.getElementById('adm-modal-date-label').innerText = `Consolidado: ${workingDate}`;
 
         const modal = document.getElementById('modal-adm-email');
         modal.classList.remove('hidden');
@@ -1105,7 +1115,6 @@
         const htmlContent = container.innerHTML;
         const textContent = container.innerText;
         try {
-            // Tenta copiar HTML (para colar diretamente em e-mail)
             const blobHtml = new Blob([htmlContent], { type: 'text/html' });
             const blobText = new Blob([textContent], { type: 'text/plain' });
             await navigator.clipboard.write([new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })]);
@@ -1125,7 +1134,7 @@
     // =========================================================
     function exportarExcel() {
         const dayData = appData[workingDate] || {};
-        const rows = [['Data', 'Setor', 'Atividade', 'Início', 'Fim', 'Referência', 'Sacas', 'Cliente / Obs']];
+        const rows = [['Data', 'Setor', 'Atividade', 'Início', 'Fim', 'Guias/Ref', 'Produção/Sacas', 'Detalhes / Obs']];
 
         SETORES_ORDEM.forEach(setor => {
             const st = dayData[setor];
@@ -1136,7 +1145,7 @@
                 rows.push([workingDate, cleanSetor, b.activity || '', b.start || '', b.end || '', b.ref || '', (b.bags || '').replace(/\D/g, ''), b.obs || '']);
             });
             if (st.atvServico) {
-                rows.push([workingDate, cleanSetor, 'PLANEJAMENTO', '', st.atvProjecao || '', st.atvServico, st.atvSacas || '', st.atvAjuda === 'Sim' ? `+${st.atvAjudaQtd || '?'} pessoas` : '']);
+                rows.push([workingDate, cleanSetor, 'PLANEJAMENTO', '', st.atvProjecao || '', '-', st.atvSacas || '', st.atvServico + (st.atvAjuda === 'Sim' ? ` (+${st.atvAjudaQtd || '?'} pessoas)` : '')]);
             }
         });
 
@@ -1156,7 +1165,7 @@
     }
 
     // =========================================================
-    // COMPARTILHAR BOLETIM (DADOS REAIS)
+    // COMPARTILHAR BOLETIM (WHATSAPP/TEXTO)
     // =========================================================
     function compartilharRelatorio() {
         if (!currentSector) return mostrarToast('Nenhum setor selecionado', true);
@@ -1177,7 +1186,7 @@
                 if (mE < mS) mE += 1440;
                 totalMin += (mE - mS);
             }
-            const ref = b.ref ? ` | ${b.ref}` : '';
+            const ref = b.ref ? ` | Guia: ${b.ref}` : '';
             const obs = b.obs ? ` — ${b.obs}` : '';
             const sacs = sacas > 0 ? ` | *${sacas.toLocaleString('pt-BR')} sc*` : '';
             linhasBlocks += `  • ${b.activity || 'Atividade'}: ${b.start || '--:--'} – ${b.end || '--:--'}${ref}${sacs}${obs}\n`;
@@ -1185,14 +1194,15 @@
 
         const horas = `${Math.floor(totalMin / 60)}h${(totalMin % 60).toString().padStart(2, '0')}m`;
 
-        let texto = `*BOLETIM OPERACIONAL — ${cleanSetor.toUpperCase()}*\n`;
+        let texto = `*BOLETIM DIÁRIO DE PRODUÇÃO*\n`;
+        texto += `*SETOR: ${cleanSetor.toUpperCase()}*\n`;
         texto += `📅 ${workingDate}  |  👤 ${operadorNome}\n`;
         texto += '─'.repeat(32) + '\n';
         if (linhasBlocks) texto += `*Apontamentos:*\n${linhasBlocks}\n`;
-        if (st.atvServico) texto += `*Serviço Planejado:* ${st.atvServico}\n`;
+        if (st.atvServico) texto += `*Planejamento do dia:* ${st.atvServico}\n`;
         texto += '─'.repeat(32) + '\n';
         texto += `⏱️ Tempo: *${horas}* trabalhadas\n`;
-        texto += `📦 Total: *${totalSacas.toLocaleString('pt-BR')} sc*`;
+        texto += `📦 Produção Total: *${totalSacas.toLocaleString('pt-BR')} sc*`;
 
         if (navigator.share) {
             navigator.share({ title: `Boletim ${cleanSetor} — ${workingDate}`, text: texto })
