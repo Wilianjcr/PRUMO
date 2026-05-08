@@ -137,9 +137,9 @@
             <!-- MENU PRINCIPAL -->
             <div id="view-menu" class="view-active w-full h-full flex flex-col p-4 pb-6">
                 <div class="mb-4 mt-2 text-center flex flex-col items-center justify-center shrink-0">
-                    <img src="1000146124.png" alt="Logotipo" class="w-20 h-20 mx-auto rounded-2xl shadow-lg object-cover bg-black" onerror="this.style.display='none'">
-                    <h2 id="welcome-message" class="text-xl font-bold text-coffee-900 dark:text-white tracking-tight heading-font mt-3 hidden"></h2>
-                    <div id="welcome-divider" class="w-10 h-1 bg-coffee-500 mt-2 rounded-full mx-auto hidden"></div>
+                    <h1 id="user-name-display" class="text-4xl sm:text-5xl font-black text-coffee-900 dark:text-white tracking-tight heading-font mt-2 hidden uppercase"></h1>
+                    <p id="welcome-message" class="text-xs sm:text-sm font-bold text-coffee-500 dark:text-gray-400 tracking-[0.2em] uppercase mt-2 hidden">Bem-vindo(a)</p>
+                    <div id="welcome-divider" class="w-12 h-1.5 bg-coffee-500 mt-4 rounded-full mx-auto hidden"></div>
                 </div>
                 <div id="date-picker-container" class="hidden w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-coffee-100 dark:border-gray-700 p-2 mb-4 justify-between items-center transition-colors">
                     <span class="text-xs font-bold uppercase text-coffee-500 dark:text-gray-400 ml-2">Mudar Data (ADM):</span>
@@ -194,7 +194,7 @@
                     <button onclick="navigate('view-atividades', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-coffee-900 dark:text-gray-200"><span class="text-2xl">📋</span></div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Atividades</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Planejamento do dia</p></div>
+                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Atividades do dia</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Planejamento do dia</p></div>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
@@ -243,14 +243,21 @@
                 </div>
             </div>
 
-            <!-- ATIVIDADES -->
+            <!-- ATIVIDADES (PLANEJAMENTO) -->
             <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-5 block">
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Planejamento Diário</h3>
                     <div class="space-y-4">
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Serviço</label><input type="text" id="atv-servico" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500" placeholder="Descreva o serviço..."></div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Serviço</label>
+                            <button onclick="abrirModalAtividades('planejamento')" class="w-full text-left bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white flex justify-between items-center gap-2 focus:border-coffee-500 transition-colors">
+                                <span id="lbl-atv-servico" class="truncate pointer-events-none text-coffee-400 dark:text-gray-400 font-medium">Selecionar serviço...</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-coffee-400 shrink-0 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <input type="hidden" id="atv-servico" value="">
+                        </div>
                         <div class="w-full" id="container-atv-sacas"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade de Sacas Total</label><input type="number" id="atv-sacas" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500" placeholder="0"></div>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Precisa de Ajuda?</label><select id="atv-ajuda" onchange="toggleAjudaQtd(); debouncedSave();" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
+                        <div class="w-full" id="container-atv-ajuda"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Precisa de Ajuda?</label><select id="atv-ajuda" onchange="toggleAjudaQtd(); debouncedSave();" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
                         <div class="w-full hidden" id="div-ajuda-qtd"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantas pessoas?</label><input type="number" id="atv-ajuda-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"></div>
                         <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Projeção de Entrega</label><input type="time" id="atv-projecao" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 text-center dark:text-white focus:border-coffee-500"></div>
                     </div>
@@ -316,7 +323,7 @@
                 </div>
             </div>
 
-            <!-- PRODUTIVIDADE -->
+            <!-- PRODUTIVIDADE (APONTAMENTO) -->
             <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-5 block">
                 <div class="flex-1 space-y-6 pb-6">
                     <div>
@@ -403,11 +410,16 @@
             </div>
             <div id="div-outras-atividade" class="hidden shrink-0 mb-4 transition-all">
                 <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Descreva a atividade</label>
-                <input type="text" id="input-outras-atividade" placeholder="Qual serviço foi realizado?" style="text-transform: uppercase;" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500">
+                <input type="text" id="input-outras-atividade" placeholder="..." style="text-transform: uppercase;" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500">
             </div>
-            <button onclick="confirmarModalAtividades()" class="w-full py-3.5 bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md transition-colors shrink-0">
-                Confirmar Seleção
-            </button>
+            <div class="flex gap-3 shrink-0">
+                <button onclick="limparModalAtividades()" class="w-1/3 py-3.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold rounded-xl active:scale-95 transition-colors">
+                    Limpar
+                </button>
+                <button onclick="confirmarModalAtividades()" class="w-2/3 py-3.5 bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md transition-colors">
+                    Confirmar Seleção
+                </button>
+            </div>
         </div>
     </div>
 
@@ -496,6 +508,7 @@
     // =========================================================
     let currentRefLabel = "Referência";
     let currentActivities = [];
+    let currentPlanejamentoActivities = [];
     let currentViewId = 'view-menu';
     let currentSector = '';
     let abaAtual = 'retencao';
@@ -581,11 +594,14 @@
     }
 
     function exibirBoasVindas() {
-        const msg = document.getElementById('welcome-message');
+        const nameDisplay = document.getElementById('user-name-display');
+        const welcomeMsg = document.getElementById('welcome-message');
         const div = document.getElementById('welcome-divider');
         const adm = document.getElementById('adm-panel');
         const dp = document.getElementById('date-picker-container');
-        if (msg) { msg.innerText = `Bem-vindo, ${operadorNome}!`; msg.classList.remove('hidden'); }
+        
+        if (nameDisplay) { nameDisplay.innerText = operadorNome; nameDisplay.classList.remove('hidden'); }
+        if (welcomeMsg) { welcomeMsg.classList.remove('hidden'); }
         if (div) div.classList.remove('hidden');
         if (isAdmin) {
             if (adm) adm.classList.remove('hidden');
@@ -633,6 +649,7 @@
         document.getElementById('adm-panel')?.classList.add('hidden');
         const dp = document.getElementById('date-picker-container');
         if (dp) { dp.classList.add('hidden'); dp.classList.remove('flex'); }
+        document.getElementById('user-name-display')?.classList.add('hidden');
         document.getElementById('welcome-message')?.classList.add('hidden');
         document.getElementById('welcome-divider')?.classList.add('hidden');
         navigate('view-menu');
@@ -665,6 +682,31 @@
     function limparEmoji(str) {
         return str.replace(/^[^\w\s]+/g, '').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
     }
+    
+    function isNoBagsActivity(activity) {
+        if (!activity) return false;
+        const noBagsList = [
+            'Conferência de Estoque', 
+            'Limpeza do Setor', 
+            'Realocação de setor', 
+            'Disponível para Realocação', 
+            'Outras',
+            'Outros',
+            'Conferência de Estoque (M.I)', 
+            'Recebimento e Conferência de Sacas',
+            'Prevetiva no Recebimento',
+            'Prevetiva no Rebenefício',
+            'Prevetiva na Expedição',
+            'O.S do Sistema',
+            'Inventario no Almoxarifado',
+            'Mapeamento de Processos',
+            'Auditoria',
+            'Treinamento',
+            'Análise de Falhas',
+            '5S / Organização'
+        ];
+        return noBagsList.some(item => activity.startsWith(item));
+    }
 
     function configurarContextoSetor(cleanSetor) {
         if (cleanSetor.includes('Recebimento')) currentRefLabel = "Guia/Lote";
@@ -672,7 +714,8 @@
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = "Guia/Contrato";
         else currentRefLabel = "Referência";
 
-        // Listas atualizadas conforme requisição do usuário
+        // As listas agora são únicas para serem usadas no bloco de tempo (Produtividade) 
+        // e no checkbox modal múltiplo (Planejamento)
         const activityOptions = {
             'Recebimento': ['Recebimento de Café', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Conferência de Estoque', 'Guardar Café (Rebenefício)', 'Separar Lotes (Expedição)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Rebenefício': ['Produção', 'Repasse', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
@@ -682,6 +725,7 @@
             'Operações': ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outras']
         };
         currentActivities = activityOptions[cleanSetor] || [];
+        currentPlanejamentoActivities = currentActivities;
     }
 
     function configurarBotoesSubmenu(cleanSetor) {
@@ -736,10 +780,10 @@
         }
     }
 
-    function abrirModalAtividades(blockId) {
-        editingBlockId = blockId;
-        const block = window.tempTimeBlocks.find(b => b.id === blockId);
-        const currentSelected = block.activity ? block.activity.split(', ').map(s => s.trim()) : [];
+    function abrirModalAtividades(type) {
+        editingBlockId = type; // pode ser 'planejamento'
+        const servicoText = document.getElementById('atv-servico').value || '';
+        const currentSelected = servicoText ? servicoText.split(', ').map(s => s.trim()) : [];
         
         const container = document.getElementById('lista-atividades');
         let html = '';
@@ -757,7 +801,7 @@
             }
         });
 
-        currentActivities.forEach(act => {
+        currentPlanejamentoActivities.forEach(act => {
             const isChecked = selectedSet.has(act);
             if (act === 'Outras' && isChecked) hasOutras = true;
 
@@ -806,8 +850,13 @@
         }, 300);
     }
 
+    function limparModalAtividades() {
+        document.querySelectorAll('.chk-atividade').forEach(chk => chk.checked = false);
+        document.getElementById('input-outras-atividade').value = '';
+        toggleOutrasInput();
+    }
+
     function confirmarModalAtividades() {
-        if (!editingBlockId) return;
         const chks = document.querySelectorAll('.chk-atividade:checked');
         let selected = [];
         
@@ -821,8 +870,59 @@
         });
         
         const finalString = selected.join(', ');
-        updateBlock(editingBlockId, 'activity', finalString);
+        
+        if (editingBlockId === 'planejamento') {
+            document.getElementById('atv-servico').value = finalString;
+            const lbl = document.getElementById('lbl-atv-servico');
+            if (lbl) {
+                lbl.innerText = finalString ? finalString : 'Selecionar serviço...';
+                lbl.className = finalString ? 'truncate pointer-events-none text-coffee-900 dark:text-white' : 'truncate pointer-events-none text-coffee-400 dark:text-gray-400 font-medium';
+            }
+            checkPlanejamentoBagsVisibility();
+            debouncedSave();
+        }
+        
         fecharModalAtividades();
+    }
+
+    // Função que esconde campo sacas na tela Planejamento caso as atividades selecionadas não permitam sacas
+    function checkPlanejamentoBagsVisibility() {
+        const sCont = document.getElementById('container-atv-sacas');
+        const aCont = document.getElementById('container-atv-ajuda');
+        if (!sCont || !aCont) return;
+
+        if (currentSector.includes('Manutenção') || currentSector.includes('Operações')) {
+            sCont.classList.add('hidden');
+            aCont.classList.add('hidden');
+            document.getElementById('atv-ajuda').value = 'Não';
+            toggleAjudaQtd();
+            return;
+        }
+
+        const servicoText = document.getElementById('atv-servico').value || '';
+        const currentSelected = servicoText ? servicoText.split(', ').map(s => s.trim()) : [];
+        
+        if (currentSelected.length === 0) {
+            sCont.classList.remove('hidden');
+            aCont.classList.remove('hidden');
+            return;
+        }
+
+        const requiresBags = currentSelected.some(act => {
+            let baseAct = act.startsWith('Outras:') ? 'Outras' : act;
+            return !isNoBagsActivity(baseAct);
+        });
+
+        if (!requiresBags) {
+            sCont.classList.add('hidden');
+            aCont.classList.add('hidden');
+            document.getElementById('atv-sacas').value = ''; 
+            document.getElementById('atv-ajuda').value = 'Não';
+            toggleAjudaQtd();
+        } else {
+            sCont.classList.remove('hidden');
+            aCont.classList.remove('hidden');
+        }
     }
 
     // =========================================================
@@ -867,13 +967,21 @@
             calcRetencao(); calcTolerancia();
         }
         if (currentViewId === 'view-atividades') {
-            document.getElementById('atv-servico').value = st.atvServico || '';
+            const servicoVal = st.atvServico || '';
+            document.getElementById('atv-servico').value = servicoVal;
+            const lbl = document.getElementById('lbl-atv-servico');
+            if (lbl) {
+                lbl.innerText = servicoVal ? servicoVal : 'Selecionar serviço...';
+                lbl.className = servicoVal ? 'truncate pointer-events-none text-coffee-900 dark:text-white' : 'truncate pointer-events-none text-coffee-400 dark:text-gray-400 font-medium';
+            }
+
             const sacasInput = document.getElementById('atv-sacas');
             if (sacasInput) sacasInput.value = st.atvSacas || '';
             document.getElementById('atv-ajuda').value = st.atvAjuda || 'Não';
             document.getElementById('atv-ajuda-qtd').value = st.atvAjudaQtd || '';
             document.getElementById('atv-projecao').value = st.atvProjecao || '';
             toggleAjudaQtd();
+            checkPlanejamentoBagsVisibility();
         }
     }
 
@@ -920,8 +1028,12 @@
             if (['view-productivity', 'view-atividades', 'view-divisao-quebra'].includes(viewId)) { zer?.classList.remove('hidden'); zer?.classList.add('flex'); }
         }
         if (viewId === 'view-atividades') {
-            const sCont = document.getElementById('container-atv-sacas');
-            if (sCont) sCont.classList.toggle('hidden', currentSector.includes('Manutenção') || currentSector.includes('Operações'));
+            checkPlanejamentoBagsVisibility();
+        }
+        
+        const lblShare = document.getElementById('lbl-share-btn');
+        if (lblShare) {
+            lblShare.innerText = viewId === 'view-atividades' ? 'Compartilhar Atividades' : 'Compartilhar Boletim';
         }
     }
 
@@ -1016,7 +1128,7 @@
     function calcConvHz() { const v = parseFloat(document.getElementById('conv-hz-input').value); document.getElementById('res-conv-hz').innerText = !isNaN(v) ? (v * 60).toLocaleString('pt-BR') : '0'; }
 
     // =========================================================
-    // DETECÇÃO DE SOBREPOSIÇÃO DE HORÁRIOS
+    // DETECÇÃO DE SOBREPOSIÇÃO DE HORÁRIOS E PRODUTIVIDADE
     // =========================================================
     function tempoParaMinutos(t) {
         const [h, m] = t.split(':').map(Number);
@@ -1039,9 +1151,19 @@
         return overlappingIds;
     }
 
-    // =========================================================
-    // BLOCOS DE PRODUTIVIDADE
-    // =========================================================
+    function getDisplayActivity(b) {
+        if (!b.activity) return '-';
+        if ((b.activity === 'Outras' || b.activity === 'Outros') && b.activityDetail) {
+            return `Outras: ${b.activityDetail}`;
+        }
+        return b.activity;
+    }
+
+    function getDisplayBags(b) {
+        if (isNoBagsActivity(b.activity)) return '-';
+        return b.bags || '-';
+    }
+
     function renderTimeBlocks() {
         const container = document.getElementById('time-blocks-container');
         if (!container) return;
@@ -1059,6 +1181,9 @@
                     Horário sobrepõe outro período
                    </div>`
                 : '';
+            
+            const hideBags = isNoBagsActivity(b.activity);
+            const showCustomActivity = b.activity === 'Outras' || b.activity === 'Outros';
                 
             return `
             <div class="${borderClass} p-4 rounded-2xl relative space-y-4 shadow-sm">
@@ -1067,19 +1192,25 @@
                 </button>
                 ${warnBadge}
                 
-                <button onclick="abrirModalAtividades(${b.id})" class="w-full text-left bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white truncate flex justify-between items-center gap-2 hover:border-coffee-400 transition-colors">
-                    <span class="truncate pointer-events-none ${b.activity ? 'text-coffee-900 dark:text-white' : 'text-coffee-400 dark:text-gray-400 font-medium'}">${b.activity ? b.activity : 'Selecionar atividades...'}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-coffee-400 shrink-0 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                </button>
+                <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500">
+                    <option value="" disabled ${!b.activity ? 'selected' : ''}>Selecione a atividade efetuada</option>
+                    ${currentActivities.map(opt => `<option value="${opt}" ${b.activity === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                </select>
+
+                ${showCustomActivity ? `
+                <input type="text" style="text-transform: uppercase;" value="${b.activityDetail || ''}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Descreva a atividade">
+                ` : ''}
 
                 <div class="flex items-center gap-3">
                     <input type="time" value="${b.start}" onchange="updateBlock(${b.id},'start',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
                     <span class="text-coffee-400 font-bold text-sm">até</span>
                     <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid ${hideBags ? 'grid-cols-1' : 'grid-cols-2'} gap-3">
                     <input type="text" style="text-transform: uppercase;" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
+                    ${!hideBags ? `
                     <input type="text" inputmode="numeric" value="${b.bags}" oninput="updateBlockMasked(${b.id},'bags',this)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Qtd Sacas">
+                    ` : ''}
                 </div>
                 <input type="text" value="${b.obs}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Cliente / Obs">
             </div>`;
@@ -1119,7 +1250,9 @@
                 if (mE < mS) mE += 1440;
                 totalMin += (mE - mS);
             }
-            if (b.bags) totalSacas += parseInt(b.bags.replace(/\D/g, '') || 0);
+            if (b.bags && !isNoBagsActivity(b.activity)) {
+                totalSacas += parseInt(b.bags.replace(/\D/g, '') || 0);
+            }
         });
         document.getElementById('prod-total').value = totalSacas > 0 ? totalSacas.toLocaleString('pt-BR') : '0';
         const rT = document.getElementById('res-total-horas'), rM = document.getElementById('res-media-hora');
@@ -1165,20 +1298,22 @@
             saveDataQuebra();
         } else {
             document.getElementById('atv-servico').value = '';
+            const lbl = document.getElementById('lbl-atv-servico');
+            if (lbl) { lbl.innerText = 'Selecionar serviço...'; lbl.className = 'truncate pointer-events-none text-coffee-400 dark:text-gray-400 font-medium'; }
             const s = document.getElementById('atv-sacas'); if (s) s.value = '';
             document.getElementById('atv-ajuda').value = 'Não';
             document.getElementById('atv-ajuda-qtd').value = '';
             document.getElementById('atv-projecao').value = '';
             toggleAjudaQtd();
+            checkPlanejamentoBagsVisibility();
         }
         if (currentViewId !== 'view-divisao-quebra') saveData();
         mostrarToast("Dados limpos!");
     }
 
     // =========================================================
-    // BOLETIM UNIFICADO (ADM) - FORMATO EXATO CONFORME DIRETRIZES
+    // BOLETIM UNIFICADO (ADM) E RELATÓRIOS
     // =========================================================
-    // Ordem estrita respeitando Rebenefício, Expedição, Embalagem e Recebimento
     const SETORES_ORDEM = ['⚙️ Rebenefício', '🚛 Expedição', '📦 Embalagem', '📥 Recebimento', '⏱️ Manutenção', '📊 Operações'];
 
     function gerarResumoGeral() {
@@ -1194,7 +1329,6 @@
 
             if (blocks.length || st.atvServico) {
                 hasData = true;
-                // Cabeçalho de Grupo/Setor rigorosamente como solicitado
                 linhas += `<tr>
                     <td colspan="4" class="sector-header">SETOR: ${cleanSetor.toUpperCase()}</td>
                 </tr>`;
@@ -1203,16 +1337,18 @@
             if (blocks.length) {
                 blocks.forEach(b => {
                     const timeStr = (b.start && b.end) ? `<span style="font-size:10px;color:gray;"><br>(${b.start} - ${b.end})</span>` : '';
+                    const dispAct = getDisplayActivity(b);
+                    const dispBags = getDisplayBags(b);
+                    
                     linhas += `<tr>
-                        <td style="font-weight:600;">${b.activity || '-'}${timeStr}</td>
-                        <td style="text-align:right;font-weight:bold;">${b.bags || '-'}</td>
+                        <td style="font-weight:600;">${dispAct}${timeStr}</td>
+                        <td style="text-align:right;font-weight:bold;">${dispBags}</td>
                         <td>${b.ref || '-'}</td>
                         <td>${b.obs || '-'}</td>
                     </tr>`;
                 });
             }
 
-            // Linha de atividades planejadas
             if (st.atvServico) {
                 const ajuda = st.atvAjuda === 'Sim' ? ` | +${st.atvAjudaQtd || '?'} pessoas` : '';
                 linhas += `<tr style="background-color:#fefce8;">
@@ -1274,9 +1410,6 @@
         }
     }
 
-    // =========================================================
-    // EXPORTAR CSV
-    // =========================================================
     function exportarExcel() {
         const dayData = appData[workingDate] || {};
         const rows = [['Data', 'Setor', 'Atividade', 'Início', 'Fim', 'Guias/Ref', 'Produção/Sacas', 'Detalhes / Obs']];
@@ -1287,7 +1420,9 @@
             const cleanSetor = limparEmoji(setor);
             (st.timeBlocks || []).forEach(b => {
                 if (!b.start && !b.bags && !b.ref && !b.activity) return;
-                rows.push([workingDate, cleanSetor, b.activity || '', b.start || '', b.end || '', b.ref || '', (b.bags || '').replace(/\D/g, ''), b.obs || '']);
+                const dispAct = getDisplayActivity(b);
+                const dispBags = getDisplayBags(b);
+                rows.push([workingDate, cleanSetor, dispAct, b.start || '', b.end || '', b.ref || '', String(dispBags).replace(/\D/g, ''), b.obs || '']);
             });
             if (st.atvServico) {
                 rows.push([workingDate, cleanSetor, 'PLANEJAMENTO', '', st.atvProjecao || '', '-', st.atvSacas || '', st.atvServico + (st.atvAjuda === 'Sim' ? ` (+${st.atvAjudaQtd || '?'} pessoas)` : '')]);
@@ -1309,21 +1444,64 @@
         mostrarToast('CSV exportado com sucesso!');
     }
 
-    // =========================================================
-    // COMPARTILHAR BOLETIM (WHATSAPP/TEXTO)
-    // =========================================================
     function compartilharRelatorio() {
         if (!currentSector) return mostrarToast('Nenhum setor selecionado', true);
         saveData();
         const cleanSetor = limparEmoji(currentSector);
+        
+        if (currentViewId === 'view-atividades') {
+            const servicoText = document.getElementById('atv-servico').value || '';
+            const servico = servicoText || 'Nenhum serviço selecionado';
+            const sacas = document.getElementById('atv-sacas').value || '0';
+            const ajuda = document.getElementById('atv-ajuda').value;
+            const ajudaQtd = parseInt(document.getElementById('atv-ajuda-qtd').value) || 0;
+            const projecao = document.getElementById('atv-projecao').value || '--:--';
+            
+            let texto = `📋 *INFORME DE ATIVIDADES DO DIA!*\n\n`;
+            texto += `📅 *DATA:* ${workingDate} | ${operadorNome}\n\n`;
+            texto += `- *SETOR:* ${cleanSetor}\n`;
+            texto += `- *SERVIÇO:* ${servico}\n`;
+
+            if (!currentSector.includes('Manutenção') && !currentSector.includes('Operações')) {
+                const currentSelected = servicoText ? servicoText.split(', ').map(s => s.trim()) : [];
+                const requiresBags = currentSelected.length === 0 || currentSelected.some(act => {
+                    let baseAct = act.startsWith('Outras:') ? 'Outras' : act;
+                    return !isNoBagsActivity(baseAct);
+                });
+                
+                if (requiresBags) {
+                    texto += `- *QTDD DE SACAS:* ${sacas}\n`;
+                    let ajudaTexto = 'Não';
+                    if (ajuda === 'Sim') {
+                        const pessoaLabel = ajudaQtd === 1 ? 'Pessoa' : 'Pessoas';
+                        ajudaTexto = `Sim - (${ajudaQtd} ${pessoaLabel})`;
+                    }
+                    texto += `- *PRECISA DE AJUDA?:* ${ajudaTexto}\n`;
+                }
+            }
+            
+            if (projecao !== '--:--' && projecao !== '') {
+                texto += `- *PROJEÇÃO DE ENTREGA:* ${projecao}`;
+            }
+
+            if (navigator.share) {
+                navigator.share({ title: `Atividades ${cleanSetor} — ${workingDate}`, text: texto })
+                    .catch(() => fallbackCopiar(texto));
+            } else {
+                fallbackCopiar(texto);
+            }
+            return;
+        }
+
         const st = appData[workingDate]?.[currentSector] || {};
         const blocks = (st.timeBlocks || []).filter(b => b.start || b.bags || b.activity);
 
         let totalSacas = 0, totalMin = 0, linhasBlocks = '';
 
         blocks.forEach(b => {
-            const sacas = parseInt((b.bags || '').replace(/\D/g, '') || 0);
-            totalSacas += sacas;
+            if (b.bags && !isNoBagsActivity(b.activity)) {
+                totalSacas += parseInt(b.bags.replace(/\D/g, '') || 0);
+            }
             if (b.start && b.end) {
                 let [hI, mI] = b.start.split(':').map(Number);
                 let [hF, mF] = b.end.split(':').map(Number);
@@ -1331,10 +1509,11 @@
                 if (mE < mS) mE += 1440;
                 totalMin += (mE - mS);
             }
+            const dispAct = getDisplayActivity(b);
             const ref = b.ref ? ` | ${currentRefLabel.split('/')[0]}: ${b.ref}` : '';
             const obs = b.obs ? ` — ${b.obs}` : '';
-            const sacs = sacas > 0 ? ` | *${sacas.toLocaleString('pt-BR')} sc*` : '';
-            linhasBlocks += `  • ${b.activity || 'Atividade'}: ${b.start || '--:--'} – ${b.end || '--:--'}${ref}${sacs}${obs}\n`;
+            const sacs = (b.bags && !isNoBagsActivity(b.activity)) ? ` | *${b.bags} sc*` : '';
+            linhasBlocks += `  • ${dispAct}: ${b.start || '--:--'} – ${b.end || '--:--'}${ref}${sacs}${obs}\n`;
         });
 
         const horas = `${Math.floor(totalMin / 60)}h${(totalMin % 60).toString().padStart(2, '0')}m`;
