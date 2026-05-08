@@ -60,10 +60,13 @@
         .quebra-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .quebra-table th, .quebra-table td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
         .quebra-table th { background-color: #f9fafb; font-weight: 800; text-transform: uppercase; color: #374151; }
-        .quebra-table input { width: 100%; background: transparent; text-align: center; font-weight: 700; outline: none; border-bottom: 1px dashed #ccc; }
+        .quebra-table input { width: 100%; background: #f3f4f6; text-align: center; font-weight: 700; outline: none; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 4px; transition: all 0.2s ease; }
+        .quebra-table input:focus { border-color: #b8865c; background: #fff; }
         .highlight-yellow { background-color: #fef08a !important; color: #854d0e !important; font-weight: 900; }
         html.dark .quebra-table th { background-color: #1f2937; color: #f3f4f6; border-color: #374151; }
         html.dark .quebra-table td { border-color: #374151; color: #f3f4f6; }
+        html.dark .quebra-table input { background: #374151; border-color: #4b5563; color: #f9fafb; }
+        html.dark .quebra-table input:focus { border-color: #c5a080; background: #1f2937; }
         html.dark .highlight-yellow { background-color: #854d0e !important; color: #fef08a !important; }
 
         /* Indicador de autosave */
@@ -214,7 +217,7 @@
                     <button id="btn-menu-produtividade" onclick="navigate('view-productivity', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-coffee-900 dark:text-gray-200"><span class="text-2xl">⚡</span></div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Produtividade</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Apontamento diário</p></div>
+                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Boletim Diário</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Apontamento diário</p></div>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
@@ -258,6 +261,7 @@
 
             <!-- ATIVIDADES (PLANEJAMENTO) -->
             <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Atividades do Dia</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Planejamento Diário</h3>
                     <div class="space-y-4">
@@ -279,24 +283,25 @@
 
             <!-- DIVISÃO DE QUEBRA -->
             <div id="view-divisao-quebra" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Divisão de Quebra</h2>
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-coffee-100 dark:border-gray-700 transition-colors">
-                    <div class="flex items-center gap-3 bg-red-600 p-3 rounded-xl mb-6 shadow-md">
-                        <label class="text-[10px] font-black text-white uppercase leading-tight">Peso Total<br>Balança:</label>
-                        <input type="number" id="quebra-peso-total" class="flex-1 bg-white/20 border border-white/30 rounded-lg text-white font-black text-xl py-2 px-3 outline-none placeholder-white/50" placeholder="Ex: 21744" oninput="calcDivisaoQuebra()">
+                    <div class="flex items-center gap-3 bg-coffee-900 p-4 rounded-xl mb-6 shadow-md w-full box-border">
+                        <label class="text-[10px] sm:text-xs font-black text-white uppercase leading-tight whitespace-nowrap shrink-0">Peso Total<br>Balança:</label>
+                        <input type="number" id="quebra-peso-total" class="w-full min-w-0 bg-white/20 border border-white/30 rounded-lg text-white font-black text-xl py-2 px-3 outline-none placeholder-white/50" placeholder="Ex: 21744" oninput="calcDivisaoQuebra()">
                     </div>
                     <div class="overflow-x-auto">
                         <table class="quebra-table">
                             <thead>
                                 <tr>
-                                    <th>Qtd Saca<br>Romaneio</th>
-                                    <th>Peso<br>(x60)</th>
+                                    <th>Qtdd Saca<br>Romaneio</th>
+                                    <th>Peso</th>
                                     <th>%</th>
                                     <th class="highlight-yellow">Peso Real</th>
                                 </tr>
                             </thead>
                             <tbody id="quebra-rows">
-                                <tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>
-                                <tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>
+                                <tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>
+                                <tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>
                             </tbody>
                             <tfoot>
                                 <tr class="bg-gray-100 dark:bg-gray-700 font-black">
@@ -316,6 +321,7 @@
 
             <!-- PENEIRA / RETENÇÃO -->
             <div id="view-percentage" class="view-hidden w-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Retenção</h2>
                 <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1 mb-6 border border-coffee-200 dark:border-gray-700 shadow-inner">
                     <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Após Analisar</button>
                     <button id="btn-tab-tolerancia" onclick="switchTab('tolerancia')" class="flex-1 py-2 text-sm font-bold text-coffee-800/60 dark:text-gray-400 rounded-lg hover:text-black dark:hover:text-white transition-all">Resultado Esperado</button>
@@ -338,6 +344,7 @@
 
             <!-- PRODUTIVIDADE (APONTAMENTO) -->
             <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Boletim Diário</h2>
                 <div class="flex-1 space-y-6 pb-6">
                     <div>
                         <div class="mb-4 font-bold text-coffee-900 dark:text-white uppercase tracking-wider text-xs">Períodos de Trabalho</div>
@@ -366,6 +373,7 @@
 
             <!-- HORÍMETRO -->
             <div id="view-horimetro" class="view-hidden w-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Horímetro</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <label class="text-sm font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Horas de Uso</label>
                     <div class="space-y-4">
@@ -378,6 +386,7 @@
 
             <!-- CONVERSÃO MM/CM -->
             <div id="view-conv-mm" class="view-hidden w-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Converter MM</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Milímetros para Centímetros</h3>
                     <div class="space-y-4">
@@ -389,6 +398,7 @@
 
             <!-- CONVERSÃO HZ/RPM -->
             <div id="view-conv-hz" class="view-hidden w-full p-5 block">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Converter Hz</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Hertz para RPM</h3>
                     <div class="space-y-4">
@@ -738,6 +748,16 @@
         // As listas agora são únicas para serem usadas no bloco de tempo (Produtividade) 
         // e no checkbox modal múltiplo (Planejamento)
         const activityOptions = {
+            'Recebimento': ['Recebimento de café', 'Pilha simples (Liga)', 'Ensaque', 'Embarque (Mercado interno)'],
+            'Rebenefício': ['Produção (Macro Lote)', 'Repasse (Macro Lote)', 'Produção (Micro Lote)', 'Repasse (Micro Lote)'],
+            'Expedição': ['Pilha simples (Liga)', 'Ensaque', 'Embarque (Exportação)', 'Produção de Vácuo', 'Coleta (Mercado interno)'],
+            'Embalagem': ['Aplicação de Stickers', 'Aplicação de VDP', 'Produção de Vácuo', 'Coleta (Mercado interno)'],
+            'Manutenção': ['Manutenção Preventiva', 'Manutenção Corretiva', 'Ajuste de Máquinas', 'Outros'],
+            'Operações': ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outros']
+        };
+        currentActivities = activityOptions[cleanSetor] || [];
+
+        const planejamentoOptions = {
             'Recebimento': ['Recebimento de Café', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Conferência de Estoque', 'Guardar Café (Rebenefício)', 'Separar Lotes (Expedição)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Rebenefício': ['Produção', 'Repasse', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Expedição': ['Fracionamento de Lote', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Vácuo', 'Conferência de Estoque (M.I)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
@@ -745,8 +765,7 @@
             'Manutenção': ['Prevetiva no Recebimento', 'Prevetiva no Rebenefício', 'Prevetiva na Expedição', 'O.S do Sistema', 'Inventario no Almoxarifado', 'Limpeza do Setor', 'Outras'],
             'Operações': ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outras']
         };
-        currentActivities = activityOptions[cleanSetor] || [];
-        currentPlanejamentoActivities = currentActivities;
+        currentPlanejamentoActivities = planejamentoOptions[cleanSetor] || [];
     }
 
     function configurarBotoesSubmenu(cleanSetor) {
@@ -837,7 +856,7 @@
 
             html += `
             <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-coffee-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]">
-                <input type="checkbox" value="${act}" class="chk-atividade w-5 h-5 text-coffee-600 rounded focus:ring-coffee-500" ${isChecked ? 'checked' : ''} onchange="toggleOutrasInput()">
+                <input type="checkbox" value="${act}" class="chk-atividade w-5 h-5 text-coffee-600 rounded focus:ring-coffee-500" ${isChecked ? 'checked' : ''} onchange="handleCheckboxChange(this)">
                 <span class="text-sm font-bold text-gray-700 dark:text-gray-200 select-none leading-tight flex-1">${act}</span>
             </label>
             `;
@@ -854,6 +873,25 @@
             modal.classList.remove('opacity-0');
             content.classList.remove('translate-y-full');
         }, 10);
+    }
+
+    function handleCheckboxChange(element) {
+        const exclusivas = ['Realocação de setor', 'Disponível para Realocação', 'Outras', 'Outros'];
+        
+        if (element.checked) {
+            if (exclusivas.includes(element.value)) {
+                // Se escolheu uma exclusiva, desmarca todas as outras
+                document.querySelectorAll('.chk-atividade').forEach(cb => {
+                    if (cb !== element) cb.checked = false;
+                });
+            } else {
+                // Se escolheu uma normal, desmarca as exclusivas
+                document.querySelectorAll('.chk-atividade').forEach(cb => {
+                    if (exclusivas.includes(cb.value)) cb.checked = false;
+                });
+            }
+        }
+        toggleOutrasInput();
     }
 
     function toggleOutrasInput() {
@@ -1087,14 +1125,14 @@
         if (arr.length < 2) arr = [...arr, ...Array(2 - arr.length).fill('')];
         
         const tbody = document.getElementById('quebra-rows');
-        tbody.innerHTML = arr.map(val => `<tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" value="${val}"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>`).join('');
+        tbody.innerHTML = arr.map(val => `<tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" value="${val}" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>`).join('');
         calcDivisaoQuebra();
     }
 
     function adicionarLinhaQuebra() {
         const tbody = document.getElementById('quebra-rows');
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td>`;
+        tr.innerHTML = `<td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td>`;
         tbody.appendChild(tr);
         saveDataQuebra();
     }
@@ -1195,10 +1233,14 @@
 
     function getDisplayActivity(b) {
         if (!b.activity) return '-';
+        let act = b.activity;
         if ((b.activity === 'Outras' || b.activity === 'Outros') && b.activityDetail) {
-            return `Outras: ${b.activityDetail}`;
+            act = `Outras: ${b.activityDetail}`;
         }
-        return b.activity;
+        if (b.activity.includes('Repasse') && b.repasseJustificativa) {
+            act += ` (Motivo: ${b.repasseJustificativa})`;
+        }
+        return act;
     }
 
     function getDisplayBags(b) {
@@ -1226,6 +1268,7 @@
             
             const hideBags = isNoBagsActivity(b.activity);
             const showCustomActivity = b.activity === 'Outras' || b.activity === 'Outros';
+            const showRepasseJustificativa = b.activity && b.activity.includes('Repasse');
                 
             return `
             <div class="${borderClass} p-4 rounded-2xl relative space-y-4 shadow-sm">
@@ -1243,13 +1286,17 @@
                 <input type="text" style="text-transform: uppercase;" value="${b.activityDetail || ''}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Descreva a atividade">
                 ` : ''}
 
+                ${showRepasseJustificativa ? `
+                <input type="text" value="${b.repasseJustificativa || ''}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Motivo do repasse...">
+                ` : ''}
+
                 <div class="flex items-center gap-3">
                     <input type="time" value="${b.start}" onchange="updateBlock(${b.id},'start',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
                     <span class="text-coffee-400 font-bold text-sm">até</span>
                     <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
                 </div>
                 <div class="grid ${hideBags ? 'grid-cols-1' : 'grid-cols-2'} gap-3">
-                    <input type="text" style="text-transform: uppercase;" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
+                    <input type="text" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
                     ${!hideBags ? `
                     <input type="text" inputmode="numeric" value="${b.bags}" oninput="updateBlockMasked(${b.id},'bags',this)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Qtd Sacas">
                     ` : ''}
