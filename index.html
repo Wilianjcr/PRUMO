@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -46,8 +47,6 @@
         .view-active { opacity: 1; pointer-events: auto; position: relative; transform: translateX(0); transition: all 0.3s ease; width: 100%; height: 100%; }
         .toast-enter { transform: translateY(0) translateX(-50%); opacity: 1; }
         .toast-leave { transform: translateY(100px) translateX(-50%); opacity: 0; }
-        .overlap-warning { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
-        html.dark .overlap-warning { border-color: #ef4444 !important; background-color: #450a0a !important; }
 
         .adm-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; }
         .adm-table th, .adm-table td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
@@ -69,7 +68,6 @@
         html.dark .quebra-table input:focus { border-color: #c5a080; background: #1f2937; }
         html.dark .highlight-yellow { background-color: #854d0e !important; color: #fef08a !important; }
 
-        /* Indicador de autosave */
         #save-indicator {
             position: fixed; bottom: 76px; right: 12px;
             background: rgba(16,185,129,0.92); color: white;
@@ -79,10 +77,6 @@
             pointer-events: none; z-index: 50;
         }
         #save-indicator.visible { opacity: 1; }
-        
-        /* Modal Base Transition */
-        .bottom-sheet-enter { transform: translateY(100%); opacity: 0; }
-        .bottom-sheet-active { transform: translateY(0); opacity: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="fixed inset-0 text-gray-800 dark:text-gray-100 flex justify-center items-center p-0 md:p-4 transition-colors duration-300">
@@ -102,6 +96,9 @@
                 </button>
             </div>
             <div class="flex-1 p-4 space-y-2">
+                <button onclick="trocarSetor()" class="w-full text-left px-5 py-4 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl flex items-center gap-3 transition-colors">
+                    <span class="text-xl">🔄</span> Trocar Setor
+                </button>
                 <button onclick="toggleTheme()" class="w-full text-left px-5 py-4 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl flex items-center gap-3 transition-colors">
                     <span class="text-xl">🌗</span> Tema Preto / Branco
                 </button>
@@ -110,7 +107,7 @@
                 </button>
             </div>
             <div class="p-6 text-center border-t dark:border-gray-700">
-                <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest">by Wilian Junior</p>
+                <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Developer Willian Junior</p>
             </div>
         </div>
 
@@ -137,7 +134,7 @@
 
         <main class="flex-1 relative overflow-x-hidden overflow-y-auto bg-coffee-50 dark:bg-gray-900 flex flex-col transition-colors duration-300">
 
-            <!-- MENU PRINCIPAL -->
+            <!-- MENU PRINCIPAL (Para troca de setor se necessário) -->
             <div id="view-menu" class="view-active w-full h-full flex flex-col p-4 pb-6">
                 <div class="mb-4 mt-2 text-center flex flex-col items-center justify-center shrink-0">
                     <h1 id="user-name-display" class="text-2xl sm:text-3xl font-black text-coffee-900 dark:text-white tracking-tight heading-font mt-2 hidden uppercase"></h1>
@@ -171,7 +168,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Ordem Requisitada: Recebimento & Rebenefício / Expedição & Embalagem / Operações & Manutenção -->
                 <div class="grid grid-cols-2 gap-3 flex-1 min-h-0">
                     <button onclick="navigate('view-submenu', '📥 Recebimento')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-emerald-200 active:scale-95 transition-all">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">📥</span></div>
@@ -203,8 +199,8 @@
                 </button>
             </div>
 
-            <!-- SUBMENU SETOR -->
-            <div id="view-submenu" class="view-hidden w-full h-full flex flex-col p-5 pt-8 block">
+            <!-- SUBMENU SETOR PRINCIPAL -->
+            <div id="view-submenu" class="view-hidden w-full h-full flex flex-col p-5 pt-8">
                 <p class="text-lg font-bold text-black dark:text-white uppercase tracking-wider mb-6 text-center">O QUE DESEJA FAZER?</p>
                 <div class="space-y-4">
                     <button onclick="navigate('view-atividades', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
@@ -260,7 +256,7 @@
             </div>
 
             <!-- ATIVIDADES (PLANEJAMENTO) -->
-            <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+            <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Atividades do Dia</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Antes de iniciar as atividades</h3>
@@ -282,7 +278,7 @@
             </div>
 
             <!-- DIVISÃO DE QUEBRA -->
-            <div id="view-divisao-quebra" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+            <div id="view-divisao-quebra" class="view-hidden w-full flex flex-col min-h-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Divisão de Quebra</h2>
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-coffee-100 dark:border-gray-700 transition-colors">
                     <div class="flex items-center gap-3 bg-coffee-900 p-4 rounded-xl mb-6 shadow-md w-full box-border">
@@ -320,7 +316,7 @@
             </div>
 
             <!-- PENEIRA / RETENÇÃO -->
-            <div id="view-percentage" class="view-hidden w-full p-5 block">
+            <div id="view-percentage" class="view-hidden w-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Retenção</h2>
                 <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1 mb-6 border border-coffee-200 dark:border-gray-700 shadow-inner">
                     <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Após Analisar</button>
@@ -343,36 +339,89 @@
             </div>
 
             <!-- PRODUTIVIDADE (APONTAMENTO) -->
-            <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-5 block">
+            <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Boletim Diário</h2>
+                
+                <!-- Bloco Turno Rebenefício (Injetado condicionalmente) -->
+                <div id="rebeneficio-shift-container" class="hidden mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 transition-all">
+                    <h3 class="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-wider mb-3 heading-font flex items-center gap-2">
+                        <span class="text-lg">⏱️</span> Dados do Turno
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 ml-1">Turno</label>
+                            <select id="shift-selector" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-3 px-4 outline-none dark:text-white focus:border-amber-500 font-bold">
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="Turno 1">Turno 1</option>
+                                <option value="Turno 2">Turno 2</option>
+                                <option value="Turno 3">Turno 3</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 ml-1">Entrada</label>
+                            <input type="time" id="shift-start" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-3 px-4 outline-none dark:text-white focus:border-amber-500 text-center font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 ml-1">Saída</label>
+                            <input type="time" id="shift-end" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-3 px-4 outline-none dark:text-white focus:border-amber-500 text-center font-bold">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex-1 space-y-6 pb-6">
                     <div>
-                        <div class="mb-4 font-bold text-coffee-900 dark:text-white uppercase tracking-wider text-xs">Períodos de Trabalho</div>
-                        <div id="time-blocks-container" class="space-y-4"></div>
+                        <div class="mb-4 font-bold text-coffee-900 dark:text-white uppercase tracking-wider text-xs flex justify-between items-center">
+                            <span>Períodos de Trabalho</span>
+                            <span class="text-[9px] text-gray-500 font-normal normal-case bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">*Adicione apontamentos</span>
+                        </div>
+                        
+                        <div id="time-blocks-container" class="space-y-4 flex flex-col"></div>
+                        
                         <button onclick="addTimeBlock()" class="mt-4 w-full py-4 border-2 border-dashed border-coffee-300 dark:border-gray-600 rounded-2xl text-coffee-600 dark:text-gray-400 font-bold text-sm active:scale-95 flex justify-center items-center gap-2 transition-all hover:border-coffee-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar novo período
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar Guia / Período
                         </button>
+                        
+                        <!-- Justificativa da meta realocada para aqui -->
+                        <div id="container-justificativa" class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 transition-all shadow-sm">
+                            <label class="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2 block">Atenção: Meta não atingida. Justifique:</label>
+                            <textarea id="justificativa-meta" oninput="debouncedSave()" rows="2" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-3 outline-none text-sm dark:text-white focus:border-red-400" placeholder="Descreva o motivo..."></textarea>
+                        </div>
                     </div>
+                    
                     <div class="h-px w-full bg-coffee-200/50 dark:bg-gray-700"></div>
+                    
                     <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-4 rounded-2xl">
                         <label class="text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 block">Quantidade de sacas total (Somatório)</label>
                         <input type="text" id="prod-total" readonly class="w-full bg-coffee-100/50 dark:bg-gray-900 border-2 border-coffee-100 dark:border-gray-700 rounded-xl text-3xl font-black outline-none text-coffee-900 dark:text-white py-4 px-4 shadow-inner" placeholder="0">
                     </div>
                 </div>
+                
+                <!-- Card Escuro Resumo / Validação -->
                 <div class="bg-coffee-950 dark:bg-gray-800 text-white rounded-2xl p-6 shadow-lg mt-4 relative transition-colors">
                     <div class="grid grid-cols-2 gap-4 pt-1">
-                        <div><span class="text-xs text-coffee-200 dark:text-gray-400 font-bold uppercase block mb-1">Horas trabalhadas</span><span id="res-total-horas" class="text-xl font-bold tracking-tight">0h 00m</span></div>
-                        <div class="text-right pr-2"><span class="text-xs text-coffee-200 dark:text-gray-400 font-bold uppercase block mb-1">Média / Hora</span><div class="flex items-end justify-end gap-1"><span id="res-media-hora" class="text-3xl font-black text-coffee-50 dark:text-white">0</span><span class="text-xs text-coffee-300 dark:text-gray-400 font-medium pb-1">un/h</span></div></div>
+                        <div class="flex flex-col justify-center">
+                            <div id="div-horas-disponiveis" class="hidden mb-3 border-b border-coffee-800 dark:border-gray-700 pb-2">
+                                <span class="text-[9px] text-amber-500 font-black uppercase tracking-widest block mb-0.5">Horas Disp. (Turno)</span>
+                                <span id="res-horas-disponiveis" class="text-xl font-bold tracking-tight text-amber-100">0h 00m</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-coffee-300 dark:text-gray-400 font-black uppercase tracking-widest block mb-0.5">Horas Apontadas</span>
+                                <span id="res-total-horas" class="text-xl font-bold tracking-tight transition-colors">0h 00m</span>
+                            </div>
+                        </div>
+                        <div class="text-right pr-2 flex flex-col justify-end">
+                            <span id="lbl-media-hora" class="text-[9px] text-coffee-300 dark:text-gray-400 font-black uppercase tracking-widest block mb-1">Média / Hora</span>
+                            <div class="flex items-end justify-end gap-1">
+                                <span id="res-media-hora" class="text-4xl font-black text-coffee-50 dark:text-white">0</span>
+                                <span class="text-xs text-coffee-400 font-bold pb-1">un/h</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div id="container-justificativa" class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 transition-all">
-                    <label class="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2 block">Atenção: Meta não atingida. Justifique:</label>
-                    <textarea id="justificativa-meta" oninput="debouncedSave()" rows="2" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-3 outline-none text-sm dark:text-white focus:border-red-400" placeholder="Descreva o motivo..."></textarea>
                 </div>
             </div>
 
             <!-- HORÍMETRO -->
-            <div id="view-horimetro" class="view-hidden w-full p-5 block">
+            <div id="view-horimetro" class="view-hidden w-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Horímetro</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <label class="text-sm font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Horas de Uso</label>
@@ -385,7 +434,7 @@
             </div>
 
             <!-- CONVERSÃO MM/CM -->
-            <div id="view-conv-mm" class="view-hidden w-full p-5 block">
+            <div id="view-conv-mm" class="view-hidden w-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Converter MM</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Milímetros para Centímetros</h3>
@@ -397,7 +446,7 @@
             </div>
 
             <!-- CONVERSÃO HZ/RPM -->
-            <div id="view-conv-hz" class="view-hidden w-full p-5 block">
+            <div id="view-conv-hz" class="view-hidden w-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Converter Hz</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Hertz para RPM</h3>
@@ -418,12 +467,12 @@
                 </button>
             </div>
             <div class="py-3 bg-coffee-50 dark:bg-gray-900 transition-colors">
-                <p class="text-center text-[10px] font-bold text-coffee-800/40 dark:text-gray-500 uppercase tracking-[0.3em]">by Wilian Junior</p>
+                <p class="text-center text-[10px] font-bold text-coffee-800/40 dark:text-gray-500 uppercase tracking-[0.3em]">Developer Willian Junior</p>
             </div>
         </footer>
     </div>
 
-    <!-- MODAL ATIVIDADES (MÚLTIPLA ESCOLHA) -->
+    <!-- MODAL ATIVIDADES -->
     <div id="modal-atividades" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col" id="modal-atividades-content">
             <div class="flex justify-between items-center mb-4 shrink-0">
@@ -455,10 +504,19 @@
         <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl p-8 flex flex-col items-center border border-coffee-100 dark:border-gray-700 transition-colors">
             <div class="w-24 h-24 mb-5 rounded-3xl shadow-lg overflow-hidden bg-coffee-50 dark:bg-gray-700 flex items-center justify-center text-6xl">🪪</div>
             <h2 class="text-2xl font-bold text-coffee-900 dark:text-white heading-font mb-2 text-center">Bem-vindo</h2>
-            <p class="text-xs text-coffee-500 dark:text-gray-400 mb-6 text-center leading-relaxed">Para acessar o sistema, informe seu <b>primeiro nome</b>.</p>
+            <p class="text-xs text-coffee-500 dark:text-gray-400 mb-6 text-center leading-relaxed">Para acessar o sistema, informe seu <b>nome</b> e selecione o <b>setor</b>.</p>
             <div class="w-full space-y-4">
-                <input type="text" id="input-login-nome" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 text-center focus:border-coffee-500 placeholder-gray-400 transition-colors" placeholder="Seu nome" onkeypress="if(event.key==='Enter') realizarLogin()">
-                <button onclick="realizarLogin()" class="w-full bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold py-3.5 rounded-xl active:scale-95 shadow-md transition-colors">Entrar</button>
+                <input type="text" id="input-login-nome" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500 placeholder-gray-400 transition-colors" placeholder="Seu nome" onkeypress="if(event.key==='Enter') realizarLogin()">
+                <select id="input-login-setor" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-md font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500 transition-colors">
+                    <option value="" disabled selected>Selecione seu Setor</option>
+                    <option value="📥 Recebimento">📥 Recebimento</option>
+                    <option value="⚙️ Rebenefício">⚙️ Rebenefício</option>
+                    <option value="🚛 Expedição">🚛 Expedição</option>
+                    <option value="📦 Embalagem">📦 Embalagem</option>
+                    <option value="📊 Operações">📊 Operações</option>
+                    <option value="⏱️ Manutenção">⏱️ Manutenção</option>
+                </select>
+                <button onclick="realizarLogin()" class="w-full bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold py-3.5 rounded-xl active:scale-95 shadow-md transition-colors mt-2">Acessar Sistema</button>
             </div>
         </div>
     </div>
@@ -497,8 +555,18 @@
 
     <script>
     // =========================================================
-    // UTILITÁRIOS DE UI
+    // UTILITÁRIOS E SEGURANÇA
     // =========================================================
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     let toastTimeout;
     function mostrarToast(msg, error = false) {
         const toast = document.getElementById('toast');
@@ -528,6 +596,11 @@
         document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
         toggleSidebar();
+    }
+
+    function trocarSetor() {
+        toggleSidebar();
+        navigate('view-menu');
     }
 
     // =========================================================
@@ -592,7 +665,7 @@
     }
 
     // =========================================================
-    // INICIALIZAÇÃO
+    // INICIALIZAÇÃO E LOGIN
     // =========================================================
     window.onload = function () {
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
@@ -610,12 +683,23 @@
 
     function checkLogin() {
         const savedName = localStorage.getItem('operadorNome');
+        const savedSector = localStorage.getItem('operadorSetor');
+        const isAdmSaved = localStorage.getItem('operadorIsAdmin') === 'true';
         const modal = document.getElementById('modal-login');
-        if (savedName) {
+        
+        if (savedName && (savedSector || isAdmSaved)) {
             operadorNome = savedName;
-            isAdmin = localStorage.getItem('operadorIsAdmin') === 'true';
+            currentSector = savedSector || '';
+            isAdmin = isAdmSaved;
+            
             if (modal) modal.classList.add('hidden');
             exibirBoasVindas();
+            
+            if (isAdmin) {
+                navigate('view-menu', null, true);
+            } else {
+                navigate('view-submenu', currentSector, true);
+            }
         } else {
             if (modal) modal.classList.remove('hidden');
         }
@@ -644,26 +728,51 @@
     }
 
     function realizarLogin() {
-        const input = document.getElementById('input-login-nome');
-        let nomeRaw = input.value.trim();
+        const inputNome = document.getElementById('input-login-nome');
+        const inputSetor = document.getElementById('input-login-setor');
+        
+        let nomeRaw = inputNome.value.trim();
+        let setor = inputSetor.value;
+        
         if (!nomeRaw) return mostrarToast("Informe seu nome!", true);
+        
         isAdmin = nomeRaw.toLowerCase().endsWith('adm');
+        
+        if (!isAdmin && !setor) return mostrarToast("Selecione seu setor!", true);
+        
         let nome = (isAdmin ? nomeRaw.slice(0, -3).trim() : nomeRaw).split(' ')[0];
         if (!nome) return mostrarToast("Nome inválido!", true);
         nome = nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
+        
         localStorage.setItem('operadorNome', nome);
         localStorage.setItem('operadorIsAdmin', isAdmin);
+        if (setor) {
+            localStorage.setItem('operadorSetor', setor);
+        } else {
+            localStorage.removeItem('operadorSetor');
+        }
+        
         operadorNome = nome;
+        currentSector = setor || '';
+        
         const modal = document.getElementById('modal-login');
         if (modal) { modal.classList.add('opacity-0'); setTimeout(() => modal.classList.add('hidden'), 500); }
         exibirBoasVindas();
         mostrarToast(`Bem-vindo, ${nome}!`);
+        
+        if (isAdmin) {
+            navigate('view-menu', null, true);
+        } else {
+            navigate('view-submenu', currentSector, true);
+        }
     }
 
     function logout() {
         localStorage.removeItem('operadorNome');
         localStorage.removeItem('operadorIsAdmin');
+        localStorage.removeItem('operadorSetor');
         operadorNome = '';
+        currentSector = '';
         isAdmin = false;
         appData = {};
         window.tempTimeBlocks = [];
@@ -675,6 +784,7 @@
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.remove('opacity-0'), 10);
             document.getElementById('input-login-nome').value = '';
+            document.getElementById('input-login-setor').value = '';
         }
         toggleSidebar();
         document.getElementById('adm-panel')?.classList.add('hidden');
@@ -683,7 +793,7 @@
         document.getElementById('user-name-display')?.classList.add('hidden');
         document.getElementById('welcome-message')?.classList.add('hidden');
         document.getElementById('welcome-divider')?.classList.add('hidden');
-        navigate('view-menu');
+        navigate('view-menu', null, true);
     }
 
     // =========================================================
@@ -693,7 +803,7 @@
         const saved = JSON.parse(localStorage.getItem('clientesList') || '[]');
         const dl = document.getElementById('clientesList');
         if (!dl) return;
-        dl.innerHTML = saved.map(v => `<option value="${v}">`).join('');
+        dl.innerHTML = saved.map(v => `<option value="${escapeHTML(v)}">`).join('');
     }
 
     function registrarCliente(valor) {
@@ -745,8 +855,6 @@
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = "Guia/Contrato";
         else currentRefLabel = "Referência";
 
-        // As listas agora são únicas para serem usadas no bloco de tempo (Produtividade) 
-        // e no checkbox modal múltiplo (Planejamento)
         const activityOptions = {
             'Recebimento': ['Recebimento de café', 'Pilha simples (Liga)', 'Ensaque', 'Embarque (Mercado interno)'],
             'Rebenefício': ['Produção (Macro Lote)', 'Repasse (Macro Lote)', 'Produção (Micro Lote)', 'Repasse (Micro Lote)'],
@@ -780,7 +888,7 @@
     // =========================================================
     // NAVEGAÇÃO E MODAIS DE ATIVIDADES
     // =========================================================
-    function navigate(viewId, sectorName = null) {
+    function renderView(viewId, sectorName) {
         saveData();
         if (sectorName) currentSector = sectorName;
 
@@ -800,14 +908,44 @@
         loadDataParaTela();
     }
 
+    function navigate(viewId, sectorName = null, replace = false) {
+        if (sectorName && !isAdmin) {
+            localStorage.setItem('operadorSetor', sectorName);
+        }
+
+        renderView(viewId, sectorName);
+
+        // Manipulação do Histórico para o botão de voltar do celular
+        if (replace) {
+            history.replaceState({ viewId: viewId, sectorName: currentSector }, '', '');
+        } else {
+            history.pushState({ viewId: viewId, sectorName: currentSector }, '', '');
+        }
+    }
+
     function goBack() {
         saveData();
-        document.querySelectorAll('main > div').forEach(el => el.classList.replace('view-active', 'view-hidden'));
-        const dest = currentViewId === 'view-submenu' ? 'view-menu' : 'view-submenu';
-        currentViewId = dest;
-        document.getElementById(dest)?.classList.replace('view-hidden', 'view-active');
-        atualizarUI(dest);
+        if (currentViewId === 'view-menu') return;
+        if (currentViewId === 'view-submenu' && !isAdmin) return;
+
+        history.back(); // Delega a ação de voltar para o histórico do navegador (botão do celular)
     }
+
+    // Gerencia o evento de apertar o botão físico de voltar no celular
+    window.addEventListener('popstate', (event) => {
+        // Fechar modais imediatamente caso estejam abertos ao apertar voltar
+        document.getElementById('modal-atividades')?.classList.add('hidden', 'opacity-0');
+        const modalConf = document.getElementById('modal-confirm');
+        if(modalConf) { modalConf.classList.add('hidden'); modalConf.classList.remove('opacity-100'); }
+        document.getElementById('modal-adm-email')?.classList.add('hidden', 'opacity-0');
+        editingBlockId = null;
+
+        if (event.state && event.state.viewId) {
+            renderView(event.state.viewId, event.state.sectorName);
+        } else {
+            history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '', '');
+        }
+    });
 
     function changeWorkingDate() {
         const dp = document.getElementById('date-picker');
@@ -830,7 +968,7 @@
     }
 
     function abrirModalAtividades(type) {
-        editingBlockId = type; // pode ser 'planejamento'
+        editingBlockId = type;
         const servicoText = document.getElementById('atv-servico').value || '';
         const currentSelected = servicoText ? servicoText.split(', ').map(s => s.trim()) : [];
         
@@ -880,12 +1018,10 @@
         
         if (element.checked) {
             if (exclusivas.includes(element.value)) {
-                // Se escolheu uma exclusiva, desmarca todas as outras
                 document.querySelectorAll('.chk-atividade').forEach(cb => {
                     if (cb !== element) cb.checked = false;
                 });
             } else {
-                // Se escolheu uma normal, desmarca as exclusivas
                 document.querySelectorAll('.chk-atividade').forEach(cb => {
                     if (exclusivas.includes(cb.value)) cb.checked = false;
                 });
@@ -953,7 +1089,6 @@
         fecharModalAtividades();
     }
 
-    // Função que esconde campo sacas na tela Planejamento caso as atividades selecionadas não permitam sacas
     function checkPlanejamentoBagsVisibility() {
         const sCont = document.getElementById('container-atv-sacas');
         const aCont = document.getElementById('container-atv-ajuda');
@@ -1009,7 +1144,8 @@
             horInicial: '', horFinal: '',
             pesoAmostra: '', pesoRetido: '', tolAmostra: '', tolPerc: '',
             atvServico: '', atvSacas: '', atvAjuda: 'Não', atvAjudaQtd: '', atvProjecao: '',
-            justificativa: ''
+            justificativa: '',
+            shiftName: '', shiftStart: '', shiftEnd: ''
         };
     }
 
@@ -1028,6 +1164,13 @@
             window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
             if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
             document.getElementById('justificativa-meta').value = st.justificativa || '';
+            
+            if (currentSector.includes('Rebenefício')) {
+                document.getElementById('shift-selector').value = st.shiftName || '';
+                document.getElementById('shift-start').value = st.shiftStart || '';
+                document.getElementById('shift-end').value = st.shiftEnd || '';
+            }
+
             renderTimeBlocks();
             calcTotalProductivity();
         }
@@ -1067,13 +1210,21 @@
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         const st = appData[workingDate][currentSector];
+        
         if (currentViewId === 'view-productivity') {
             st.timeBlocks = JSON.parse(JSON.stringify(window.tempTimeBlocks || []));
             st.justificativa = document.getElementById('justificativa-meta').value;
+            
+            if (currentSector.includes('Rebenefício')) {
+                st.shiftName = document.getElementById('shift-selector').value || '';
+                st.shiftStart = document.getElementById('shift-start').value || '';
+                st.shiftEnd = document.getElementById('shift-end').value || '';
+            }
         }
         if (currentViewId === 'view-horimetro') { st.horInicial = document.getElementById('hor-inicial').value; st.horFinal = document.getElementById('hor-final').value; }
         if (currentViewId === 'view-percentage') { st.pesoAmostra = document.getElementById('peso-amostra').value; st.pesoRetido = document.getElementById('peso-retido').value; st.tolAmostra = document.getElementById('tol-amostra').value; st.tolPerc = document.getElementById('tol-perc').value; }
         if (currentViewId === 'view-atividades') { st.atvServico = document.getElementById('atv-servico').value; const s = document.getElementById('atv-sacas'); if (s) st.atvSacas = s.value; st.atvAjuda = document.getElementById('atv-ajuda').value; st.atvAjudaQtd = document.getElementById('atv-ajuda-qtd').value; st.atvProjecao = document.getElementById('atv-projecao').value; }
+        
         localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData));
     }
 
@@ -1093,6 +1244,15 @@
                 const dp = document.getElementById('date-picker-container');
                 if (dp) { dp.classList.remove('hidden'); dp.classList.add('flex'); }
             }
+        } else if (viewId === 'view-submenu') {
+            if (isAdmin) {
+                vol.classList.remove('hidden'); // ADM pode voltar para o Menu Principal
+            } else {
+                vol.classList.add('hidden'); // Operador Comum fica travado
+            }
+            tit.innerText = currentSector;
+            const dp = document.getElementById('date-picker-container');
+            if (dp) { dp.classList.add('hidden'); dp.classList.remove('flex'); }
         } else {
             vol.classList.remove('hidden');
             tit.innerText = currentSector;
@@ -1107,6 +1267,22 @@
             }
             if (['view-productivity', 'view-atividades', 'view-divisao-quebra'].includes(viewId)) { zer?.classList.remove('hidden'); zer?.classList.add('flex'); }
         }
+        
+        if (viewId === 'view-productivity') {
+            const shiftCont = document.getElementById('rebeneficio-shift-container');
+            const lblMedia = document.getElementById('lbl-media-hora');
+            
+            if (currentSector.includes('Rebenefício')) {
+                shiftCont.classList.remove('hidden');
+                shiftCont.classList.add('block');
+                if (lblMedia) lblMedia.innerText = "Média / Hora (Turno)";
+            } else {
+                shiftCont.classList.add('hidden');
+                shiftCont.classList.remove('block');
+                if (lblMedia) lblMedia.innerText = "Média / Hora";
+            }
+        }
+        
         if (viewId === 'view-atividades') {
             checkPlanejamentoBagsVisibility();
         }
@@ -1208,74 +1384,89 @@
     function calcConvHz() { const v = parseFloat(document.getElementById('conv-hz-input').value); document.getElementById('res-conv-hz').innerText = !isNaN(v) ? (v * 60).toLocaleString('pt-BR') : '0'; }
 
     // =========================================================
-    // DETECÇÃO DE SOBREPOSIÇÃO DE HORÁRIOS E PRODUTIVIDADE
+    // PRODUTIVIDADE E BLOCOS DE TEMPO
     // =========================================================
-    function tempoParaMinutos(t) {
-        const [h, m] = t.split(':').map(Number);
-        return h * 60 + m;
-    }
-
-    function detectarSobreposicoes(blocks) {
-        const overlappingIds = new Set();
-        for (let i = 0; i < blocks.length; i++) {
-            for (let j = i + 1; j < blocks.length; j++) {
-                const a = blocks[i], b = blocks[j];
-                if (!a.start || !a.end || !b.start || !b.end) continue;
-                let aS = tempoParaMinutos(a.start), aE = tempoParaMinutos(a.end);
-                let bS = tempoParaMinutos(b.start), bE = tempoParaMinutos(b.end);
-                if (aE <= aS) aE += 1440;
-                if (bE <= bS) bE += 1440;
-                if (aS < bE && aE > bS) { overlappingIds.add(a.id); overlappingIds.add(b.id); }
+    function isMetaAtingidaOuJustificada(st, sectorName) {
+        if (!sectorName.includes('Rebenefício')) return true;
+        let totalMin = 0, totalSacas = 0;
+        (st.timeBlocks || []).forEach(b => {
+            if (b.start && b.end) {
+                let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
+                let mS = hI * 60 + mI, mE = hF * 60 + mF;
+                if (mE <= mS) mE += 1440;
+                totalMin += (mE - mS);
             }
+            if (b.bags && !isNoBagsActivity(b.activity)) {
+                totalSacas += parseInt(b.bags.replace(/\D/g, '') || 0);
+            }
+        });
+
+        let shiftTotalMin = 0;
+        if (st.shiftStart && st.shiftEnd) {
+            let [hI, mI] = st.shiftStart.split(':').map(Number);
+            let [hF, mF] = st.shiftEnd.split(':').map(Number);
+            let mS = hI * 60 + mI, mE = hF * 60 + mF;
+            if (mE <= mS) mE += 1440;
+            shiftTotalMin = mE - mS;
         }
-        return overlappingIds;
+
+        const metaHora = parseFloat(appData.config?.metaRebeneficioHora) || 55;
+        const metaTurno = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
+
+        let media = 0;
+        if (shiftTotalMin > 0) media = (totalSacas > 0) ? (totalSacas / (shiftTotalMin / 60)) : 0;
+        else media = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+
+        const hasWorked = totalMin > 0 || shiftTotalMin > 0;
+        const missedGoal = hasWorked && (totalSacas < metaTurno || media < metaHora);
+
+        if (missedGoal && (!st.justificativa || st.justificativa.trim() === '')) {
+            return false;
+        }
+        return true;
     }
 
     function getDisplayActivity(b) {
         if (!b.activity) return '-';
         let act = b.activity;
         if ((b.activity === 'Outras' || b.activity === 'Outros') && b.activityDetail) {
-            act = `Outras: ${b.activityDetail}`;
+            act = `Outras: ${escapeHTML(b.activityDetail)}`;
         }
         if (b.activity.includes('Repasse') && b.repasseJustificativa) {
-            act += ` (Motivo: ${b.repasseJustificativa})`;
+            act += ` (Motivo: ${escapeHTML(b.repasseJustificativa)})`;
         }
         return act;
     }
 
     function getDisplayBags(b) {
         if (isNoBagsActivity(b.activity)) return '-';
-        return b.bags || '-';
+        return escapeHTML(b.bags) || '-';
     }
 
     function renderTimeBlocks() {
         const container = document.getElementById('time-blocks-container');
         if (!container) return;
-        window.tempTimeBlocks.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
-        const overlappingIds = detectarSobreposicoes(window.tempTimeBlocks);
-
+        
         container.innerHTML = window.tempTimeBlocks.map(b => {
-            const isOverlap = currentSector.includes('Rebenefício') ? false : overlappingIds.has(b.id);
-            const borderClass = isOverlap
-                ? 'overlap-warning'
-                : 'bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700';
-            const warnBadge = isOverlap
-                ? `<div class="flex items-center gap-1.5 text-red-600 text-xs font-bold mb-3 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                    Horário sobrepõe outro período
-                   </div>`
-                : '';
-            
             const hideBags = isNoBagsActivity(b.activity);
             const showCustomActivity = b.activity === 'Outras' || b.activity === 'Outros';
             const showRepasseJustificativa = b.activity && b.activity.includes('Repasse');
-                
+            
+            // Calcula e exibe tempo real para o bloco individualmente
+            let blockDurationStr = '';
+            if (b.start && b.end) {
+                let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
+                let mS = hI * 60 + mI, mE = hF * 60 + mF;
+                if (mE <= mS) mE += 1440;
+                let diff = mE - mS;
+                blockDurationStr = `<div class="text-[10px] text-coffee-500 dark:text-gray-400 font-bold mt-1.5 text-center flex items-center justify-center gap-1"><span class="text-sm">⏱️</span> Tempo gasto: ${Math.floor(diff/60)}h ${(diff%60).toString().padStart(2, '0')}m</div>`;
+            }
+
             return `
-            <div class="${borderClass} p-4 rounded-2xl relative space-y-4 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-4 rounded-2xl relative space-y-4 shadow-sm block-item">
                 <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-100 dark:bg-red-900/50 text-red-600 p-2 rounded-full border border-red-200 dark:border-red-700 active:scale-95 transition-transform">
                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
                 </button>
-                ${warnBadge}
                 
                 <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500">
                     <option value="" disabled ${!b.activity ? 'selected' : ''}>Selecione a atividade efetuada</option>
@@ -1290,11 +1481,15 @@
                 <input type="text" value="${b.repasseJustificativa || ''}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Motivo do repasse...">
                 ` : ''}
 
-                <div class="flex items-center gap-3">
-                    <input type="time" value="${b.start}" onchange="updateBlock(${b.id},'start',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
-                    <span class="text-coffee-400 font-bold text-sm">até</span>
-                    <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <input type="time" value="${b.start}" onchange="updateBlock(${b.id},'start',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
+                        <span class="text-coffee-400 font-bold text-sm">até</span>
+                        <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 text-center font-bold dark:text-white focus:border-coffee-500 outline-none">
+                    </div>
+                    ${blockDurationStr}
                 </div>
+                
                 <div class="grid ${hideBags ? 'grid-cols-1' : 'grid-cols-2'} gap-3">
                     <input type="text" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
                     ${!hideBags ? `
@@ -1332,32 +1527,73 @@
 
     function calcTotalProductivity() {
         let totalMin = 0, totalSacas = 0;
+        
+        // Soma das horas individuais de cada apontamento
         (window.tempTimeBlocks || []).forEach(b => {
             if (b.start && b.end) {
                 let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
                 let mS = hI * 60 + mI, mE = hF * 60 + mF;
-                if (mE < mS) mE += 1440;
+                if (mE <= mS) mE += 1440;
                 totalMin += (mE - mS);
             }
             if (b.bags && !isNoBagsActivity(b.activity)) {
                 totalSacas += parseInt(b.bags.replace(/\D/g, '') || 0);
             }
         });
+        
         document.getElementById('prod-total').value = totalSacas > 0 ? totalSacas.toLocaleString('pt-BR') : '0';
-        const rT = document.getElementById('res-total-horas'), rM = document.getElementById('res-media-hora');
+        
+        const rT = document.getElementById('res-total-horas');
+        const rM = document.getElementById('res-media-hora');
         let mediaNum = 0;
+        
         if (rT) rT.innerText = `${Math.floor(totalMin / 60)}h ${(totalMin % 60).toString().padStart(2, '0')}m`;
-        if (rM) {
+
+        let shiftTotalMin = 0;
+        
+        // Lógica Exclusiva para Rebenefício: Média calculada com as Horas Disponíveis do Turno
+        if (currentSector.includes('Rebenefício')) {
+            const sStart = document.getElementById('shift-start').value;
+            const sEnd = document.getElementById('shift-end').value;
+
+            if (sStart && sEnd) {
+                let [hI, mI] = sStart.split(':').map(Number);
+                let [hF, mF] = sEnd.split(':').map(Number);
+                let mS = hI * 60 + mI, mE = hF * 60 + mF;
+                if (mE <= mS) mE += 1440;
+                shiftTotalMin = mE - mS;
+            }
+            
+            const divDisp = document.getElementById('div-horas-disponiveis');
+            const resDisp = document.getElementById('res-horas-disponiveis');
+            
+            if (divDisp) divDisp.classList.remove('hidden');
+            if (resDisp) resDisp.innerText = `${Math.floor(shiftTotalMin / 60)}h ${(shiftTotalMin % 60).toString().padStart(2, '0')}m`;
+
+            // Média pelo Turno Disponível
+            if (shiftTotalMin > 0) {
+                mediaNum = (totalSacas > 0) ? (totalSacas / (shiftTotalMin / 60)) : 0;
+            } else {
+                mediaNum = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+            }
+
+        } else {
+            const divDisp = document.getElementById('div-horas-disponiveis');
+            if (divDisp) divDisp.classList.add('hidden');
+            // Média padrão por Horas Apontadas
             mediaNum = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
-            rM.innerText = mediaNum.toFixed(1).replace('.', ',');
         }
 
+        if (rM) rM.innerText = mediaNum.toFixed(1).replace('.', ',');
+
+        // Lógica de justificativa da Meta
         const contJust = document.getElementById('container-justificativa');
         if (contJust) {
             if (currentSector.includes('Rebenefício')) {
                 const metaHora = parseFloat(appData.config?.metaRebeneficioHora) || 55;
                 const metaTurno = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
-                if (totalMin > 0 && (totalSacas < metaTurno || mediaNum < metaHora)) {
+                // Exibe a caixa de justificativa se falhar na meta turno ou meta hora
+                if ((shiftTotalMin > 0 || totalMin > 0) && (totalSacas < metaTurno || mediaNum < metaHora)) {
                     contJust.classList.remove('hidden');
                 } else {
                     contJust.classList.add('hidden');
@@ -1400,6 +1636,13 @@
         if (currentViewId === 'view-productivity') {
             window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
             document.getElementById('justificativa-meta').value = '';
+            
+            if (currentSector.includes('Rebenefício')) {
+                document.getElementById('shift-selector').value = '';
+                document.getElementById('shift-start').value = '';
+                document.getElementById('shift-end').value = '';
+            }
+
             renderTimeBlocks(); calcTotalProductivity();
         } else if (currentViewId === 'view-divisao-quebra') {
             document.getElementById('quebra-peso-total').value = '';
@@ -1426,7 +1669,22 @@
     const SETORES_ORDEM = ['⚙️ Rebenefício', '🚛 Expedição', '📦 Embalagem', '📥 Recebimento', '⏱️ Manutenção', '📊 Operações'];
 
     function gerarResumoGeral() {
+        saveData();
         const dayData = appData[workingDate] || {};
+        
+        let bloqueioJustificativa = false;
+        SETORES_ORDEM.forEach(setor => {
+            const st = dayData[setor];
+            if (st && !isMetaAtingidaOuJustificada(st, setor)) {
+                bloqueioJustificativa = true;
+            }
+        });
+
+        if (bloqueioJustificativa) {
+            mostrarToast('Falta justificar a meta no Rebenefício!', true);
+            return;
+        }
+
         let hasData = false;
         let linhas = '';
 
@@ -1438,55 +1696,82 @@
 
             if (blocks.length || st.atvServico) {
                 hasData = true;
-                // Cabeçalho de Grupo/Setor rigorosamente como solicitado
                 linhas += `<tr>
                     <td colspan="4" class="sector-header">SETOR: ${cleanSetor.toUpperCase()}</td>
                 </tr>`;
+                
+                if (cleanSetor.includes('Rebenefício') && st.shiftName && st.shiftStart && st.shiftEnd) {
+                     linhas += `<tr style="background-color:#fffbeb;">
+                            <td colspan="4" style="color:#d97706; font-size: 11px; font-weight: bold; text-align: center;">
+                                ⏱️ Turno Registrado: ${escapeHTML(st.shiftName)} (${escapeHTML(st.shiftStart)} às ${escapeHTML(st.shiftEnd)})
+                            </td>
+                        </tr>`;
+                }
             }
 
             if (blocks.length) {
                 let totalS = 0, totalM = 0;
+                let shiftMin = 0;
+
+                if (cleanSetor.includes('Rebenefício') && st.shiftStart && st.shiftEnd) {
+                    let [hI, mI] = st.shiftStart.split(':').map(Number);
+                    let [hF, mF] = st.shiftEnd.split(':').map(Number);
+                    let mS = hI * 60 + mI, mE = hF * 60 + mF;
+                    if (mE <= mS) mE += 1440;
+                    shiftMin = mE - mS;
+                }
+
                 blocks.forEach(b => {
-                    const timeStr = (b.start && b.end) ? `<span style="font-size:10px;color:gray;"><br>(${b.start} - ${b.end})</span>` : '';
+                    let bTimeInfo = '';
+                    if (b.start && b.end) {
+                        let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
+                        let mS = hI * 60 + mI, mE = hF * 60 + mF;
+                        if (mE <= mS) mE += 1440;
+                        let diff = mE - mS;
+                        totalM += diff;
+                        
+                        bTimeInfo = `<span style="font-size:10px;color:gray;"><br>(${b.start} - ${b.end} | Gasto: ${Math.floor(diff/60)}h${(diff%60).toString().padStart(2, '0')}m)</span>`;
+                    }
+                    
                     const dispAct = getDisplayActivity(b);
                     const dispBags = getDisplayBags(b);
                     
                     if (b.bags && !isNoBagsActivity(b.activity)) totalS += parseInt(b.bags.replace(/\D/g, '') || 0);
-                    if (b.start && b.end) {
-                        let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
-                        let mS = hI * 60 + mI, mE = hF * 60 + mF;
-                        if (mE < mS) mE += 1440;
-                        totalM += (mE - mS);
-                    }
                     
                     linhas += `<tr>
-                        <td style="font-weight:600;">${dispAct}${timeStr}</td>
+                        <td style="font-weight:600;">${dispAct}${bTimeInfo}</td>
                         <td style="text-align:right;font-weight:bold;">${dispBags}</td>
-                        <td>${b.ref || '-'}</td>
-                        <td>${b.obs || '-'}</td>
+                        <td>${escapeHTML(b.ref) || '-'}</td>
+                        <td>${escapeHTML(b.obs) || '-'}</td>
                     </tr>`;
                 });
 
                 if (cleanSetor.includes('Rebenefício') && st.justificativa) {
                     const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
                     const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
-                    const media = (totalS > 0 && totalM > 0) ? (totalS / (totalM / 60)) : 0;
-                    if (totalM > 0 && (totalS < metaT || media < metaH)) {
+                    
+                    let media = 0;
+                    if (shiftMin > 0) {
+                        media = (totalS > 0) ? (totalS / (shiftMin / 60)) : 0;
+                    } else {
+                        media = (totalS > 0 && totalM > 0) ? (totalS / (totalM / 60)) : 0;
+                    }
+
+                    if ((totalM > 0 || shiftMin > 0) && (totalS < metaT || media < metaH)) {
                         linhas += `<tr style="background-color:#fef2f2;">
-                            <td colspan="4" style="color:#dc2626; font-size: 11px;"><b>⚠️ Justificativa de Meta:</b> ${st.justificativa}</td>
+                            <td colspan="4" style="color:#dc2626; font-size: 11px;"><b>⚠️ Justificativa de Meta:</b> ${escapeHTML(st.justificativa)}</td>
                         </tr>`;
                     }
                 }
             }
 
-            // Linha de atividades planejadas
             if (st.atvServico) {
-                const ajuda = st.atvAjuda === 'Sim' ? ` | +${st.atvAjudaQtd || '?'} pessoas` : '';
+                const ajuda = st.atvAjuda === 'Sim' ? ` | +${escapeHTML(st.atvAjudaQtd) || '?'} pessoas` : '';
                 linhas += `<tr style="background-color:#fefce8;">
                     <td style="font-style:italic;color:#854d0e;">Antes de iniciar as atividades</td>
-                    <td style="text-align:right;color:#854d0e;">${st.atvSacas || '-'}</td>
+                    <td style="text-align:right;color:#854d0e;">${escapeHTML(st.atvSacas) || '-'}</td>
                     <td style="color:#854d0e;">-</td>
-                    <td style="color:#854d0e;">${st.atvServico}${ajuda}${st.atvProjecao ? ' | Entrega: ' + st.atvProjecao : ''}</td>
+                    <td style="color:#854d0e;">${escapeHTML(st.atvServico)}${ajuda}${st.atvProjecao ? ' | Entrega: ' + escapeHTML(st.atvProjecao) : ''}</td>
                 </tr>`;
             }
         });
@@ -1495,7 +1780,7 @@
             ? `<table class="adm-table">
                 <tr style="background:#2b1b18;color:white;">
                     <th colspan="4" style="text-align:center;font-size:13px;padding:12px;color:white;">
-                        BOLETIM DIÁRIO DE PRODUÇÃO — ${workingDate} &nbsp;|&nbsp; ${operadorNome}
+                        BOLETIM DIÁRIO DE PRODUÇÃO — ${workingDate} &nbsp;|&nbsp; ${escapeHTML(operadorNome)}
                     </th>
                 </tr>
                 <tr>
@@ -1542,13 +1827,33 @@
     }
 
     function exportarExcel() {
+        saveData();
         const dayData = appData[workingDate] || {};
+        
+        let bloqueioJustificativa = false;
+        SETORES_ORDEM.forEach(setor => {
+            const st = dayData[setor];
+            if (st && !isMetaAtingidaOuJustificada(st, setor)) {
+                bloqueioJustificativa = true;
+            }
+        });
+
+        if (bloqueioJustificativa) {
+            mostrarToast('Falta justificar a meta no Rebenefício!', true);
+            return;
+        }
+
         const rows = [['Data', 'Setor', 'Atividade', 'Início', 'Fim', 'Guias/Ref', 'Produção/Sacas', 'Detalhe/Cliente/Observação']];
 
         SETORES_ORDEM.forEach(setor => {
             const st = dayData[setor];
             if (!st) return;
             const cleanSetor = limparEmoji(setor);
+            
+            if (cleanSetor.includes('Rebenefício') && st.shiftName) {
+                rows.push([workingDate, cleanSetor, `TURNO REGISTRADO: ${st.shiftName}`, st.shiftStart || '', st.shiftEnd || '', '-', '-', '-']);
+            }
+
             (st.timeBlocks || []).forEach(b => {
                 if (!b.start && !b.bags && !b.ref && !b.activity) return;
                 const dispAct = getDisplayActivity(b);
@@ -1578,6 +1883,16 @@
     function compartilharRelatorio() {
         if (!currentSector) return mostrarToast('Nenhum setor selecionado', true);
         saveData();
+        
+        const st = appData[workingDate]?.[currentSector] || {};
+        if (currentViewId === 'view-productivity') {
+            if (!isMetaAtingidaOuJustificada(st, currentSector)) {
+                mostrarToast('Preencha a justificativa de meta!', true);
+                document.getElementById('justificativa-meta')?.focus();
+                return;
+            }
+        }
+
         const cleanSetor = limparEmoji(currentSector);
         
         if (currentViewId === 'view-atividades') {
@@ -1624,7 +1939,6 @@
             return;
         }
 
-        const st = appData[workingDate]?.[currentSector] || {};
         const blocks = (st.timeBlocks || []).filter(b => b.start || b.bags || b.activity);
 
         let totalSacas = 0, totalMin = 0, linhasBlocks = '';
@@ -1633,18 +1947,25 @@
             if (b.bags && !isNoBagsActivity(b.activity)) {
                 totalSacas += parseInt(b.bags.replace(/\D/g, '') || 0);
             }
+            
+            let blockDurInfo = '';
             if (b.start && b.end) {
                 let [hI, mI] = b.start.split(':').map(Number);
                 let [hF, mF] = b.end.split(':').map(Number);
                 let mS = hI * 60 + mI, mE = hF * 60 + mF;
-                if (mE < mS) mE += 1440;
-                totalMin += (mE - mS);
+                if (mE <= mS) mE += 1440;
+                let diff = mE - mS;
+                totalMin += diff;
+                
+                blockDurInfo = ` (${Math.floor(diff/60)}h${(diff%60).toString().padStart(2, '0')}m)`;
             }
+            
             const dispAct = getDisplayActivity(b);
             const ref = b.ref ? ` | ${currentRefLabel.split('/')[0]}: ${b.ref}` : '';
             const obs = b.obs ? ` — ${b.obs}` : '';
             const sacs = (b.bags && !isNoBagsActivity(b.activity)) ? ` | *${b.bags} sc*` : '';
-            linhasBlocks += `  • ${dispAct}: ${b.start || '--:--'} – ${b.end || '--:--'}${ref}${sacs}${obs}\n`;
+            
+            linhasBlocks += `  • ${dispAct}: ${b.start || '--:--'} – ${b.end || '--:--'}${blockDurInfo}${ref}${sacs}${obs}\n`;
         });
 
         const horas = `${Math.floor(totalMin / 60)}h${(totalMin % 60).toString().padStart(2, '0')}m`;
@@ -1652,21 +1973,40 @@
         let texto = `*BOLETIM DIÁRIO DE PRODUÇÃO*\n`;
         texto += `*SETOR: ${cleanSetor.toUpperCase()}*\n`;
         texto += `📅 ${workingDate}  |  👤 ${operadorNome}\n`;
+        
+        let shiftMin = 0;
+        if (cleanSetor.includes('Rebenefício') && st.shiftName && st.shiftStart && st.shiftEnd) {
+            let [hI, mI] = st.shiftStart.split(':').map(Number);
+            let [hF, mF] = st.shiftEnd.split(':').map(Number);
+            let mS = hI * 60 + mI, mE = hF * 60 + mF;
+            if (mE <= mS) mE += 1440;
+            shiftMin = mE - mS;
+            let horasDisp = `${Math.floor(shiftMin / 60)}h${(shiftMin % 60).toString().padStart(2, '0')}m`;
+            
+            texto += `⏱️ *Turno:* ${st.shiftName} (${st.shiftStart} às ${st.shiftEnd})\n`;
+            texto += `⏳ *Horas Disp. (Turno):* ${horasDisp} | *Apontadas:* ${horas}\n`;
+        } else {
+            texto += `⏱️ *Tempo (Horas Apontadas):* ${horas}\n`;
+        }
+
         texto += '─'.repeat(32) + '\n';
-        if (linhasBlocks) texto += `*Apontamentos:*\n${linhasBlocks}\n`;
+        if (linhasBlocks) texto += `*Apontamentos (Por Guia):*\n${linhasBlocks}\n`;
         
         if (cleanSetor.includes('Rebenefício') && st.justificativa) {
             const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
             const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
-            const media = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
-            if (totalMin > 0 && (totalSacas < metaT || media < metaH)) {
+            
+            let media = 0;
+            if (shiftMin > 0) media = (totalSacas > 0) ? (totalSacas / (shiftMin / 60)) : 0;
+            else media = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+
+            if ((totalMin > 0 || shiftMin > 0) && (totalSacas < metaT || media < metaH)) {
                 texto += `⚠️ *Justificativa de Meta:* ${st.justificativa}\n\n`;
             }
         }
         
         if (st.atvServico) texto += `*Antes de iniciar as atividades:* ${st.atvServico}\n`;
         texto += '─'.repeat(32) + '\n';
-        texto += `⏱️ Tempo: *${horas}* trabalhadas\n`;
         texto += `📦 Produção Total: *${totalSacas.toLocaleString('pt-BR')} sc*`;
 
         if (navigator.share) {
@@ -1686,3 +2026,9 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+```
