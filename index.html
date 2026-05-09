@@ -25,7 +25,6 @@
         const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
         document.write('<link rel="manifest" href="' + URL.createObjectURL(manifestBlob) + '">');
 
-        // [CRÍTICO 3] Implementação do Service Worker para cache e funcionamento Offline
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
@@ -88,7 +87,6 @@
         html.dark .quebra-table input:focus { border-color: #c5a080; background: #1f2937; }
         html.dark .highlight-yellow { background-color: #854d0e !important; color: #fef08a !important; }
 
-        /* [BUG 6] Ajuste para ícone do relógio nos campos de tempo no iOS Dark Theme */
         html.dark input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
         #save-indicator {
@@ -101,10 +99,9 @@
         }
         #save-indicator.visible { opacity: 1; }
 
-        /* [NOVO RECURSO 3] Regras de impressão para exportação em PDF via window.print() */
         @media print {
             body { background: white !important; color: black !important; }
-            #user-sidebar, header, #action-bar, footer, #view-menu, #view-submenu, #view-atividades, #view-productivity, #view-horimetro, #view-percentage, #view-divisao-quebra, #view-conv-mm, #view-conv-hz, .print-hide { display: none !important; }
+            #user-sidebar, header, #action-bar, footer, #view-menu, #view-submenu, #view-atividades, #view-productivity, #view-horimetro, #view-percentage, #view-divisao-quebra, #view-conv-mm, #view-conv-hz, #view-os, #view-requisicao, .print-hide { display: none !important; }
             #modal-adm-email { display: block !important; position: static !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
             #modal-adm-email > div { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             .adm-table { border: 1px solid #000; width: 100%; }
@@ -149,7 +146,7 @@
                 <span class="text-2xl">☕</span> +ΔTO
             </h1>
             
-            <!-- [NOVO RECURSO 2] Badge de sacas em tempo real -->
+            <!-- Badge de sacas em tempo real -->
             <span id="header-bags-badge" class="hidden absolute right-16 top-1/2 -translate-y-1/2 bg-emerald-600 text-white text-[10px] font-black px-2 py-1 rounded-full shadow-md">0 SC</span>
 
             <button onclick="toggleSidebar()" class="text-coffee-100 hover:text-white p-1 rounded-full active:scale-95 transition-all">
@@ -227,7 +224,12 @@
                         <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Manutenção</h3>
                     </button>
                 </div>
-                <!-- [BUG 2] Corrigido conflito de estilos hidden/flex para PWA install -->
+                
+                <!-- Botão TESTE (Só aparece para ADM) -->
+                <button id="btn-sector-teste" onclick="navigate('view-submenu', '🧪 TESTE')" class="hidden w-full mt-3 bg-purple-100 dark:bg-purple-900/30 border-2 border-dashed border-purple-300 dark:border-purple-700 hover:bg-purple-200 dark:hover:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold py-3.5 rounded-2xl items-center justify-center gap-2 active:scale-95 transition-all">
+                    🧪 Acessar Área de TESTE (Simula Rebenefício)
+                </button>
+                
                 <button id="btn-install" onclick="installPWA()" class="hidden w-full mt-4 bg-coffee-900 dark:bg-gray-800 hover:bg-black text-white font-bold py-3.5 rounded-xl items-center justify-center gap-2 active:scale-95 transition-all shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Instalar Aplicativo
                 </button>
@@ -252,7 +254,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
                     
-                    <!-- Botoes específicos -->
                     <button id="btn-menu-quebra" onclick="navigate('view-divisao-quebra', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl">⚖️</div>
@@ -275,7 +276,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
                     
-                    <!-- Conversões -->
                     <button id="btn-menu-conv-mm" onclick="navigate('view-conv-mm', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">📏</div>
@@ -291,7 +291,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
 
-                    <!-- NOVA OPÇÃO: Abertura de O.S -->
                     <button onclick="navigate('view-os', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl">🔧</div>
@@ -300,7 +299,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
 
-                    <!-- NOVA OPÇÃO: Requisições -->
                     <button onclick="navigate('view-requisicao', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl">🛒</div>
@@ -309,7 +307,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
 
-                    <!-- [NOVO RECURSO 1] Histórico de dias anteriores -->
                     <button onclick="abrirModalHistorico()" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all mt-4 border-t-2 border-t-coffee-200">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">📅</div>
@@ -319,7 +316,6 @@
                     </button>
                 </div>
                 
-                <!-- [NOVO RECURSO 5] Modo Leitura Rápida -->
                 <div id="submenu-quick-read" class="mt-6 bg-coffee-100/50 dark:bg-gray-800/50 rounded-2xl p-4 border border-coffee-200 dark:border-gray-700 hidden">
                     <p class="text-[10px] font-black uppercase text-coffee-500 dark:text-gray-400 mb-2">Resumo de Hoje (<span id="qr-date"></span>)</p>
                     <div class="flex justify-between items-center">
@@ -454,12 +450,11 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar Guia / Período
                         </button>
                         
-                        <!-- [BUG 5] Limite no text-area -->
                         <div id="container-justificativa" class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 transition-all shadow-sm">
                             <label class="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2 block">Atenção: Meta não atingida. Justifique:</label>
                             <textarea id="justificativa-meta" maxlength="200" oninput="debouncedSave()" rows="2" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-3 outline-none text-sm dark:text-white focus:border-red-400" placeholder="Descreva o motivo..."></textarea>
                         </div>
-                        <!-- [ALTO IMPACTO 3] Feedback visual quando meta atingida -->
+                        
                         <div id="container-meta-sucesso" class="hidden mt-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 transition-all shadow-sm flex items-center justify-center gap-2">
                             <span class="text-emerald-600 dark:text-emerald-400 font-bold text-sm uppercase tracking-wider">🏆 Meta Atingida!</span>
                         </div>
@@ -533,7 +528,7 @@
                 </div>
             </div>
 
-            <!-- NOVA ABA: ABERTURA DE O.S -->
+            <!-- ABERTURA DE O.S -->
             <div id="view-os" class="view-hidden w-full flex flex-col min-h-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Abertura de O.S</h2>
                 <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors flex-1">
@@ -550,7 +545,7 @@
                 </div>
             </div>
 
-            <!-- NOVA ABA: REQUISIÇÕES -->
+            <!-- REQUISIÇÕES -->
             <div id="view-requisicao" class="view-hidden w-full flex flex-col min-h-full p-5">
                 <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Requisições</h2>
                 
@@ -580,32 +575,40 @@
 
                     <!-- Aba: Requisição de Compras -->
                     <div id="tab-req-compra" class="hidden space-y-4">
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-4">Requisição de Compras</h3>
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Item a Comprar</label>
-                            <input type="text" id="req-comp-nome" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Nome exato do material">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="w-full">
-                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade</label>
-                                <input type="text" id="req-comp-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: 5 un">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-4">Múltiplos Itens de Compra</h3>
+                        <div class="bg-coffee-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-coffee-200 dark:border-gray-600">
+                            <div class="w-full mb-3">
+                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Item a Comprar</label>
+                                <input type="text" id="req-comp-nome" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500" placeholder="Nome exato do material">
                             </div>
-                            <div class="w-full">
-                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
-                                <select id="req-comp-cat" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500">
-                                    <option value="EPIs">EPIs</option>
-                                    <option value="Ferramentas">Ferramentas</option>
-                                    <option value="Insumos (Embalagem)">Insumos (Embalagem)</option>
-                                    <option value="Limpeza">Limpeza</option>
-                                    <option value="Escritório">Escritório</option>
-                                    <option value="Outros">Outros</option>
-                                </select>
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div class="w-full">
+                                    <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade</label>
+                                    <input type="text" id="req-comp-qtd" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: 5 un">
+                                </div>
+                                <div class="w-full">
+                                    <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
+                                    <select id="req-comp-cat" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500">
+                                        <option value="EPIs">EPIs</option>
+                                        <option value="Ferramentas">Ferramentas</option>
+                                        <option value="Insumos (Embalagem)">Insumos</option>
+                                        <option value="Limpeza">Limpeza</option>
+                                        <option value="Escritório">Escritório</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
+                                </div>
                             </div>
+                            <div class="w-full mb-4">
+                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Justificativa da Compra</label>
+                                <input type="text" id="req-comp-just" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500" placeholder="Motivo...">
+                            </div>
+                            <button onclick="addReqCompraItem()" class="w-full py-3 bg-coffee-800 dark:bg-gray-600 text-white rounded-xl font-bold active:scale-95 transition-all shadow-sm">
+                                ➕ Adicionar à Lista
+                            </button>
                         </div>
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Justificativa da Compra</label>
-                            <textarea id="req-comp-just" rows="3" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Motivo pelo qual precisa ser comprado..."></textarea>
-                        </div>
+                        
+                        <!-- Lista de compras -->
+                        <div id="req-compras-list" class="space-y-2 mt-4"></div>
                     </div>
                 </div>
             </div>
@@ -709,7 +712,6 @@
             <div class="mt-4 flex gap-3 print-hide">
                 <button onclick="fecharModalAdm()" class="flex-1 py-3 bg-coffee-100 dark:bg-gray-700 text-coffee-900 dark:text-gray-200 font-bold rounded-xl active:scale-95">Fechar</button>
                 <button onclick="copiarTabelaAdm()" class="flex-1 py-3 bg-coffee-900 dark:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md">📋 Copiar Tabela</button>
-                <!-- [NOVO RECURSO 3] Botão de exportação para PDF -->
                 <button onclick="window.print()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl active:scale-95 shadow-md">📄 Exportar PDF</button>
             </div>
         </div>
@@ -722,17 +724,9 @@
     </div>
 
     <script>
-    // =========================================================
-    // UTILITÁRIOS E SEGURANÇA
-    // =========================================================
     function escapeHTML(str) {
         if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     let toastTimeout;
@@ -767,14 +761,11 @@
     }
 
     function trocarSetor() {
-        saveData(); // [CRÍTICO 2] Salva antes de trocar de setor
+        saveData(); 
         toggleSidebar();
         navigate('view-menu');
     }
 
-    // =========================================================
-    // ESTADO GLOBAL
-    // =========================================================
     let currentRefLabel = "Referência";
     let currentActivities = [];
     let currentPlanejamentoActivities = [];
@@ -789,14 +780,11 @@
     let deferredPromptPWA = null;
     let editingBlockId = null;
 
-    // =========================================================
-    // PWA INSTALL
-    // =========================================================
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPromptPWA = e;
         const btn = document.getElementById('btn-install');
-        if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); } // [BUG 2] Corrigido conflito de display
+        if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); } 
     });
 
     window.addEventListener('appinstalled', () => {
@@ -815,9 +803,6 @@
         });
     }
 
-    // =========================================================
-    // AUTOSAVE E GERENCIAMENTO DE DADOS
-    // =========================================================
     let saveDebounceTimer = null;
     function debouncedSave() {
         clearTimeout(saveDebounceTimer);
@@ -834,7 +819,6 @@
         setTimeout(() => ind.classList.remove('visible'), 1800);
     }
 
-    // [NOVO RECURSO 6 e ALTO IMPACTO 2] Limpa registros antigos
     function limparDadosAntigos() {
         const saved = localStorage.getItem('gestaoOpDatabase');
         if (!saved) return;
@@ -861,9 +845,6 @@
         }
     }
 
-    // =========================================================
-    // INICIALIZAÇÃO E LOGIN
-    // =========================================================
     window.onload = function () {
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
         limparDadosAntigos();
@@ -911,6 +892,7 @@
         const div = document.getElementById('welcome-divider');
         const adm = document.getElementById('adm-panel');
         const dp = document.getElementById('date-picker-container');
+        const btnTeste = document.getElementById('btn-sector-teste');
         
         if (nameDisplay) { nameDisplay.innerText = operadorNome; nameDisplay.classList.remove('hidden'); }
         if (welcomeMsg) { welcomeMsg.classList.remove('hidden'); }
@@ -918,12 +900,14 @@
         if (isAdmin) {
             if (adm) adm.classList.remove('hidden');
             if (dp && currentViewId === 'view-menu') { dp.classList.remove('hidden'); dp.classList.add('flex'); }
+            if (btnTeste) { btnTeste.classList.remove('hidden'); btnTeste.classList.add('flex'); }
             
             document.getElementById('adm-meta-hora').value = appData.config?.metaRebeneficioHora || 55;
             document.getElementById('adm-meta-turno').value = appData.config?.metaRebeneficioTurno || 500;
         } else {
             if (adm) adm.classList.add('hidden');
             if (dp) { dp.classList.add('hidden'); dp.classList.remove('flex'); }
+            if (btnTeste) { btnTeste.classList.add('hidden'); btnTeste.classList.remove('flex'); }
         }
     }
 
@@ -962,19 +946,13 @@
     }
 
     function logout() {
-        // [CRÍTICO 1] Corrige o erro de retenção de memória e inputs visualizando os dados do antigo
         saveData(); 
         localStorage.removeItem('operadorNome');
         localStorage.removeItem('operadorIsAdmin');
         localStorage.removeItem('operadorSetor');
-        
-        // Simplesmente dar reload zera todas as variáveis de RAM e os campos do DOM com total segurança
         window.location.reload(); 
     }
 
-    // =========================================================
-    // DATALIST DE CLIENTES / OBS
-    // =========================================================
     function popularDatalist() {
         const saved = JSON.parse(localStorage.getItem('clientesList') || '[]');
         const dl = document.getElementById('clientesList');
@@ -993,9 +971,6 @@
         }
     }
 
-    // =========================================================
-    // HELPERS DE SETOR E SUGESTÕES
-    // =========================================================
     function limparEmoji(str) {
         return str.replace(/^[^\w\s]+/g, '').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
     }
@@ -1015,13 +990,14 @@
 
     function configurarContextoSetor(cleanSetor) {
         if (cleanSetor.includes('Recebimento')) currentRefLabel = "Guia/Lote";
-        else if (cleanSetor.includes('Rebenefício')) currentRefLabel = "Guia";
+        else if (cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) currentRefLabel = "Guia";
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = "Guia/Contrato";
         else currentRefLabel = "Referência";
 
         const activityOptions = {
             'Recebimento': ['Recebimento de café', 'Pilha simples (Liga)', 'Ensaque', 'Embarque (Mercado interno)'],
             'Rebenefício': ['Produção (Macro Lote)', 'Repasse (Macro Lote)', 'Produção (Micro Lote)', 'Repasse (Micro Lote)'],
+            'TESTE': ['Produção (Macro Lote)', 'Repasse (Macro Lote)', 'Produção (Micro Lote)', 'Repasse (Micro Lote)'],
             'Expedição': ['Pilha simples (Liga)', 'Ensaque', 'Embarque (Exportação)', 'Produção de Vácuo', 'Coleta (Mercado interno)'],
             'Embalagem': ['Aplicação de Stickers', 'Aplicação de VDP', 'Produção de Vácuo', 'Coleta (Mercado interno)'],
             'Manutenção': ['Manutenção Preventiva', 'Manutenção Corretiva', 'Ajuste de Máquinas', 'Outros'],
@@ -1032,6 +1008,7 @@
         const planejamentoOptions = {
             'Recebimento': ['Recebimento de Café', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Conferência de Estoque', 'Guardar Café (Rebenefício)', 'Separar Lotes (Expedição)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Rebenefício': ['Produção', 'Repasse', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
+            'TESTE': ['Produção', 'Repasse', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Expedição': ['Fracionamento de Lote', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Vácuo', 'Conferência de Estoque (M.I)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Embalagem': ['Aplicação de Stickers', 'Aplicação de VPD', 'Coleta', 'Vácuo', 'Conferência de Estoque', 'Recebimento e Conferência de Sacas', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
             'Manutenção': ['Prevetiva no Recebimento', 'Prevetiva no Rebenefício', 'Prevetiva na Expedição', 'O.S do Sistema', 'Inventario no Almoxarifado', 'Limpeza do Setor', 'Outras'],
@@ -1043,15 +1020,12 @@
     function configurarBotoesSubmenu(cleanSetor) {
         document.getElementById('btn-menu-produtividade')?.classList.toggle('hidden', cleanSetor === 'Manutenção' || cleanSetor === 'Operações');
         document.getElementById('btn-menu-quebra')?.classList.toggle('hidden', cleanSetor !== 'Recebimento');
-        document.getElementById('btn-menu-retencao')?.classList.toggle('hidden', cleanSetor !== 'Rebenefício');
+        document.getElementById('btn-menu-retencao')?.classList.toggle('hidden', cleanSetor !== 'Rebenefício' && cleanSetor !== 'TESTE');
         document.getElementById('btn-menu-horimetro')?.classList.toggle('hidden', cleanSetor !== 'Manutenção');
         document.getElementById('btn-menu-conv-mm')?.classList.toggle('hidden', cleanSetor !== 'Operações');
         document.getElementById('btn-menu-conv-hz')?.classList.toggle('hidden', cleanSetor !== 'Operações');
     }
 
-    // =========================================================
-    // NAVEGAÇÃO E MODAIS
-    // =========================================================
     function renderView(viewId, sectorName) {
         saveData();
         if (sectorName) currentSector = sectorName;
@@ -1094,7 +1068,6 @@
     }
 
     window.addEventListener('popstate', (event) => {
-        // [BUG 4] Correção de separação de classes no fechamento de modais
         const modAtv = document.getElementById('modal-atividades');
         if(modAtv) { modAtv.classList.add('hidden', 'opacity-0'); }
         
@@ -1285,9 +1258,6 @@
         }
     }
 
-    // =========================================================
-    // PERSISTÊNCIA DE DADOS
-    // =========================================================
     function getEmptySectorState() {
         return {
             timeBlocks: [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }],
@@ -1297,7 +1267,7 @@
             justificativa: '', shiftName: '', shiftStart: '', shiftEnd: '',
             osEquipamento: '', osProblema: '',
             reqMatNome: '', reqMatQtd: '', reqMatJust: '',
-            reqCompNome: '', reqCompQtd: '', reqCompCat: 'EPIs', reqCompJust: ''
+            reqComprasItens: []
         };
     }
 
@@ -1317,7 +1287,7 @@
             if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
             document.getElementById('justificativa-meta').value = st.justificativa || '';
             
-            if (currentSector.includes('Rebenefício')) {
+            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
                 document.getElementById('shift-selector').value = st.shiftName || '';
                 document.getElementById('shift-start').value = st.shiftStart || '';
                 document.getElementById('shift-end').value = st.shiftEnd || '';
@@ -1361,10 +1331,9 @@
             document.getElementById('req-mat-nome').value = st.reqMatNome || '';
             document.getElementById('req-mat-qtd').value = st.reqMatQtd || '';
             document.getElementById('req-mat-just').value = st.reqMatJust || '';
-            document.getElementById('req-comp-nome').value = st.reqCompNome || '';
-            document.getElementById('req-comp-qtd').value = st.reqCompQtd || '';
-            document.getElementById('req-comp-cat').value = st.reqCompCat || 'EPIs';
-            document.getElementById('req-comp-just').value = st.reqCompJust || '';
+            
+            if (!st.reqComprasItens) st.reqComprasItens = [];
+            renderReqComprasItens();
         }
     }
 
@@ -1378,7 +1347,7 @@
             st.timeBlocks = JSON.parse(JSON.stringify(window.tempTimeBlocks || []));
             st.justificativa = document.getElementById('justificativa-meta').value;
             
-            if (currentSector.includes('Rebenefício')) {
+            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
                 st.shiftName = document.getElementById('shift-selector').value || '';
                 st.shiftStart = document.getElementById('shift-start').value || '';
                 st.shiftEnd = document.getElementById('shift-end').value || '';
@@ -1396,10 +1365,7 @@
             st.reqMatNome = document.getElementById('req-mat-nome').value;
             st.reqMatQtd = document.getElementById('req-mat-qtd').value;
             st.reqMatJust = document.getElementById('req-mat-just').value;
-            st.reqCompNome = document.getElementById('req-comp-nome').value;
-            st.reqCompQtd = document.getElementById('req-comp-qtd').value;
-            st.reqCompCat = document.getElementById('req-comp-cat').value;
-            st.reqCompJust = document.getElementById('req-comp-just').value;
+            // reqComprasItens já são salvos em tempo real pela função addReqCompraItem
         }
 
         try {
@@ -1432,7 +1398,6 @@
             const dp = document.getElementById('date-picker-container');
             if (dp) { dp.classList.add('hidden'); dp.classList.remove('flex'); }
             
-            // Renderiza o resumo do submenu
             atualizarQuickRead();
         } else {
             vol.classList.remove('hidden');
@@ -1453,7 +1418,7 @@
             const shiftCont = document.getElementById('rebeneficio-shift-container');
             const lblMedia = document.getElementById('lbl-media-hora');
             
-            if (currentSector.includes('Rebenefício')) {
+            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
                 shiftCont.classList.remove('hidden'); shiftCont.classList.add('block');
                 if (lblMedia) lblMedia.innerText = "Média / Hora (Turno)";
             } else {
@@ -1473,7 +1438,6 @@
         }
     }
 
-    // [NOVO RECURSO 5] Modo Leitura Rápida
     function atualizarQuickRead() {
         const qrContainer = document.getElementById('submenu-quick-read');
         const st = appData[workingDate]?.[currentSector];
@@ -1505,7 +1469,6 @@
         }
     }
 
-    // [NOVO RECURSO 1] Histórico Modal
     function abrirModalHistorico() {
         const container = document.getElementById('lista-historico');
         document.getElementById('historico-setor').innerText = limparEmoji(currentSector);
@@ -1567,9 +1530,6 @@
         setTimeout(() => modal.classList.add('hidden'), 300);
     }
 
-    // =========================================================
-    // DIVISÃO DE QUEBRA
-    // =========================================================
     function renderizarLinhasQuebra(sacasArray) {
         let arr = sacasArray || [];
         if (arr.length < 2) arr = [...arr, ...Array(2 - arr.length).fill('')];
@@ -1616,9 +1576,6 @@
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
     }
 
-    // =========================================================
-    // CÁLCULOS AUXILIARES
-    // =========================================================
     function calcRetencao() {
         const a = parseFloat(document.getElementById('peso-amostra').value);
         const r = parseFloat(document.getElementById('peso-retido').value);
@@ -1657,11 +1614,8 @@
     function calcConvMm() { const v = parseFloat(document.getElementById('conv-mm-input').value); document.getElementById('res-conv-mm').innerText = !isNaN(v) ? (v / 10).toLocaleString('pt-BR') : '0'; }
     function calcConvHz() { const v = parseFloat(document.getElementById('conv-hz-input').value); document.getElementById('res-conv-hz').innerText = !isNaN(v) ? (v * 60).toLocaleString('pt-BR') : '0'; }
 
-    // =========================================================
-    // PRODUTIVIDADE E BLOCOS DE TEMPO
-    // =========================================================
     function isMetaAtingidaOuJustificada(st, sectorName) {
-        if (!sectorName.includes('Rebenefício')) return true;
+        if (!sectorName.includes('Rebenefício') && !sectorName.includes('TESTE')) return true;
         let totalMin = 0, totalSacas = 0;
         (st.timeBlocks || []).forEach(b => {
             if (b.start && b.end) {
@@ -1842,7 +1796,7 @@
         if (rT) rT.innerText = `${Math.floor(totalMin / 60)}h ${(totalMin % 60).toString().padStart(2, '0')}m`;
 
         let shiftTotalMin = 0;
-        if (currentSector.includes('Rebenefício')) {
+        if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
             const sStart = document.getElementById('shift-start').value;
             const sEnd = document.getElementById('shift-end').value;
 
@@ -1878,7 +1832,7 @@
         const contJust = document.getElementById('container-justificativa');
         const contSucs = document.getElementById('container-meta-sucesso');
         
-        if (currentSector.includes('Rebenefício')) {
+        if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
             const metaHora = parseFloat(appData.config?.metaRebeneficioHora) || 55;
             const metaTurno = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
             const hasWorked = (shiftTotalMin > 0 || totalMin > 0);
@@ -1901,9 +1855,6 @@
         }
     }
 
-    // =========================================================
-    // HELPERS UI
-    // =========================================================
     function toggleAjudaQtd() {
         const v = document.getElementById('atv-ajuda').value;
         document.getElementById('div-ajuda-qtd')?.classList.toggle('hidden', v !== 'Sim');
@@ -1932,6 +1883,46 @@
         document.getElementById('btn-tab-req-compra').classList.toggle('text-coffee-800/60', t !== 'compra');
     }
 
+    function addReqCompraItem() {
+        const comp = document.getElementById('req-comp-nome').value.trim();
+        const qtd = document.getElementById('req-comp-qtd').value.trim();
+        const cat = document.getElementById('req-comp-cat').value;
+        const just = document.getElementById('req-comp-just').value.trim();
+        if (!comp || !qtd || !just) return mostrarToast('Preencha Item, Quantidade e Justificativa!', true);
+
+        if (!appData[workingDate][currentSector].reqComprasItens) appData[workingDate][currentSector].reqComprasItens = [];
+        appData[workingDate][currentSector].reqComprasItens.push({ id: Date.now(), comp, qtd, cat, just });
+
+        document.getElementById('req-comp-nome').value = '';
+        document.getElementById('req-comp-qtd').value = '';
+        document.getElementById('req-comp-just').value = '';
+
+        debouncedSave();
+        renderReqComprasItens();
+    }
+
+    function removeReqCompraItem(id) {
+        if (!appData[workingDate][currentSector].reqComprasItens) return;
+        appData[workingDate][currentSector].reqComprasItens = appData[workingDate][currentSector].reqComprasItens.filter(i => i.id !== id);
+        debouncedSave();
+        renderReqComprasItens();
+    }
+
+    function renderReqComprasItens() {
+        const cont = document.getElementById('req-compras-list');
+        const list = appData[workingDate]?.[currentSector]?.reqComprasItens || [];
+        cont.innerHTML = list.map(i => `
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 relative mt-2">
+                <button onclick="removeReqCompraItem(${i.id})" class="absolute top-2 right-2 text-red-500 bg-red-50 dark:bg-red-900/30 p-1.5 rounded-full hover:bg-red-100 transition-colors">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
+                </button>
+                <div class="font-bold text-coffee-900 dark:text-white pr-8">${escapeHTML(i.comp)}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Qtd: ${escapeHTML(i.qtd)} | Cat: ${escapeHTML(i.cat)}</div>
+                <div class="text-xs text-gray-600 dark:text-gray-300 mt-1 italic">"${escapeHTML(i.just)}"</div>
+            </div>
+        `).join('');
+    }
+
     function openModalReset() {
         document.getElementById('modal-confirm').classList.remove('hidden');
         setTimeout(() => document.getElementById('modal-confirm').classList.add('opacity-100'), 10);
@@ -1948,7 +1939,7 @@
             window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
             document.getElementById('justificativa-meta').value = '';
             
-            if (currentSector.includes('Rebenefício')) {
+            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
                 document.getElementById('shift-selector').value = '';
                 document.getElementById('shift-start').value = '';
                 document.getElementById('shift-end').value = '';
@@ -1969,6 +1960,10 @@
             document.getElementById('req-comp-qtd').value = '';
             document.getElementById('req-comp-cat').value = 'EPIs';
             document.getElementById('req-comp-just').value = '';
+            if (appData[workingDate] && appData[workingDate][currentSector]) {
+                appData[workingDate][currentSector].reqComprasItens = [];
+            }
+            renderReqComprasItens();
         } else {
             document.getElementById('atv-servico').value = '';
             const lbl = document.getElementById('lbl-atv-servico');
@@ -1984,11 +1979,7 @@
         mostrarToast("Dados limpos!");
     }
 
-    // =========================================================
-    // BOLETIM UNIFICADO (ADM) E RELATÓRIOS
-    // =========================================================
-    // Diretrizes solicitadas pelo usuário para o layout unificado
-    const SETORES_ORDEM = ['⚙️ Rebenefício', '🚛 Expedição', '📦 Embalagem', '📥 Recebimento', '⏱️ Manutenção', '📊 Operações'];
+    const SETORES_ORDEM = ['⚙️ Rebenefício', '🚛 Expedição', '📦 Embalagem', '📥 Recebimento', '⏱️ Manutenção', '📊 Operações', '🧪 TESTE'];
 
     function gerarResumoGeral() {
         saveData();
@@ -2000,7 +1991,7 @@
             if (st && !isMetaAtingidaOuJustificada(st, setor)) bloqueioJustificativa = true;
         });
 
-        if (bloqueioJustificativa) return mostrarToast('Falta justificar a meta no Rebenefício!', true);
+        if (bloqueioJustificativa) return mostrarToast('Falta justificar a meta no Rebenefício/Teste!', true);
 
         let hasData = false;
         let linhas = '';
@@ -2014,11 +2005,11 @@
             let totalM = 0;
             let shiftMin = 0;
 
-            if (blocks.length || st.atvServico || (cleanSetor === 'Manutenção' && st.horInicial) || (cleanSetor === 'Rebenefício' && st.pesoAmostra)) {
+            if (blocks.length || st.atvServico || (cleanSetor === 'Manutenção' && st.horInicial) || ((cleanSetor === 'Rebenefício' || cleanSetor === 'TESTE') && st.pesoAmostra)) {
                 hasData = true;
                 linhas += `<tr><td colspan="4" class="sector-header">SETOR: ${cleanSetor.toUpperCase()}</td></tr>`;
                 
-                if (cleanSetor.includes('Rebenefício') && st.shiftName && st.shiftStart && st.shiftEnd) {
+                if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftName && st.shiftStart && st.shiftEnd) {
                      linhas += `<tr style="background-color:#fffbeb;">
                             <td colspan="4" style="color:#d97706; font-size: 11px; font-weight: bold; text-align: center;">
                                 ⏱️ Turno Registrado: ${escapeHTML(st.shiftName)} (${escapeHTML(st.shiftStart)} às ${escapeHTML(st.shiftEnd)})
@@ -2030,7 +2021,7 @@
             if (blocks.length) {
                 let totalS = 0;
 
-                if (cleanSetor.includes('Rebenefício') && st.shiftStart && st.shiftEnd) {
+                if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftStart && st.shiftEnd) {
                     let [hI, mI] = st.shiftStart.split(':').map(Number);
                     let [hF, mF] = st.shiftEnd.split(':').map(Number);
                     let mS = hI * 60 + mI, mE = hF * 60 + mF;
@@ -2061,7 +2052,7 @@
                     </tr>`;
                 });
 
-                if (cleanSetor.includes('Rebenefício') && st.justificativa) {
+                if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.justificativa) {
                     let tempoConsiderado = totalM;
                     if (totalM > shiftMin && shiftMin > 0) tempoConsiderado = shiftMin;
 
@@ -2085,8 +2076,7 @@
                 </tr>`;
             }
 
-            // [ALTO IMPACTO 4] Incluir Retenção de Peneira e Horímetro
-            if (cleanSetor === 'Rebenefício' && st.pesoAmostra && st.pesoRetido) {
+            if ((cleanSetor === 'Rebenefício' || cleanSetor === 'TESTE') && st.pesoAmostra && st.pesoRetido) {
                 const p = parseFloat(st.pesoAmostra), r = parseFloat(st.pesoRetido);
                 if (p > 0) {
                     const pct = ((r / p) * 100).toFixed(2).replace('.', ',');
@@ -2145,7 +2135,6 @@
             mostrarToast('Tabela HTML copiada — cole no e-mail!');
         } catch {
             try {
-                // Tenta command/execCommand para dispositivos restritos
                 const range = document.createRange();
                 range.selectNode(container);
                 window.getSelection().removeAllRanges();
@@ -2169,7 +2158,7 @@
             if (st && !isMetaAtingidaOuJustificada(st, setor)) bloqueioJustificativa = true;
         });
 
-        if (bloqueioJustificativa) return mostrarToast('Falta justificar a meta no Rebenefício!', true);
+        if (bloqueioJustificativa) return mostrarToast('Falta justificar a meta no Rebenefício/Teste!', true);
 
         const rows = [['Data', 'Setor', 'Atividade', 'Início', 'Fim', 'Guias/Ref', 'Produção/Sacas', 'Detalhe/Cliente/Observação']];
 
@@ -2178,7 +2167,7 @@
             if (!st) return;
             const cleanSetor = limparEmoji(setor);
             
-            if (cleanSetor.includes('Rebenefício') && st.shiftName) {
+            if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftName) {
                 rows.push([workingDate, cleanSetor, `TURNO REGISTRADO: ${st.shiftName}`, st.shiftStart || '', st.shiftEnd || '', '-', '-', '-']);
             }
 
@@ -2187,7 +2176,6 @@
                 const dispAct = getDisplayActivity(b);
                 const dispBags = getDisplayBags(b);
                 
-                // [ALTO IMPACTO 1] Inclusão explicita da Justificativa no Detalhes Export
                 const motivo = (b.activity && b.activity.includes('Repasse') && b.repasseJustificativa) ? `[Motivo: ${b.repasseJustificativa}]` : '';
                 const detalhesCompletos = `${b.obs || ''} ${motivo}`.trim();
 
@@ -2211,6 +2199,22 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         mostrarToast('CSV exportado com sucesso!');
+    }
+
+    // Função centralizadora de compartilhamento
+    function executarCompartilhamento(title, texto, cleanSetor) {
+        if (cleanSetor === 'TESTE') {
+            navigator.clipboard.writeText(texto).then(() => {
+                mostrarToast('Copiado! Abrindo grupo WhatsApp...');
+                setTimeout(() => {
+                    window.open('https://chat.whatsapp.com/HN0pDkOneOAJylOo1PbmtD', '_blank');
+                }, 1000);
+            }).catch(() => mostrarToast('Erro ao copiar.', true));
+            return;
+        }
+
+        if (navigator.share) navigator.share({ title: title, text: texto }).catch(() => fallbackCopiar(texto));
+        else fallbackCopiar(texto);
     }
 
     function compartilharRelatorio() {
@@ -2263,8 +2267,7 @@
                 texto += `- *PROJEÇÃO DE ENTREGA:* ${projecao}`;
             }
 
-            if (navigator.share) navigator.share({ title: `Atividades ${cleanSetor} — ${workingDate}`, text: texto }).catch(() => fallbackCopiar(texto));
-            else fallbackCopiar(texto);
+            executarCompartilhamento(`Atividades ${cleanSetor} — ${workingDate}`, texto, cleanSetor);
             return;
         }
         
@@ -2280,8 +2283,7 @@
             texto += `⚙️ *MÁQUINA/EQUIPAMENTO:* ${equip}\n\n`;
             texto += `⚠️ *DESCRIÇÃO DO PROBLEMA:*\n${prob}\n`;
 
-            if (navigator.share) navigator.share({ title: `Abertura OS - ${equip}`, text: texto }).catch(() => fallbackCopiar(texto));
-            else fallbackCopiar(texto);
+            executarCompartilhamento(`Abertura OS - ${equip}`, texto, cleanSetor);
             return;
         }
 
@@ -2301,24 +2303,23 @@
                 texto += `🔢 *QUANTIDADE:* ${qtd}\n`;
                 if (just) texto += `📝 *JUSTIFICATIVA:* ${just}\n`;
             } else {
-                const comp = document.getElementById('req-comp-nome').value.trim();
-                const qtd = document.getElementById('req-comp-qtd').value.trim();
-                const cat = document.getElementById('req-comp-cat').value;
-                const just = document.getElementById('req-comp-just').value.trim();
-                if (!comp || !qtd || !just) return mostrarToast('Preencha Item, Quantidade e Justificativa!', true);
+                const itens = st.reqComprasItens || [];
+                if (itens.length === 0) return mostrarToast('Adicione pelo menos um item na lista!', true);
 
-                texto = `🛒 *REQUISIÇÃO DE COMPRAS*\n\n`;
+                texto = `🛒 *REQUISIÇÃO DE COMPRAS EXTERNASH*\n\n`;
                 texto += `📅 *DATA:* ${workingDate}\n`;
                 texto += `👤 *SOLICITANTE:* ${operadorNome}\n`;
                 texto += `🏢 *SETOR:* ${cleanSetor}\n\n`;
-                texto += `🔹 *ITEM:* ${comp}\n`;
-                texto += `🔢 *QUANTIDADE:* ${qtd}\n`;
-                texto += `🏷️ *CATEGORIA:* ${cat}\n`;
-                texto += `📝 *JUSTIFICATIVA:* ${just}\n`;
+                
+                itens.forEach((item, index) => {
+                    texto += `*${index + 1}. Item:* ${item.comp}\n`;
+                    texto += `   - *Qtd:* ${item.qtd}\n`;
+                    texto += `   - *Categoria:* ${item.cat}\n`;
+                    texto += `   - *Justificativa:* ${item.just}\n\n`;
+                });
             }
 
-            if (navigator.share) navigator.share({ title: `Requisição - ${workingDate}`, text: texto }).catch(() => fallbackCopiar(texto));
-            else fallbackCopiar(texto);
+            executarCompartilhamento(`Requisição - ${workingDate}`, texto, cleanSetor);
             return;
         }
 
@@ -2355,7 +2356,7 @@
         let shiftMin = 0;
         let tempoConsiderado = totalMin;
 
-        if (cleanSetor.includes('Rebenefício') && st.shiftName && st.shiftStart && st.shiftEnd) {
+        if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftName && st.shiftStart && st.shiftEnd) {
             let [hI, mI] = st.shiftStart.split(':').map(Number);
             let [hF, mF] = st.shiftEnd.split(':').map(Number);
             let mS = hI * 60 + mI, mE = hF * 60 + mF;
@@ -2376,7 +2377,7 @@
         texto += '─'.repeat(32) + '\n';
         if (linhasBlocks) texto += `*Apontamentos (Por Guia):*\n${linhasBlocks}\n`;
         
-        if (cleanSetor.includes('Rebenefício') && st.justificativa) {
+        if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.justificativa) {
             const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
             const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
             let media = tempoConsiderado > 0 ? (totalSacas > 0 ? (totalSacas / (tempoConsiderado / 60)) : 0) : 0;
@@ -2390,21 +2391,17 @@
         texto += '─'.repeat(32) + '\n';
         texto += `📦 Produção Total: *${totalSacas.toLocaleString('pt-BR')} sc*`;
 
-        if (navigator.share) navigator.share({ title: `Boletim ${cleanSetor} — ${workingDate}`, text: texto }).catch(() => fallbackCopiar(texto));
-        else fallbackCopiar(texto);
+        executarCompartilhamento(`Boletim ${cleanSetor} — ${workingDate}`, texto, cleanSetor);
     }
 
     function fallbackCopiar(texto) {
         navigator.clipboard.writeText(texto)
-            .then(() => mostrarToast('Boletim copiado para área de transferência!'))
-            .catch(() => mostrarToast('Erro ao copiar boletim.', true));
+            .then(() => mostrarToast('Copiado para a área de transferência!'))
+            .catch(() => mostrarToast('Erro ao copiar.', true));
     }
     </script>
 </body>
 </html>
-
-
-
 
 
 ```
