@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ΔTO</title>
+    <title>+ΔTO</title>
     <meta name="theme-color" content="#2b1b18">
     <link rel="icon" type="image/png" href="1000146124.png">
     <link rel="apple-touch-icon" href="1000146124.png">
     <script>
         const manifestData = {
-            "name": "ΔTO",
-            "short_name": "ΔTO",
+            "name": "+ΔTO",
+            "short_name": "+ΔTO",
             "description": "Aplicativo para gestão operacional.",
             "start_url": "./",
             "display": "standalone",
@@ -146,7 +146,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
             <h1 id="header-title" class="text-lg sm:text-xl font-black uppercase tracking-widest text-coffee-50 absolute left-1/2 transform -translate-x-1/2 w-max heading-font flex items-center gap-1.5">
-                <span class="text-2xl">☕</span> ΔTO
+                <span class="text-2xl">☕</span> +ΔTO
             </h1>
             
             <!-- [NOVO RECURSO 2] Badge de sacas em tempo real -->
@@ -287,6 +287,24 @@
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">🔄</div>
                             <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Converter Hz</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Hertz para RPM</p></div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+                    <!-- NOVA OPÇÃO: Abertura de O.S -->
+                    <button onclick="navigate('view-os', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl">🔧</div>
+                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Abertura de O.S</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Solicitar Manutenção</p></div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+                    <!-- NOVA OPÇÃO: Requisições -->
+                    <button onclick="navigate('view-requisicao', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl">🛒</div>
+                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Requisições</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Material e Compras</p></div>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
                     </button>
@@ -515,6 +533,83 @@
                 </div>
             </div>
 
+            <!-- NOVA ABA: ABERTURA DE O.S -->
+            <div id="view-os" class="view-hidden w-full flex flex-col min-h-full p-5">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Abertura de O.S</h2>
+                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors flex-1">
+                    <div class="space-y-4">
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Equipamento / Máquina</label>
+                            <input type="text" id="os-equipamento" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500" placeholder="Ex: Elevador 01, Balança...">
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Descrição do Problema</label>
+                            <textarea id="os-problema" rows="4" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500" placeholder="Descreva de forma detalhada o que está acontecendo..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOVA ABA: REQUISIÇÕES -->
+            <div id="view-requisicao" class="view-hidden w-full flex flex-col min-h-full p-5">
+                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Requisições</h2>
+                
+                <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1 mb-6 border border-coffee-200 dark:border-gray-700 shadow-inner">
+                    <button id="btn-tab-req-material" onclick="switchTabReq('material')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Estoque / Material</button>
+                    <button id="btn-tab-req-compra" onclick="switchTabReq('compra')" class="flex-1 py-2 text-sm font-bold text-coffee-800/60 dark:text-gray-400 rounded-lg hover:text-black dark:hover:text-white transition-all">Compras Externas</button>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors flex-1">
+                    
+                    <!-- Aba: Requisição de Material -->
+                    <div id="tab-req-material" class="block space-y-4">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-4">Requisição de Material Interno</h3>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Material / Insumo</label>
+                            <input type="text" id="req-mat-nome" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade</label>
+                            <input type="text" id="req-mat-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: 2 rolos, 10 caixas">
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Justificativa</label>
+                            <textarea id="req-mat-just" rows="3" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Para qual lote ou finalidade?"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Requisição de Compras -->
+                    <div id="tab-req-compra" class="hidden space-y-4">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-4">Requisição de Compras</h3>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Item a Comprar</label>
+                            <input type="text" id="req-comp-nome" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Nome exato do material">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="w-full">
+                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade</label>
+                                <input type="text" id="req-comp-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: 5 un">
+                            </div>
+                            <div class="w-full">
+                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
+                                <select id="req-comp-cat" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500">
+                                    <option value="EPIs">EPIs</option>
+                                    <option value="Ferramentas">Ferramentas</option>
+                                    <option value="Insumos (Embalagem)">Insumos (Embalagem)</option>
+                                    <option value="Limpeza">Limpeza</option>
+                                    <option value="Escritório">Escritório</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Justificativa da Compra</label>
+                            <textarea id="req-comp-just" rows="3" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Motivo pelo qual precisa ser comprado..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
         <footer class="bg-white dark:bg-gray-900 border-t border-coffee-200/50 dark:border-gray-800 flex flex-col mt-auto z-10 shrink-0 transition-colors duration-300 print-hide">
@@ -686,6 +781,7 @@
     let currentViewId = 'view-menu';
     let currentSector = '';
     let abaAtual = 'retencao';
+    let abaReqAtual = 'material';
     let operadorNome = '';
     let isAdmin = false;
     let workingDate = new Date().toLocaleDateString('pt-BR');
@@ -1198,7 +1294,10 @@
             horInicial: '', horFinal: '',
             pesoAmostra: '', pesoRetido: '', tolAmostra: '', tolPerc: '',
             atvServico: '', atvSacas: '', atvAjuda: 'Não', atvAjudaQtd: '', atvProjecao: '',
-            justificativa: '', shiftName: '', shiftStart: '', shiftEnd: ''
+            justificativa: '', shiftName: '', shiftStart: '', shiftEnd: '',
+            osEquipamento: '', osProblema: '',
+            reqMatNome: '', reqMatQtd: '', reqMatJust: '',
+            reqCompNome: '', reqCompQtd: '', reqCompCat: 'EPIs', reqCompJust: ''
         };
     }
 
@@ -1254,6 +1353,19 @@
             toggleAjudaQtd();
             checkPlanejamentoBagsVisibility();
         }
+        if (currentViewId === 'view-os') {
+            document.getElementById('os-equipamento').value = st.osEquipamento || '';
+            document.getElementById('os-problema').value = st.osProblema || '';
+        }
+        if (currentViewId === 'view-requisicao') {
+            document.getElementById('req-mat-nome').value = st.reqMatNome || '';
+            document.getElementById('req-mat-qtd').value = st.reqMatQtd || '';
+            document.getElementById('req-mat-just').value = st.reqMatJust || '';
+            document.getElementById('req-comp-nome').value = st.reqCompNome || '';
+            document.getElementById('req-comp-qtd').value = st.reqCompQtd || '';
+            document.getElementById('req-comp-cat').value = st.reqCompCat || 'EPIs';
+            document.getElementById('req-comp-just').value = st.reqCompJust || '';
+        }
     }
 
     function saveData() {
@@ -1276,6 +1388,20 @@
         if (currentViewId === 'view-percentage') { st.pesoAmostra = document.getElementById('peso-amostra').value; st.pesoRetido = document.getElementById('peso-retido').value; st.tolAmostra = document.getElementById('tol-amostra').value; st.tolPerc = document.getElementById('tol-perc').value; }
         if (currentViewId === 'view-atividades') { st.atvServico = document.getElementById('atv-servico').value; const s = document.getElementById('atv-sacas'); if (s) st.atvSacas = s.value; st.atvAjuda = document.getElementById('atv-ajuda').value; st.atvAjudaQtd = document.getElementById('atv-ajuda-qtd').value; st.atvProjecao = document.getElementById('atv-projecao').value; }
         
+        if (currentViewId === 'view-os') {
+            st.osEquipamento = document.getElementById('os-equipamento').value;
+            st.osProblema = document.getElementById('os-problema').value;
+        }
+        if (currentViewId === 'view-requisicao') {
+            st.reqMatNome = document.getElementById('req-mat-nome').value;
+            st.reqMatQtd = document.getElementById('req-mat-qtd').value;
+            st.reqMatJust = document.getElementById('req-mat-just').value;
+            st.reqCompNome = document.getElementById('req-comp-nome').value;
+            st.reqCompQtd = document.getElementById('req-comp-qtd').value;
+            st.reqCompCat = document.getElementById('req-comp-cat').value;
+            st.reqCompJust = document.getElementById('req-comp-just').value;
+        }
+
         try {
             localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData));
         } catch (e) {
@@ -1294,7 +1420,7 @@
 
         if (viewId === 'view-menu') {
             vol.classList.add('hidden');
-            tit.innerHTML = '<span class="text-2xl">☕</span> ΔTO';
+            tit.innerHTML = '<span class="text-2xl">☕</span> +ΔTO';
             if (isAdmin) {
                 const dp = document.getElementById('date-picker-container');
                 if (dp) { dp.classList.remove('hidden'); dp.classList.add('flex'); }
@@ -1315,12 +1441,12 @@
             if (dp) { dp.classList.add('hidden'); dp.classList.remove('flex'); }
         }
 
-        if (['view-productivity', 'view-atividades', 'view-percentage', 'view-horimetro', 'view-divisao-quebra', 'view-conv-mm', 'view-conv-hz'].includes(viewId)) {
+        if (['view-productivity', 'view-atividades', 'view-percentage', 'view-horimetro', 'view-divisao-quebra', 'view-conv-mm', 'view-conv-hz', 'view-os', 'view-requisicao'].includes(viewId)) {
             act?.classList.remove('hidden'); act?.classList.add('flex');
             if (viewId !== 'view-divisao-quebra') {
                 foot?.classList.remove('hidden'); foot?.classList.add('block');
             }
-            if (['view-productivity', 'view-atividades', 'view-divisao-quebra'].includes(viewId)) { zer?.classList.remove('hidden'); zer?.classList.add('flex'); }
+            if (['view-productivity', 'view-atividades', 'view-divisao-quebra', 'view-os', 'view-requisicao'].includes(viewId)) { zer?.classList.remove('hidden'); zer?.classList.add('flex'); }
         }
         
         if (viewId === 'view-productivity') {
@@ -1339,7 +1465,12 @@
         if (viewId === 'view-atividades') checkPlanejamentoBagsVisibility();
         
         const lblShare = document.getElementById('lbl-share-btn');
-        if (lblShare) lblShare.innerText = viewId === 'view-atividades' ? 'Compartilhar Atividades' : 'Compartilhar Boletim';
+        if (lblShare) {
+            if (viewId === 'view-atividades') lblShare.innerText = 'Compartilhar Atividades';
+            else if (viewId === 'view-os') lblShare.innerText = 'Compartilhar O.S';
+            else if (viewId === 'view-requisicao') lblShare.innerText = 'Compartilhar Requisição';
+            else lblShare.innerText = 'Compartilhar Boletim';
+        }
     }
 
     // [NOVO RECURSO 5] Modo Leitura Rápida
@@ -1556,9 +1687,12 @@
         const metaHora = parseFloat(appData.config?.metaRebeneficioHora) || 55;
         const metaTurno = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
 
+        let tempoConsiderado = totalMin;
+        if (shiftTotalMin > 0 && totalMin > shiftTotalMin) tempoConsiderado = shiftTotalMin;
+        else if (shiftTotalMin > 0 && totalMin === 0) tempoConsiderado = shiftTotalMin;
+
         let media = 0;
-        if (shiftTotalMin > 0) media = (totalSacas > 0) ? (totalSacas / (shiftTotalMin / 60)) : 0;
-        else media = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+        if (tempoConsiderado > 0) media = (totalSacas > 0) ? (totalSacas / (tempoConsiderado / 60)) : 0;
 
         const hasWorked = totalMin > 0 || shiftTotalMin > 0;
         const missedGoal = hasWorked && (totalSacas < metaTurno || media < metaHora);
@@ -1595,26 +1729,8 @@
             const showCustomActivity = b.activity === 'Outras' || b.activity === 'Outros';
             const showRepasseJustificativa = b.activity && b.activity.includes('Repasse');
             
-            // Cálculos individuais de duração e SC/H do bloco [NOVO RECURSO 4]
             let blockDurationStr = '';
             let scPerHourStr = '';
-            let hasOverlap = false;
-
-            // [BUG 3] Detecção de sobreposição
-            window.tempTimeBlocks.forEach((other, oIdx) => {
-                if (idx !== oIdx && b.start && b.end && other.start && other.end) {
-                    let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
-                    let mS = hI * 60 + mI, mE = hF * 60 + mF;
-                    if (mE <= mS) mE += 1440;
-                    
-                    let [oHI, oMI] = other.start.split(':').map(Number), [oHF, oMF] = other.end.split(':').map(Number);
-                    let oMS = oHI * 60 + oMI, oME = oHF * 60 + oMF;
-                    if (oME <= oMS) oME += 1440;
-
-                    // Condição básica de overlap
-                    if (mS < oME && mE > oMS) hasOverlap = true;
-                }
-            });
 
             if (b.start && b.end) {
                 let [hI, mI] = b.start.split(':').map(Number), [hF, mF] = b.end.split(':').map(Number);
@@ -1630,7 +1746,7 @@
                 }
             }
             
-            const borderTimeColor = hasOverlap ? 'border-red-400 focus:border-red-500 text-red-600' : 'border-coffee-200 dark:border-gray-600 focus:border-coffee-500';
+            const borderTimeColor = 'border-coffee-200 dark:border-gray-600 focus:border-coffee-500';
 
             return `
             <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-4 rounded-2xl relative space-y-4 shadow-sm block-item">
@@ -1657,12 +1773,11 @@
                         <span class="text-coffee-400 font-bold text-sm">até</span>
                         <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 ${borderTimeColor} rounded-xl py-3 text-center font-bold dark:text-white outline-none">
                     </div>
-                    ${hasOverlap ? `<div class="text-[10px] text-red-500 font-bold mt-1 text-center">⚠️ Atenção: Horários sobrepostos</div>` : ''}
                     ${blockDurationStr ? `<div class="text-[10px] text-coffee-500 dark:text-gray-400 font-bold mt-1.5 text-center flex items-center justify-center gap-1"><span class="text-sm">⏱️</span> ${blockDurationStr} ${scPerHourStr}</div>` : ''}
                 </div>
                 
                 <div class="grid ${hideBags ? 'grid-cols-1' : 'grid-cols-2'} gap-3">
-                    <input type="text" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
+                    <input type="text" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform: uppercase;" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
                     ${!hideBags ? `
                     <input type="text" inputmode="numeric" value="${b.bags}" oninput="updateBlockMasked(${b.id},'bags',this)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Qtd Sacas">
                     ` : ''}
@@ -1713,7 +1828,6 @@
         
         document.getElementById('prod-total').value = totalSacas > 0 ? totalSacas.toLocaleString('pt-BR') : '0';
         
-        // [NOVO RECURSO 2] Atualização da Badge global de sacas
         const bBadge = document.getElementById('header-bags-badge');
         if (bBadge) {
             if (totalSacas > 0) { bBadge.classList.remove('hidden'); bBadge.innerText = `${totalSacas} SC`; }
@@ -1723,6 +1837,7 @@
         const rT = document.getElementById('res-total-horas');
         const rM = document.getElementById('res-media-hora');
         let mediaNum = 0;
+        let tempoConsiderado = totalMin;
         
         if (rT) rT.innerText = `${Math.floor(totalMin / 60)}h ${(totalMin % 60).toString().padStart(2, '0')}m`;
 
@@ -1744,12 +1859,18 @@
             if (divDisp) divDisp.classList.remove('hidden');
             if (resDisp) resDisp.innerText = `${Math.floor(shiftTotalMin / 60)}h ${(shiftTotalMin % 60).toString().padStart(2, '0')}m`;
 
-            if (shiftTotalMin > 0) mediaNum = (totalSacas > 0) ? (totalSacas / (shiftTotalMin / 60)) : 0;
-            else mediaNum = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+            if (shiftTotalMin > 0 && totalMin > shiftTotalMin) {
+                tempoConsiderado = shiftTotalMin;
+            } else if (shiftTotalMin > 0 && totalMin === 0) {
+                tempoConsiderado = shiftTotalMin;
+            }
+
+            if (tempoConsiderado > 0) mediaNum = (totalSacas > 0) ? (totalSacas / (tempoConsiderado / 60)) : 0;
         } else {
             const divDisp = document.getElementById('div-horas-disponiveis');
             if (divDisp) divDisp.classList.add('hidden');
-            mediaNum = (totalSacas > 0 && totalMin > 0) ? (totalSacas / (totalMin / 60)) : 0;
+            
+            if (tempoConsiderado > 0) mediaNum = (totalSacas > 0) ? (totalSacas / (tempoConsiderado / 60)) : 0;
         }
 
         if (rM) rM.innerText = mediaNum.toFixed(1).replace('.', ',');
@@ -1768,7 +1889,7 @@
                     if (contSucs) contSucs.classList.add('hidden');
                 } else {
                     if (contJust) contJust.classList.add('hidden');
-                    if (contSucs) contSucs.classList.remove('hidden'); // [ALTO IMPACTO 3] Positivo!
+                    if (contSucs) contSucs.classList.remove('hidden'); 
                 }
             } else {
                 if (contJust) contJust.classList.add('hidden');
@@ -1797,6 +1918,20 @@
         document.getElementById('btn-tab-tolerancia').classList.toggle('bg-white', t === 'tolerancia');
     }
 
+    function switchTabReq(t) {
+        abaReqAtual = t;
+        document.getElementById('tab-req-material').classList.toggle('hidden', t !== 'material');
+        document.getElementById('tab-req-compra').classList.toggle('hidden', t !== 'compra');
+        
+        document.getElementById('btn-tab-req-material').classList.toggle('bg-white', t === 'material');
+        document.getElementById('btn-tab-req-material').classList.toggle('dark:bg-gray-600', t === 'material');
+        document.getElementById('btn-tab-req-material').classList.toggle('text-coffee-800/60', t !== 'material');
+        
+        document.getElementById('btn-tab-req-compra').classList.toggle('bg-white', t === 'compra');
+        document.getElementById('btn-tab-req-compra').classList.toggle('dark:bg-gray-600', t === 'compra');
+        document.getElementById('btn-tab-req-compra').classList.toggle('text-coffee-800/60', t !== 'compra');
+    }
+
     function openModalReset() {
         document.getElementById('modal-confirm').classList.remove('hidden');
         setTimeout(() => document.getElementById('modal-confirm').classList.add('opacity-100'), 10);
@@ -1823,6 +1958,17 @@
             document.getElementById('quebra-peso-total').value = '';
             renderizarLinhasQuebra(['', '']);
             saveDataQuebra();
+        } else if (currentViewId === 'view-os') {
+            document.getElementById('os-equipamento').value = '';
+            document.getElementById('os-problema').value = '';
+        } else if (currentViewId === 'view-requisicao') {
+            document.getElementById('req-mat-nome').value = '';
+            document.getElementById('req-mat-qtd').value = '';
+            document.getElementById('req-mat-just').value = '';
+            document.getElementById('req-comp-nome').value = '';
+            document.getElementById('req-comp-qtd').value = '';
+            document.getElementById('req-comp-cat').value = 'EPIs';
+            document.getElementById('req-comp-just').value = '';
         } else {
             document.getElementById('atv-servico').value = '';
             const lbl = document.getElementById('lbl-atv-servico');
@@ -1865,6 +2011,9 @@
             const blocks = (st.timeBlocks || []).filter(b => b.start || b.bags || b.ref);
             const cleanSetor = limparEmoji(setor);
 
+            let totalM = 0;
+            let shiftMin = 0;
+
             if (blocks.length || st.atvServico || (cleanSetor === 'Manutenção' && st.horInicial) || (cleanSetor === 'Rebenefício' && st.pesoAmostra)) {
                 hasData = true;
                 linhas += `<tr><td colspan="4" class="sector-header">SETOR: ${cleanSetor.toUpperCase()}</td></tr>`;
@@ -1879,7 +2028,7 @@
             }
 
             if (blocks.length) {
-                let totalS = 0, totalM = 0, shiftMin = 0;
+                let totalS = 0;
 
                 if (cleanSetor.includes('Rebenefício') && st.shiftStart && st.shiftEnd) {
                     let [hI, mI] = st.shiftStart.split(':').map(Number);
@@ -1913,9 +2062,12 @@
                 });
 
                 if (cleanSetor.includes('Rebenefício') && st.justificativa) {
+                    let tempoConsiderado = totalM;
+                    if (totalM > shiftMin && shiftMin > 0) tempoConsiderado = shiftMin;
+
                     const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
                     const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
-                    let media = shiftMin > 0 ? ((totalS > 0) ? (totalS / (shiftMin / 60)) : 0) : ((totalS > 0 && totalM > 0) ? (totalS / (totalM / 60)) : 0);
+                    let media = tempoConsiderado > 0 ? (totalS > 0 ? (totalS / (tempoConsiderado / 60)) : 0) : 0;
 
                     if ((totalM > 0 || shiftMin > 0) && (totalS < metaT || media < metaH)) {
                         linhas += `<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#dc2626; font-size: 11px;"><b>⚠️ Justificativa de Meta:</b> ${escapeHTML(st.justificativa)}</td></tr>`;
@@ -2107,12 +2259,65 @@
                 }
             }
             
-            // [BUG 1] Correção para não exibir a projeção vazia
             if (projecao && projecao !== '--:--') {
                 texto += `- *PROJEÇÃO DE ENTREGA:* ${projecao}`;
             }
 
             if (navigator.share) navigator.share({ title: `Atividades ${cleanSetor} — ${workingDate}`, text: texto }).catch(() => fallbackCopiar(texto));
+            else fallbackCopiar(texto);
+            return;
+        }
+        
+        if (currentViewId === 'view-os') {
+            const equip = document.getElementById('os-equipamento').value.trim();
+            const prob = document.getElementById('os-problema').value.trim();
+            if (!equip || !prob) return mostrarToast('Preencha os campos obrigatórios!', true);
+
+            let texto = `🔧 *SOLICITAÇÃO DE ABERTURA DE O.S*\n\n`;
+            texto += `📅 *DATA:* ${workingDate}\n`;
+            texto += `👤 *COLABORADOR:* ${operadorNome}\n`;
+            texto += `🏢 *SETOR:* ${cleanSetor}\n`;
+            texto += `⚙️ *MÁQUINA/EQUIPAMENTO:* ${equip}\n\n`;
+            texto += `⚠️ *DESCRIÇÃO DO PROBLEMA:*\n${prob}\n`;
+
+            if (navigator.share) navigator.share({ title: `Abertura OS - ${equip}`, text: texto }).catch(() => fallbackCopiar(texto));
+            else fallbackCopiar(texto);
+            return;
+        }
+
+        if (currentViewId === 'view-requisicao') {
+            let texto = '';
+            if (abaReqAtual === 'material') {
+                const mat = document.getElementById('req-mat-nome').value.trim();
+                const qtd = document.getElementById('req-mat-qtd').value.trim();
+                const just = document.getElementById('req-mat-just').value.trim();
+                if (!mat || !qtd) return mostrarToast('Preencha Material e Quantidade!', true);
+
+                texto = `📦 *REQUISIÇÃO DE MATERIAL (ESTOQUE INTERNO)*\n\n`;
+                texto += `📅 *DATA:* ${workingDate}\n`;
+                texto += `👤 *COLABORADOR:* ${operadorNome}\n`;
+                texto += `🏢 *SETOR:* ${cleanSetor}\n\n`;
+                texto += `🔹 *MATERIAL:* ${mat}\n`;
+                texto += `🔢 *QUANTIDADE:* ${qtd}\n`;
+                if (just) texto += `📝 *JUSTIFICATIVA:* ${just}\n`;
+            } else {
+                const comp = document.getElementById('req-comp-nome').value.trim();
+                const qtd = document.getElementById('req-comp-qtd').value.trim();
+                const cat = document.getElementById('req-comp-cat').value;
+                const just = document.getElementById('req-comp-just').value.trim();
+                if (!comp || !qtd || !just) return mostrarToast('Preencha Item, Quantidade e Justificativa!', true);
+
+                texto = `🛒 *REQUISIÇÃO DE COMPRAS*\n\n`;
+                texto += `📅 *DATA:* ${workingDate}\n`;
+                texto += `👤 *SOLICITANTE:* ${operadorNome}\n`;
+                texto += `🏢 *SETOR:* ${cleanSetor}\n\n`;
+                texto += `🔹 *ITEM:* ${comp}\n`;
+                texto += `🔢 *QUANTIDADE:* ${qtd}\n`;
+                texto += `🏷️ *CATEGORIA:* ${cat}\n`;
+                texto += `📝 *JUSTIFICATIVA:* ${just}\n`;
+            }
+
+            if (navigator.share) navigator.share({ title: `Requisição - ${workingDate}`, text: texto }).catch(() => fallbackCopiar(texto));
             else fallbackCopiar(texto);
             return;
         }
@@ -2148,6 +2353,8 @@
         texto += `📅 ${workingDate}  |  👤 ${operadorNome}\n`;
         
         let shiftMin = 0;
+        let tempoConsiderado = totalMin;
+
         if (cleanSetor.includes('Rebenefício') && st.shiftName && st.shiftStart && st.shiftEnd) {
             let [hI, mI] = st.shiftStart.split(':').map(Number);
             let [hF, mF] = st.shiftEnd.split(':').map(Number);
@@ -2155,8 +2362,13 @@
             if (mE <= mS) mE += 1440;
             shiftMin = mE - mS;
             let horasDisp = `${Math.floor(shiftMin / 60)}h${(shiftMin % 60).toString().padStart(2, '0')}m`;
+            
+            if (totalMin > shiftMin) tempoConsiderado = shiftMin;
+            let tempoConsideradoStr = `${Math.floor(tempoConsiderado / 60)}h${(tempoConsiderado % 60).toString().padStart(2, '0')}m`;
+
             texto += `⏱️ *Turno:* ${st.shiftName} (${st.shiftStart} às ${st.shiftEnd})\n`;
-            texto += `⏳ *Horas Disp. (Turno):* ${horasDisp} | *Apontadas:* ${horas}\n`;
+            texto += `⏳ *Horas Disp. (Turno):* ${horasDisp} | *Soma Frações:* ${horas}\n`;
+            texto += `▶️ *Tempo Final Considerado:* ${tempoConsideradoStr}\n`;
         } else {
             texto += `⏱️ *Tempo (Horas Apontadas):* ${horas}\n`;
         }
@@ -2167,7 +2379,8 @@
         if (cleanSetor.includes('Rebenefício') && st.justificativa) {
             const metaH = parseFloat(appData.config?.metaRebeneficioHora) || 55;
             const metaT = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
-            let media = shiftMin > 0 ? (totalSacas > 0 ? (totalSacas / (shiftMin / 60)) : 0) : (totalSacas > 0 && totalMin > 0 ? (totalSacas / (totalMin / 60)) : 0);
+            let media = tempoConsiderado > 0 ? (totalSacas > 0 ? (totalSacas / (tempoConsiderado / 60)) : 0) : 0;
+            
             if ((totalMin > 0 || shiftMin > 0) && (totalSacas < metaT || media < metaH)) {
                 texto += `⚠️ *Justificativa de Meta:* ${st.justificativa}\n\n`;
             }
@@ -2189,6 +2402,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 ```
