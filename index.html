@@ -13,7 +13,7 @@
             "name": "+ΔTO",
             "short_name": "+ΔTO",
             "description": "Aplicativo para gestão operacional.",
-            "start_url": "./",
+            "start_url": window.location.href.split('?')[0],
             "display": "standalone",
             "background_color": "#ffffff",
             "theme_color": "#2b1b18",
@@ -22,8 +22,8 @@
                 {"src": "1000146124.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
             ]
         };
-        const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
-        document.write('<link rel="manifest" href="' + URL.createObjectURL(manifestBlob) + '">');
+        const manifestUrl = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestData));
+        document.write('<link rel="manifest" href="' + manifestUrl + '">');
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -108,16 +108,17 @@
         }
     </style>
 </head>
-<body class="fixed inset-0 text-gray-800 dark:text-gray-100 flex justify-center items-center p-0 md:p-4 transition-colors duration-300">
+<body class="fixed inset-0 text-gray-800 dark:text-gray-100 bg-gray-200 dark:bg-black flex flex-col items-center justify-center transition-colors duration-300">
 
     <datalist id="clientesList"></datalist>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/60 z-[90] backdrop-blur-sm opacity-0 transition-opacity duration-300 print-hide"></div>
 
-    <div class="w-full max-w-md bg-white dark:bg-gray-900 h-full md:h-[750px] md:max-h-[95vh] md:rounded-[2rem] shadow-2xl overflow-hidden relative flex flex-col transition-colors duration-300 border border-transparent dark:border-gray-800">
+    <!-- Container principal adaptável (Tela Cheia por padrão) com ID para o Toggle -->
+    <div id="app-container" class="w-full h-full bg-white dark:bg-gray-900 shadow-2xl overflow-hidden relative flex flex-col transition-all duration-300">
 
         <!-- Sidebar Direita -->
-        <div id="user-sidebar" class="fixed top-0 right-0 h-full w-[80%] max-w-[280px] bg-white dark:bg-gray-800 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 flex flex-col border-l dark:border-gray-700 print-hide">
+        <div id="user-sidebar" class="fixed top-0 right-0 h-full w-[80%] max-w-[300px] bg-white dark:bg-gray-800 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 flex flex-col border-l dark:border-gray-700 print-hide">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center bg-coffee-50 dark:bg-gray-900/50">
                 <span class="font-black text-xs uppercase tracking-widest text-coffee-900 dark:text-gray-300">Opções</span>
                 <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 transition-colors">
@@ -131,6 +132,12 @@
                 <button onclick="toggleTheme()" class="w-full text-left px-5 py-4 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl flex items-center gap-3 transition-colors">
                     <span class="text-xl">🌗</span> Tema Preto / Branco
                 </button>
+                <button onclick="toggleViewMode()" class="hidden md:flex w-full text-left px-5 py-4 text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-2xl items-center gap-3 transition-colors">
+                    <span class="text-xl">🖥️</span> Alternar Layout (PC / Mobile)
+                </button>
+                <button id="btn-install-sidebar" onclick="installPWA()" class="hidden w-full text-left px-5 py-4 text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-2xl items-center gap-3 transition-colors">
+                    <span class="text-xl">📱</span> Instalar Aplicativo
+                </button>
                 <button onclick="logout()" class="w-full text-left px-5 py-4 text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl flex items-center gap-3 transition-colors">
                     <span class="text-xl">🚪</span> Sair do Sistema
                 </button>
@@ -142,6 +149,17 @@
             <button id="btn-voltar" onclick="goBack()" class="hidden p-2 -ml-2 text-coffee-100 hover:bg-coffee-900 active:scale-95 rounded-full transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
+            
+            <!-- Detector de dispositivo (Visível apenas em telas md+) -->
+            <div id="device-info-badge" class="hidden md:flex items-center gap-1.5 text-xs font-bold text-coffee-300 absolute left-5 top-1/2 -translate-y-1/2 bg-coffee-900/50 px-2 py-1 rounded-md border border-coffee-800">
+                Detectando...
+            </div>
+            
+            <!-- Detector de dispositivo (Mobile, fica abaixo do ícone de voltar caso exista) -->
+            <div id="device-info-badge-mobile" class="md:hidden flex items-center text-[10px] font-bold text-coffee-400 absolute left-14 top-1/2 -translate-y-1/2">
+                ...
+            </div>
+
             <h1 id="header-title" class="text-lg sm:text-xl font-black uppercase tracking-widest text-coffee-50 absolute left-1/2 transform -translate-x-1/2 w-max heading-font flex items-center gap-1.5">
                 <span class="text-2xl">☕</span> +ΔTO
             </h1>
@@ -165,326 +183,353 @@
         <main class="flex-1 relative overflow-x-hidden overflow-y-auto bg-coffee-50 dark:bg-gray-900 flex flex-col transition-colors duration-300 print-hide">
 
             <!-- MENU PRINCIPAL -->
-            <div id="view-menu" class="view-active w-full h-full flex flex-col p-4 pb-6">
-                <div class="mb-4 mt-2 text-center flex flex-col items-center justify-center shrink-0">
-                    <h1 id="user-name-display" class="text-2xl sm:text-3xl font-black text-coffee-900 dark:text-white tracking-tight heading-font mt-2 hidden uppercase"></h1>
+            <div id="view-menu" class="view-active w-full h-full flex flex-col p-5 pb-6">
+                <div class="mb-6 mt-2 text-center flex flex-col items-center justify-center shrink-0">
+                    <h1 id="user-name-display" class="text-3xl md:text-4xl font-black text-coffee-900 dark:text-white tracking-tight heading-font mt-2 hidden uppercase"></h1>
                     <p id="welcome-message" class="text-xs sm:text-sm font-bold text-coffee-500 dark:text-gray-400 tracking-[0.2em] uppercase mt-2 hidden">Bem-vindo</p>
-                    <div id="welcome-divider" class="w-12 h-1.5 bg-coffee-500 mt-4 rounded-full mx-auto hidden"></div>
+                    <div id="welcome-divider" class="w-16 h-1.5 bg-coffee-500 mt-4 rounded-full mx-auto hidden"></div>
                 </div>
-                <div id="date-picker-container" class="hidden w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-coffee-100 dark:border-gray-700 p-2 mb-4 justify-between items-center transition-colors">
-                    <span class="text-xs font-bold uppercase text-coffee-500 dark:text-gray-400 ml-2">Mudar Data (ADM):</span>
-                    <input type="date" id="date-picker" onchange="changeWorkingDate()" class="bg-coffee-50 dark:bg-gray-700 border border-coffee-200 dark:border-gray-600 text-coffee-900 dark:text-white font-bold text-sm rounded-lg px-2 py-1 outline-none transition-colors">
-                </div>
-                <div id="adm-panel" class="hidden mb-4 bg-coffee-900 dark:bg-gray-800 rounded-2xl p-4 shadow-lg text-white border border-coffee-800 dark:border-gray-700 transition-colors">
-                    <h3 class="font-black text-xs mb-3 uppercase tracking-widest text-coffee-200 dark:text-gray-300 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                        Painel do Gestor
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="gerarResumoGeral()" class="bg-coffee-700 dark:bg-gray-700 hover:bg-coffee-600 text-[11px] font-bold uppercase py-2.5 rounded-xl transition-all shadow-inner">📄 E-mail Unificado</button>
-                        <button onclick="exportarExcel()" class="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-500 text-[11px] font-bold uppercase py-2.5 rounded-xl transition-all shadow-inner">📊 Exportar CSV</button>
+                
+                <div class="w-full max-w-5xl mx-auto flex flex-col flex-1">
+                    <div id="date-picker-container" class="hidden w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-coffee-100 dark:border-gray-700 p-3 mb-5 justify-between items-center transition-colors">
+                        <span class="text-xs font-bold uppercase text-coffee-500 dark:text-gray-400 ml-2">Mudar Data (ADM):</span>
+                        <input type="date" id="date-picker" onchange="changeWorkingDate()" class="bg-coffee-50 dark:bg-gray-700 border border-coffee-200 dark:border-gray-600 text-coffee-900 dark:text-white font-bold text-sm rounded-lg px-3 py-1.5 outline-none transition-colors">
                     </div>
-                    <div class="mt-4 border-t border-coffee-800 dark:border-gray-700 pt-3">
-                        <h4 class="text-[10px] font-bold text-coffee-300 uppercase mb-2">Metas (Rebenefício)</h4>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[9px] text-coffee-400">Meta Hora</label>
-                                <input type="number" id="adm-meta-hora" class="w-full bg-coffee-950 dark:bg-gray-900 border border-coffee-800 dark:border-gray-700 rounded p-1.5 text-xs outline-none focus:border-coffee-500" placeholder="Ex: 55" onchange="salvarMetasAdm()">
-                            </div>
-                            <div>
-                                <label class="text-[9px] text-coffee-400">Meta Turno</label>
-                                <input type="number" id="adm-meta-turno" class="w-full bg-coffee-950 dark:bg-gray-900 border border-coffee-800 dark:border-gray-700 rounded p-1.5 text-xs outline-none focus:border-coffee-500" placeholder="Ex: 500" onchange="salvarMetasAdm()">
+                    
+                    <div id="adm-panel" class="hidden mb-6 bg-coffee-900 dark:bg-gray-800 rounded-2xl p-5 shadow-lg text-white border border-coffee-800 dark:border-gray-700 transition-colors">
+                        <h3 class="font-black text-xs md:text-sm mb-4 uppercase tracking-widest text-coffee-200 dark:text-gray-300 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            Painel do Gestor
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="gerarResumoGeral()" class="bg-coffee-700 dark:bg-gray-700 hover:bg-coffee-600 text-[11px] md:text-sm font-bold uppercase py-3 rounded-xl transition-all shadow-inner">📄 E-mail Unificado</button>
+                            <button onclick="exportarExcel()" class="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-500 text-[11px] md:text-sm font-bold uppercase py-3 rounded-xl transition-all shadow-inner">📊 Exportar CSV</button>
+                        </div>
+                        <div class="mt-5 border-t border-coffee-800 dark:border-gray-700 pt-4">
+                            <h4 class="text-[10px] md:text-xs font-bold text-coffee-300 uppercase mb-3">Metas (Rebenefício)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[9px] md:text-xs text-coffee-400">Meta Hora</label>
+                                    <input type="number" id="adm-meta-hora" class="w-full bg-coffee-950 dark:bg-gray-900 border border-coffee-800 dark:border-gray-700 rounded-lg p-2 md:p-3 text-sm outline-none focus:border-coffee-500" placeholder="Ex: 55" onchange="salvarMetasAdm()">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] md:text-xs text-coffee-400">Meta Turno</label>
+                                    <input type="number" id="adm-meta-turno" class="w-full bg-coffee-950 dark:bg-gray-900 border border-coffee-800 dark:border-gray-700 rounded-lg p-2 md:p-3 text-sm outline-none focus:border-coffee-500" placeholder="Ex: 500" onchange="salvarMetasAdm()">
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- GRID RESPONSIVO (2 colunas mobile, 3 tablet, 4 desktop) -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 flex-1 content-start">
+                        <button onclick="navigate('view-submenu', '📥 Recebimento')" class="w-full min-h-[100px] bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-emerald-200 active:scale-95 transition-all">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform"><span class="text-3xl leading-none">📥</span></div>
+                            <h3 class="font-bold text-[13px] md:text-sm text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Recebimento</h3>
+                        </button>
+                        <button onclick="navigate('view-submenu', '⚙️ Rebenefício')" class="w-full min-h-[100px] bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-amber-200 active:scale-95 transition-all">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-md flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform"><span class="text-3xl leading-none">⚙️</span></div>
+                            <h3 class="font-bold text-[13px] md:text-sm text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Rebenefício</h3>
+                        </button>
+                        <button onclick="navigate('view-submenu', '🚛 Expedição')" class="w-full min-h-[100px] bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-blue-200 active:scale-95 transition-all">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 shadow-md flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform"><span class="text-3xl leading-none">🚛</span></div>
+                            <h3 class="font-bold text-[13px] md:text-sm text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Expedição</h3>
+                        </button>
+                        <button onclick="navigate('view-submenu', '📦 Embalagem')" class="w-full min-h-[100px] bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-purple-200 active:scale-95 transition-all">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-fuchsia-400 to-purple-500 shadow-md flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform"><span class="text-3xl leading-none">📦</span></div>
+                            <h3 class="font-bold text-[13px] md:text-sm text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Embalagem</h3>
+                        </button>
+                        <button onclick="navigate('view-submenu', '📊 Operações')" class="w-full min-h-[100px] bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-cyan-200 active:scale-95 transition-all">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-cyan-500 shadow-md flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform"><span class="text-3xl leading-none">📊</span></div>
+                            <h3 class="font-bold text-[13px] md:text-sm text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Operações</h3>
+                        </button>
+                        <button onclick="navigate('view-submenu', '⏱️ Manutenção')" class="w-full min-h-[100px] bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-slate-200 active:scale-95 transition-all">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-slate-500 to-zinc-600 shadow-md flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform"><span class="text-3xl leading-none">⏱️</span></div>
+                            <h3 class="font-bold text-[13px] md:text-sm text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Manutenção</h3>
+                        </button>
+                    </div>
+                    
+                    <!-- Botão TESTE (Só aparece para ADM) -->
+                    <button id="btn-sector-teste" onclick="navigate('view-submenu', '🧪 TESTE')" class="hidden w-full mt-6 bg-purple-100 dark:bg-purple-900/30 border-2 border-dashed border-purple-300 dark:border-purple-700 hover:bg-purple-200 dark:hover:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold py-4 rounded-2xl items-center justify-center gap-2 active:scale-95 transition-all text-sm md:text-base">
+                        🧪 Acessar Área de TESTE (Simula Rebenefício)
+                    </button>
+                    
+                    <button id="btn-install" onclick="installPWA()" class="hidden w-full mt-6 bg-coffee-900 dark:bg-gray-800 hover:bg-black text-white font-bold py-4 rounded-xl items-center justify-center gap-2 active:scale-95 transition-all shadow-md text-sm md:text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Instalar Aplicativo
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-3 flex-1 min-h-0">
-                    <button onclick="navigate('view-submenu', '📥 Recebimento')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-emerald-200 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">📥</span></div>
-                        <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Recebimento</h3>
-                    </button>
-                    <button onclick="navigate('view-submenu', '⚙️ Rebenefício')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-amber-200 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">⚙️</span></div>
-                        <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Rebenefício</h3>
-                    </button>
-                    <button onclick="navigate('view-submenu', '🚛 Expedição')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-blue-200 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">🚛</span></div>
-                        <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Expedição</h3>
-                    </button>
-                    <button onclick="navigate('view-submenu', '📦 Embalagem')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-purple-200 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-fuchsia-400 to-purple-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">📦</span></div>
-                        <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Embalagem</h3>
-                    </button>
-                    <button onclick="navigate('view-submenu', '📊 Operações')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-cyan-200 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-cyan-500 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">📊</span></div>
-                        <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Operações</h3>
-                    </button>
-                    <button onclick="navigate('view-submenu', '⏱️ Manutenção')" class="w-full h-full min-h-[85px] bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center group hover:-translate-y-1 hover:border-slate-200 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-500 to-zinc-600 shadow-md flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform"><span class="text-2xl leading-none">⏱️</span></div>
-                        <h3 class="font-bold text-[13px] text-coffee-900 dark:text-gray-100 heading-font leading-tight uppercase">Manutenção</h3>
-                    </button>
-                </div>
-                
-                <!-- Botão TESTE (Só aparece para ADM) -->
-                <button id="btn-sector-teste" onclick="navigate('view-submenu', '🧪 TESTE')" class="hidden w-full mt-3 bg-purple-100 dark:bg-purple-900/30 border-2 border-dashed border-purple-300 dark:border-purple-700 hover:bg-purple-200 dark:hover:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold py-3.5 rounded-2xl items-center justify-center gap-2 active:scale-95 transition-all">
-                    🧪 Acessar Área de TESTE (Simula Rebenefício)
-                </button>
-                
-                <button id="btn-install" onclick="installPWA()" class="hidden w-full mt-4 bg-coffee-900 dark:bg-gray-800 hover:bg-black text-white font-bold py-3.5 rounded-xl items-center justify-center gap-2 active:scale-95 transition-all shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Instalar Aplicativo
-                </button>
             </div>
 
             <!-- SUBMENU SETOR PRINCIPAL -->
             <div id="view-submenu" class="view-hidden w-full h-full flex flex-col p-5 pt-8 overflow-y-auto">
-                <p class="text-lg font-bold text-black dark:text-white uppercase tracking-wider mb-6 text-center">O QUE DESEJA FAZER?</p>
-                <div class="space-y-4">
-                    <button onclick="navigate('view-atividades', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-coffee-900 dark:text-gray-200"><span class="text-2xl">📋</span></div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Atividades do dia</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Antes de iniciar as atividades</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                    <button id="btn-menu-produtividade" onclick="navigate('view-productivity', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-coffee-900 dark:text-gray-200"><span class="text-2xl">⚡</span></div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Boletim Diário</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Registro Total ao fim do Dia</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
+                <div class="w-full max-w-5xl mx-auto flex flex-col flex-1">
+                    <p class="text-lg md:text-xl font-bold text-black dark:text-white uppercase tracking-wider mb-8 text-center">O QUE DESEJA FAZER?</p>
                     
-                    <button id="btn-menu-quebra" onclick="navigate('view-divisao-quebra', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl">⚖️</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Divisão de Quebra</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Rateio Proporcional</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                    <button id="btn-menu-retencao" onclick="navigate('view-percentage', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">%</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Retenção</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Análise de Peneira</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                    <button id="btn-menu-horimetro" onclick="navigate('view-horimetro', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl">⏱️</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Horímetro</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Cálculo de Uso</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
+                    <!-- GRID RESPONSIVO PARA OS BOTÕES (1 coluna mobile, 2 tablet, 3 desktop) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        <button onclick="navigate('view-atividades', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-coffee-900 dark:text-gray-200 group-hover:scale-110 transition-transform"><span class="text-2xl md:text-3xl">📋</span></div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Atividades do dia</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Antes de iniciar</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                        
+                        <button id="btn-menu-produtividade" onclick="navigate('view-productivity', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-coffee-900 dark:text-gray-200 group-hover:scale-110 transition-transform"><span class="text-2xl md:text-3xl">⚡</span></div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Boletim Diário</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Registro Total</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                        
+                        <button id="btn-menu-quebra" onclick="navigate('view-divisao-quebra', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl md:text-3xl group-hover:scale-110 transition-transform">⚖️</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Divisão de Quebra</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Rateio Proporcional</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                        
+                        <button id="btn-menu-retencao" onclick="navigate('view-percentage', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl md:text-3xl font-bold group-hover:scale-110 transition-transform">%</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Retenção</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Análise de Peneira</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                        
+                        <button id="btn-menu-horimetro" onclick="navigate('view-horimetro', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl md:text-3xl group-hover:scale-110 transition-transform">⏱️</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Horímetro</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Cálculo de Uso</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                        
+                        <button id="btn-menu-conv-mm" onclick="navigate('view-conv-mm', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl md:text-3xl font-bold group-hover:scale-110 transition-transform">📏</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Converter MM</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">mm para cm</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                        
+                        <button id="btn-menu-conv-hz" onclick="navigate('view-conv-hz', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl md:text-3xl font-bold group-hover:scale-110 transition-transform">🔄</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Converter Hz</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Hertz para RPM</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+
+                        <button onclick="navigate('view-os', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl md:text-3xl group-hover:scale-110 transition-transform">🔧</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Abertura de O.S</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Solicitar Manutenção</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+
+                        <button onclick="navigate('view-requisicao', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 md:p-6 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl md:text-3xl group-hover:scale-110 transition-transform">🛒</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Requisições</h3><p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mt-1">Material e Compras</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-coffee-300"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+
+                        <button onclick="abrirModalHistorico()" class="w-full bg-gray-50 dark:bg-gray-800/50 rounded-3xl p-5 md:p-6 shadow-sm border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-between active:scale-95 transition-all hover:-translate-y-1 hover:shadow-md group md:col-span-2 lg:col-span-3 mt-2">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl md:text-3xl font-bold group-hover:scale-110 transition-transform">📅</div>
+                                <div class="text-left"><h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font leading-tight">Histórico</h3><p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">Ver últimos 5 dias</p></div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-gray-400"><path d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
                     
-                    <button id="btn-menu-conv-mm" onclick="navigate('view-conv-mm', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">📏</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Converter MM</h3><p class="text-sm text-coffee-500 dark:text-gray-400">mm para cm</p></div>
+                    <!-- Modo Leitura Rápida -->
+                    <div id="submenu-quick-read" class="mt-8 bg-coffee-100/50 dark:bg-gray-800/50 rounded-2xl p-5 border border-coffee-200 dark:border-gray-700 hidden">
+                        <p class="text-[11px] md:text-xs font-black uppercase text-coffee-500 dark:text-gray-400 mb-3">Resumo de Hoje (<span id="qr-date"></span>)</p>
+                        <div class="flex justify-between items-center">
+                            <div><span class="text-sm text-coffee-600 dark:text-gray-400 font-bold">Produção</span><br><span id="quick-read-bags" class="text-3xl md:text-4xl font-black text-coffee-900 dark:text-white">0 sc</span></div>
+                            <div class="text-right"><span class="text-sm text-coffee-600 dark:text-gray-400 font-bold">Tempo</span><br><span id="quick-read-time" class="text-3xl md:text-4xl font-black text-coffee-900 dark:text-white">0h 00m</span></div>
                         </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                    <button id="btn-menu-conv-hz" onclick="navigate('view-conv-hz', currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-coffee-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">🔄</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Converter Hz</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Hertz para RPM</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-
-                    <button onclick="navigate('view-os', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl">🔧</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Abertura de O.S</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Solicitar Manutenção</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-
-                    <button onclick="navigate('view-requisicao', currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl">🛒</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-coffee-900 dark:text-white uppercase tracking-widest heading-font">Requisições</h3><p class="text-sm text-coffee-500 dark:text-gray-400">Material e Compras</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-
-                    <button onclick="abrirModalHistorico()" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-coffee-100 dark:border-gray-700 flex items-center justify-between active:scale-95 transition-all mt-4 border-t-2 border-t-coffee-200">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold">📅</div>
-                            <div class="text-left"><h3 class="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font">Histórico</h3><p class="text-sm text-gray-500 dark:text-gray-400">Ver últimos 5 dias</p></div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                </div>
-                
-                <div id="submenu-quick-read" class="mt-6 bg-coffee-100/50 dark:bg-gray-800/50 rounded-2xl p-4 border border-coffee-200 dark:border-gray-700 hidden">
-                    <p class="text-[10px] font-black uppercase text-coffee-500 dark:text-gray-400 mb-2">Resumo de Hoje (<span id="qr-date"></span>)</p>
-                    <div class="flex justify-between items-center">
-                        <div><span class="text-xs text-coffee-600 dark:text-gray-400 font-bold">Produção</span><br><span id="quick-read-bags" class="text-2xl font-black text-coffee-900 dark:text-white">0 sc</span></div>
-                        <div class="text-right"><span class="text-xs text-coffee-600 dark:text-gray-400 font-bold">Tempo</span><br><span id="quick-read-time" class="text-2xl font-black text-coffee-900 dark:text-white">0h 00m</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- ATIVIDADES (PLANEJAMENTO) -->
             <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Atividades do Dia</h2>
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Antes de iniciar as atividades</h3>
-                    <div class="space-y-4">
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Serviço</label>
-                            <button onclick="abrirModalAtividades('planejamento')" class="w-full text-left bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white flex justify-between items-center gap-2 focus:border-coffee-500 transition-colors">
-                                <span id="lbl-atv-servico" class="truncate pointer-events-none text-coffee-400 dark:text-gray-400 font-medium">Selecionar serviço...</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-coffee-400 shrink-0 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                            </button>
-                            <input type="hidden" id="atv-servico" value="">
+                <div class="w-full max-w-3xl mx-auto">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Atividades do Dia</h2>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors">
+                        <h3 class="text-sm md:text-base font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-6">Antes de iniciar as atividades</h3>
+                        <div class="space-y-5">
+                            <div class="w-full">
+                                <label class="block text-xs md:text-sm font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Serviço</label>
+                                <button onclick="abrirModalAtividades('planejamento')" class="w-full text-left bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-4 px-5 font-bold outline-none dark:text-white flex justify-between items-center gap-2 focus:border-coffee-500 transition-colors text-sm md:text-base hover:bg-coffee-100 dark:hover:bg-gray-600">
+                                    <span id="lbl-atv-servico" class="truncate pointer-events-none text-coffee-400 dark:text-gray-400 font-medium">Selecionar serviço...</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-coffee-400 shrink-0 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <input type="hidden" id="atv-servico" value="">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="w-full" id="container-atv-sacas"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantidade de Sacas Total</label><input type="number" id="atv-sacas" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-4 px-5 outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base" placeholder="0"></div>
+                                <div class="w-full" id="container-atv-projecao"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Projeção de Entrega</label><input type="time" id="atv-projecao" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-4 px-5 text-center dark:text-white focus:border-coffee-500 text-sm md:text-base font-bold"></div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="w-full" id="container-atv-ajuda"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Precisa de Ajuda?</label><select id="atv-ajuda" onchange="toggleAjudaQtd(); debouncedSave();" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-4 px-5 outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base font-bold"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
+                                <div class="w-full hidden" id="div-ajuda-qtd"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantas pessoas?</label><input type="number" id="atv-ajuda-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-4 px-5 outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base font-bold"></div>
+                            </div>
                         </div>
-                        <div class="w-full" id="container-atv-sacas"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade de Sacas Total</label><input type="number" id="atv-sacas" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500" placeholder="0"></div>
-                        <div class="w-full" id="container-atv-ajuda"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Precisa de Ajuda?</label><select id="atv-ajuda" onchange="toggleAjudaQtd(); debouncedSave();" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
-                        <div class="w-full hidden" id="div-ajuda-qtd"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantas pessoas?</label><input type="number" id="atv-ajuda-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500"></div>
-                        <div class="w-full" id="container-atv-projecao"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Projeção de Entrega</label><input type="time" id="atv-projecao" onchange="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 text-center dark:text-white focus:border-coffee-500"></div>
                     </div>
                 </div>
             </div>
 
             <!-- DIVISÃO DE QUEBRA -->
             <div id="view-divisao-quebra" class="view-hidden w-full flex flex-col min-h-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Divisão de Quebra</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-coffee-100 dark:border-gray-700 transition-colors">
-                    <div class="flex items-center gap-3 bg-coffee-900 p-4 rounded-xl mb-6 shadow-md w-full box-border">
-                        <label class="text-[10px] sm:text-xs font-black text-white uppercase leading-tight whitespace-nowrap shrink-0">Peso Total<br>Balança:</label>
-                        <input type="number" id="quebra-peso-total" class="w-full min-w-0 bg-white/20 border border-white/30 rounded-lg text-white font-black text-xl py-2 px-3 outline-none placeholder-white/50" placeholder="Ex: 21744" oninput="calcDivisaoQuebra()">
+                <div class="w-full max-w-4xl mx-auto">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Divisão de Quebra</h2>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 md:p-8 shadow-sm border border-coffee-100 dark:border-gray-700 transition-colors">
+                        <div class="flex items-center gap-4 bg-coffee-900 p-5 md:p-6 rounded-2xl mb-8 shadow-md w-full box-border">
+                            <label class="text-xs md:text-sm font-black text-white uppercase leading-tight whitespace-nowrap shrink-0">Peso Total<br>Balança:</label>
+                            <input type="number" id="quebra-peso-total" class="w-full min-w-0 bg-white/20 border border-white/30 rounded-xl text-white font-black text-2xl md:text-3xl py-3 px-4 outline-none placeholder-white/50" placeholder="Ex: 21744" oninput="calcDivisaoQuebra()">
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                            <table class="quebra-table min-w-[600px] w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="py-4 text-sm">Qtdd Saca<br>Romaneio</th>
+                                        <th class="py-4 text-sm">Peso</th>
+                                        <th class="py-4 text-sm">%</th>
+                                        <th class="highlight-yellow py-4 text-sm">Peso Real</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quebra-rows">
+                                    <!-- Injetado -->
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-gray-100 dark:bg-gray-700 font-black text-sm md:text-base">
+                                        <td class="py-4">TOTAL: <span id="q-total-sacas">0</span></td>
+                                        <td class="py-4"><span id="q-total-peso">0</span></td>
+                                        <td class="py-4">100%</td>
+                                        <td class="highlight-yellow py-4"><span id="q-total-real">0</span></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <button onclick="adicionarLinhaQuebra()" class="mt-6 w-full py-4 border-2 border-dashed border-coffee-300 dark:border-gray-600 rounded-2xl text-coffee-600 dark:text-gray-400 font-bold text-base active:scale-95 flex justify-center items-center gap-2 transition-all hover:border-coffee-500 hover:bg-coffee-50 dark:hover:bg-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar mais romaneios
+                        </button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="quebra-table">
-                            <thead>
-                                <tr>
-                                    <th>Qtdd Saca<br>Romaneio</th>
-                                    <th>Peso</th>
-                                    <th>%</th>
-                                    <th class="highlight-yellow">Peso Real</th>
-                                </tr>
-                            </thead>
-                            <tbody id="quebra-rows">
-                                <tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>
-                                <tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>
-                            </tbody>
-                            <tfoot>
-                                <tr class="bg-gray-100 dark:bg-gray-700 font-black">
-                                    <td>TOTAL: <span id="q-total-sacas">0</span></td>
-                                    <td><span id="q-total-peso">0</span></td>
-                                    <td>100%</td>
-                                    <td class="highlight-yellow"><span id="q-total-real">0</span></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    <button onclick="adicionarLinhaQuebra()" class="mt-4 w-full py-3 border-2 border-dashed border-coffee-300 dark:border-gray-600 rounded-xl text-coffee-600 dark:text-gray-400 font-bold text-sm active:scale-95 flex justify-center items-center gap-2 transition-all hover:border-coffee-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar mais romaneios
-                    </button>
                 </div>
             </div>
 
             <!-- PENEIRA / RETENÇÃO -->
             <div id="view-percentage" class="view-hidden w-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Retenção</h2>
-                <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1 mb-6 border border-coffee-200 dark:border-gray-700 shadow-inner">
-                    <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Após Analisar</button>
-                    <button id="btn-tab-tolerancia" onclick="switchTab('tolerancia')" class="flex-1 py-2 text-sm font-bold text-coffee-800/60 dark:text-gray-400 rounded-lg hover:text-black dark:hover:text-white transition-all">Resultado Esperado</button>
-                </div>
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
-                    <div id="tab-retencao" class="block space-y-4">
-                        <label class="text-sm font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Após Analisar (Real)</label>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Peso Amostra (g)</label><input type="number" id="peso-amostra" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500 dark:text-white" placeholder="0" oninput="calcRetencao()"></div>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Peso Retido (g)</label><input type="number" id="peso-retido" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500 dark:text-white" placeholder="0" oninput="calcRetencao()"></div>
-                        <div class="mt-8 pt-6 border-t border-coffee-100 dark:border-gray-700"><span class="text-sm text-gray-500 dark:text-gray-400 font-medium block mb-1">Porcentagem Encontrada:</span><span id="res-retencao" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0,00%</span></div>
+                <div class="w-full max-w-3xl mx-auto">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Retenção</h2>
+                    <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1 mb-8 border border-coffee-200 dark:border-gray-700 shadow-inner">
+                        <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-3 text-sm md:text-base font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Após Analisar</button>
+                        <button id="btn-tab-tolerancia" onclick="switchTab('tolerancia')" class="flex-1 py-3 text-sm md:text-base font-bold text-coffee-800/60 dark:text-gray-400 rounded-lg hover:text-black dark:hover:text-white transition-all">Resultado Esperado</button>
                     </div>
-                    <div id="tab-tolerancia" class="hidden space-y-4">
-                        <label class="text-sm font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Resultado Esperado (Meta)</label>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Peso Amostra (g)</label><input type="number" id="tol-amostra" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500" placeholder="0" oninput="calcTolerancia()"></div>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Tolerância Máxima (%)</label><div class="flex items-center gap-3"><input type="number" id="tol-perc" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none dark:text-white focus:border-coffee-500" placeholder="Ex: 5" oninput="calcTolerancia()"><span class="text-xl font-bold">%</span></div></div>
-                        <div class="mt-8 pt-6 border-t border-coffee-100 dark:border-gray-700"><span class="text-sm text-gray-500 dark:text-gray-400 font-medium block mb-1">Peso Máximo Esperado:</span><div class="flex items-end gap-1"><span id="res-tolerancia" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0,00</span><span class="text-lg font-bold mb-1">g</span></div></div>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors">
+                        <div id="tab-retencao" class="block space-y-6">
+                            <label class="text-base font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Após Analisar (Real)</label>
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Peso Amostra (g)</label><input type="number" id="peso-amostra" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:border-coffee-500 dark:text-white" placeholder="0" oninput="calcRetencao()"></div>
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Peso Retido (g)</label><input type="number" id="peso-retido" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:border-coffee-500 dark:text-white" placeholder="0" oninput="calcRetencao()"></div>
+                            <div class="mt-8 pt-8 border-t border-coffee-100 dark:border-gray-700"><span class="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium block mb-2">Porcentagem Encontrada:</span><span id="res-retencao" class="text-5xl font-extrabold text-coffee-900 dark:text-white">0,00%</span></div>
+                        </div>
+                        <div id="tab-tolerancia" class="hidden space-y-6">
+                            <label class="text-base font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Resultado Esperado (Meta)</label>
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Peso Amostra (g)</label><input type="number" id="tol-amostra" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none dark:text-white focus:border-coffee-500" placeholder="0" oninput="calcTolerancia()"></div>
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Tolerância Máxima (%)</label><div class="flex items-center gap-4"><input type="number" id="tol-perc" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none dark:text-white focus:border-coffee-500" placeholder="Ex: 5" oninput="calcTolerancia()"><span class="text-2xl font-bold">%</span></div></div>
+                            <div class="mt-8 pt-8 border-t border-coffee-100 dark:border-gray-700"><span class="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium block mb-2">Peso Máximo Esperado:</span><div class="flex items-end gap-2"><span id="res-tolerancia" class="text-5xl font-extrabold text-coffee-900 dark:text-white">0,00</span><span class="text-xl font-bold mb-2">g</span></div></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- PRODUTIVIDADE (APONTAMENTO) -->
             <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Boletim Diário</h2>
-                
-                <div id="rebeneficio-shift-container" class="hidden mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 transition-all">
-                    <h3 class="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-wider mb-3 heading-font flex items-center gap-2">
-                        <span class="text-lg">⏱️</span> Dados do Turno
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 ml-1">Turno</label>
-                            <select id="shift-selector" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-3 px-4 outline-none dark:text-white focus:border-amber-500 font-bold">
-                                <option value="" disabled selected>Selecione...</option>
-                                <option value="Turno 1">Turno 1</option>
-                                <option value="Turno 2">Turno 2</option>
-                                <option value="Turno 3">Turno 3</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 ml-1">Entrada</label>
-                            <input type="time" id="shift-start" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-3 px-4 outline-none dark:text-white focus:border-amber-500 text-center font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1.5 ml-1">Saída</label>
-                            <input type="time" id="shift-end" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-3 px-4 outline-none dark:text-white focus:border-amber-500 text-center font-bold">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex-1 space-y-6 pb-6">
-                    <div>
-                        <div class="mb-4 font-bold text-coffee-900 dark:text-white uppercase tracking-wider text-xs flex justify-between items-center">
-                            <span>Períodos de Trabalho</span>
-                            <span class="text-[9px] text-gray-500 font-normal normal-case bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">*Adicione apontamentos</span>
-                        </div>
-                        
-                        <div id="time-blocks-container" class="space-y-4 flex flex-col"></div>
-                        
-                        <button onclick="addTimeBlock()" class="mt-4 w-full py-4 border-2 border-dashed border-coffee-300 dark:border-gray-600 rounded-2xl text-coffee-600 dark:text-gray-400 font-bold text-sm active:scale-95 flex justify-center items-center gap-2 transition-all hover:border-coffee-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar Guia / Período
-                        </button>
-                        
-                        <div id="container-justificativa" class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 transition-all shadow-sm">
-                            <label class="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2 block">Atenção: Meta não atingida. Justifique:</label>
-                            <textarea id="justificativa-meta" maxlength="200" oninput="debouncedSave()" rows="2" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-3 outline-none text-sm dark:text-white focus:border-red-400" placeholder="Descreva o motivo..."></textarea>
-                        </div>
-                        
-                        <div id="container-meta-sucesso" class="hidden mt-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 transition-all shadow-sm flex items-center justify-center gap-2">
-                            <span class="text-emerald-600 dark:text-emerald-400 font-bold text-sm uppercase tracking-wider">🏆 Meta Atingida!</span>
-                        </div>
-                    </div>
+                <div class="w-full max-w-5xl mx-auto flex flex-col flex-1">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Boletim Diário</h2>
                     
-                    <div class="h-px w-full bg-coffee-200/50 dark:bg-gray-700"></div>
-                    
-                    <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-4 rounded-2xl">
-                        <label class="text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 block">Quantidade de sacas total (Somatório)</label>
-                        <input type="text" id="prod-total" readonly class="w-full bg-coffee-100/50 dark:bg-gray-900 border-2 border-coffee-100 dark:border-gray-700 rounded-xl text-3xl font-black outline-none text-coffee-900 dark:text-white py-4 px-4 shadow-inner" placeholder="0">
-                    </div>
-                </div>
-                
-                <div class="bg-coffee-950 dark:bg-gray-800 text-white rounded-2xl p-6 shadow-lg mt-4 relative transition-colors">
-                    <div class="grid grid-cols-2 gap-4 pt-1">
-                        <div class="flex flex-col justify-center">
-                            <div id="div-horas-disponiveis" class="hidden mb-3 border-b border-coffee-800 dark:border-gray-700 pb-2">
-                                <span class="text-[9px] text-amber-500 font-black uppercase tracking-widest block mb-0.5">Horas Disp. (Turno)</span>
-                                <span id="res-horas-disponiveis" class="text-xl font-bold tracking-tight text-amber-100">0h 00m</span>
+                    <div id="rebeneficio-shift-container" class="hidden mb-8 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 md:p-6 transition-all">
+                        <h3 class="text-base font-bold text-amber-900 dark:text-amber-100 uppercase tracking-wider mb-4 heading-font flex items-center gap-2">
+                            <span class="text-xl">⏱️</span> Dados do Turno
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2 ml-1">Turno</label>
+                                <select id="shift-selector" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-4 px-5 outline-none dark:text-white focus:border-amber-500 font-bold text-sm md:text-base">
+                                    <option value="" disabled selected>Selecione...</option>
+                                    <option value="Turno 1">Turno 1</option>
+                                    <option value="Turno 2">Turno 2</option>
+                                    <option value="Turno 3">Turno 3</option>
+                                </select>
                             </div>
                             <div>
-                                <span class="text-[9px] text-coffee-300 dark:text-gray-400 font-black uppercase tracking-widest block mb-0.5">Horas Apontadas</span>
-                                <span id="res-total-horas" class="text-xl font-bold tracking-tight transition-colors">0h 00m</span>
+                                <label class="block text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2 ml-1">Entrada</label>
+                                <input type="time" id="shift-start" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-4 px-5 outline-none dark:text-white focus:border-amber-500 text-center font-bold text-sm md:text-base">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2 ml-1">Saída</label>
+                                <input type="time" id="shift-end" onchange="debouncedSave(); calcTotalProductivity();" class="w-full bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-700 rounded-xl py-4 px-5 outline-none dark:text-white focus:border-amber-500 text-center font-bold text-sm md:text-base">
                             </div>
                         </div>
-                        <div class="text-right pr-2 flex flex-col justify-end">
-                            <span id="lbl-media-hora" class="text-[9px] text-coffee-300 dark:text-gray-400 font-black uppercase tracking-widest block mb-1">Média / Hora</span>
-                            <div class="flex items-end justify-end gap-1">
-                                <span id="res-media-hora" class="text-4xl font-black text-coffee-50 dark:text-white">0</span>
-                                <span class="text-xs text-coffee-400 font-bold pb-1">un/h</span>
+                    </div>
+
+                    <div class="flex-1 space-y-6 pb-8">
+                        <div>
+                            <div class="mb-5 font-bold text-coffee-900 dark:text-white uppercase tracking-wider text-sm flex justify-between items-center">
+                                <span>Períodos de Trabalho</span>
+                                <span class="text-[10px] md:text-xs text-gray-500 font-normal normal-case bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">*Adicione apontamentos</span>
+                            </div>
+                            
+                            <!-- Container responsivo dos blocos de tempo -->
+                            <div id="time-blocks-container" class="space-y-5 flex flex-col"></div>
+                            
+                            <button onclick="addTimeBlock()" class="mt-6 w-full py-5 border-2 border-dashed border-coffee-300 dark:border-gray-600 rounded-2xl text-coffee-600 dark:text-gray-400 font-bold text-base active:scale-95 flex justify-center items-center gap-2 transition-all hover:border-coffee-500 hover:bg-coffee-50 dark:hover:bg-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4" /></svg> Adicionar Guia / Período
+                            </button>
+                            
+                            <div id="container-justificativa" class="hidden mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-5 md:p-6 transition-all shadow-sm">
+                                <label class="text-xs md:text-sm font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-3 block">Atenção: Meta não atingida. Justifique:</label>
+                                <textarea id="justificativa-meta" maxlength="200" oninput="debouncedSave()" rows="3" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-4 outline-none text-base dark:text-white focus:border-red-400 shadow-inner" placeholder="Descreva o motivo..."></textarea>
+                            </div>
+                            
+                            <div id="container-meta-sucesso" class="hidden mt-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 md:p-6 transition-all shadow-sm flex items-center justify-center gap-3">
+                                <span class="text-emerald-600 dark:text-emerald-400 font-bold text-lg uppercase tracking-wider">🏆 Meta Atingida! Parabéns!</span>
+                            </div>
+                        </div>
+                        
+                        <div class="h-px w-full bg-coffee-200/50 dark:bg-gray-700 my-6"></div>
+                        
+                        <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-5 md:p-6 rounded-2xl">
+                            <label class="text-xs md:text-sm font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-3 block">Quantidade de sacas total (Somatório)</label>
+                            <input type="text" id="prod-total" readonly class="w-full bg-coffee-100/50 dark:bg-gray-900 border-2 border-coffee-100 dark:border-gray-700 rounded-xl text-4xl md:text-5xl font-black outline-none text-coffee-900 dark:text-white py-5 px-6 shadow-inner" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="bg-coffee-950 dark:bg-gray-800 text-white rounded-2xl p-6 md:p-8 shadow-lg mt-auto relative transition-colors">
+                        <div class="grid grid-cols-2 gap-6 items-center">
+                            <div class="flex flex-col justify-center border-r border-coffee-800 dark:border-gray-700 pr-6">
+                                <div id="div-horas-disponiveis" class="hidden mb-4 border-b border-coffee-800 dark:border-gray-700 pb-3">
+                                    <span class="text-[10px] md:text-xs text-amber-500 font-black uppercase tracking-widest block mb-1">Horas Disp. (Turno)</span>
+                                    <span id="res-horas-disponiveis" class="text-2xl md:text-3xl font-bold tracking-tight text-amber-100">0h 00m</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] md:text-xs text-coffee-300 dark:text-gray-400 font-black uppercase tracking-widest block mb-1">Horas Apontadas</span>
+                                    <span id="res-total-horas" class="text-2xl md:text-3xl font-bold tracking-tight transition-colors">0h 00m</span>
+                                </div>
+                            </div>
+                            <div class="text-right pl-2 flex flex-col justify-center">
+                                <span id="lbl-media-hora" class="text-[10px] md:text-xs text-coffee-300 dark:text-gray-400 font-black uppercase tracking-widest block mb-2">Média / Hora</span>
+                                <div class="flex items-end justify-end gap-1.5">
+                                    <span id="res-media-hora" class="text-5xl md:text-6xl font-black text-coffee-50 dark:text-white leading-none">0</span>
+                                    <span class="text-sm md:text-base text-coffee-400 font-bold pb-1.5">un/h</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -493,53 +538,61 @@
 
             <!-- HORÍMETRO -->
             <div id="view-horimetro" class="view-hidden w-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Horímetro</h2>
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
-                    <label class="text-sm font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-2 block heading-font">Horas de Uso</label>
-                    <div class="space-y-4">
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Horímetro Inicial</label><input type="text" inputmode="decimal" id="hor-inicial" oninput="maskHorimetro(this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500 dark:text-white" placeholder="Ex: 1.234,5"></div>
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Horímetro Final</label><input type="text" inputmode="decimal" id="hor-final" oninput="maskHorimetro(this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold py-3.5 px-4 outline-none focus:border-coffee-500 dark:text-white" placeholder="Ex: 1.234,5"></div>
-                        <div class="mt-8 pt-6 border-t dark:border-gray-700 relative"><span class="text-sm text-gray-500 font-medium mb-1 block">Tempo Real Trabalhado:</span><span id="res-horimetro" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0.00</span></div>
+                <div class="w-full max-w-3xl mx-auto">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Horímetro</h2>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors">
+                        <label class="text-base font-bold text-coffee-900 dark:text-white uppercase tracking-wider mb-4 block heading-font">Horas de Uso</label>
+                        <div class="space-y-6">
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Horímetro Inicial</label><input type="text" inputmode="decimal" id="hor-inicial" oninput="maskHorimetro(this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:border-coffee-500 dark:text-white" placeholder="Ex: 1.234,5"></div>
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Horímetro Final</label><input type="text" inputmode="decimal" id="hor-final" oninput="maskHorimetro(this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:border-coffee-500 dark:text-white" placeholder="Ex: 1.234,5"></div>
+                            <div class="mt-8 pt-8 border-t dark:border-gray-700 relative"><span class="text-sm md:text-base text-gray-500 font-medium mb-2 block">Tempo Real Trabalhado:</span><span id="res-horimetro" class="text-5xl font-extrabold text-coffee-900 dark:text-white">0.00</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- CONVERSÃO MM/CM -->
             <div id="view-conv-mm" class="view-hidden w-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Converter MM</h2>
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Milímetros para Centímetros</h3>
-                    <div class="space-y-4">
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Medida em mm</label><input type="number" id="conv-mm-input" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500" placeholder="Ex: 150" oninput="calcConvMm()"></div>
-                        <div class="mt-8 pt-6 border-t dark:border-gray-700"><span class="text-sm text-gray-500 font-medium block mb-1">Resultado em cm:</span><div class="flex items-end gap-1"><span id="res-conv-mm" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0</span><span class="text-lg font-bold mb-1">cm</span></div></div>
+                <div class="w-full max-w-3xl mx-auto">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Converter MM</h2>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors">
+                        <h3 class="text-base font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-6">Milímetros para Centímetros</h3>
+                        <div class="space-y-6">
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Medida em mm</label><input type="number" id="conv-mm-input" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold outline-none text-coffee-900 dark:text-white py-4 px-5 focus:border-coffee-500" placeholder="Ex: 150" oninput="calcConvMm()"></div>
+                            <div class="mt-8 pt-8 border-t dark:border-gray-700"><span class="text-sm md:text-base text-gray-500 font-medium block mb-2">Resultado em cm:</span><div class="flex items-end gap-2"><span id="res-conv-mm" class="text-5xl font-extrabold text-coffee-900 dark:text-white">0</span><span class="text-xl font-bold mb-1.5">cm</span></div></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- CONVERSÃO HZ/RPM -->
             <div id="view-conv-hz" class="view-hidden w-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Converter Hz</h2>
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-5">Hertz para RPM</h3>
-                    <div class="space-y-4">
-                        <div class="w-full"><label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase mb-1.5 ml-1">Frequência em Hz</label><input type="number" id="conv-hz-input" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500" placeholder="Ex: 60" oninput="calcConvHz()"></div>
-                        <div class="mt-8 pt-6 border-t dark:border-gray-700"><span class="text-sm text-gray-500 font-medium block mb-1">Resultado em RPM:</span><div class="flex items-end gap-1"><span id="res-conv-hz" class="text-4xl font-extrabold text-coffee-900 dark:text-white">0</span><span class="text-lg font-bold mb-1">RPM</span></div></div>
+                <div class="w-full max-w-3xl mx-auto">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Converter Hz</h2>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors">
+                        <h3 class="text-base font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-6">Hertz para RPM</h3>
+                        <div class="space-y-6">
+                            <div class="w-full"><label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase mb-2 ml-1">Frequência em Hz</label><input type="number" id="conv-hz-input" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-2xl font-bold outline-none text-coffee-900 dark:text-white py-4 px-5 focus:border-coffee-500" placeholder="Ex: 60" oninput="calcConvHz()"></div>
+                            <div class="mt-8 pt-8 border-t dark:border-gray-700"><span class="text-sm md:text-base text-gray-500 font-medium block mb-2">Resultado em RPM:</span><div class="flex items-end gap-2"><span id="res-conv-hz" class="text-5xl font-extrabold text-coffee-900 dark:text-white">0</span><span class="text-xl font-bold mb-1.5">RPM</span></div></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- ABERTURA DE O.S -->
             <div id="view-os" class="view-hidden w-full flex flex-col min-h-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Abertura de O.S</h2>
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors flex-1">
-                    <div class="space-y-4">
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Equipamento / Máquina</label>
-                            <input type="text" id="os-equipamento" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500" placeholder="Ex: Elevador 01, Balança...">
-                        </div>
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Descrição do Problema</label>
-                            <textarea id="os-problema" rows="4" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500" placeholder="Descreva de forma detalhada o que está acontecendo..."></textarea>
+                <div class="w-full max-w-3xl mx-auto flex-1 flex flex-col">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Abertura de O.S</h2>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors flex-1">
+                        <div class="space-y-6">
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
+                                <input type="text" id="os-equipamento" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-4 px-5 focus:border-coffee-500" placeholder="Ex: Elevador 01, Balança...">
+                            </div>
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descrição do Problema</label>
+                                <textarea id="os-problema" rows="6" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-base font-bold outline-none text-coffee-900 dark:text-white py-4 px-5 focus:border-coffee-500" placeholder="Descreva de forma detalhada o que está acontecendo..."></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -547,68 +600,70 @@
 
             <!-- REQUISIÇÕES -->
             <div id="view-requisicao" class="view-hidden w-full flex flex-col min-h-full p-5">
-                <h2 class="text-lg font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-4 heading-font">Requisições</h2>
-                
-                <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1 mb-6 border border-coffee-200 dark:border-gray-700 shadow-inner">
-                    <button id="btn-tab-req-material" onclick="switchTabReq('material')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Estoque / Material</button>
-                    <button id="btn-tab-req-compra" onclick="switchTabReq('compra')" class="flex-1 py-2 text-sm font-bold text-coffee-800/60 dark:text-gray-400 rounded-lg hover:text-black dark:hover:text-white transition-all">Compras Externas</button>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 relative transition-colors flex-1">
+                <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col">
+                    <h2 class="text-xl md:text-2xl font-black text-center text-coffee-900 dark:text-white uppercase tracking-widest mb-6 heading-font">Requisições</h2>
                     
-                    <!-- Aba: Requisição de Material -->
-                    <div id="tab-req-material" class="block space-y-4">
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-4">Requisição de Material Interno</h3>
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Material / Insumo</label>
-                            <input type="text" id="req-mat-nome" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
-                        </div>
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade</label>
-                            <input type="text" id="req-mat-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: 2 rolos, 10 caixas">
-                        </div>
-                        <div class="w-full">
-                            <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Justificativa</label>
-                            <textarea id="req-mat-just" rows="3" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none py-3.5 px-4 dark:text-white focus:border-coffee-500" placeholder="Para qual lote ou finalidade?"></textarea>
-                        </div>
+                    <div class="flex bg-coffee-100 dark:bg-gray-800 rounded-xl p-1.5 mb-8 border border-coffee-200 dark:border-gray-700 shadow-inner">
+                        <button id="btn-tab-req-material" onclick="switchTabReq('material')" class="flex-1 py-3 text-sm md:text-base font-bold rounded-lg bg-white dark:bg-gray-600 text-coffee-900 dark:text-white shadow-sm transition-all">Estoque / Material</button>
+                        <button id="btn-tab-req-compra" onclick="switchTabReq('compra')" class="flex-1 py-3 text-sm md:text-base font-bold text-coffee-800/60 dark:text-gray-400 rounded-lg hover:text-black dark:hover:text-white transition-all">Compras Externas</button>
                     </div>
 
-                    <!-- Aba: Requisição de Compras -->
-                    <div id="tab-req-compra" class="hidden space-y-4">
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-4">Múltiplos Itens de Compra</h3>
-                        <div class="bg-coffee-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-coffee-200 dark:border-gray-600">
-                            <div class="w-full mb-3">
-                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Item a Comprar</label>
-                                <input type="text" id="req-comp-nome" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500" placeholder="Nome exato do material">
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 mb-3">
-                                <div class="w-full">
-                                    <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Quantidade</label>
-                                    <input type="text" id="req-comp-qtd" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500" placeholder="Ex: 5 un">
-                                </div>
-                                <div class="w-full">
-                                    <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
-                                    <select id="req-comp-cat" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500">
-                                        <option value="EPIs">EPIs</option>
-                                        <option value="Ferramentas">Ferramentas</option>
-                                        <option value="Insumos (Embalagem)">Insumos</option>
-                                        <option value="Limpeza">Limpeza</option>
-                                        <option value="Escritório">Escritório</option>
-                                        <option value="Outros">Outros</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="w-full mb-4">
-                                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Justificativa da Compra</label>
-                                <input type="text" id="req-comp-just" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-sm font-bold outline-none py-3 px-4 dark:text-white focus:border-coffee-500" placeholder="Motivo...">
-                            </div>
-                            <button onclick="addReqCompraItem()" class="w-full py-3 bg-coffee-800 dark:bg-gray-600 text-white rounded-xl font-bold active:scale-95 transition-all shadow-sm">
-                                ➕ Adicionar à Lista
-                            </button>
-                        </div>
+                    <div class="bg-white dark:bg-gray-800 shadow-sm border-2 border-coffee-100 dark:border-gray-700 rounded-2xl p-6 md:p-8 relative transition-colors flex-1">
                         
-                        <!-- Lista de compras -->
-                        <div id="req-compras-list" class="space-y-2 mt-4"></div>
+                        <!-- Aba: Requisição de Material -->
+                        <div id="tab-req-material" class="block space-y-5">
+                            <h3 class="text-base font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-6">Requisição de Material Interno</h3>
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Material / Insumo</label>
+                                <input type="text" id="req-mat-nome" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-base dark:text-white focus:border-coffee-500" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
+                            </div>
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantidade</label>
+                                <input type="text" id="req-mat-qtd" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-base dark:text-white focus:border-coffee-500" placeholder="Ex: 2 rolos, 10 caixas">
+                            </div>
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Justificativa</label>
+                                <textarea id="req-mat-just" rows="4" oninput="debouncedSave()" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-base font-bold outline-none py-4 px-5 dark:text-white focus:border-coffee-500" placeholder="Para qual lote ou finalidade?"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Aba: Requisição de Compras -->
+                        <div id="tab-req-compra" class="hidden space-y-5">
+                            <h3 class="text-base font-bold uppercase tracking-wider text-coffee-900 dark:text-white heading-font mb-6">Múltiplos Itens de Compra</h3>
+                            <div class="bg-coffee-50 dark:bg-gray-700/50 p-5 md:p-6 rounded-2xl border border-dashed border-coffee-300 dark:border-gray-600">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                    <div class="w-full md:col-span-2">
+                                        <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Item a Comprar</label>
+                                        <input type="text" id="req-comp-nome" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-5 text-base dark:text-white focus:border-coffee-500" placeholder="Nome exato do material">
+                                    </div>
+                                    <div class="w-full">
+                                        <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantidade</label>
+                                        <input type="text" id="req-comp-qtd" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-5 text-base dark:text-white focus:border-coffee-500" placeholder="Ex: 5 un">
+                                    </div>
+                                    <div class="w-full">
+                                        <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Categoria</label>
+                                        <select id="req-comp-cat" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-5 text-base dark:text-white focus:border-coffee-500">
+                                            <option value="EPIs">EPIs</option>
+                                            <option value="Ferramentas">Ferramentas</option>
+                                            <option value="Insumos (Embalagem)">Insumos</option>
+                                            <option value="Limpeza">Limpeza</option>
+                                            <option value="Escritório">Escritório</option>
+                                            <option value="Outros">Outros</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-full md:col-span-2">
+                                        <label class="block text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Justificativa da Compra</label>
+                                        <input type="text" id="req-comp-just" class="w-full bg-white dark:bg-gray-800 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-base font-bold outline-none py-3.5 px-5 dark:text-white focus:border-coffee-500" placeholder="Motivo...">
+                                    </div>
+                                </div>
+                                <button onclick="addReqCompraItem()" class="w-full py-4 bg-coffee-800 hover:bg-coffee-900 dark:bg-gray-600 dark:hover:bg-gray-500 text-white rounded-xl font-bold active:scale-95 transition-all shadow-md text-base">
+                                    ➕ Adicionar à Lista
+                                </button>
+                            </div>
+                            
+                            <!-- Lista de compras -->
+                            <div id="req-compras-list" class="space-y-3 mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -616,55 +671,55 @@
         </main>
 
         <footer class="bg-white dark:bg-gray-900 border-t border-coffee-200/50 dark:border-gray-800 flex flex-col mt-auto z-10 shrink-0 transition-colors duration-300 print-hide">
-            <div id="footer-actions" class="hidden px-5 py-4 shadow-[0_-4px_15px_rgba(0,0,0,0.02)] space-y-3">
-                <button onclick="compartilharRelatorio()" class="w-full bg-coffee-800 dark:bg-gray-700 hover:bg-coffee-900 dark:hover:bg-gray-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2.5 active:scale-95 transition-all shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+            <div id="footer-actions" class="hidden px-5 py-4 shadow-[0_-4px_15px_rgba(0,0,0,0.02)] space-y-3 max-w-4xl mx-auto w-full">
+                <button onclick="compartilharRelatorio()" class="w-full bg-coffee-800 dark:bg-gray-700 hover:bg-coffee-900 dark:hover:bg-gray-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2.5 active:scale-95 transition-all shadow-sm md:text-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                     <span id="lbl-share-btn">Compartilhar Boletim</span>
                 </button>
             </div>
-            <div class="py-3 bg-coffee-50 dark:bg-gray-900 transition-colors">
-                <p class="text-center text-[10px] font-bold text-coffee-800/40 dark:text-gray-500 uppercase tracking-[0.3em]">Developer Willian Junior</p>
+            <div class="py-4 bg-coffee-50 dark:bg-gray-900 transition-colors">
+                <p class="text-center text-[10px] md:text-xs font-bold text-coffee-800/40 dark:text-gray-500 uppercase tracking-[0.3em]">Developer Willian Junior</p>
             </div>
         </footer>
     </div>
 
     <!-- MODAL HISTÓRICO -->
     <div id="modal-historico" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col" id="modal-historico-content">
-            <div class="flex justify-between items-center mb-4 shrink-0">
-                <h3 class="text-lg font-bold text-coffee-900 dark:text-white heading-font uppercase">Histórico (<span id="historico-setor"></span>)</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col" id="modal-historico-content">
+            <div class="flex justify-between items-center mb-6 shrink-0">
+                <h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white heading-font uppercase">Histórico (<span id="historico-setor"></span>)</h3>
                 <button onclick="fecharModalHistorico()" class="text-gray-400 hover:text-red-500 active:scale-95 transition-all">
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div id="lista-historico" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4">
+            <div id="lista-historico" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-6">
                 <!-- Lista injetada via JS -->
             </div>
-            <button onclick="fecharModalHistorico()" class="w-full py-3.5 bg-coffee-100 dark:bg-gray-700 text-coffee-900 dark:text-white font-bold rounded-xl active:scale-95 shadow-md transition-colors">Fechar</button>
+            <button onclick="fecharModalHistorico()" class="w-full py-4 bg-coffee-100 dark:bg-gray-700 hover:bg-coffee-200 dark:hover:bg-gray-600 text-coffee-900 dark:text-white font-bold rounded-xl active:scale-95 shadow-md transition-colors text-base">Fechar</button>
         </div>
     </div>
 
     <!-- MODAL ATIVIDADES -->
     <div id="modal-atividades" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col" id="modal-atividades-content">
-            <div class="flex justify-between items-center mb-4 shrink-0">
-                <h3 class="text-lg font-bold text-coffee-900 dark:text-white heading-font">Selecionar Atividades</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col" id="modal-atividades-content">
+            <div class="flex justify-between items-center mb-6 shrink-0">
+                <h3 class="text-lg md:text-xl font-bold text-coffee-900 dark:text-white heading-font">Selecionar Atividades</h3>
                 <button onclick="fecharModalAtividades()" class="text-gray-400 hover:text-red-500 active:scale-95 transition-all">
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div id="lista-atividades" class="flex-1 overflow-y-auto space-y-2 pr-2 mb-4">
+            <div id="lista-atividades" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-6">
                 <!-- Checkboxes inseridos via JS -->
             </div>
-            <div id="div-outras-atividade" class="hidden shrink-0 mb-4 transition-all">
-                <label class="block text-[11px] font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Descreva a atividade</label>
-                <input type="text" id="input-outras-atividade" placeholder="..." style="text-transform: uppercase;" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500">
+            <div id="div-outras-atividade" class="hidden shrink-0 mb-6 transition-all">
+                <label class="block text-[11px] md:text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descreva a atividade</label>
+                <input type="text" id="input-outras-atividade" placeholder="..." style="text-transform: uppercase;" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-4 px-5 font-bold outline-none dark:text-white focus:border-coffee-500 text-base">
             </div>
-            <div class="flex gap-3 shrink-0">
-                <button onclick="limparModalAtividades()" class="w-1/3 py-3.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold rounded-xl active:scale-95 transition-colors">
+            <div class="flex gap-4 shrink-0">
+                <button onclick="limparModalAtividades()" class="w-1/3 py-4 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold rounded-xl active:scale-95 transition-colors text-base">
                     Limpar
                 </button>
-                <button onclick="confirmarModalAtividades()" class="w-2/3 py-3.5 bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md transition-colors">
+                <button onclick="confirmarModalAtividades()" class="w-2/3 py-4 bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md transition-colors text-base">
                     Confirmar Seleção
                 </button>
             </div>
@@ -672,14 +727,14 @@
     </div>
 
     <!-- MODAL LOGIN -->
-    <div id="modal-login" class="fixed inset-0 bg-coffee-950/40 backdrop-blur-sm z-[110] flex flex-col justify-center items-center p-6 transition-opacity duration-500 hidden">
-        <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl p-8 flex flex-col items-center border border-coffee-100 dark:border-gray-700 transition-colors">
-            <div class="w-24 h-24 mb-5 rounded-3xl shadow-lg overflow-hidden bg-coffee-50 dark:bg-gray-700 flex items-center justify-center text-6xl">🪪</div>
-            <h2 class="text-2xl font-bold text-coffee-900 dark:text-white heading-font mb-2 text-center">Bem-vindo</h2>
-            <p class="text-xs text-coffee-500 dark:text-gray-400 mb-6 text-center leading-relaxed">Para acessar o sistema, informe seu <b>nome</b> e selecione o <b>setor</b>.</p>
-            <div class="w-full space-y-4">
-                <input type="text" id="input-login-nome" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500 placeholder-gray-400 transition-colors" placeholder="Seu nome" onkeypress="if(event.key==='Enter') realizarLogin()">
-                <select id="input-login-setor" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-md font-bold outline-none text-coffee-900 dark:text-white py-3.5 px-4 focus:border-coffee-500 transition-colors">
+    <div id="modal-login" class="fixed inset-0 bg-coffee-950/60 backdrop-blur-md z-[110] flex flex-col justify-center items-center p-6 transition-opacity duration-500 hidden">
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl p-8 md:p-10 flex flex-col items-center border border-coffee-100 dark:border-gray-700 transition-colors">
+            <div class="w-28 h-28 mb-6 rounded-[2rem] shadow-lg overflow-hidden bg-coffee-50 dark:bg-gray-700 flex items-center justify-center text-7xl">🪪</div>
+            <h2 class="text-3xl font-black text-coffee-900 dark:text-white heading-font mb-3 text-center uppercase tracking-wider">Bem-vindo</h2>
+            <p class="text-sm md:text-base text-coffee-500 dark:text-gray-400 mb-8 text-center leading-relaxed">Para acessar o sistema, informe seu <b>nome</b> e selecione o <b>setor</b>.</p>
+            <div class="w-full space-y-5">
+                <input type="text" id="input-login-nome" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-xl font-bold outline-none text-coffee-900 dark:text-white py-4 px-5 focus:border-coffee-500 placeholder-gray-400 transition-colors" placeholder="Seu nome" onkeypress="if(event.key==='Enter') realizarLogin()">
+                <select id="input-login-setor" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl text-lg font-bold outline-none text-coffee-900 dark:text-white py-4 px-5 focus:border-coffee-500 transition-colors">
                     <option value="" disabled selected>Selecione seu Setor</option>
                     <option value="📥 Recebimento">📥 Recebimento</option>
                     <option value="⚙️ Rebenefício">⚙️ Rebenefício</option>
@@ -688,42 +743,87 @@
                     <option value="📊 Operações">📊 Operações</option>
                     <option value="⏱️ Manutenção">⏱️ Manutenção</option>
                 </select>
-                <button onclick="realizarLogin()" class="w-full bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-bold py-3.5 rounded-xl active:scale-95 shadow-md transition-colors mt-2">Acessar Sistema</button>
+                <button onclick="realizarLogin()" class="w-full bg-coffee-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-black py-4 rounded-xl active:scale-95 shadow-lg transition-colors mt-4 text-lg uppercase tracking-widest">Acessar Sistema</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL ZERAR -->
     <div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
-            <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-4 mx-auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></div>
-            <h3 class="text-xl font-bold text-center text-coffee-900 dark:text-white mb-2 heading-font">Zerar os dados?</h3>
-            <p class="text-sm text-center text-coffee-500 dark:text-gray-400 mb-6">Apagará todas as informações desta tela.</p>
-            <div class="flex gap-3"><button onclick="closeModalReset()" class="flex-1 py-3 bg-coffee-100 dark:bg-gray-700 text-coffee-900 dark:text-gray-200 font-bold rounded-xl active:scale-95">Cancelar</button><button onclick="executeReset()" class="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl active:scale-95 shadow-md shadow-red-600/20">Apagar</button></div>
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 w-full max-w-md shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-6 mx-auto"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></div>
+            <h3 class="text-2xl font-bold text-center text-coffee-900 dark:text-white mb-3 heading-font">Zerar os dados?</h3>
+            <p class="text-base text-center text-coffee-500 dark:text-gray-400 mb-8">Apagará todas as informações desta tela.</p>
+            <div class="flex gap-4"><button onclick="closeModalReset()" class="flex-1 py-4 bg-coffee-100 dark:bg-gray-700 hover:bg-coffee-200 text-coffee-900 dark:text-gray-200 font-bold rounded-xl active:scale-95 text-base">Cancelar</button><button onclick="executeReset()" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl active:scale-95 shadow-md shadow-red-600/20 text-base">Apagar</button></div>
         </div>
     </div>
 
     <!-- MODAL ADM / BOLETIM UNIFICADO -->
     <div id="modal-adm-email" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[80] hidden flex flex-col justify-center items-center p-4 opacity-0 transition-opacity duration-300 print-hide">
-        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 w-full max-w-4xl shadow-2xl max-h-[90vh] flex flex-col">
-            <h3 class="text-xl font-bold text-coffee-900 dark:text-white mb-1 heading-font text-center print-hide">Boletim Consolidado</h3>
-            <p class="text-xs text-coffee-500 dark:text-gray-400 mb-4 text-center print-hide" id="adm-modal-date-label"></p>
-            <div class="flex-1 overflow-auto border border-gray-200 dark:border-gray-700 rounded-lg p-0 bg-gray-50 dark:bg-gray-900 print:border-none print:overflow-visible" id="container-tabela-adm"></div>
-            <div class="mt-4 flex gap-3 print-hide">
-                <button onclick="fecharModalAdm()" class="flex-1 py-3 bg-coffee-100 dark:bg-gray-700 text-coffee-900 dark:text-gray-200 font-bold rounded-xl active:scale-95">Fechar</button>
-                <button onclick="copiarTabelaAdm()" class="flex-1 py-3 bg-coffee-900 dark:bg-gray-600 text-white font-bold rounded-xl active:scale-95 shadow-md">📋 Copiar Tabela</button>
-                <button onclick="window.print()" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl active:scale-95 shadow-md">📄 Exportar PDF</button>
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 w-full max-w-5xl shadow-2xl max-h-[90vh] flex flex-col">
+            <h3 class="text-2xl font-bold text-coffee-900 dark:text-white mb-2 heading-font text-center print-hide">Boletim Consolidado</h3>
+            <p class="text-sm text-coffee-500 dark:text-gray-400 mb-6 text-center print-hide" id="adm-modal-date-label"></p>
+            <div class="flex-1 overflow-auto border border-gray-200 dark:border-gray-700 rounded-xl p-0 bg-gray-50 dark:bg-gray-900 print:border-none print:overflow-visible" id="container-tabela-adm"></div>
+            <div class="mt-6 flex gap-4 print-hide">
+                <button onclick="fecharModalAdm()" class="flex-1 py-4 bg-coffee-100 dark:bg-gray-700 hover:bg-coffee-200 text-coffee-900 dark:text-gray-200 font-bold rounded-xl active:scale-95 text-base">Fechar</button>
+                <button onclick="copiarTabelaAdm()" class="flex-1 py-4 bg-coffee-900 dark:bg-gray-600 hover:bg-black text-white font-bold rounded-xl active:scale-95 shadow-md text-base">📋 Copiar Tabela</button>
+                <button onclick="window.print()" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl active:scale-95 shadow-md text-base">📄 Exportar PDF</button>
             </div>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-coffee-950 text-white px-5 py-3 rounded-full shadow-lg text-sm font-bold flex items-center gap-2 toast-leave transition-all duration-300 z-[130] pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" id="toast-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="text-green-400"><path d="M5 13l4 4L19 7" /></svg>
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-coffee-950 text-white px-6 py-4 rounded-full shadow-2xl text-base font-bold flex items-center gap-3 toast-leave transition-all duration-300 z-[130] pointer-events-none min-w-[280px] justify-center border border-coffee-800">
+        <svg xmlns="http://www.w3.org/2000/svg" id="toast-icon" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" class="text-green-400"><path d="M5 13l4 4L19 7" /></svg>
         <span id="toast-msg">Ação realizada!</span>
     </div>
 
     <script>
+    // Controle de Layout PC / Mobile
+    let isForcedMobile = localStorage.getItem('forcedMobile') === 'true';
+
+    function applyViewMode() {
+        const container = document.getElementById('app-container');
+        if (!container) return;
+        
+        if (isForcedMobile && window.innerWidth > 768) {
+            container.classList.add('max-w-md', 'md:h-[850px]', 'md:max-h-[95vh]', 'md:rounded-[2.5rem]', 'border', 'border-gray-300', 'dark:border-gray-700');
+        } else {
+            container.classList.remove('max-w-md', 'md:h-[850px]', 'md:max-h-[95vh]', 'md:rounded-[2.5rem]', 'border', 'border-gray-300', 'dark:border-gray-700');
+        }
+    }
+
+    function toggleViewMode() {
+        isForcedMobile = !isForcedMobile;
+        localStorage.setItem('forcedMobile', isForcedMobile);
+        applyViewMode();
+        checkDevice();
+        toggleSidebar();
+        mostrarToast(isForcedMobile ? 'Modo Mobile ativado!' : 'Tela Cheia ativada!');
+    }
+
+    // Detector de Dispositivo Automático
+    function checkDevice() {
+        const isNativeMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const badgeDesktop = document.getElementById('device-info-badge');
+        const badgeMobile = document.getElementById('device-info-badge-mobile');
+        
+        let deviceText = '';
+        if (isNativeMobile) {
+            deviceText = '📱 APP MOBILE';
+        } else {
+            deviceText = isForcedMobile ? '📱 SIMULADOR MOBILE' : '💻 TELA CHEIA (PC)';
+        }
+        
+        if (badgeDesktop) badgeDesktop.innerHTML = deviceText;
+        if (badgeMobile) badgeMobile.innerHTML = deviceText;
+        
+        applyViewMode(); // Garante o layout correto no resize
+    }
+    
+    // Roda no load e quando a tela muda de tamanho
+    window.addEventListener('resize', checkDevice);
+
     function escapeHTML(str) {
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -783,14 +883,18 @@
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPromptPWA = e;
-        const btn = document.getElementById('btn-install');
-        if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); } 
+        const btnMenu = document.getElementById('btn-install');
+        if (btnMenu) { btnMenu.classList.remove('hidden'); btnMenu.classList.add('flex'); } 
+        const btnSidebar = document.getElementById('btn-install-sidebar');
+        if (btnSidebar) { btnSidebar.classList.remove('hidden'); btnSidebar.classList.add('flex'); }
     });
 
     window.addEventListener('appinstalled', () => {
         deferredPromptPWA = null;
-        const btn = document.getElementById('btn-install');
-        if (btn) { btn.classList.add('hidden'); btn.classList.remove('flex'); }
+        const btnMenu = document.getElementById('btn-install');
+        if (btnMenu) { btnMenu.classList.add('hidden'); btnMenu.classList.remove('flex'); }
+        const btnSidebar = document.getElementById('btn-install-sidebar');
+        if (btnSidebar) { btnSidebar.classList.add('hidden'); btnSidebar.classList.remove('flex'); }
         mostrarToast('Aplicativo instalado com sucesso!');
     });
 
@@ -851,6 +955,7 @@
         carregarMemoriaGeral();
         popularDatalist();
         checkLogin();
+        checkDevice(); // Garante verificação no carregamento
     };
 
     function carregarMemoriaGeral() {
@@ -1135,9 +1240,9 @@
             if (act === 'Outras' && isChecked) hasOutras = true;
 
             html += `
-            <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-coffee-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]">
-                <input type="checkbox" value="${act}" class="chk-atividade w-5 h-5 text-coffee-600 rounded focus:ring-coffee-500" ${isChecked ? 'checked' : ''} onchange="handleCheckboxChange(this)">
-                <span class="text-sm font-bold text-gray-700 dark:text-gray-200 select-none leading-tight flex-1">${act}</span>
+            <label class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-coffee-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]">
+                <input type="checkbox" value="${act}" class="chk-atividade w-6 h-6 text-coffee-600 rounded focus:ring-coffee-500" ${isChecked ? 'checked' : ''} onchange="handleCheckboxChange(this)">
+                <span class="text-base font-bold text-gray-700 dark:text-gray-200 select-none leading-tight flex-1">${act}</span>
             </label>
             `;
         });
@@ -1365,7 +1470,6 @@
             st.reqMatNome = document.getElementById('req-mat-nome').value;
             st.reqMatQtd = document.getElementById('req-mat-qtd').value;
             st.reqMatJust = document.getElementById('req-mat-just').value;
-            // reqComprasItens já são salvos em tempo real pela função addReqCompraItem
         }
 
         try {
@@ -1504,14 +1608,14 @@
         items = items.slice(0, 5);
 
         if (items.length === 0) {
-            container.innerHTML = `<p class="text-sm text-center text-gray-500 py-4">Nenhum registro anterior encontrado.</p>`;
+            container.innerHTML = `<p class="text-sm md:text-base text-center text-gray-500 py-6">Nenhum registro anterior encontrado.</p>`;
         } else {
             container.innerHTML = items.map(item => `
-                <div class="bg-coffee-50 dark:bg-gray-700/50 p-4 rounded-xl border border-coffee-200 dark:border-gray-600 flex justify-between items-center">
-                    <div><span class="text-xs font-black text-coffee-500 uppercase tracking-widest">${item.date}</span><br>
-                    <span class="text-lg font-bold text-coffee-900 dark:text-white">${item.sacs.toLocaleString('pt-BR')} sc</span></div>
-                    <div class="text-right"><span class="text-xs font-bold text-gray-400">Tempo</span><br>
-                    <span class="text-md font-bold text-coffee-700 dark:text-gray-300">${Math.floor(item.min/60)}h ${(item.min%60).toString().padStart(2,'0')}m</span></div>
+                <div class="bg-coffee-50 dark:bg-gray-700/50 p-5 rounded-2xl border border-coffee-200 dark:border-gray-600 flex justify-between items-center shadow-sm">
+                    <div><span class="text-xs md:text-sm font-black text-coffee-500 uppercase tracking-widest">${item.date}</span><br>
+                    <span class="text-xl md:text-2xl font-bold text-coffee-900 dark:text-white">${item.sacs.toLocaleString('pt-BR')} sc</span></div>
+                    <div class="text-right"><span class="text-xs md:text-sm font-bold text-gray-400">Tempo</span><br>
+                    <span class="text-lg md:text-xl font-bold text-coffee-700 dark:text-gray-300">${Math.floor(item.min/60)}h ${(item.min%60).toString().padStart(2,'0')}m</span></div>
                 </div>
             `).join('');
         }
@@ -1542,7 +1646,7 @@
     function adicionarLinhaQuebra() {
         const tbody = document.getElementById('quebra-rows');
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td>`;
+        tr.innerHTML = `<tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas" placeholder="1.2345"></td><td class="q-peso-teorico">-</td><td class="q-perc">-</td><td class="q-peso-real highlight-yellow">-</td></tr>`;
         tbody.appendChild(tr);
         saveDataQuebra();
     }
@@ -1703,40 +1807,56 @@
             const borderTimeColor = 'border-coffee-200 dark:border-gray-600 focus:border-coffee-500';
 
             return `
-            <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-4 rounded-2xl relative space-y-4 shadow-sm block-item">
-                <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-100 dark:bg-red-900/50 text-red-600 p-2 rounded-full border border-red-200 dark:border-red-700 active:scale-95 transition-transform">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
+            <div class="bg-white dark:bg-gray-800 border-2 border-coffee-100 dark:border-gray-700 p-5 md:p-6 rounded-3xl relative shadow-sm block-item">
+                <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-100 dark:bg-red-900/50 text-red-600 p-2.5 rounded-full border border-red-200 dark:border-red-700 active:scale-95 transition-transform hover:bg-red-200">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
                 </button>
                 
-                <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500">
-                    <option value="" disabled ${!b.activity ? 'selected' : ''}>Selecione a atividade efetuada</option>
-                    ${currentActivities.map(opt => `<option value="${opt}" ${b.activity === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                </select>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                    <div class="md:col-span-4">
+                        <label class="block text-[10px] md:text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Atividade Realizada</label>
+                        <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base">
+                            <option value="" disabled ${!b.activity ? 'selected' : ''}>Selecione a atividade efetuada</option>
+                            ${currentActivities.map(opt => `<option value="${opt}" ${b.activity === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                        </select>
 
-                ${showCustomActivity ? `
-                <input type="text" style="text-transform: uppercase;" value="${b.activityDetail || ''}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Descreva a atividade">
-                ` : ''}
+                        ${showCustomActivity ? `
+                        <input type="text" style="text-transform: uppercase;" value="${b.activityDetail || ''}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full mt-3 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base" placeholder="Descreva a atividade">
+                        ` : ''}
 
-                ${showRepasseJustificativa ? `
-                <input type="text" value="${b.repasseJustificativa || ''}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Motivo do repasse...">
-                ` : ''}
-
-                <div>
-                    <div class="flex items-center gap-3">
-                        <input type="time" value="${b.start}" onchange="updateBlock(${b.id},'start',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 ${borderTimeColor} rounded-xl py-3 text-center font-bold dark:text-white outline-none">
-                        <span class="text-coffee-400 font-bold text-sm">até</span>
-                        <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 ${borderTimeColor} rounded-xl py-3 text-center font-bold dark:text-white outline-none">
+                        ${showRepasseJustificativa ? `
+                        <input type="text" value="${b.repasseJustificativa || ''}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full mt-3 bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base" placeholder="Motivo do repasse...">
+                        ` : ''}
                     </div>
-                    ${blockDurationStr ? `<div class="text-[10px] text-coffee-500 dark:text-gray-400 font-bold mt-1.5 text-center flex items-center justify-center gap-1"><span class="text-sm">⏱️</span> ${blockDurationStr} ${scPerHourStr}</div>` : ''}
+
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] md:text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Horário</label>
+                        <div class="flex items-center gap-3">
+                            <input type="time" value="${b.start}" onchange="updateBlock(${b.id},'start',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 ${borderTimeColor} rounded-xl py-3.5 text-center font-bold dark:text-white outline-none text-sm md:text-base">
+                            <span class="text-coffee-400 font-bold text-sm md:text-base">até</span>
+                            <input type="time" value="${b.end}" onchange="updateBlock(${b.id},'end',this.value)" class="flex-1 bg-coffee-50 dark:bg-gray-700 border-2 ${borderTimeColor} rounded-xl py-3.5 text-center font-bold dark:text-white outline-none text-sm md:text-base">
+                        </div>
+                        ${blockDurationStr ? `<div class="text-[10px] md:text-xs text-coffee-500 dark:text-gray-400 font-bold mt-2 text-center flex items-center justify-center gap-1"><span class="text-sm">⏱️</span> ${blockDurationStr} ${scPerHourStr}</div>` : ''}
+                    </div>
+                    
+                    <div class="md:col-span-2 grid ${hideBags ? 'grid-cols-1' : 'grid-cols-2'} gap-4">
+                        <div>
+                            <label class="block text-[10px] md:text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
+                            <input type="text" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform: uppercase;" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base" placeholder="${currentRefLabel}">
+                        </div>
+                        ${!hideBags ? `
+                        <div>
+                            <label class="block text-[10px] md:text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Sacas</label>
+                            <input type="text" inputmode="numeric" value="${b.bags}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base" placeholder="Qtd">
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="md:col-span-4">
+                        <label class="block text-[10px] md:text-xs font-bold text-coffee-600 dark:text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Observações / Detalhes</label>
+                        <input type="text" value="${b.obs}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3.5 px-4 font-bold outline-none dark:text-white focus:border-coffee-500 text-sm md:text-base" placeholder="Detalhe/Cliente/Observação">
+                    </div>
                 </div>
-                
-                <div class="grid ${hideBags ? 'grid-cols-1' : 'grid-cols-2'} gap-3">
-                    <input type="text" value="${b.ref}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform: uppercase;" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="${currentRefLabel}">
-                    ${!hideBags ? `
-                    <input type="text" inputmode="numeric" value="${b.bags}" oninput="updateBlockMasked(${b.id},'bags',this)" class="bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Qtd Sacas">
-                    ` : ''}
-                </div>
-                <input type="text" value="${b.obs}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-coffee-50 dark:bg-gray-700 border-2 border-coffee-200 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none dark:text-white focus:border-coffee-500" placeholder="Detalhe/Cliente/Observação">
             </div>`;
         }).join('');
     }
@@ -1912,13 +2032,13 @@
         const cont = document.getElementById('req-compras-list');
         const list = appData[workingDate]?.[currentSector]?.reqComprasItens || [];
         cont.innerHTML = list.map(i => `
-            <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 relative mt-2">
-                <button onclick="removeReqCompraItem(${i.id})" class="absolute top-2 right-2 text-red-500 bg-red-50 dark:bg-red-900/30 p-1.5 rounded-full hover:bg-red-100 transition-colors">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600 relative mt-2 shadow-sm">
+                <button onclick="removeReqCompraItem(${i.id})" class="absolute top-3 right-3 text-red-500 bg-red-50 dark:bg-red-900/30 p-2 rounded-full hover:bg-red-100 transition-colors">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
                 </button>
-                <div class="font-bold text-coffee-900 dark:text-white pr-8">${escapeHTML(i.comp)}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Qtd: ${escapeHTML(i.qtd)} | Cat: ${escapeHTML(i.cat)}</div>
-                <div class="text-xs text-gray-600 dark:text-gray-300 mt-1 italic">"${escapeHTML(i.just)}"</div>
+                <div class="font-bold text-coffee-900 dark:text-white pr-10 text-base md:text-lg">${escapeHTML(i.comp)}</div>
+                <div class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">Qtd: ${escapeHTML(i.qtd)} | Cat: ${escapeHTML(i.cat)}</div>
+                <div class="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-2 italic">"${escapeHTML(i.just)}"</div>
             </div>
         `).join('');
     }
@@ -2201,7 +2321,6 @@
         mostrarToast('CSV exportado com sucesso!');
     }
 
-    // Função centralizadora de compartilhamento
     function executarCompartilhamento(title, texto, cleanSetor) {
         if (cleanSetor === 'TESTE') {
             navigator.clipboard.writeText(texto).then(() => {
@@ -2306,7 +2425,7 @@
                 const itens = st.reqComprasItens || [];
                 if (itens.length === 0) return mostrarToast('Adicione pelo menos um item na lista!', true);
 
-                texto = `🛒 *REQUISIÇÃO DE COMPRAS EXTERNASH*\n\n`;
+                texto = `🛒 *REQUISIÇÃO DE COMPRAS EXTERNAS*\n\n`;
                 texto += `📅 *DATA:* ${workingDate}\n`;
                 texto += `👤 *SOLICITANTE:* ${operadorNome}\n`;
                 texto += `🏢 *SETOR:* ${cleanSetor}\n\n`;
@@ -2402,6 +2521,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 ```
