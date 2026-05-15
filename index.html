@@ -248,6 +248,49 @@
         .shift-card.selected { border-color: #f59e0b !important; background-color: #fffbeb !important; }
         html.dark .shift-card.selected { background-color: rgba(245,158,11,0.1) !important; }
 
+        /* ── Drag & Drop Submenu ── */
+        #submenu-grid { touch-action: none; }
+        .submenu-card {
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+        .submenu-card.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+            box-shadow: none !important;
+        }
+        .submenu-card.drag-over {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px #6366f1, 0 8px 24px -4px rgba(99,102,241,0.3) !important;
+        }
+        .submenu-card.long-press-active {
+            transform: scale(1.08) rotate(-1deg);
+            box-shadow: 0 12px 32px -4px rgba(0,0,0,0.25) !important;
+            z-index: 10;
+        }
+        #drag-hint {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: rgba(99,102,241,0.92); color: white; font-size: 11px; font-weight: 800;
+            letter-spacing: 0.06em; padding: 8px 20px; border-radius: 999px;
+            opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 60;
+            white-space: nowrap;
+        }
+        #drag-hint.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Ring de progresso long press */
+        .lp-ring {
+            position: absolute; inset: 0; border-radius: inherit;
+            pointer-events: none; overflow: hidden;
+        }
+        .lp-ring::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: conic-gradient(rgba(99,102,241,0.35) var(--lp, 0%), transparent 0%);
+            border-radius: inherit;
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -262,6 +305,7 @@
 <body class="fixed inset-0 text-gray-800 dark:text-gray-100 flex flex-col items-center justify-center transition-colors duration-300">
 
     <datalist id="clientesList"></datalist>
+    <div id="drag-hint">🔀 Arraste para reordenar</div>
     <div id="save-indicator" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Salvo</div>
     <div id="cloud-indicator" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg> ☁️ Nuvem</div>
 
@@ -507,69 +551,69 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 justify-center place-content-start">
-                        <button onclick="navigate('view-atividades',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div id="submenu-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 justify-center place-content-start">
+                        <button data-key="atividades" onclick="navigate('view-atividades',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-blue-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Atividades</h3>
                         </button>
 
-                        <button id="btn-menu-produtividade" onclick="navigate('view-productivity',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <button id="btn-menu-produtividade" data-key="boletim" onclick="navigate('view-productivity',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Boletim</h3>
                         </button>
 
-                        <button id="btn-menu-quebra" onclick="navigate('view-divisao-quebra',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <button id="btn-menu-quebra" data-key="quebra" onclick="navigate('view-divisao-quebra',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Quebra</h3>
                         </button>
 
-                        <button id="btn-menu-retencao" onclick="navigate('view-percentage',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button id="btn-menu-retencao" data-key="retencao" onclick="navigate('view-percentage',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-bold text-2xl md:text-3xl group-hover:scale-110 transition-transform mb-3 md:mb-4">%</div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Retenção</h3>
                         </button>
 
-                        <button id="btn-menu-horimetro" onclick="navigate('view-horimetro',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-rose-500">
+                        <button id="btn-menu-horimetro" data-key="horimetro" onclick="navigate('view-horimetro',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-rose-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Horímetro</h3>
                         </button>
 
-                        <button id="btn-menu-conv-mm" onclick="navigate('view-conv-mm',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <button id="btn-menu-conv-mm" data-key="conv-mm" onclick="navigate('view-conv-mm',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. MM</h3>
                         </button>
 
-                        <button id="btn-menu-conv-hz" onclick="navigate('view-conv-hz',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <button id="btn-menu-conv-hz" data-key="conv-hz" onclick="navigate('view-conv-hz',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. HZ</h3>
                         </button>
 
-                        <button id="btn-menu-op" onclick="navigate('view-op',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <button id="btn-menu-op" data-key="op" onclick="navigate('view-op',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-cyan-50 dark:bg-cyan-900/20 text-cyan-500 dark:text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Ordem de Prod.</h3>
                         </button>
 
-                        <button onclick="navigate('view-os',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <button data-key="os" onclick="navigate('view-os',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-orange-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Nova O.S</h3>
                         </button>
 
-                        <button onclick="navigate('view-requisicao',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+                        <button data-key="pedidos" onclick="navigate('view-requisicao',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-fuchsia-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-500 dark:text-fuchsia-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </div>
@@ -2019,6 +2063,104 @@
     }
 
     // ============================================================
+    // DRAG & DROP — SUBMENU (Long Press 2s + arrastar)
+    // ============================================================
+    var _ds = { active:false, el:null, over:null, timer:null, raf:null, sx:0, sy:0, moved:false };
+    var _LP = 2000;
+
+    function _getSubmenuOrder() {
+        try { var s=localStorage.getItem('smOrder_'+(limparEmoji(currentSector)||'x')); return s?JSON.parse(s):null; } catch(e){ return null; }
+    }
+    function _saveSubmenuOrder(order) {
+        try { localStorage.setItem('smOrder_'+(limparEmoji(currentSector)||'x'), JSON.stringify(order)); } catch(e){}
+    }
+    function _applySubmenuOrder() {
+        var grid=document.getElementById('submenu-grid'); if(!grid) return;
+        var order=_getSubmenuOrder(); if(!order||!order.length) return;
+        var cards=Array.from(grid.querySelectorAll('.submenu-card'));
+        order.forEach(function(k){ var c=cards.find(function(x){ return x.dataset.key===k; }); if(c) grid.appendChild(c); });
+    }
+
+    function _clearLP() {
+        clearTimeout(_ds.timer); cancelAnimationFrame(_ds.raf);
+        _ds.timer=null; _ds.raf=null;
+        document.querySelectorAll('.submenu-card .lp-ring').forEach(function(r){ r.style.setProperty('--lp','0%'); });
+    }
+    function _clearDrag() {
+        document.querySelectorAll('.submenu-card').forEach(function(c){ c.classList.remove('dragging','drag-over','long-press-active'); });
+        _ds.active=false; _ds.el=null; _ds.over=null;
+    }
+
+    function _initDragSubmenu() {
+        var grid=document.getElementById('submenu-grid');
+        if(!grid||grid._di) return;
+        grid._di=true;
+
+        function cards(){ return Array.from(grid.querySelectorAll('.submenu-card')); }
+
+        // ─── TOUCH START ───
+        grid.addEventListener('touchstart', function(e){
+            var card=e.target.closest('.submenu-card'); if(!card) return;
+            _ds.sx=e.touches[0].clientX; _ds.sy=e.touches[0].clientY; _ds.moved=false;
+            var ring=card.querySelector('.lp-ring'), t0=Date.now();
+            function anim(){
+                var p=Math.min(100,((Date.now()-t0)/_LP)*100);
+                if(ring) ring.style.setProperty('--lp',p+'%');
+                if(p<100&&_ds.timer!==null) _ds.raf=requestAnimationFrame(anim);
+            }
+            _ds.raf=requestAnimationFrame(anim);
+            _ds.timer=setTimeout(function(){
+                if(_ds.moved){ _clearLP(); return; }
+                if(navigator.vibrate) navigator.vibrate([40,15,40]);
+                _ds.active=true; _ds.el=card;
+                card.classList.add('long-press-active');
+                var hint=document.getElementById('drag-hint');
+                if(hint){ hint.classList.add('visible'); setTimeout(function(){ hint.classList.remove('visible'); },2500); }
+                mostrarToast('🔀 Arraste para mudar a ordem');
+            }, _LP);
+        }, {passive:true});
+
+        // ─── TOUCH MOVE ───
+        grid.addEventListener('touchmove', function(e){
+            var dx=e.touches[0].clientX-_ds.sx, dy=e.touches[0].clientY-_ds.sy;
+            if(Math.abs(dx)>6||Math.abs(dy)>6) _ds.moved=true;
+            if(!_ds.active||!_ds.el) return;
+            e.preventDefault();
+            // Temporariamente esconder o card arrastado para elementFromPoint funcionar
+            _ds.el.style.pointerEvents='none';
+            var touch=e.touches[0];
+            var target=document.elementFromPoint(touch.clientX, touch.clientY);
+            _ds.el.style.pointerEvents='';
+            var over=target?target.closest('.submenu-card'):null;
+            cards().forEach(function(c){ c.classList.remove('drag-over'); });
+            if(over&&over!==_ds.el){
+                over.classList.add('drag-over');
+                _ds.over=over;
+                // Mover em tempo real
+                var all=cards(), fi=all.indexOf(_ds.el), ti=all.indexOf(over);
+                if(fi!==ti){
+                    if(fi<ti) grid.insertBefore(_ds.el, over.nextSibling);
+                    else       grid.insertBefore(_ds.el, over);
+                }
+            }
+        }, {passive:false});
+
+        // ─── TOUCH END / CANCEL ───
+        function onEnd(){
+            _clearLP();
+            if(_ds.active){
+                // Salvar ordem final
+                var newOrder=cards().map(function(c){ return c.dataset.key; });
+                _saveSubmenuOrder(newOrder);
+                if(_ds.over) mostrarToast('Ordem salva! ✓');
+            }
+            _clearDrag();
+        }
+        grid.addEventListener('touchend',   onEnd, {passive:true});
+        grid.addEventListener('touchcancel', onEnd, {passive:true});
+    }
+
+    // ============================================================
     // UI Controls
     // ============================================================
     function toggleSidebar() {
@@ -2919,7 +3061,10 @@
             else { if(vol) vol.classList.remove('hidden'); }
             if(tit) tit.textContent = currentSector || 'PRUMO';
             var dp2=document.getElementById('date-picker-container'); if(dp2){dp2.classList.add('hidden');dp2.classList.remove('flex');}
-            if (viewId==='view-submenu') atualizarQuickRead();
+            if (viewId==='view-submenu') {
+                atualizarQuickRead();
+                setTimeout(function(){ _applySubmenuOrder(); _initDragSubmenu(); }, 50);
+            }
         }
         var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op'];
         if (actionViews.includes(viewId)) {
