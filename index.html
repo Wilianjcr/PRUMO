@@ -214,7 +214,7 @@
             #user-sidebar, header, #action-bar, footer,
             #view-menu, #view-submenu, #view-atividades, #view-productivity,
             #view-horimetro, #view-percentage, #view-divisao-quebra,
-            #view-conv-mm, #view-conv-hz, #view-os, #view-requisicao,
+            #view-conv-mm, #view-conv-hz, #view-os, #view-requisicao, #view-op,
             .print-hide { display: none !important; }
             #modal-adm-email { display: block !important; position: static !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
             #modal-adm-email > div { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
@@ -364,6 +364,13 @@
                                 <div class="text-left">
                                     <div class="text-sm uppercase tracking-wider heading-font">Resumo Geral</div>
                                     <div class="text-xs text-gray-500 font-normal">Consolidado do dia</div>
+                                </div>
+                            </button>
+                            <button onclick="abrirModalAtvAdm()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📋</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Registros de Ativ.</div>
+                                    <div class="text-xs text-blue-100 font-normal">Consultar e editar</div>
                                 </div>
                             </button>
                             <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
@@ -548,6 +555,13 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. HZ</h3>
                         </button>
 
+                        <button id="btn-menu-op" onclick="navigate('view-op',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-cyan-50 dark:bg-cyan-900/20 text-cyan-500 dark:text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
+                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Ordem de Prod.</h3>
+                        </button>
+
                         <button onclick="navigate('view-os',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-orange-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -573,13 +587,16 @@
                 </div>
             </div>
 
-            <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
-                <div class="w-full max-w-3xl mx-auto">
-                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
+            <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8 pb-32">
+                <div class="w-full max-w-3xl mx-auto space-y-6">
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Atividades do Dia</h2>
-                        <p class="text-sm text-gray-500 mt-1">Preencha antes de iniciar os trabalhos</p>
+                        <p class="text-sm text-gray-500 mt-1">Preencha e salve antes de iniciar os trabalhos</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors">
+
+                    <!-- Formulário de nova atividade -->
+                    <div id="atv-form-container" class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 transition-colors">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-5">Nova Atividade</h3>
                         <div class="space-y-6">
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Serviço a realizar</label>
@@ -613,6 +630,24 @@
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantos ajudantes?</label>
                                     <input type="number" id="atv-ajuda-qtd" oninput="debouncedSave()" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl py-4 px-5 text-blue-900 dark:text-blue-100 font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 2">
                                 </div>
+                            </div>
+                            <!-- Botão Salvar Atividade -->
+                            <button onclick="salvarRegistroAtividade()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Salvar Atividade
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de atividades salvas do dia -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Atividades Registradas</h3>
+                            <span id="atv-data-badge" class="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"></span>
+                        </div>
+                        <div id="atv-lista-registros" class="space-y-3">
+                            <div class="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
+                                <p class="text-sm text-gray-400">Nenhuma atividade salva ainda.</p>
                             </div>
                         </div>
                     </div>
@@ -714,8 +749,39 @@
             <div id="view-productivity" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
                 <div class="w-full max-w-5xl mx-auto flex flex-col flex-1">
                     <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Boletim Diário</h2>
-                        <p class="text-sm text-gray-500 mt-1">Registro de produção e tempos operacionais</p>
+                        <div class="flex flex-wrap items-start justify-between gap-4">
+                            <div>
+                                <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Boletim Diário</h2>
+                                <p class="text-sm text-gray-500 mt-1">Registro de produção e tempos operacionais</p>
+                            </div>
+                            <!-- Barra de totais inline no cabeçalho -->
+                            <div class="flex items-center gap-4 sm:gap-6 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3 shrink-0">
+                                <div>
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-0.5">Total Produzido</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <input type="text" id="prod-total" readonly class="bg-transparent text-xl font-black text-emerald-600 dark:text-emerald-400 outline-none w-16 p-0 border-none pointer-events-none" value="0">
+                                        <span class="text-xs font-bold text-gray-400">sc</span>
+                                    </div>
+                                </div>
+                                <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+                                <div>
+                                    <div id="div-horas-disponiveis" class="hidden mb-1">
+                                        <span class="text-[9px] text-amber-500 font-bold uppercase tracking-widest block">Disp. Turno</span>
+                                        <span id="res-horas-disponiveis" class="text-xs font-bold text-gray-700 dark:text-gray-300 leading-none">0h 00m</span>
+                                    </div>
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-0.5">Apontado</span>
+                                    <span id="res-total-horas" class="text-xs font-bold text-gray-700 dark:text-gray-300 leading-none">0h 00m</span>
+                                </div>
+                                <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+                                <div class="text-right">
+                                    <span id="lbl-media-hora" class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-0.5">Média/h</span>
+                                    <div class="flex items-baseline gap-0.5">
+                                        <span id="res-media-hora" class="text-xl font-black text-gray-900 dark:text-white leading-none">0</span>
+                                        <span class="text-[10px] font-bold text-gray-400">sc/h</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="rebeneficio-shift-container" class="hidden mb-8 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-3xl p-6 transition-all">
@@ -752,7 +818,7 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 space-y-6 pb-24">
+                    <div class="flex-1 space-y-6 pb-6">
                         <div>
                             <div class="flex justify-between items-end mb-6">
                                 <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font">Apontamentos</h3>
@@ -782,36 +848,7 @@
                         </div>
                     </div>
 
-                    <div class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 p-4 md:p-6 z-30 print-hide shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
-                        <div class="max-w-5xl mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
-                            <div class="flex items-center gap-6 divide-x divide-gray-200 dark:divide-gray-700 flex-1">
-                                <div>
-                                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-1">Total Produzido</span>
-                                    <div class="flex items-baseline gap-1">
-                                        <input type="text" id="prod-total" readonly class="bg-transparent text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400 outline-none w-20 md:w-24 p-0 border-none pointer-events-none" value="0">
-                                        <span class="text-sm font-bold text-gray-400">sc</span>
-                                    </div>
-                                </div>
-                                <div class="pl-6">
-                                    <div id="div-horas-disponiveis" class="hidden mb-2">
-                                        <span class="text-[9px] text-amber-500 font-bold uppercase tracking-widest block">Disp. Turno</span>
-                                        <span id="res-horas-disponiveis" class="text-sm font-bold text-gray-700 dark:text-gray-300 leading-none">0h 00m</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest block">Apontado</span>
-                                        <span id="res-total-horas" class="text-sm font-bold text-gray-700 dark:text-gray-300 leading-none">0h 00m</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-100 dark:bg-gray-800 rounded-2xl px-5 py-3 flex flex-col items-end shrink-0 border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
-                                <span id="lbl-media-hora" class="text-[9px] text-gray-500 font-bold uppercase tracking-widest block mb-1">Média / Hora</span>
-                                <div class="flex items-baseline gap-1">
-                                    <span id="res-media-hora" class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-none tracking-tighter">0</span>
-                                    <span class="text-xs font-bold text-gray-400">sc/h</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
@@ -876,6 +913,46 @@
                                     <span id="res-conv-hz" class="text-7xl font-black text-teal-500 dark:text-teal-400 tracking-tighter">0</span>
                                     <span class="text-2xl font-bold text-teal-300">RPM</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- VIEW: ORDEM DE PRODUÇÃO                   -->
+            <!-- ══════════════════════════════════════════ -->
+            <div id="view-op" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
+                <div class="w-full max-w-3xl mx-auto flex-1 flex flex-col">
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Ordens de Produção</h2>
+                            <p class="text-sm text-gray-500 mt-1">Registre as OPs do dia antes de iniciar o boletim</p>
+                        </div>
+                        <span id="op-badge-count" class="hidden bg-cyan-500 text-white text-xs font-black px-3 py-1 rounded-full">0 OPs</span>
+                    </div>
+
+                    <!-- Formulário nova OP -->
+                    <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-soft p-6 mb-6">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Nova OP</h3>
+                        <div class="space-y-4" id="op-form-fields">
+                            <!-- campos injetados por JS conforme setor -->
+                        </div>
+                        <button onclick="adicionarOP()" class="mt-5 w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Registrar OP
+                        </button>
+                    </div>
+
+                    <!-- Lista de OPs do dia -->
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">OPs Registradas Hoje</h3>
+                            <span id="op-data-label" class="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"></span>
+                        </div>
+                        <div id="op-lista" class="space-y-3 pb-32">
+                            <div class="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
+                                <p class="text-sm text-gray-400">Nenhuma OP registrada ainda.</p>
                             </div>
                         </div>
                     </div>
@@ -1014,6 +1091,48 @@
         </div>
     </div>
 
+    <!-- MODAL: SELETOR DE OP -->
+    <div id="modal-op-seletor" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-op-seletor-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[70vh] flex flex-col border border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                <div>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Selecionar OP</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Escolha a OP para preencher a referência</p>
+                </div>
+                <button onclick="fecharSeletorOP()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95 transition-all">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="modal-op-lista" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALHE DE ATIVIDADE -->
+    <div id="modal-atv-detalhe" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-atv-detalhe-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                <div>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Detalhe da Atividade</h3>
+                    <p id="modal-atv-hora" class="text-xs text-gray-400 mt-0.5"></p>
+                </div>
+                <button onclick="fecharModalAtvDetalhe()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-4 pr-1" id="modal-atv-body"></div>
+            <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-col gap-3 shrink-0">
+                <div id="modal-atv-edit-warn" class="hidden text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-3 py-2 font-semibold"></div>
+                <div class="flex gap-3">
+                    <button id="btn-modal-atv-editar" onclick="editarRegistroAtividade()" class="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-colors active:scale-95">✏️ Editar</button>
+                    <button onclick="compartilharAtividadeRegistro()" class="flex-1 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors active:scale-95">
+                        <svg class="inline w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                        Compartilhar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: LOGIN -->
     <div id="modal-login" class="fixed inset-0 bg-[#1a1a1a]/90 backdrop-blur-xl z-[150] hidden flex flex-col justify-center items-center p-6 transition-opacity duration-500">
         <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 md:p-10 flex flex-col items-center border border-gray-200 dark:border-gray-700">
@@ -1085,6 +1204,673 @@
 
     <script>
     'use strict';
+
+    // ============================================================
+    // MÓDULO: ORDEM DE PRODUÇÃO (OP)
+    // ============================================================
+
+    // Campos por setor
+    var OP_CAMPOS = {
+        'Recebimento': [
+            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
+            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
+            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 320', icon: '⚖️' }
+        ],
+        'Rebenefício': [
+            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
+            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
+            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 500', icon: '⚖️' }
+        ],
+        'TESTE': [
+            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
+            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
+            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 500', icon: '⚖️' }
+        ],
+        'Expedição': [
+            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
+            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
+            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 200', icon: '⚖️' }
+        ],
+        'Embalagem': [
+            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
+            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
+            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 150', icon: '⚖️' }
+        ]
+    };
+
+    function renderFormularioOP() {
+        var container = document.getElementById('op-form-fields');
+        if (!container) return;
+        var clean = limparEmoji(currentSector);
+        var campos = null;
+        Object.keys(OP_CAMPOS).forEach(function(key) {
+            if (clean.includes(key)) campos = OP_CAMPOS[key];
+        });
+        if (!campos) { container.innerHTML = '<p class="text-sm text-gray-400">Setor não suporta OP.</p>'; return; }
+
+        var atividadesSetor = ACTIVITIES_MAP[clean] || [];
+        var html = '';
+
+        // Renderizar Tipo de Referência + Número lado a lado em grid
+        var tipoRef = campos.find(function(c){ return c.id === 'op-tipo-ref'; });
+        var numRef  = campos.find(function(c){ return c.id === 'op-ref'; });
+        var restante = campos.filter(function(c){ return c.id !== 'op-tipo-ref' && c.id !== 'op-ref'; });
+
+        if (tipoRef && numRef) {
+            html += '<div class="grid grid-cols-2 gap-3">' +
+                // Select tipo
+                '<div>' +
+                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + tipoRef.icon + ' Tipo</label>' +
+                    '<select id="op-tipo-ref" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer">' +
+                        '<option value="Lote">📋 Lote</option>' +
+                        '<option value="Guia">📄 Guia</option>' +
+                        '<option value="Contrato">📃 Contrato</option>' +
+                    '</select>' +
+                '</div>' +
+                // Input número
+                '<div>' +
+                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + numRef.icon + ' Número</label>' +
+                    '<input type="text" id="op-ref" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all" placeholder="Ex: 001">' +
+                '</div>' +
+            '</div>';
+        }
+
+        restante.forEach(function(c) {
+            if (c.type === 'select') {
+                var opts = '<option value="" disabled selected>Selecione a atividade...</option>' +
+                    atividadesSetor.map(function(a) {
+                        return '<option value="' + escapeHTML(a) + '">' + escapeHTML(a) + '</option>';
+                    }).join('');
+                html += '<div>' +
+                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + c.icon + ' ' + c.label + '</label>' +
+                    '<select id="' + c.id + '" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer">' +
+                    opts + '</select>' +
+                '</div>';
+            } else {
+                html += '<div>' +
+                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + c.icon + ' ' + c.label + '</label>' +
+                    '<input type="' + c.type + '" id="' + c.id + '" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all" placeholder="' + (c.placeholder||'') + '">' +
+                '</div>';
+            }
+        });
+
+        // Renderizar atividade PRIMEIRO (antes do grid de ref)
+        var atvCampo = campos.find(function(c){ return c.id === 'op-atividade'; });
+        if (atvCampo) {
+            var optsAtv = '<option value="" disabled selected>Selecione a atividade...</option>' +
+                atividadesSetor.map(function(a){ return '<option value="'+escapeHTML(a)+'">'+escapeHTML(a)+'</option>'; }).join('');
+            container.innerHTML =
+                '<div>' +
+                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + atvCampo.icon + ' ' + atvCampo.label + '</label>' +
+                    '<select id="op-atividade" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer">' +
+                    optsAtv + '</select>' +
+                '</div>' + html;
+        } else {
+            container.innerHTML = html;
+        }
+
+        var lbl = document.getElementById('op-data-label');
+        if (lbl) lbl.textContent = workingDate;
+    }
+
+    function getOPs() {
+        if (!appData[workingDate]) appData[workingDate] = {};
+        if (!appData[workingDate]['_ops']) appData[workingDate]['_ops'] = {};
+        if (!appData[workingDate]['_ops'][currentSector]) appData[workingDate]['_ops'][currentSector] = [];
+        return appData[workingDate]['_ops'][currentSector];
+    }
+
+    function salvarOPs() {
+        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+        salvarNoFirestore();
+    }
+
+    function adicionarOP() {
+        var clean = limparEmoji(currentSector);
+        var campos = null;
+        Object.keys(OP_CAMPOS).forEach(function(key) { if (clean.includes(key)) campos = OP_CAMPOS[key]; });
+        if (!campos) return;
+
+        var op = { id: Date.now(), hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) };
+
+        // Validar e ler campos normais
+        var valido = true;
+        campos.forEach(function(c) {
+            if (c.id === 'op-tipo-ref' || c.id === 'op-ref') return; // tratados separado
+            var el = document.getElementById(c.id);
+            if (!el) { valido = false; return; }
+            var val = el.value ? el.value.trim() : '';
+            if (!val) { valido = false; return; }
+            op[c.id] = val;
+        });
+
+        // Ler tipo de referência + número e montar referência composta
+        var tipoEl = document.getElementById('op-tipo-ref');
+        var numEl  = document.getElementById('op-ref');
+        if (tipoEl && numEl) {
+            var tipo = tipoEl.value || 'Guia';
+            var num  = numEl.value ? numEl.value.trim() : '';
+            if (!num) { valido = false; }
+            else {
+                op['op-tipo-ref'] = tipo;
+                op['op-ref']      = num;
+                // Compatibilidade: preencher op-lote ou op-guia conforme tipo
+                if (tipo === 'Lote')     op['op-lote'] = num;
+                else if (tipo === 'Contrato') op['op-guia'] = 'CT-' + num;
+                else                     op['op-guia'] = num;
+            }
+        }
+
+        if (!valido) return mostrarToast('Preencha todos os campos, incluindo atividade e referência.', true);
+
+        getOPs().push(op);
+        salvarOPs();
+
+        // Limpar todos os campos
+        campos.forEach(function(c) {
+            var el = document.getElementById(c.id);
+            if (!el) return;
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            else el.value = '';
+        });
+        var numEl2 = document.getElementById('op-ref');
+        if (numEl2) numEl2.value = '';
+
+        renderListaOPs();
+        mostrarToast('OP registrada com sucesso!');
+    }
+
+    function finalizarOPManual(opId) {
+        var ops = getOPs();
+        var op = ops.find(function(o){ return o.id === opId; });
+        if (!op) return;
+        op.status  = 'finalizada';
+        op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        salvarOPs();
+        renderListaOPs();
+        mostrarToast('OP ' + (op['op-lote']||op['op-guia']||'') + ' finalizada! ✅');
+    }
+
+    function removerOP(id) {
+        var ops = getOPs();
+        var idx = ops.findIndex(function(o) { return o.id === id; });
+        if (idx !== -1) { ops.splice(idx, 1); salvarOPs(); renderListaOPs(); mostrarToast('OP removida.'); }
+    }
+
+    function renderListaOPs() {
+        var container = document.getElementById('op-lista');
+        if (!container) return;
+        var ops = getOPs();
+        var badge = document.getElementById('op-badge-count');
+        if (badge) { badge.textContent = ops.length + ' OP' + (ops.length !== 1 ? 's' : ''); badge.classList.toggle('hidden', ops.length === 0); }
+        if (!ops.length) {
+            container.innerHTML = '<div class="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl"><p class="text-sm text-gray-400">Nenhuma OP registrada ainda.</p></div>';
+            return;
+        }
+        var clean = limparEmoji(currentSector);
+        // Rótulo dinâmico baseado no tipo cadastrado
+        var _getLabelRef = function(op) {
+            var tipo = op['op-tipo-ref'] || (clean.includes('Recebimento') ? 'Lote' : 'Guia');
+            return tipo;
+        };
+        var labelRef = clean.includes('Recebimento') ? 'Lote' : 'Guia'; // fallback
+
+        var STATUS_CONFIG = {
+            'aguardando': { icon: '📋', label: 'Aguardando',   border: 'border-gray-200 dark:border-gray-700',         num: 'bg-gray-100 dark:bg-gray-700 text-gray-500' },
+            'andamento':  { icon: '🔄', label: 'Em andamento', border: 'border-blue-300 dark:border-blue-700',          num: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600' },
+            'finalizada': { icon: '✅', label: 'Finalizada',   border: 'border-emerald-300 dark:border-emerald-700',    num: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600' }
+        };
+
+        container.innerHTML = ops.map(function(op, i) {
+            var refVal    = op['op-lote'] || op['op-guia'] || '-';
+            var sacas     = op['op-sacas'] || '-';
+            var atividade = op['op-atividade'] || '';
+            var status    = op.status || 'aguardando';
+            var cfg       = STATUS_CONFIG[status] || STATUS_CONFIG['aguardando'];
+            var isFinalizada = status === 'finalizada';
+
+            return '<div class="bg-white dark:bg-gray-800 rounded-2xl border-2 ' + cfg.border + ' p-4 shadow-sm transition-all">' +
+                '<div class="flex items-start justify-between gap-3">' +
+                    '<div class="flex items-start gap-3 flex-1 min-w-0">' +
+                        '<div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm shrink-0 mt-0.5 ' + cfg.num + '">' + (i+1) + '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex items-center gap-2 flex-wrap mb-1.5">' +
+                                (atividade ? '<span class="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">' + escapeHTML(atividade) + '</span>' : '') +
+                                '<span class="text-[10px] font-black px-2 py-0.5 rounded-md ' + (status==='finalizada'?'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400':status==='andamento'?'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400':'bg-gray-100 dark:bg-gray-700 text-gray-500') + '">' + cfg.icon + ' ' + cfg.label + '</span>' +
+                            '</div>' +
+                            '<div class="flex items-center gap-2 flex-wrap">' +
+                                '<span class="text-[10px] font-black text-gray-400 uppercase">' + _getLabelRef(op) + ':</span>' +
+                                '<span class="text-sm font-black text-gray-900 dark:text-white ' + (isFinalizada?'line-through opacity-60':'') + '">' + escapeHTML(refVal) + '</span>' +
+                                (op['op-cliente'] ? '<span class="text-[10px] text-gray-500 dark:text-gray-400 font-semibold bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">👤 ' + escapeHTML(op['op-cliente']) + '</span>' : '') +
+                            '</div>' +
+                            '<div class="flex items-center gap-3 mt-1 flex-wrap">' +
+                                '<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">⚖️ ' + escapeHTML(sacas) + ' sc</span>' +
+                                '<span class="text-[10px] text-gray-400">🕐 ' + escapeHTML(op.hora) + '</span>' +
+                                (op.horaFim ? '<span class="text-[10px] text-emerald-500 font-bold">→ ' + escapeHTML(op.horaFim) + '</span>' : '') +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex flex-col gap-1 shrink-0">' +
+                        (!isFinalizada ? '<button onclick="finalizarOPManual(' + op.id + ')" class="text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 p-2 rounded-xl active:scale-95 transition-colors" title="Finalizar OP">✓</button>' : '') +
+                        '<button onclick="removerOP(' + op.id + ')" class="text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 p-2 rounded-xl active:scale-95 transition-colors">' +
+                            '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    function getOPsParaBoletim() {
+        var ops = getOPs();
+        if (!ops.length) return [];
+        var clean = limparEmoji(currentSector);
+        return ops.map(function(op) {
+            var ref       = op['op-ref'] || op['op-lote'] || op['op-guia'] || '';
+            var sacas     = op['op-sacas'] || '';
+            var atividade = op['op-atividade'] || '';
+            var tipo      = op['op-tipo-ref'] || (clean.includes('Recebimento') ? 'Lote' : 'Guia');
+            var labelRef  = tipo + ' ' + ref;
+            return { id: op.id, label: labelRef, ref: ref, sacas: sacas, atividade: atividade, tipo: tipo };
+        });
+    }
+
+    // ============================================================
+    // MÓDULO: REGISTROS DE ATIVIDADE (histórico imutável)
+    // ============================================================
+    var _atvDetalheId  = null; // id do registro aberto no modal
+
+    function _getRegistrosAtv() {
+        if (!appData[workingDate]) appData[workingDate] = {};
+        if (!appData[workingDate]['_registros_atv']) appData[workingDate]['_registros_atv'] = {};
+        if (!appData[workingDate]['_registros_atv'][currentSector]) appData[workingDate]['_registros_atv'][currentSector] = [];
+        return appData[workingDate]['_registros_atv'][currentSector];
+    }
+
+    function _salvarRegistrosAtv() {
+        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+        salvarNoFirestore();
+    }
+
+    function salvarRegistroAtividade() {
+        var servico  = document.getElementById('atv-servico').value || '';
+        var sacas    = document.getElementById('atv-sacas')   ? document.getElementById('atv-sacas').value   : '';
+        var projecao = document.getElementById('atv-projecao')? document.getElementById('atv-projecao').value: '';
+        var ajuda    = document.getElementById('atv-ajuda')   ? document.getElementById('atv-ajuda').value   : 'Não';
+        var ajudaQtd = document.getElementById('atv-ajuda-qtd')? document.getElementById('atv-ajuda-qtd').value: '';
+
+        if (!servico) return mostrarToast('Selecione ao menos uma atividade antes de salvar.', true);
+
+        var reg = {
+            id:        Date.now(),
+            hora:      new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
+            data:      workingDate,
+            operador:  operadorNome,
+            setor:     currentSector,
+            servico:   servico,
+            sacas:     sacas,
+            projecao:  projecao,
+            ajuda:     ajuda,
+            ajudaQtd:  ajudaQtd,
+            editado:   false,    // pode editar 1x
+            bloqueado: false     // ADM pode desbloquear
+        };
+
+        _getRegistrosAtv().push(reg);
+        _salvarRegistrosAtv();
+        // Também salva no campo legacy para compatibilidade
+        saveData();
+        renderListaRegistrosAtv();
+        // Limpar formulário
+        document.getElementById('atv-servico').value = '';
+        var lbl = document.getElementById('lbl-atv-servico');
+        if (lbl) { lbl.textContent = 'Selecionar atividades...'; lbl.className = 'truncate pointer-events-none text-gray-400 dark:text-gray-500 font-semibold text-sm md:text-base'; }
+        if (document.getElementById('atv-sacas')) document.getElementById('atv-sacas').value = '';
+        if (document.getElementById('atv-projecao')) document.getElementById('atv-projecao').value = '';
+        if (document.getElementById('atv-ajuda')) document.getElementById('atv-ajuda').value = 'Não';
+        if (document.getElementById('atv-ajuda-qtd')) document.getElementById('atv-ajuda-qtd').value = '';
+        toggleAjudaQtd(); checkPlanejamentoBagsVisibility();
+        mostrarToast('Atividade registrada! ✓');
+    }
+
+    function renderListaRegistrosAtv() {
+        var container = document.getElementById('atv-lista-registros');
+        var badge     = document.getElementById('atv-data-badge');
+        if (!container) return;
+        if (badge) badge.textContent = workingDate;
+
+        var regs = _getRegistrosAtv();
+        if (!regs.length) {
+            container.innerHTML = '<div class="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl"><p class="text-sm text-gray-400">Nenhuma atividade salva ainda.</p></div>';
+            return;
+        }
+        container.innerHTML = regs.map(function(r, i) {
+            var sacasStr   = r.sacas ? r.sacas + ' sc' : '';
+            var projecaoStr = r.projecao ? '⏰ ' + r.projecao : '';
+            var ajudaStr   = r.ajuda === 'Sim' ? '🤝 +' + (r.ajudaQtd||'?') + ' ajudantes' : '';
+            var editBadge  = r.editado ? '<span class="text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-bold px-1.5 py-0.5 rounded">editado</span>' : '';
+            return '<button onclick="abrirModalAtvDetalhe(' + r.id + ')" class="w-full text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-2xl p-4 shadow-sm transition-all active:scale-[0.98] group">' +
+                '<div class="flex items-start justify-between gap-3">' +
+                    '<div class="flex items-start gap-3 flex-1 min-w-0">' +
+                        '<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm shrink-0 mt-0.5">' + (i+1) + '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex items-center gap-2 flex-wrap mb-1">' +
+                                '<span class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(r.servico) + '</span>' +
+                                editBadge +
+                            '</div>' +
+                            '<div class="flex items-center gap-3 flex-wrap text-[11px] text-gray-500">' +
+                                (sacasStr ? '<span class="text-emerald-600 dark:text-emerald-400 font-bold">⚖️ ' + sacasStr + '</span>' : '') +
+                                (projecaoStr ? '<span>' + projecaoStr + '</span>' : '') +
+                                (ajudaStr ? '<span>' + ajudaStr + '</span>' : '') +
+                                '<span class="text-gray-400">🕐 ' + escapeHTML(r.hora) + '</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<svg class="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>' +
+                '</div>' +
+            '</button>';
+        }).join('');
+    }
+
+    function abrirModalAtvDetalhe(id) {
+        var regs = _getRegistrosAtv();
+        var r = regs.find(function(x){ return x.id === id; });
+        if (!r) return;
+        _atvDetalheId = id;
+
+        var body = document.getElementById('modal-atv-body');
+        var hora = document.getElementById('modal-atv-hora');
+        var warn = document.getElementById('modal-atv-edit-warn');
+        var btnEdit = document.getElementById('btn-modal-atv-editar');
+
+        if (hora) hora.textContent = 'Registrado em ' + r.data + ' às ' + r.hora + ' por ' + r.operador;
+
+        var ajudaStr = r.ajuda === 'Sim' ? 'Sim — ' + (r.ajudaQtd||'?') + ' ajudante(s)' : 'Não';
+        body.innerHTML =
+            _atvDetalheField('📋 Atividade(s)', r.servico) +
+            (r.sacas    ? _atvDetalheField('⚖️ Volume', r.sacas + ' sacas') : '') +
+            (r.projecao ? _atvDetalheField('⏰ Projeção de Entrega', r.projecao) : '') +
+            _atvDetalheField('🤝 Apoio', ajudaStr);
+
+        // Controle de edição
+        var podeEditar = !r.bloqueado && !r.editado;
+        var admPodeEditar = isAdmin;
+        if (btnEdit) {
+            if (admPodeEditar) {
+                btnEdit.classList.remove('hidden');
+                btnEdit.textContent = r.bloqueado ? '🔓 Desbloquear e Editar (ADM)' : '✏️ Editar (ADM)';
+            } else if (podeEditar) {
+                btnEdit.classList.remove('hidden');
+                btnEdit.textContent = '✏️ Editar (1 vez permitida)';
+            } else {
+                btnEdit.classList.add('hidden');
+            }
+        }
+        if (warn) {
+            if (!admPodeEditar && r.editado) {
+                warn.classList.remove('hidden');
+                warn.textContent = 'Este registro já foi editado. Para novas alterações, contate o Gestor.';
+            } else if (!admPodeEditar && r.bloqueado) {
+                warn.classList.remove('hidden');
+                warn.textContent = 'Registro bloqueado pelo Gestor. Solicite desbloqueio se necessário.';
+            } else {
+                warn.classList.add('hidden');
+            }
+        }
+
+        var modal = document.getElementById('modal-atv-detalhe');
+        var mc    = document.getElementById('modal-atv-detalhe-content');
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); mc.classList.remove('translate-y-full'); }, 10);
+    }
+
+    function _atvDetalheField(label, value) {
+        return '<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3.5 border border-gray-100 dark:border-gray-700">' +
+            '<p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">' + label + '</p>' +
+            '<p class="text-sm font-bold text-gray-900 dark:text-white">' + escapeHTML(String(value||'-')) + '</p>' +
+        '</div>';
+    }
+
+    function fecharModalAtvDetalhe() {
+        var modal = document.getElementById('modal-atv-detalhe');
+        var mc    = document.getElementById('modal-atv-detalhe-content');
+        modal.classList.add('opacity-0'); mc.classList.add('translate-y-full');
+        setTimeout(function(){ modal.classList.add('hidden'); _atvDetalheId = null; }, 300);
+    }
+
+    function editarRegistroAtividade() {
+        var regs = _getRegistrosAtv();
+        var r = regs.find(function(x){ return x.id === _atvDetalheId; });
+        if (!r) return;
+
+        // Verificar permissão
+        if (!isAdmin && r.bloqueado)  return mostrarToast('Registro bloqueado. Fale com o Gestor.', true);
+        if (!isAdmin && r.editado)    return mostrarToast('Você já editou este registro. Fale com o Gestor para alterar novamente.', true);
+
+        // Se ADM, desbloquear automaticamente para editar
+        if (isAdmin && r.bloqueado) r.bloqueado = false;
+
+        // Preencher formulário com dados atuais
+        document.getElementById('atv-servico').value = r.servico || '';
+        var lbl = document.getElementById('lbl-atv-servico');
+        if (lbl) { lbl.textContent = r.servico || 'Selecionar atividades...'; lbl.className = r.servico ? 'truncate pointer-events-none text-gray-900 dark:text-white font-bold text-sm md:text-base' : 'truncate pointer-events-none text-gray-400 dark:text-gray-500 font-semibold text-sm md:text-base'; }
+        if (document.getElementById('atv-sacas'))    document.getElementById('atv-sacas').value    = r.sacas    || '';
+        if (document.getElementById('atv-projecao')) document.getElementById('atv-projecao').value = r.projecao || '';
+        if (document.getElementById('atv-ajuda'))    document.getElementById('atv-ajuda').value    = r.ajuda    || 'Não';
+        if (document.getElementById('atv-ajuda-qtd'))document.getElementById('atv-ajuda-qtd').value= r.ajudaQtd || '';
+        toggleAjudaQtd(); checkPlanejamentoBagsVisibility();
+
+        // Remover registro atual para substituir ao salvar
+        var idx = regs.findIndex(function(x){ return x.id === _atvDetalheId; });
+        if (idx !== -1) regs.splice(idx, 1);
+        _salvarRegistrosAtv();
+        renderListaRegistrosAtv();
+        fecharModalAtvDetalhe();
+
+        // Marcar que o próximo save é uma edição
+        window._editandoAtvId = _atvDetalheId;
+        window._editandoAtvFoiEditado = r.editado;
+        mostrarToast('Edite os campos e clique em Salvar Atividade.');
+
+        // Sobrescrever salvarRegistroAtividade para marcar editado
+        var _origSalvar = salvarRegistroAtividade;
+        salvarRegistroAtividade = function() {
+            _origSalvar();
+            // Marcar o último registro como editado
+            var regsNow = _getRegistrosAtv();
+            if (regsNow.length) {
+                var ultimo = regsNow[regsNow.length-1];
+                ultimo.editado = true;
+                if (!isAdmin) ultimo.bloqueado = true; // bloqueia após 1 edição do colaborador
+                _salvarRegistrosAtv();
+                renderListaRegistrosAtv();
+            }
+            salvarRegistroAtividade = _origSalvar; // restaurar
+        };
+    }
+
+    function compartilharAtividadeRegistro() {
+        var regs = _getRegistrosAtv();
+        var r = regs.find(function(x){ return x.id === _atvDetalheId; });
+        if (!r) return fecharModalAtvDetalhe();
+        var cleanSetor = limparEmoji(currentSector);
+        var ajudaStr = r.ajuda === 'Sim' ? 'Sim — ' + (r.ajudaQtd||'?') + ' ajudante(s)' : 'Não';
+        var nl = '\n';
+        var texto = '📋 *INFORME DE PLANEJAMENTO*' + nl + nl +
+            '📅 ' + r.data + nl + '👤 ' + r.operador + nl + '🏢 Setor: ' + cleanSetor +
+            nl + nl + '*Serviços do Dia:*' + nl + r.servico +
+            (r.sacas    ? nl + nl + '📦 *Volume Previsto:* ' + r.sacas + ' sc' : '') +
+            (r.projecao ? nl + '⏰ *Conclusão Estimada:* ' + r.projecao : '') +
+            nl + '🤝 *Apoio Extra:* ' + ajudaStr;
+        fecharModalAtvDetalhe();
+        executarCompartilhamento('Planejamento ' + cleanSetor, texto, cleanSetor);
+    }
+
+    // ── Painel ADM: acesso a registros de todos os setores
+    function abrirModalAtvAdm() {
+        // Coletamos todos os registros do dia de todos os setores
+        var todos = [];
+        var setoresOP = ['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações'];
+        setoresOP.forEach(function(setor) {
+            var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+            regs.forEach(function(r) { todos.push(Object.assign({}, r, {_setor: setor})); });
+        });
+        todos.sort(function(a,b){ return a.id - b.id; });
+
+        var lista = document.getElementById('modal-op-lista');
+        var cleanSetorAtual = currentSector;
+
+        lista.innerHTML = !todos.length
+            ? '<p class="text-sm text-gray-400 text-center py-6">Nenhuma atividade registrada hoje.</p>'
+            : todos.map(function(r) {
+                var setorLabel = limparEmoji(r._setor);
+                var sacasStr = r.sacas ? r.sacas + ' sc' : '-';
+                var editBadge = r.editado ? '<span class="text-[9px] bg-amber-100 text-amber-600 font-bold px-1.5 py-0.5 rounded ml-1">editado</span>' : '';
+                var bloqBadge = r.bloqueado ? '<span class="text-[9px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded ml-1">bloqueado</span>' : '';
+                return '<div class="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 mb-2">' +
+                    '<div class="flex items-start justify-between gap-2">' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex items-center gap-2 flex-wrap mb-1">' +
+                                '<span class="text-[10px] font-black bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded uppercase">' + escapeHTML(setorLabel) + '</span>' +
+                                '<span class="text-[10px] text-gray-400">👤 ' + escapeHTML(r.operador) + '</span>' +
+                                editBadge + bloqBadge +
+                            '</div>' +
+                            '<p class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(r.servico) + '</p>' +
+                            '<p class="text-[11px] text-gray-500 mt-0.5">⚖️ ' + sacasStr + ' · 🕐 ' + escapeHTML(r.hora) + '</p>' +
+                        '</div>' +
+                        '<div class="flex gap-2 shrink-0">' +
+                            (r.bloqueado
+                                ? '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" class="btn-adm-desbloquear-atv text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors active:scale-95">🔓</button>'
+                                : '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" class="btn-adm-bloquear-atv text-[10px] font-bold text-red-500 bg-red-50 border border-red-200 px-2 py-1.5 rounded-lg hover:bg-red-100 transition-colors active:scale-95">🔒</button>') +
+                            '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" class="btn-adm-editar-atv text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition-colors active:scale-95">✏️</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+        var modal = document.getElementById('modal-op-seletor');
+        var mc    = document.getElementById('modal-op-seletor-content');
+        var title = mc.querySelector('h3');
+        if (title) title.textContent = 'Registros de Atividades — ' + workingDate;
+        modal.classList.remove('hidden');
+        setTimeout(function(){
+            modal.classList.remove('opacity-0');
+            mc.classList.remove('translate-y-full');
+            // Event delegation para botões ADM
+            lista.querySelectorAll('.btn-adm-bloquear-atv').forEach(function(btn){
+                btn.addEventListener('click', function(){ admBloquearAtv(btn.dataset.setor, parseInt(btn.dataset.id)); });
+            });
+            lista.querySelectorAll('.btn-adm-desbloquear-atv').forEach(function(btn){
+                btn.addEventListener('click', function(){ admDesbloquearAtv(btn.dataset.setor, parseInt(btn.dataset.id)); });
+            });
+            lista.querySelectorAll('.btn-adm-editar-atv').forEach(function(btn){
+                btn.addEventListener('click', function(){ admEditarAtv(btn.dataset.setor, parseInt(btn.dataset.id)); });
+            });
+        }, 10);
+    }
+
+    function admBloquearAtv(setor, id) {
+        var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+        var r = regs.find(function(x){ return x.id === id; });
+        if (r) { r.bloqueado = true; _salvarRegistrosAtv(); abrirModalAtvAdm(); mostrarToast('Registro bloqueado.'); }
+    }
+    function admDesbloquearAtv(setor, id) {
+        var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+        var r = regs.find(function(x){ return x.id === id; });
+        if (r) { r.bloqueado = false; r.editado = false; _salvarRegistrosAtv(); abrirModalAtvAdm(); mostrarToast('Registro desbloqueado — colaborador pode editar novamente.'); }
+    }
+    function admEditarAtv(setor, id) {
+        var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+        var r = regs.find(function(x){ return x.id === id; });
+        if (!r) return;
+        var novoServico = prompt('Editar atividade (ADM):\nAtual: ' + r.servico + '\n\nNovo valor:');
+        if (novoServico && novoServico.trim()) {
+            r.servico = novoServico.trim();
+            r.editado = true;
+            _salvarRegistrosAtv();
+            abrirModalAtvAdm();
+            mostrarToast('Registro alterado pelo ADM.');
+        }
+    }
+
+    // ============================================================
+    // SELETOR DE OP NO BOLETIM
+    // ============================================================
+    var _opSeletorBlockId = null;
+
+    function abrirSeletorOP(blockId) {
+        _opSeletorBlockId = blockId;
+        var ops = getOPsParaBoletim();
+        var lista = document.getElementById('modal-op-lista');
+        var clean = limparEmoji(currentSector);
+        lista.innerHTML = ops.map(function(op) {
+            var rawOp = getOPs().find(function(o){ return o.id === op.id; }) || {};
+            var cliente = rawOp['op-cliente'] || '';
+            var status  = rawOp.status || 'aguardando';
+            var stIcon  = status === 'andamento' ? '🔄' : status === 'finalizada' ? '✅' : '📋';
+            var btnHtml = '<button onclick="selecionarOP(' + op.id + ')" class="w-full text-left bg-gray-50 dark:bg-gray-900/50 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-700 rounded-2xl p-4 transition-all active:scale-[0.98]">';
+            if (op.atividade) {
+                btnHtml += '<span class="inline-block bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wide mb-2 mr-1">' + escapeHTML(op.atividade) + '</span>';
+                btnHtml += '<span class="inline-block text-[10px] font-bold text-gray-400 mb-2">' + stIcon + ' ' + status + '</span>';
+            }
+            btnHtml += '<div class="flex items-center justify-between gap-3">' +
+                '<div>' +
+                    '<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider">' + escapeHTML(rawOp['op-tipo-ref'] || (clean.includes('Recebimento') ? 'Lote' : 'Guia')) + '</p>' +
+                    '<p class="text-base font-black text-gray-900 dark:text-white mt-0.5">' + escapeHTML(op.ref) + '</p>' +
+                    (cliente ? '<p class="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">👤 ' + escapeHTML(cliente) + '</p>' : '') +
+                '</div>' +
+                '<div class="text-right shrink-0">' +
+                    '<p class="text-xs font-bold text-emerald-600 dark:text-emerald-400">⚖️ ' + escapeHTML(op.sacas) + ' sc</p>' +
+                '</div>' +
+            '</div></button>';
+            return btnHtml;
+        }).join('');
+        var modal = document.getElementById('modal-op-seletor');
+        var mc    = document.getElementById('modal-op-seletor-content');
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); mc.classList.remove('translate-y-full'); }, 10);
+    }
+
+    function fecharSeletorOP() {
+        var modal = document.getElementById('modal-op-seletor');
+        var mc    = document.getElementById('modal-op-seletor-content');
+        modal.classList.add('opacity-0'); mc.classList.add('translate-y-full');
+        setTimeout(function(){ modal.classList.add('hidden'); _opSeletorBlockId = null; }, 300);
+    }
+
+    function selecionarOP(opId) {
+        var ops = getOPs();
+        var op  = ops.find(function(o){ return o.id === opId; });
+        if (!op || _opSeletorBlockId === null) return fecharSeletorOP();
+        var ref       = op['op-lote'] || op['op-guia'] || '';
+        var sacas     = op['op-sacas'] || '';
+        var atividade = op['op-atividade'] || '';
+        var cliente   = op['op-cliente'] || '';
+        var b = (window.tempTimeBlocks || []).find(function(x){ return x.id === _opSeletorBlockId; });
+        if (b) {
+            b.ref      = ref.toUpperCase();
+            b.opRef    = ref.toUpperCase();
+            b.opCliente = cliente;
+            if (atividade) b.activity = atividade;
+            if (sacas && !isNoBagsActivity(atividade || b.activity)) b.bags = sacas;
+            // Preencher observações com o cliente automaticamente
+            if (cliente && !b.obs) b.obs = cliente;
+            saveData(); mostrarIndicadorSalvo();
+            renderTimeBlocks(); calcTotalProductivity(); _bindBotoesOP();
+        }
+        fecharSeletorOP();
+        mostrarToast('OP importada: ' + (atividade ? atividade + ' — ' : '') + ref + (cliente ? ' | ' + cliente : ''));
+    }
 
     // ============================================================
     // UTILITÁRIOS
@@ -1723,14 +2509,42 @@
         'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outros']
     };
     var PLANEJAMENTO_MAP = {
-        'Recebimento': ['Recebimento de Café','Pilha Simples (Liga)','Ensaque','Embarque','Conferência de Estoque','Guardar Café (Rebenefício)','Separar Lotes (Expedição)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'Rebenefício': ['Produção','Repasse','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'TESTE':       ['Produção','Repasse','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'Expedição':   ['Fracionamento de Lote','Pilha Simples (Liga)','Ensaque','Embarque','Vácuo','Conferência de Estoque (M.I)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'Embalagem':   ['Aplicação de Stickers','Aplicação de VPD','Coleta','Vácuo','Conferência de Estoque','Recebimento e Conferência de Sacas','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'Manutenção':  ['Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Limpeza do Setor','Outras'],
+        'Recebimento': ['Recebimento de café','Pilha simples (Liga)','Ensaque','Embarque (Mercado interno)','Conferência de Estoque','Guardar Café (Rebenefício)','Separar Lotes (Expedição)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Rebenefício': ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'TESTE':       ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Expedição':   ['Pilha simples (Liga)','Ensaque','Embarque (Exportação)','Produção de Vácuo','Coleta (Mercado interno)','Fracionamento de Lote','Conferência de Estoque (M.I)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)','Conferência de Estoque','Recebimento e Conferência de Sacas','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Limpeza do Setor','Outras'],
         'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outras']
     };
+    // OP_ACTIVITIES_MAP: mesmas atividades do ACTIVITIES_MAP disponíveis nas OPs por setor
+    // (já usa ACTIVITIES_MAP diretamente — mapeamento de correspondência para cruzamento)
+    // Função que verifica se nome de atividade do planejamento "casa" com nome da OP
+    function _atividadesCorrespondem(atividadePlanejamento, atividadeOP) {
+        if (!atividadePlanejamento || !atividadeOP) return false;
+        var a = atividadePlanejamento.toLowerCase().trim();
+        var b = atividadeOP.toLowerCase().trim();
+        if (a === b) return true;
+        // Correspondência parcial: um contém o outro
+        if (a.includes(b) || b.includes(a)) return true;
+        // Correspondências específicas conhecidas
+        var pares = [
+            ['recebimento de café', 'recebimento de café'],
+            ['pilha simples', 'pilha simples'],
+            ['ensaque', 'ensaque'],
+            ['embarque', 'embarque'],
+            ['produção', 'produção'],
+            ['repasse', 'repasse'],
+            ['vácuo', 'vácuo'],
+            ['coleta', 'coleta'],
+            ['stickers', 'stickers'],
+            ['vdp', 'vdp'],
+            ['vdp', 'vdp'],
+        ];
+        return pares.some(function(par) {
+            return a.includes(par[0]) && b.includes(par[1]);
+        });
+    }
 
     function configurarContextoSetor(cleanSetor) {
         if (cleanSetor.includes('Recebimento'))                                      currentRefLabel = 'Guia/Lote';
@@ -1749,6 +2563,8 @@
         hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
         hide('btn-menu-conv-mm',  cleanSetor!=='Operações');
         hide('btn-menu-conv-hz',  cleanSetor!=='Operações');
+        var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE'];
+        hide('btn-menu-op', !setoresOP.some(function(s){ return cleanSetor.includes(s); }));
     }
 
     function renderView(viewId, sectorName) {
@@ -1763,6 +2579,8 @@
         currentViewId = viewId;
         atualizarUI(viewId);
         loadDataParaTela();
+        if (viewId === 'view-op') { renderFormularioOP(); renderListaOPs(); }
+        if (viewId === 'view-atividades') { renderListaRegistrosAtv(); }
     }
 
     function navigate(viewId, sectorName, replace) {
@@ -1818,6 +2636,30 @@
         } catch(e){}
     }
 
+    function _getOPsPorAtividade() {
+        // Retorna mapa: atividade (do PLANEJAMENTO) -> lista de OPs disponíveis
+        // Usa correspondência flexível entre nomes do planejamento e da OP
+        var ops = getOPs ? getOPs() : [];
+        var mapa = {};
+        // Para cada atividade do planejamento, verificar se existe OP correspondente
+        currentPlanejamentoActivities.forEach(function(atv) {
+            ops.forEach(function(op) {
+                var atvOp  = op['op-atividade'] || '';
+                var status = op.status || 'aguardando';
+                if (status === 'finalizada') return;
+                if (!atvOp) return;
+                if (_atividadesCorrespondem(atv, atvOp)) {
+                    if (!mapa[atv]) mapa[atv] = [];
+                    // Evitar duplicatas
+                    if (!mapa[atv].find(function(o){ return o.id === op.id; })) {
+                        mapa[atv].push(op);
+                    }
+                }
+            });
+        });
+        return mapa;
+    }
+
     function abrirModalAtividades(type) {
         editingBlockId = type;
         var servicoText = document.getElementById('atv-servico').value || '';
@@ -1827,10 +2669,32 @@
             if (s.startsWith('Outras:')) { outrasText = s.replace('Outras:','').trim(); selectedSet['Outras'] = true; }
             else selectedSet[s] = true;
         });
+
+        var opsPorAtv = _getOPsPorAtividade();
+
         var container = document.getElementById('lista-atividades');
         container.innerHTML = currentPlanejamentoActivities.map(function(act){
             var checked = selectedSet[act] ? 'checked' : '';
-            return '<label class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]"><input type="checkbox" value="'+escapeHTML(act)+'" class="chk-atividade w-6 h-6 text-blue-600 rounded focus:ring-blue-500 bg-gray-100 border-gray-300 dark:border-gray-600 dark:bg-gray-800" '+checked+' onchange="handleCheckboxChange(this)"><span class="text-sm font-bold text-gray-800 dark:text-gray-200 select-none leading-tight flex-1 uppercase tracking-wider">'+escapeHTML(act)+'</span></label>';
+            var opsAct  = opsPorAtv[act] || [];
+            // Badge de OPs disponíveis
+            var badge = '';
+            if (opsAct.length) {
+                var tooltipOps = opsAct.map(function(o){
+                    var ref = o['op-lote'] || o['op-guia'] || '';
+                    var sc  = o['op-sacas'] || '';
+                    var st  = o.status || 'aguardando';
+                    var stLabel = st === 'andamento' ? '🔄' : '📋';
+                    return stLabel + ' ' + ref + (sc ? ' (' + sc + ' sc)' : '');
+                }).join(' | ');
+                badge = '<span class="flex items-center gap-1 bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-700 text-[10px] font-black px-2 py-0.5 rounded-lg shrink-0" title="'+escapeHTML(tooltipOps)+'">'+
+                    '&#128203; '+opsAct.length+' OP'+(opsAct.length>1?'s':'')+
+                '</span>';
+            }
+            return '<label class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]">'+
+                '<input type="checkbox" value="'+escapeHTML(act)+'" class="chk-atividade w-6 h-6 text-blue-600 rounded focus:ring-blue-500 bg-gray-100 border-gray-300 dark:border-gray-600 dark:bg-gray-800 shrink-0" '+checked+' onchange="handleCheckboxChange(this)">'+
+                '<span class="text-sm font-bold text-gray-800 dark:text-gray-200 select-none leading-tight flex-1 uppercase tracking-wider">'+escapeHTML(act)+'</span>'+
+                badge+
+            '</label>';
         }).join('');
         document.getElementById('input-outras-atividade').value = outrasText;
         toggleOutrasInput();
@@ -1884,6 +2748,50 @@
                 if (finalString) { lbl.classList.remove('text-gray-400','dark:text-gray-500','font-semibold'); lbl.classList.add('text-gray-900','dark:text-white','font-bold'); }
                 else             { lbl.classList.add('text-gray-400','dark:text-gray-500','font-semibold'); lbl.classList.remove('text-gray-900','dark:text-white','font-bold'); }
             }
+            // Se a atividade selecionada tem OPs disponíveis:
+            // 1. Preencher sacas automaticamente
+            // 2. Atualizar status da OP para "andamento"
+            if (selected.length >= 1) {
+                var opsPorAtv = _getOPsPorAtividade();
+                var totalSacasOP = 0;
+                var atualizou = false;
+                selected.forEach(function(atv) {
+                    var opsAtv = opsPorAtv[atv] || [];
+                    if (opsAtv.length) {
+                        // Pegar a OP mais relevante: em andamento primeiro, depois aguardando
+                        var opRef = opsAtv.find(function(o){ return (o.status||'aguardando')==='andamento'; })
+                                 || opsAtv.find(function(o){ return (o.status||'aguardando')==='aguardando'; });
+                        if (opRef) {
+                            var sc = parseInt((opRef['op-sacas']||'').replace(/\D/g,'')) || 0;
+                            totalSacasOP += sc;
+                            // Marcar como andamento se ainda aguardando
+                            if ((opRef.status||'aguardando') === 'aguardando') {
+                                opRef.status = 'andamento';
+                                atualizou = true;
+                            }
+                        }
+                    }
+                });
+                // Preencher campo de sacas se encontrou valor
+                if (totalSacasOP > 0) {
+                    var sacasEl = document.getElementById('atv-sacas');
+                    if (sacasEl) {
+                        sacasEl.value = totalSacasOP;
+                        // Efeito visual de destaque
+                        sacasEl.classList.add('ring-2','ring-cyan-400');
+                        setTimeout(function(){ sacasEl.classList.remove('ring-2','ring-cyan-400'); }, 2000);
+                    }
+                }
+                if (atualizou) {
+                    salvarOPs();
+                    renderListaOPs();
+                    mostrarToast(totalSacasOP > 0
+                        ? 'OP iniciada! ' + totalSacasOP.toLocaleString('pt-BR') + ' sc preenchidas automaticamente ✓'
+                        : 'OP iniciada! 🔄');
+                } else if (totalSacasOP > 0) {
+                    mostrarToast(totalSacasOP.toLocaleString('pt-BR') + ' sc puxadas da OP ✓');
+                }
+            }
             checkPlanejamentoBagsVisibility();
             debouncedSave();
         }
@@ -1918,7 +2826,7 @@
     }
 
     function getEmptySectorState() {
-        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}], horInicial:'',horFinal:'', pesoAmostra:'',pesoRetido:'',tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
+        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:'',opRef:'',opCliente:''}], horInicial:'',horFinal:'', pesoAmostra:'',pesoRetido:'',tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
     }
 
     function loadDataParaTela() {
@@ -1966,7 +2874,7 @@
     }
 
     function saveData() {
-        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-conv-mm','view-conv-hz'].includes(currentViewId)) return;
+        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-conv-mm','view-conv-hz','view-op'].includes(currentViewId)) return;
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         var st = appData[workingDate][currentSector];
@@ -2013,11 +2921,11 @@
             var dp2=document.getElementById('date-picker-container'); if(dp2){dp2.classList.add('hidden');dp2.classList.remove('flex');}
             if (viewId==='view-submenu') atualizarQuickRead();
         }
-        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao'];
+        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op'];
         if (actionViews.includes(viewId)) {
             if(act){act.classList.remove('hidden');act.classList.add('flex');}
-            if(viewId!=='view-divisao-quebra'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
-            if(['view-productivity','view-atividades','view-divisao-quebra','view-os','view-requisicao'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
+            if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
+            if(['view-productivity','view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
         if (viewId==='view-productivity') {
             var shiftCont=document.getElementById('rebeneficio-shift-container');
@@ -2032,7 +2940,7 @@
         }
         if (viewId==='view-atividades') checkPlanejamentoBagsVisibility();
         var lblShare=document.getElementById('lbl-share-btn');
-        if(lblShare){ var labels={'view-atividades':'Compartilhar Atividades','view-os':'Solicitar O.S','view-requisicao':'Enviar Pedido'}; lblShare.textContent=labels[viewId]||'Compartilhar Relatório'; }
+        if(lblShare){ var labels={'view-atividades':'Compartilhar Atividades','view-os':'Solicitar O.S','view-requisicao':'Enviar Pedido','view-op':''}; lblShare.textContent=labels[viewId]||'Compartilhar Relatório'; }
     }
 
     function atualizarQuickRead() {
@@ -2162,8 +3070,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
                     <div class="md:col-span-7 space-y-4">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Atividade Efetuada</label>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atividade Efetuada</label>
+                                ${(function(){ var opsB=getOPsParaBoletim(); return opsB.length ? '<button data-blockid="'+b.id+'" class="btn-selecionar-op-bloco flex items-center gap-1 text-[10px] font-black text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 px-2 py-1 rounded-lg hover:bg-cyan-100 transition-colors">&#128203; Usar OP</button>' : ''; })()}
+                            </div>
                             <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"><option value="" disabled ${!b.activity?'selected':''}>Selecione...</option>${opts}</select>
+                            ${b.opRef ? '<div class="mt-1.5 flex items-center gap-2 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg px-3 py-1.5"><span class="text-[10px] font-black text-cyan-600 dark:text-cyan-400">&#128203; OP vinculada:</span><span class="text-[10px] font-black text-gray-800 dark:text-white">' + escapeHTML(b.opRef) + '</span>' + (b.opCliente ? '<span class="text-[10px] text-gray-500">👤 '+escapeHTML(b.opCliente)+'</span>' : '') + '<button data-blockid="'+b.id+'" class="btn-limpar-op-bloco ml-auto text-[10px] text-red-400 hover:text-red-600 font-bold">✕</button></div>' : ''}
                         </div>
                         ${showCustom?`<div><input type="text" style="text-transform:uppercase" value="${escapeHTML(b.activityDetail||'')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500 placeholder-blue-300 dark:placeholder-blue-700" placeholder="Qual atividade?"></div>`:''}
                         ${showRepasse?`<div><input type="text" value="${escapeHTML(b.repasseJustificativa||'')}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-amber-900 dark:text-amber-100 focus:ring-2 focus:ring-amber-500 placeholder-amber-300 dark:placeholder-amber-700" placeholder="Motivo do repasse..."></div>`:''}
@@ -2180,7 +3092,10 @@
                     <div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-12 gap-4 mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <div class="sm:col-span-3">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
-                            <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="${escapeHTML(currentRefLabel)}">
+                            <div class="flex gap-2">
+                                <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="${escapeHTML(currentRefLabel)}">
+                                ${getOPsParaBoletim().length ? '<button data-blockid="'+b.id+'" class="btn-importar-op shrink-0 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 rounded-xl px-3 py-2 text-xs font-bold hover:bg-cyan-100 transition-colors active:scale-95">&#128203; OP</button>' : ''}
+                            </div>
                         </div>
                         ${!hideBags?`<div class="sm:col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 placeholder-emerald-300" placeholder="Qtd"></div>`:''}
                         <div class="${hideBags?'sm:col-span-9':'sm:col-span-6'}">
@@ -2193,9 +3108,35 @@
         }).join('');
     }
 
+    function _bindBotoesOP() {
+        var container = document.getElementById('time-blocks-container');
+        if (!container) return;
+        // Botão antigo (campo ref)
+        container.querySelectorAll('.btn-importar-op').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                abrirSeletorOP(parseInt(btn.dataset.blockid));
+            });
+        });
+        // Botão "Usar OP" no topo do bloco
+        container.querySelectorAll('.btn-selecionar-op-bloco').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                abrirSeletorOP(parseInt(btn.dataset.blockid));
+            });
+        });
+        // Botão limpar OP vinculada
+        container.querySelectorAll('.btn-limpar-op-bloco').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var bid = parseInt(btn.dataset.blockid);
+                var b = (window.tempTimeBlocks || []).find(function(x){ return x.id === bid; });
+                if (b) { b.opRef = ''; b.opCliente = ''; saveData(); renderTimeBlocks(); _bindBotoesOP(); }
+            });
+        });
+    }
+
     function addTimeBlock() {
         window.tempTimeBlocks.push({id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''});
         renderTimeBlocks();
+        _bindBotoesOP();
     }
     function removeTimeBlock(id) {
         window.tempTimeBlocks=window.tempTimeBlocks.filter(function(b){ return b.id!==id; });
@@ -2290,6 +3231,15 @@
 
     function executeReset() {
         closeModalReset();
+        if (currentViewId==='view-op') {
+            if (appData[workingDate] && appData[workingDate]['_ops']) {
+                appData[workingDate]['_ops'][currentSector] = [];
+                salvarOPs();
+            }
+            renderListaOPs();
+            mostrarToast('OPs do dia limpas.');
+            return;
+        }
         if (currentViewId==='view-productivity') {
             window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
             document.getElementById('justificativa-meta').value='';
@@ -2461,6 +3411,60 @@
     }
     function fallbackCopiarTexto(texto) { navigator.clipboard.writeText(texto).then(function(){ mostrarToast('Conteúdo copiado para envio manual!'); }).catch(function(){ mostrarToast('Erro de permissão no navegador.', true); }); }
 
+    var _compartilharPendente = null; // guarda callback após OP ser selecionada
+
+    function abrirSeletorOPBoletim(callback) {
+        var ops = getOPs ? getOPs() : [];
+        var opsAndamento = ops.filter(function(o){ return (o.status||'aguardando') !== 'finalizada'; });
+        if (!opsAndamento.length) { callback(null); return; }
+        // Mostrar modal de seleção
+        _compartilharPendente = callback;
+        var lista = document.getElementById('modal-op-lista');
+        var clean = limparEmoji(currentSector);
+        var labelRef = clean.includes('Recebimento') ? 'Lote' : 'Guia';
+        lista.innerHTML =
+            '<div class="mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-400">Selecione a OP para dar baixa ao enviar o boletim</div>' +
+            opsAndamento.map(function(op) {
+                var ref = op['op-lote'] || op['op-guia'] || '-';
+                var sacas = op['op-sacas'] || '-';
+                var atv = op['op-atividade'] || '';
+                var st = op.status || 'aguardando';
+                var stColor = st === 'andamento' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400';
+                var stIcon  = st === 'andamento' ? '🔄 Em andamento' : '📋 Aguardando';
+                var html = '<button onclick="_selecionarOPBoletim(' + op.id + ')" class="w-full text-left bg-gray-50 dark:bg-gray-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 rounded-2xl p-4 transition-all active:scale-[0.98] mb-2">';
+                if (atv) html += '<span class="inline-block bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-[10px] font-black px-2 py-0.5 rounded-md uppercase mb-2">' + escapeHTML(atv) + '</span><br>';
+                html += '<div class="flex items-center justify-between gap-3">' +
+                    '<div><p class="text-[10px] font-black text-gray-400 uppercase">' + labelRef + '</p>' +
+                    '<p class="text-base font-black text-gray-900 dark:text-white">' + escapeHTML(ref) + '</p>' +
+                    '<p class="text-[10px] font-bold ' + stColor + ' mt-0.5">' + stIcon + '</p></div>' +
+                    '<div class="text-right"><p class="text-xs font-bold text-emerald-600 dark:text-emerald-400">⚖️ ' + escapeHTML(sacas) + ' sc</p>' +
+                    '<p class="text-[10px] text-emerald-600 font-bold mt-1">✓ Finalizar</p></div>' +
+                '</div></button>';
+                return html;
+            }).join('') +
+            '<button onclick="_selecionarOPBoletim(null)" class="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors mt-1">Enviar sem selecionar OP</button>';
+        var modal = document.getElementById('modal-op-seletor');
+        var mc    = document.getElementById('modal-op-seletor-content');
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); mc.classList.remove('translate-y-full'); }, 10);
+    }
+
+    function _selecionarOPBoletim(opId) {
+        fecharSeletorOP();
+        if (opId !== null) {
+            var ops = getOPs ? getOPs() : [];
+            var op = ops.find(function(o){ return o.id === opId; });
+            if (op) {
+                op.status = 'finalizada';
+                op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                salvarOPs();
+                renderListaOPs();
+                mostrarToast('OP ' + (op['op-lote']||op['op-guia']||'') + ' finalizada! ✓');
+            }
+        }
+        if (_compartilharPendente) { _compartilharPendente(opId); _compartilharPendente = null; }
+    }
+
     function compartilharRelatorio() {
         if(!currentSector) return mostrarToast('Nenhum setor está aberto no momento.', true);
         saveData();
@@ -2484,6 +3488,16 @@
         }
         var blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.activity; });
         if(!blocks.length) return mostrarToast('Nenhum dado lançado para o boletim.', true);
+        // Se há OPs não finalizadas, abrir seletor antes de compartilhar
+        var opsDisponiveis = (getOPs ? getOPs() : []).filter(function(o){ return (o.status||'aguardando') !== 'finalizada'; });
+        if (opsDisponiveis.length) {
+            abrirSeletorOPBoletim(function(){ _executarCompartilhamentoBoletim(st, cleanSetor, blocks); });
+            return;
+        }
+        _executarCompartilhamentoBoletim(st, cleanSetor, blocks);
+    }
+
+    function _executarCompartilhamentoBoletim(st, cleanSetor, blocks) {
         var totalSacas=0, totalMin=0, linhasBlocks='';
         blocks.forEach(function(b){
             if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
