@@ -1317,6 +1317,9 @@
         popularDatalist();
         checkLogin();
 
+        // Inicializar listeners visuais das pills
+        iniciarListenersPills();
+
         // Carrega o SDK do Firebase dinamicamente e depois sincroniza
         carregarSDKFirebase(function () {
             carregarDoFirestore(function (mudou) {
@@ -1447,6 +1450,30 @@
         if (currentViewId === 'view-productivity') calcTotalProductivity();
     }
 
+    /** Garante que clicar em qualquer pill atualiza o estilo mesmo sem CSS :checked */
+    function iniciarListenersPills() {
+        document.querySelectorAll('.dia-pill input, .setor-pill input').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                atualizarEstiloPill(cb);
+            });
+        });
+    }
+
+    function atualizarEstiloPill(cb) {
+        var span = cb.nextElementSibling;
+        if (!span) return;
+        var isDia   = cb.closest('.dia-pill') !== null;
+        if (cb.checked) {
+            span.style.backgroundColor = isDia ? '#7c3aed' : '#0f172a';
+            span.style.borderColor     = isDia ? '#7c3aed' : '#0f172a';
+            span.style.color = 'white';
+        } else {
+            span.style.backgroundColor = '';
+            span.style.borderColor = '';
+            span.style.color = '';
+        }
+    }
+
     var _filtroSetorAtivo = 'todos';
     var DIAS_SEMANA = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
@@ -1460,7 +1487,22 @@
     function toggleTodosDias() {
         var checkboxes = document.querySelectorAll('#adm-turno-dias input[type=checkbox]');
         var todos = Array.from(checkboxes).every(function(c){ return c.checked; });
-        checkboxes.forEach(function(c){ c.checked = !todos; });
+        checkboxes.forEach(function(c){
+            c.checked = !todos;
+            // Forçar atualização visual do span irmão
+            var span = c.nextElementSibling;
+            if (span) {
+                if (c.checked) {
+                    span.style.backgroundColor = '#7c3aed';
+                    span.style.borderColor = '#7c3aed';
+                    span.style.color = 'white';
+                } else {
+                    span.style.backgroundColor = '';
+                    span.style.borderColor = '';
+                    span.style.color = '';
+                }
+            }
+        });
     }
 
     function filtrarTurnosAdm(setor) {
@@ -1481,7 +1523,11 @@
         var container = document.getElementById('adm-lista-turnos');
         if (!container) return;
         var turnos = (appData.config && appData.config.turnos) || [];
-        var filtrados = _filtroSetorAtivo === 'todos' ? turnos : turnos.filter(function(t){ return t.setor === _filtroSetorAtivo; });
+        var filtrados = _filtroSetorAtivo === 'todos' ? turnos : turnos.filter(function(t){
+            // suporte a setor como string (legado) ou array
+            if (Array.isArray(t.setores)) return t.setores.indexOf(_filtroSetorAtivo) !== -1;
+            return t.setor === _filtroSetorAtivo;
+        });
         if (!filtrados.length) {
             container.innerHTML = '<div class="text-center p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl"><p class="text-xs text-gray-400 font-medium">Nenhum turno cadastrado'+(_filtroSetorAtivo!=='todos'?' para este setor':'')+'. Adicione acima.</p></div>';
             return;
@@ -1514,26 +1560,55 @@
         }).join('');
     }
 
+    function toggleTodosSetores() {
+        var cbs = document.querySelectorAll('#adm-turno-setores input[type=checkbox]');
+        var todos = Array.from(cbs).every(function(c){ return c.checked; });
+        cbs.forEach(function(c){
+            c.checked = !todos;
+            // Forçar atualização visual do span irmão
+            var span = c.nextElementSibling;
+            if (span) {
+                if (c.checked) {
+                    span.style.backgroundColor = '#0f172a';
+                    span.style.borderColor = '#0f172a';
+                    span.style.color = 'white';
+                } else {
+                    span.style.backgroundColor = '';
+                    span.style.borderColor = '';
+                    span.style.color = '';
+                }
+            }
+        });
+    }
+
     function adicionarTurno() {
-        var nome   = document.getElementById('adm-turno-nome').value.trim();
-        var setor  = document.getElementById('adm-turno-setor').value;
+        var nomeEl = document.getElementById('adm-turno-nome');
+        var nome   = nomeEl ? nomeEl.value : '';
+        var setores = Array.from(document.querySelectorAll('#adm-turno-setores input:checked')).map(function(c){ return c.value; });
         var inicio = document.getElementById('adm-turno-inicio').value;
         var fim    = document.getElementById('adm-turno-fim').value;
         var dias   = Array.from(document.querySelectorAll('#adm-turno-dias input:checked')).map(function(c){ return c.value; });
-        if (!nome)   return mostrarToast('Informe o nome do turno.', true);
+        if (!nome)          return mostrarToast('Selecione o nome do turno (1°, 2° ou 3°).', true);
+        if (!setores.length) return mostrarToast('Selecione ao menos um setor.', true);
         if (!inicio || !fim) return mostrarToast('Informe o horário de início e fim.', true);
         if (!dias.length)    return mostrarToast('Selecione ao menos um dia da semana.', true);
         if (!appData.config) appData.config = {};
         if (!appData.config.turnos) appData.config.turnos = [];
-        appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias });
-        document.getElementById('adm-turno-nome').value = '';
+        // Cria um registro por setor selecionado
+        setores.forEach(function(setor) {
+            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias });
+        });
+        // Limpar formulário
+        if (nomeEl) nomeEl.value = '';
         document.getElementById('adm-turno-inicio').value = '';
         document.getElementById('adm-turno-fim').value = '';
         document.querySelectorAll('#adm-turno-dias input').forEach(function(c){ c.checked = false; });
+        document.querySelectorAll('#adm-turno-setores input').forEach(function(c){ c.checked = false; });
         salvarMetasAdm();
         renderTurnosAdm();
         renderShiftCards();
-        mostrarToast('Turno adicionado!');
+        var msg = setores.length > 1 ? nome + ' adicionado para ' + setores.length + ' setores!' : nome + ' adicionado!';
+        mostrarToast(msg);
     }
 
     function removerTurno(index) {
