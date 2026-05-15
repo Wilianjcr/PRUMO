@@ -71,6 +71,57 @@
         };
     </script>
 
+    <!-- ======================================================= -->
+    <!-- FIREBASE SDK (compat) — carregamento dinâmico seguro   -->
+    <!-- ======================================================= -->
+    <script>
+        var db = null; // será definido após carregamento do SDK
+
+        function initFirebase() {
+            try {
+                var firebaseConfig = {
+                    apiKey: "AIzaSyAoNnzwDgzemV5hV_j3hpT8ZrB4OvJBO38",
+                    authDomain: "prumo-mocha.firebaseapp.com",
+                    projectId: "prumo-mocha",
+                    storageBucket: "prumo-mocha.firebasestorage.app",
+                    messagingSenderId: "275208298962",
+                    appId: "1:275208298962:web:723e76534f9210d620a80b"
+                };
+                if (!firebase.apps || !firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                console.log('[Prumo] Firebase inicializado ✓');
+            } catch(e) {
+                console.warn('[Prumo] Falha ao inicializar Firebase:', e.message);
+                db = null;
+            }
+        }
+
+        function carregarSDKFirebase(callback) {
+            var s1 = document.createElement('script');
+            s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
+            s1.onload = function () {
+                var s2 = document.createElement('script');
+                s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js';
+                s2.onload = function () {
+                    initFirebase();
+                    if (typeof callback === 'function') callback();
+                };
+                s2.onerror = function () {
+                    console.warn('[Prumo] firebase-firestore-compat.js não carregou.');
+                    if (typeof callback === 'function') callback();
+                };
+                document.head.appendChild(s2);
+            };
+            s1.onerror = function () {
+                console.warn('[Prumo] firebase-app-compat.js não carregou. App funciona offline.');
+                if (typeof callback === 'function') callback();
+            };
+            document.head.appendChild(s1);
+        }
+    </script>
+
     <style>
         :root { color-scheme: light dark; }
 
@@ -142,7 +193,16 @@
         }
         #save-indicator.visible { opacity: 1; transform: translateY(0); }
 
-        /* Custom Scrollbar for a cleaner look */
+        /* Cloud sync indicator */
+        #cloud-indicator {
+            position: fixed; bottom: 84px; left: 20px; background: rgba(59,130,246,0.92);
+            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
+        }
+        #cloud-indicator.visible { opacity: 1; transform: translateY(0); }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
@@ -176,6 +236,7 @@
 
     <datalist id="clientesList"></datalist>
     <div id="save-indicator" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Salvo</div>
+    <div id="cloud-indicator" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg> ☁️ Nuvem</div>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/50 z-[90] backdrop-blur-sm opacity-0 transition-opacity duration-300 print-hide"></div>
 
@@ -198,6 +259,10 @@
                     <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-lg">📱</div>
                     Instalar App
                 </button>
+                <button onclick="forceSyncFirestore()" class="w-full text-left px-5 py-4 text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-2xl flex items-center gap-4 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-lg">☁️</div>
+                    Sincronizar Nuvem
+                </button>
                 
                 <div class="h-px bg-gray-100 dark:bg-gray-700 my-4 mx-2"></div>
                 
@@ -207,7 +272,7 @@
                 </button>
             </div>
             <div class="p-4 text-center border-t border-gray-100 dark:border-gray-700">
-                 <p class="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Prumo OS v1.0</p>
+                 <p class="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Prumo OS v1.1 — Cloud</p>
             </div>
         </div>
 
@@ -258,7 +323,6 @@
                 <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
                     
                     <div id="adm-panel" class="hidden flex-col gap-6">
-                        <!-- Data Picker Card -->
                         <div id="date-picker-container" class="hidden w-full bg-white dark:bg-gray-800 rounded-2xl shadow-soft border border-gray-200 dark:border-gray-700 p-5 items-center justify-between transition-colors">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -272,7 +336,6 @@
                             <input type="date" id="date-picker" onchange="changeWorkingDate()" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-semibold text-sm rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
                         </div>
 
-                        <!-- Export Actions -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <button onclick="gerarResumoGeral()" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-800 dark:text-gray-100 font-bold py-5 px-6 rounded-2xl transition-all shadow-soft flex items-center gap-4 group">
                                 <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📄</div>
@@ -290,7 +353,6 @@
                             </button>
                         </div>
 
-                        <!-- Metas Config -->
                         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-soft">
                             <div class="flex items-center gap-3 mb-6">
                                 <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
@@ -298,7 +360,6 @@
                                 </div>
                                 <h3 class="font-bold text-sm md:text-base text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h3>
                             </div>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Hora</label>
@@ -317,7 +378,6 @@
                             </div>
                         </div>
 
-                        <!-- Turnos Config -->
                         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-soft">
                              <div class="flex items-center gap-3 mb-6">
                                 <div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
@@ -325,7 +385,6 @@
                                 </div>
                                 <h3 class="font-bold text-sm md:text-base text-gray-900 dark:text-white uppercase tracking-widest heading-font">Gestão de Turnos</h3>
                             </div>
-
                             <div class="flex flex-col sm:flex-row gap-3 mb-5">
                                 <input type="text" id="adm-turno-nome" class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500" placeholder="Nome (Ex: Turno A)">
                                 <div class="flex gap-3 sm:w-2/5">
@@ -337,7 +396,6 @@
                                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                                 Adicionar Turno
                             </button>
-                            
                             <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar" id="adm-lista-turnos"></div>
                         </div>
                     </div>
@@ -369,7 +427,6 @@
                     </div>
 
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 justify-center place-content-start">
-                        <!-- GRID ITEM -->
                         <button onclick="navigate('view-atividades',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
@@ -377,7 +434,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Atividades</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button id="btn-menu-produtividade" onclick="navigate('view-productivity',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-emerald-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -385,7 +441,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Boletim</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button id="btn-menu-quebra" onclick="navigate('view-divisao-quebra',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
@@ -393,13 +448,11 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Quebra</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button id="btn-menu-retencao" onclick="navigate('view-percentage',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-bold text-2xl md:text-3xl group-hover:scale-110 transition-transform mb-3 md:mb-4">%</div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Retenção</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button id="btn-menu-horimetro" onclick="navigate('view-horimetro',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-rose-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -407,7 +460,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Horímetro</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button id="btn-menu-conv-mm" onclick="navigate('view-conv-mm',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
@@ -415,7 +467,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. MM</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button id="btn-menu-conv-hz" onclick="navigate('view-conv-hz',currentSector)" class="hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -423,7 +474,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. HZ</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button onclick="navigate('view-os',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-orange-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -431,7 +481,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Nova O.S</h3>
                         </button>
 
-                        <!-- GRID ITEM -->
                         <button onclick="navigate('view-requisicao',currentSector)" class="w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-500 dark:text-fuchsia-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -440,7 +489,6 @@
                         </button>
                     </div>
 
-                     <!-- GRID ITEM (FULL WIDTH) -->
                     <button onclick="abrirModalHistorico()" class="w-full mt-4 md:mt-6 bg-gray-100/50 dark:bg-gray-800/30 rounded-3xl p-4 md:p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:bg-gray-100 dark:hover:bg-gray-800 group focus:outline-none focus:ring-2 focus:ring-gray-400">
                         <div class="flex items-center justify-center gap-3">
                             <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -457,7 +505,6 @@
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Atividades do Dia</h2>
                         <p class="text-sm text-gray-500 mt-1">Preencha antes de iniciar os trabalhos</p>
                     </div>
-
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors">
                         <div class="space-y-6">
                             <div class="w-full">
@@ -504,7 +551,6 @@
                         <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Divisão de Quebra</h2>
                         <p class="text-sm text-center text-gray-500 mt-1">Cálculo proporcional de rendimento</p>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-soft border border-gray-200 dark:border-gray-700 transition-colors">
                         <div class="flex flex-col sm:flex-row items-center gap-4 bg-gray-900 dark:bg-black p-6 rounded-2xl mb-8 shadow-inner w-full border border-gray-800">
                             <div class="flex items-center gap-4 shrink-0">
@@ -515,7 +561,6 @@
                             </div>
                             <input type="number" id="quebra-peso-total" class="w-full sm:flex-1 bg-gray-800 border-2 border-gray-700 rounded-xl text-amber-400 font-black text-3xl md:text-4xl py-4 px-5 outline-none focus:border-amber-500 transition-colors text-center sm:text-right" placeholder="0" oninput="calcDivisaoQuebra()">
                         </div>
-                        
                         <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-700 custom-scrollbar">
                             <table class="quebra-table min-w-[600px] w-full bg-white dark:bg-gray-800">
                                 <thead>
@@ -549,12 +594,10 @@
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Análise de Retenção</h2>
                     </div>
-                    
                     <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-8 border border-gray-200 dark:border-gray-700">
                         <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">Analisar Amostra</button>
                         <button id="btn-tab-tolerancia" onclick="switchTab('tolerancia')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">Calcular Meta</button>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors">
                         <div id="tab-retencao" class="block space-y-6">
                             <div class="w-full">
@@ -631,9 +674,7 @@
                             <div class="flex justify-between items-end mb-6">
                                 <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font">Apontamentos</h3>
                             </div>
-                            
                             <div id="time-blocks-container" class="space-y-6 flex flex-col"></div>
-                            
                             <button onclick="addTimeBlock()" class="mt-6 w-full py-5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-3xl text-gray-600 dark:text-gray-300 font-bold text-sm uppercase tracking-wider active:scale-[0.98] flex justify-center items-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-gray-400">
                                 <div class="w-8 h-8 rounded-full bg-white dark:bg-gray-900 shadow-sm flex items-center justify-center">
                                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg> 
@@ -658,7 +699,6 @@
                         </div>
                     </div>
 
-                    <!-- Fixed Bottom Bar for Totals -->
                     <div class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 p-4 md:p-6 z-30 print-hide shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
                         <div class="max-w-5xl mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
                             <div class="flex items-center gap-6 divide-x divide-gray-200 dark:divide-gray-700 flex-1">
@@ -697,7 +737,6 @@
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Horímetro</h2>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors">
                         <div class="space-y-8">
                             <div class="w-full">
@@ -725,12 +764,9 @@
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Converter MM para CM</h2>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors text-center">
                         <div class="space-y-8">
-                            <div class="w-full">
-                                <input type="number" id="conv-mm-input" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-4xl font-black outline-none text-gray-900 dark:text-white py-6 px-6 focus:ring-2 focus:ring-teal-500 text-center transition-all" placeholder="0 mm" oninput="calcConvMm()">
-                            </div>
+                            <input type="number" id="conv-mm-input" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-4xl font-black outline-none text-gray-900 dark:text-white py-6 px-6 focus:ring-2 focus:ring-teal-500 text-center transition-all" placeholder="0 mm" oninput="calcConvMm()">
                             <div class="pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Resultado</span>
                                 <div class="flex items-baseline gap-2">
@@ -745,15 +781,12 @@
 
             <div id="view-conv-hz" class="view-hidden w-full p-4 md:p-8">
                 <div class="w-full max-w-2xl mx-auto">
-                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Converter HZ para RPM</h2>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors text-center">
                         <div class="space-y-8">
-                            <div class="w-full">
-                                <input type="number" id="conv-hz-input" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-4xl font-black outline-none text-gray-900 dark:text-white py-6 px-6 focus:ring-2 focus:ring-teal-500 text-center transition-all" placeholder="0 Hz" oninput="calcConvHz()">
-                            </div>
+                            <input type="number" id="conv-hz-input" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-4xl font-black outline-none text-gray-900 dark:text-white py-6 px-6 focus:ring-2 focus:ring-teal-500 text-center transition-all" placeholder="0 Hz" oninput="calcConvHz()">
                             <div class="pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Resultado</span>
                                 <div class="flex items-baseline gap-2">
@@ -772,7 +805,6 @@
                         <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500">🔧</div>
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Abertura de O.S</h2>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex-1 flex flex-col gap-6">
                         <div class="w-full">
                             <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
@@ -792,14 +824,11 @@
                         <div class="w-10 h-10 rounded-full bg-fuchsia-100 dark:bg-fuchsia-900/30 flex items-center justify-center text-fuchsia-500">🛒</div>
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Requisições</h2>
                     </div>
-
                     <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-8 border border-gray-200 dark:border-gray-700">
                         <button id="btn-tab-req-material" onclick="switchTabReq('material')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">Estoque Interno</button>
                         <button id="btn-tab-req-compra" onclick="switchTabReq('compra')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">Compras Externas</button>
                     </div>
-                    
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex-1">
-                        <!-- Aba Material -->
                         <div id="tab-req-material" class="block space-y-6">
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Material / Insumo</label>
@@ -814,8 +843,6 @@
                                 <textarea id="req-mat-just" rows="4" oninput="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-4 px-5 text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all resize-none" placeholder="Motivo da solicitação..."></textarea>
                             </div>
                         </div>
-
-                        <!-- Aba Compras -->
                         <div id="tab-req-compra" class="hidden space-y-6">
                             <div class="bg-gray-50 dark:bg-gray-900/50 p-5 md:p-6 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-600">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
@@ -910,7 +937,6 @@
             <div class="w-24 h-24 mb-8 rounded-full shadow-inner-soft bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-5xl border border-gray-100 dark:border-gray-700">☕</div>
             <h2 class="text-3xl font-black text-gray-900 dark:text-white heading-font mb-2 text-center uppercase tracking-[0.2em]">PRUMO</h2>
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-8 text-center uppercase tracking-wider">Acesso ao Sistema</p>
-            
             <div class="w-full space-y-4">
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Nome do Operador</label>
@@ -960,9 +986,7 @@
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            
             <div class="flex-1 overflow-auto rounded-xl p-1 bg-gray-50 dark:bg-gray-900/50 print:border-none print:overflow-visible custom-scrollbar" id="container-tabela-adm"></div>
-            
             <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-3 shrink-0 print-hide">
                 <button onclick="copiarTabelaAdm()" class="flex-1 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl active:scale-[0.98] shadow-md text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors">
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
@@ -979,14 +1003,13 @@
     <script>
     'use strict';
 
-    // Utilitários
+    // ============================================================
+    // UTILITÁRIOS
+    // ============================================================
     function escapeHTML(str) {
         if (str == null) return '';
-        return String(str)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     }
-
     function limparEmoji(str) {
         if (!str) return '';
         return str.replace(/^[\s\S]*?([A-Za-zÀ-ÖØ-öø-ÿ])/, '$1').trim();
@@ -995,123 +1018,213 @@
     var toastTimeout;
     function mostrarToast(msg, error) {
         var toast = document.getElementById('toast');
-        var icon  = document.getElementById('toast-icon');
-        if (!toast || !icon) return;
-        
-        document.getElementById('toast-msg').textContent = msg;
-        
-        if (error) {
-            icon.classList.remove('text-green-400');
-            icon.classList.add('text-red-400');
-            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />';
-            toast.classList.replace('bg-gray-900', 'bg-red-900');
-            toast.classList.replace('border-gray-800', 'border-red-800');
-        } else {
-            icon.classList.remove('text-red-400');
-            icon.classList.add('text-green-400');
-            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />';
-            toast.classList.replace('bg-red-900', 'bg-gray-900');
-            toast.classList.replace('border-red-800', 'border-gray-800');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.className = 'fixed bottom-24 left-1/2 toast-leave z-[200] bg-gray-900 dark:bg-gray-700 border border-gray-800 text-white text-xs font-bold px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 transition-all duration-300';
+            toast.innerHTML = '<svg id="toast-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" class="text-green-400 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span id="toast-msg"></span>';
+            document.body.appendChild(toast);
         }
-        
-        toast.classList.replace('toast-leave', 'toast-enter');
+        var icon = document.getElementById('toast-icon');
+        document.getElementById('toast-msg').textContent = msg;
+        if (error) {
+            icon.classList.replace('text-green-400','text-red-400');
+            icon.querySelector('path').setAttribute('d','M6 18L18 6M6 6l12 12');
+        } else {
+            icon.classList.replace('text-red-400','text-green-400');
+            icon.querySelector('path').setAttribute('d','M5 13l4 4L19 7');
+        }
+        toast.classList.replace('toast-leave','toast-enter');
         clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(function () { toast.classList.replace('toast-enter', 'toast-leave'); }, 3000);
+        toastTimeout = setTimeout(function(){ toast.classList.replace('toast-enter','toast-leave'); }, 3000);
     }
 
+    // ============================================================
+    // FIREBASE — Sincronização na nuvem
+    // localStorage = cache rápido (offline)
+    // Firestore    = fonte de verdade (multi-dispositivo)
+    // ============================================================
+    var _firestoreTimer = null;
+    var _firestoreListener = null;
+
+    function dateToDocId(date) {
+        return (date || workingDate).replace(/\//g, '-');
+    }
+
+    function mostrarIndicadorNuvem() {
+        var ind = document.getElementById('cloud-indicator');
+        if (!ind) return;
+        ind.classList.add('visible');
+        setTimeout(function(){ ind.classList.remove('visible'); }, 2500);
+    }
+
+    /** Salva dados do dia + config no Firestore com debounce de 2s */
+    function salvarNoFirestore() {
+        if (!db) return;
+        clearTimeout(_firestoreTimer);
+        _firestoreTimer = setTimeout(function () {
+            var dayData = appData[workingDate];
+            if (dayData) {
+                db.collection('operacoes').doc(dateToDocId(workingDate))
+                  .set(JSON.parse(JSON.stringify(dayData)), { merge: true })
+                  .then(function(){ mostrarIndicadorNuvem(); })
+                  .catch(function(e){ console.warn('[Firebase] salvar dia:', e.message); });
+            }
+            if (appData.config) {
+                db.collection('operacoes').doc('config')
+                  .set(JSON.parse(JSON.stringify(appData.config)))
+                  .catch(function(e){ console.warn('[Firebase] salvar config:', e.message); });
+            }
+        }, 2000);
+    }
+
+    /** Carrega dados do dia + config do Firestore e mescla com localStorage */
+    function carregarDoFirestore(callback) {
+        if (!db) { if (callback) callback(false); return; }
+        Promise.all([
+            db.collection('operacoes').doc(dateToDocId(workingDate)).get(),
+            db.collection('operacoes').doc('config').get()
+        ]).then(function (docs) {
+            var mudou = false;
+            // Dados do dia
+            if (docs[0] && docs[0].exists) {
+                var nuvemDia = docs[0].data() || {};
+                if (!appData[workingDate]) appData[workingDate] = {};
+                Object.keys(nuvemDia).forEach(function (setor) {
+                    var local = appData[workingDate][setor];
+                    var vazio = !local || !local.timeBlocks || local.timeBlocks.length === 0;
+                    if (vazio) { appData[workingDate][setor] = nuvemDia[setor]; mudou = true; }
+                });
+            }
+            // Config
+            if (docs[1] && docs[1].exists) {
+                var nuvemCfg = docs[1].data() || {};
+                var semTurnos = !appData.config.turnos || appData.config.turnos.length === 0;
+                if (semTurnos && nuvemCfg.turnos && nuvemCfg.turnos.length > 0) {
+                    appData.config = Object.assign({}, appData.config, nuvemCfg); mudou = true;
+                }
+            }
+            if (mudou) { try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){} }
+            if (callback) callback(mudou);
+        }).catch(function(e){
+            console.warn('[Firebase] carregar:', e.message);
+            if (callback) callback(false);
+        });
+    }
+
+    /** Escuta mudanças em tempo real de outros setores no mesmo dia */
+    function iniciarListenerFirestore() {
+        if (!db || isAdmin) return;
+        if (_firestoreListener) _firestoreListener();
+        _firestoreListener = db.collection('operacoes').doc(dateToDocId(workingDate))
+            .onSnapshot(function(doc){
+                if (!doc.exists) return;
+                var nuvem = doc.data() || {};
+                var mudou = false;
+                if (!appData[workingDate]) appData[workingDate] = {};
+                Object.keys(nuvem).forEach(function(setor){
+                    if (setor !== currentSector) { appData[workingDate][setor] = nuvem[setor]; mudou = true; }
+                });
+                if (mudou) { try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){} }
+            }, function(e){ console.warn('[Firebase] listener:', e.message); });
+    }
+
+    /** Botão manual "Sincronizar Nuvem" no sidebar */
+    function forceSyncFirestore() {
+        toggleSidebar();
+        mostrarToast('Sincronizando com a nuvem...');
+        carregarDoFirestore(function(mudou){
+            if (mudou) {
+                loadDataParaTela();
+                if (isAdmin) {
+                    renderTurnosAdm();
+                    populateShiftSelector();
+                    document.getElementById('adm-meta-hora').value  = appData.config && appData.config.metaRebeneficioHora  || 55;
+                    document.getElementById('adm-meta-turno').value = appData.config && appData.config.metaRebeneficioTurno || 500;
+                }
+                mostrarToast('☁️ Dados atualizados da nuvem!');
+            } else {
+                mostrarToast('☁️ Já está sincronizado!');
+            }
+        });
+    }
+
+    // ============================================================
     // UI Controls
+    // ============================================================
     function toggleSidebar() {
         var sidebar = document.getElementById('user-sidebar');
         var overlay = document.getElementById('sidebar-overlay');
         if (sidebar.classList.contains('translate-x-full')) {
             overlay.classList.remove('hidden');
             sidebar.classList.remove('hidden');
-            setTimeout(function () {
-                overlay.classList.add('opacity-100');
-                sidebar.classList.remove('translate-x-full');
-            }, 10);
+            setTimeout(function(){ overlay.classList.add('opacity-100'); sidebar.classList.remove('translate-x-full'); }, 10);
         } else {
             overlay.classList.remove('opacity-100');
             sidebar.classList.add('translate-x-full');
-            setTimeout(function () {
-                overlay.classList.add('hidden');
-                sidebar.classList.add('hidden');
-            }, 300);
+            setTimeout(function(){ overlay.classList.add('hidden'); sidebar.classList.add('hidden'); }, 300);
         }
     }
-
     function toggleTheme() {
         document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
         toggleSidebar();
     }
-
     function voltarParaHome() {
         if (!isAdmin && !currentSector) return;
         navigate(isAdmin ? 'view-menu' : 'view-submenu', isAdmin ? null : currentSector);
     }
 
+    // ============================================================
     // Estado Global
-    var currentRefLabel             = 'Referência';
-    var currentActivities           = [];
+    // ============================================================
+    var currentRefLabel = 'Referência';
+    var currentActivities = [];
     var currentPlanejamentoActivities = [];
-    var currentViewId               = 'view-menu';
-    var currentSector               = '';
-    var abaReqAtual                 = 'material';
-    var operadorNome                = '';
-    var isAdmin                     = false;
-    var workingDate                 = new Date().toLocaleDateString('pt-BR');
-    var appData                     = {};
-    var deferredPromptPWA           = null;
-    var editingBlockId              = null;
+    var currentViewId = 'view-menu';
+    var currentSector = '';
+    var abaReqAtual = 'material';
+    var operadorNome = '';
+    var isAdmin = false;
+    var workingDate = new Date().toLocaleDateString('pt-BR');
+    var appData = {};
+    var deferredPromptPWA = null;
+    var editingBlockId = null;
 
     // PWA
-    window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        deferredPromptPWA = e;
+    window.addEventListener('beforeinstallprompt', function(e){
+        e.preventDefault(); deferredPromptPWA = e;
         var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         if (isMobile) {
-            ['btn-install', 'btn-install-sidebar'].forEach(function (id) {
-                var btn = document.getElementById(id);
-                if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); }
-            });
+            ['btn-install','btn-install-sidebar'].forEach(function(id){ var b=document.getElementById(id); if(b){b.classList.remove('hidden');b.classList.add('flex');} });
         }
     });
-
-    window.addEventListener('appinstalled', function () {
+    window.addEventListener('appinstalled', function(){
         deferredPromptPWA = null;
-        ['btn-install', 'btn-install-sidebar'].forEach(function (id) {
-            var btn = document.getElementById(id);
-            if (btn) { btn.classList.add('hidden'); btn.classList.remove('flex'); }
-        });
-        mostrarToast('Aplicativo Prumo instalado!');
+        ['btn-install','btn-install-sidebar'].forEach(function(id){ var b=document.getElementById(id); if(b){b.classList.add('hidden');b.classList.remove('flex');} });
+        mostrarToast('App Prumo instalado!');
     });
-
     function installPWA() {
         if (!deferredPromptPWA) return mostrarToast('App já instalado ou indisponível.', true);
         deferredPromptPWA.prompt();
-        deferredPromptPWA.userChoice.then(function (result) {
-            if (result.outcome === 'accepted') mostrarToast('Instalando...');
-            deferredPromptPWA = null;
-        });
+        deferredPromptPWA.userChoice.then(function(r){ if(r.outcome==='accepted') mostrarToast('Instalando...'); deferredPromptPWA=null; });
     }
 
     var saveDebounceTimer = null;
     function debouncedSave() {
         clearTimeout(saveDebounceTimer);
-        saveDebounceTimer = setTimeout(function () {
-            saveData();
-            mostrarIndicadorSalvo();
-        }, 800);
+        saveDebounceTimer = setTimeout(function(){ saveData(); mostrarIndicadorSalvo(); }, 800);
     }
-
     function mostrarIndicadorSalvo() {
         var ind = document.getElementById('save-indicator');
         if (!ind) return;
         ind.classList.add('visible');
-        setTimeout(function () { ind.classList.remove('visible'); }, 2000);
+        setTimeout(function(){ ind.classList.remove('visible'); }, 2000);
     }
 
+    // ============================================================
+    // INICIALIZAÇÃO
+    // ============================================================
     window.onload = function () {
         if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -1120,6 +1233,21 @@
         carregarMemoriaGeral();
         popularDatalist();
         checkLogin();
+
+        // Carrega o SDK do Firebase dinamicamente e depois sincroniza
+        carregarSDKFirebase(function () {
+            carregarDoFirestore(function (mudou) {
+                if (mudou) {
+                    loadDataParaTela();
+                    if (isAdmin) {
+                        renderTurnosAdm();
+                        populateShiftSelector();
+                        document.getElementById('adm-meta-hora').value  = appData.config && appData.config.metaRebeneficioHora  || 55;
+                        document.getElementById('adm-meta-turno').value = appData.config && appData.config.metaRebeneficioTurno || 500;
+                    }
+                }
+            });
+        });
     };
 
     function limparDadosAntigos() {
@@ -1127,27 +1255,26 @@
         if (!saved) return;
         try {
             var data = JSON.parse(saved);
-            var limitDate = new Date();
-            limitDate.setDate(limitDate.getDate() - 30);
-            var keysToDelete = [];
-            Object.keys(data).forEach(function (dateStr) {
+            var limitDate = new Date(); limitDate.setDate(limitDate.getDate() - 30);
+            var toDelete = [];
+            Object.keys(data).forEach(function(dateStr){
                 if (dateStr === 'config') return;
-                var parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    var recDate = new Date(parts[2] + '-' + parts[1] + '-' + parts[0] + 'T00:00:00');
-                    if (recDate < limitDate) keysToDelete.push(dateStr);
+                var p = dateStr.split('/');
+                if (p.length === 3) {
+                    var d = new Date(p[2]+'-'+p[1]+'-'+p[0]+'T00:00:00');
+                    if (d < limitDate) toDelete.push(dateStr);
                 }
             });
-            keysToDelete.forEach(function (k) { delete data[k]; });
-            if (keysToDelete.length) localStorage.setItem('gestaoOpDatabase', JSON.stringify(data));
-        } catch (e) { console.warn('Falha ao limpar cache:', e); }
+            toDelete.forEach(function(k){ delete data[k]; });
+            if (toDelete.length) localStorage.setItem('gestaoOpDatabase', JSON.stringify(data));
+        } catch(e){}
     }
 
     function carregarMemoriaGeral() {
         try {
             var saved = localStorage.getItem('gestaoOpDatabase');
             appData = saved ? JSON.parse(saved) : {};
-        } catch (e) { appData = {}; }
+        } catch(e){ appData = {}; }
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData.config) appData.config = { metaRebeneficioHora: 55, metaRebeneficioTurno: 500, turnos: [] };
         if (!appData.config.turnos) appData.config.turnos = [];
@@ -1157,8 +1284,7 @@
         var savedName   = localStorage.getItem('operadorNome');
         var savedSector = localStorage.getItem('operadorSetor');
         var isAdmSaved  = localStorage.getItem('operadorIsAdmin') === 'true';
-        var modal       = document.getElementById('modal-login');
-
+        var modal = document.getElementById('modal-login');
         if (savedName && (savedSector || isAdmSaved)) {
             operadorNome  = savedName;
             currentSector = savedSector || '';
@@ -1166,6 +1292,7 @@
             if (modal) modal.classList.add('hidden');
             exibirBoasVindas();
             navigate(isAdmin ? 'view-menu' : 'view-submenu', isAdmin ? null : currentSector, true);
+            iniciarListenerFirestore();
         } else {
             if (modal) modal.classList.remove('hidden');
         }
@@ -1173,27 +1300,22 @@
 
     function exibirBoasVindas() {
         var els = {
-            nameDisplay : document.getElementById('user-name-display'),
-            welcomeMsg  : document.getElementById('welcome-message'),
-            adm         : document.getElementById('adm-panel'),
-            dp          : document.getElementById('date-picker-container'),
-            btnTeste    : document.getElementById('btn-sector-teste')
+            nameDisplay: document.getElementById('user-name-display'),
+            welcomeMsg:  document.getElementById('welcome-message'),
+            adm:         document.getElementById('adm-panel'),
+            dp:          document.getElementById('date-picker-container')
         };
-        
         if (els.nameDisplay) { els.nameDisplay.textContent = operadorNome; els.nameDisplay.classList.remove('hidden'); }
         if (els.welcomeMsg)  els.welcomeMsg.classList.remove('hidden');
-
         if (isAdmin) {
             if (els.adm) { els.adm.classList.remove('hidden'); els.adm.classList.add('flex'); }
             if (els.dp && currentViewId === 'view-menu') { els.dp.classList.remove('hidden'); els.dp.classList.add('flex'); }
-            if (els.btnTeste) { els.btnTeste.classList.add('hidden'); els.btnTeste.classList.remove('flex'); }
-            
-            document.getElementById('adm-meta-hora').value  = appData.config?.metaRebeneficioHora || 55;
-            document.getElementById('adm-meta-turno').value = appData.config?.metaRebeneficioTurno || 500;
+            document.getElementById('adm-meta-hora').value  = appData.config && appData.config.metaRebeneficioHora  || 55;
+            document.getElementById('adm-meta-turno').value = appData.config && appData.config.metaRebeneficioTurno || 500;
             renderTurnosAdm();
         } else {
             if (els.adm) { els.adm.classList.add('hidden'); els.adm.classList.remove('flex'); }
-            if (els.dp)  { els.dp.classList.add('hidden'); els.dp.classList.remove('flex'); }
+            if (els.dp)  { els.dp.classList.add('hidden');  els.dp.classList.remove('flex'); }
         }
     }
 
@@ -1202,34 +1324,30 @@
         var inputSetor = document.getElementById('input-login-setor');
         var nomeRaw = inputNome.value.trim();
         var setor   = inputSetor.value;
-
         if (!nomeRaw) return mostrarToast('Digite o seu nome para continuar.', true);
-        
         isAdmin = nomeRaw.toLowerCase().endsWith('adm');
         if (!isAdmin && !setor) return mostrarToast('Selecione o setor de atuação.', true);
-
-        var baseName = isAdmin ? nomeRaw.slice(0, -3).trim() : nomeRaw;
+        var baseName = isAdmin ? nomeRaw.slice(0,-3).trim() : nomeRaw;
         var nome = baseName.split(' ')[0];
         if (!nome) return mostrarToast('Nome fornecido é inválido.', true);
         nome = nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
-
         localStorage.setItem('operadorNome', nome);
         localStorage.setItem('operadorIsAdmin', String(isAdmin));
         if (setor) localStorage.setItem('operadorSetor', setor);
         else localStorage.removeItem('operadorSetor');
-
         operadorNome  = nome;
         currentSector = setor || '';
-
         var modal = document.getElementById('modal-login');
-        if (modal) { modal.classList.add('opacity-0'); setTimeout(function () { modal.classList.add('hidden'); }, 500); }
+        if (modal) { modal.classList.add('opacity-0'); setTimeout(function(){ modal.classList.add('hidden'); }, 500); }
         exibirBoasVindas();
         mostrarToast('Bem-vindo, ' + nome + '!');
         navigate(isAdmin ? 'view-menu' : 'view-submenu', isAdmin ? null : currentSector, true);
+        iniciarListenerFirestore();
     }
 
     function logout() {
         saveData();
+        if (_firestoreListener) { _firestoreListener(); _firestoreListener = null; }
         localStorage.removeItem('operadorNome');
         localStorage.removeItem('operadorIsAdmin');
         localStorage.removeItem('operadorSetor');
@@ -1240,7 +1358,8 @@
         if (!appData.config) appData.config = {};
         appData.config.metaRebeneficioHora  = document.getElementById('adm-meta-hora').value  || 55;
         appData.config.metaRebeneficioTurno = document.getElementById('adm-meta-turno').value || 500;
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch (e) {}
+        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+        salvarNoFirestore(); // ← FIREBASE
         mostrarToast('Metas do sistema atualizadas!');
         if (currentViewId === 'view-productivity') calcTotalProductivity();
     }
@@ -1248,31 +1367,27 @@
     function renderTurnosAdm() {
         var container = document.getElementById('adm-lista-turnos');
         if (!container) return;
-        var turnos = appData.config?.turnos || [];
-        if (turnos.length === 0) {
+        var turnos = appData.config && appData.config.turnos || [];
+        if (!turnos.length) {
             container.innerHTML = '<div class="text-center p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl"><p class="text-xs text-gray-400 font-medium">Nenhum turno cadastrado</p></div>';
             return;
         }
-        container.innerHTML = turnos.map(function(t, idx) {
-            return '<div class="flex items-center justify-between bg-gray-50 dark:bg-gray-900/50 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"><div class="flex flex-col"><span class="text-sm font-bold text-gray-900 dark:text-white uppercase">' + escapeHTML(t.nome) + '</span><span class="text-xs text-gray-500 font-medium mt-0.5">' + escapeHTML(t.inicio) + ' às ' + escapeHTML(t.fim) + '</span></div><button onclick="removerTurno(' + idx + ')" class="text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 p-2 rounded-lg active:scale-95 transition-colors"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>';
+        container.innerHTML = turnos.map(function(t, idx){
+            return '<div class="flex items-center justify-between bg-gray-50 dark:bg-gray-900/50 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"><div class="flex flex-col"><span class="text-sm font-bold text-gray-900 dark:text-white uppercase">'+escapeHTML(t.nome)+'</span><span class="text-xs text-gray-500 font-medium mt-0.5">'+escapeHTML(t.inicio)+' às '+escapeHTML(t.fim)+'</span></div><button onclick="removerTurno('+idx+')" class="text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 p-2 rounded-lg active:scale-95 transition-colors"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>';
         }).join('');
     }
 
     function adicionarTurno() {
-        var nome = document.getElementById('adm-turno-nome').value.trim();
+        var nome   = document.getElementById('adm-turno-nome').value.trim();
         var inicio = document.getElementById('adm-turno-inicio').value;
-        var fim = document.getElementById('adm-turno-fim').value;
-
+        var fim    = document.getElementById('adm-turno-fim').value;
         if (!nome || !inicio || !fim) return mostrarToast('Preencha os horários e o nome do turno.', true);
-
         if (!appData.config) appData.config = {};
         if (!appData.config.turnos) appData.config.turnos = [];
         appData.config.turnos.push({ nome: nome, inicio: inicio, fim: fim });
-
         document.getElementById('adm-turno-nome').value = '';
         document.getElementById('adm-turno-inicio').value = '';
         document.getElementById('adm-turno-fim').value = '';
-
         salvarMetasAdm();
         renderTurnosAdm();
         populateShiftSelector();
@@ -1290,105 +1405,76 @@
         var select = document.getElementById('shift-selector');
         if (!select) return;
         var currentVal = select.value;
-        var turnos = appData.config?.turnos || [];
+        var turnos = appData.config && appData.config.turnos || [];
         var options = '<option value="" disabled selected>Escolha o Turno...</option>';
-        turnos.forEach(function(t) {
-            options += '<option value="' + escapeHTML(t.nome) + '" data-ini="' + t.inicio + '" data-fim="' + t.fim + '">' + escapeHTML(t.nome) + ' (' + t.inicio + ' - ' + t.fim + ')</option>';
-        });
+        turnos.forEach(function(t){ options += '<option value="'+escapeHTML(t.nome)+'" data-ini="'+t.inicio+'" data-fim="'+t.fim+'">'+escapeHTML(t.nome)+' ('+t.inicio+' - '+t.fim+')</option>'; });
         select.innerHTML = options;
-        
-        var optionsExist = Array.from(select.options).some(function(opt) { return opt.value === currentVal; });
-        if (currentVal && optionsExist) {
-            select.value = currentVal;
-        }
+        if (currentVal && Array.from(select.options).some(function(o){ return o.value === currentVal; })) select.value = currentVal;
     }
 
     function onShiftChange(sel) {
         var opt = sel.options[sel.selectedIndex];
         if (opt && opt.dataset.ini && opt.dataset.fim) {
             document.getElementById('shift-start').value = opt.dataset.ini;
-            document.getElementById('shift-end').value = opt.dataset.fim;
+            document.getElementById('shift-end').value   = opt.dataset.fim;
         }
         debouncedSave();
         calcTotalProductivity();
     }
 
-    var NO_BAGS_LIST = [
-        'Conferência de Estoque', 'Limpeza do Setor', 'Realocação de setor',
-        'Disponível para Realocação', 'Outras', 'Outros',
-        'Conferência de Estoque (M.I)', 'Recebimento e Conferência de Sacas',
-        'Prevetiva no Recebimento', 'Prevetiva no Rebenefício', 'Prevetiva na Expedição',
-        'O.S do Sistema', 'Inventario no Almoxarifado', 'Mapeamento de Processos',
-        'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização'
-    ];
+    var NO_BAGS_LIST = ['Conferência de Estoque','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras','Outros','Conferência de Estoque (M.I)','Recebimento e Conferência de Sacas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização'];
     function isNoBagsActivity(activity) {
         if (!activity) return false;
-        return NO_BAGS_LIST.some(function (item) { return activity.startsWith(item); });
+        return NO_BAGS_LIST.some(function(item){ return activity.startsWith(item); });
     }
 
     var ACTIVITIES_MAP = {
-        'Recebimento':  ['Recebimento de café', 'Pilha simples (Liga)', 'Ensaque', 'Embarque (Mercado interno)'],
-        'Rebenefício':  ['Produção (Macro Lote)', 'Repasse (Macro Lote)', 'Produção (Micro Lote)', 'Repasse (Micro Lote)'],
-        'TESTE':        ['Produção (Macro Lote)', 'Repasse (Macro Lote)', 'Produção (Micro Lote)', 'Repasse (Micro Lote)'],
-        'Expedição':    ['Pilha simples (Liga)', 'Ensaque', 'Embarque (Exportação)', 'Produção de Vácuo', 'Coleta (Mercado interno)'],
-        'Embalagem':    ['Aplicação de Stickers', 'Aplicação de VDP', 'Produção de Vácuo', 'Coleta (Mercado interno)'],
-        'Manutenção':   ['Manutenção Preventiva', 'Manutenção Corretiva', 'Ajuste de Máquinas', 'Outros'],
-        'Operações':    ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outros']
+        'Recebimento': ['Recebimento de café','Pilha simples (Liga)','Ensaque','Embarque (Mercado interno)'],
+        'Rebenefício': ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)'],
+        'TESTE':       ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)'],
+        'Expedição':   ['Pilha simples (Liga)','Ensaque','Embarque (Exportação)','Produção de Vácuo','Coleta (Mercado interno)'],
+        'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)'],
+        'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Outros'],
+        'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outros']
     };
     var PLANEJAMENTO_MAP = {
-        'Recebimento':  ['Recebimento de Café', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Conferência de Estoque', 'Guardar Café (Rebenefício)', 'Separar Lotes (Expedição)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
-        'Rebenefício':  ['Produção', 'Repasse', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
-        'TESTE':        ['Produção', 'Repasse', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
-        'Expedição':    ['Fracionamento de Lote', 'Pilha Simples (Liga)', 'Ensaque', 'Embarque', 'Vácuo', 'Conferência de Estoque (M.I)', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
-        'Embalagem':    ['Aplicação de Stickers', 'Aplicação de VPD', 'Coleta', 'Vácuo', 'Conferência de Estoque', 'Recebimento e Conferência de Sacas', 'Limpeza do Setor', 'Realocação de setor', 'Disponível para Realocação', 'Outras'],
-        'Manutenção':   ['Prevetiva no Recebimento', 'Prevetiva no Rebenefício', 'Prevetiva na Expedição', 'O.S do Sistema', 'Inventario no Almoxarifado', 'Limpeza do Setor', 'Outras'],
-        'Operações':    ['Mapeamento de Processos', 'Auditoria', 'Treinamento', 'Análise de Falhas', '5S / Organização', 'Outras']
+        'Recebimento': ['Recebimento de Café','Pilha Simples (Liga)','Ensaque','Embarque','Conferência de Estoque','Guardar Café (Rebenefício)','Separar Lotes (Expedição)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Rebenefício': ['Produção','Repasse','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'TESTE':       ['Produção','Repasse','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Expedição':   ['Fracionamento de Lote','Pilha Simples (Liga)','Ensaque','Embarque','Vácuo','Conferência de Estoque (M.I)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Embalagem':   ['Aplicação de Stickers','Aplicação de VPD','Coleta','Vácuo','Conferência de Estoque','Recebimento e Conferência de Sacas','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Manutenção':  ['Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Limpeza do Setor','Outras'],
+        'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outras']
     };
 
     function configurarContextoSetor(cleanSetor) {
-        if (cleanSetor.includes('Recebimento'))          currentRefLabel = 'Guia/Lote';
+        if (cleanSetor.includes('Recebimento'))                                      currentRefLabel = 'Guia/Lote';
         else if (cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) currentRefLabel = 'Guia';
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = 'Guia/Contrato';
         else currentRefLabel = 'Referência';
-        currentActivities            = ACTIVITIES_MAP[cleanSetor]   || [];
+        currentActivities             = ACTIVITIES_MAP[cleanSetor]   || [];
         currentPlanejamentoActivities = PLANEJAMENTO_MAP[cleanSetor] || [];
     }
 
     function configurarBotoesSubmenu(cleanSetor) {
-        var hide = function (id, cond) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            el.classList.toggle('hidden', cond);
-            if (!cond) el.classList.add('flex');
-        };
-        hide('btn-menu-produtividade', cleanSetor === 'Manutenção' || cleanSetor === 'Operações');
-        hide('btn-menu-quebra',   cleanSetor !== 'Recebimento');
-        hide('btn-menu-retencao', cleanSetor !== 'Rebenefício' && cleanSetor !== 'TESTE');
-        hide('btn-menu-horimetro',cleanSetor !== 'Manutenção');
-        hide('btn-menu-conv-mm',  cleanSetor !== 'Operações');
-        hide('btn-menu-conv-hz',  cleanSetor !== 'Operações');
+        var hide = function(id, cond){ var el=document.getElementById(id); if(!el) return; el.classList.toggle('hidden',cond); if(!cond) el.classList.add('flex'); };
+        hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações');
+        hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
+        hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
+        hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
+        hide('btn-menu-conv-mm',  cleanSetor!=='Operações');
+        hide('btn-menu-conv-hz',  cleanSetor!=='Operações');
     }
 
     function renderView(viewId, sectorName) {
         saveData();
         if (sectorName) currentSector = sectorName;
-
-        document.querySelectorAll('main > div').forEach(function (el) {
-            el.classList.remove('view-active');
-            el.classList.add('view-hidden');
-        });
-        
+        document.querySelectorAll('main > div').forEach(function(el){ el.classList.remove('view-active'); el.classList.add('view-hidden'); });
         var nextEl = document.getElementById(viewId);
-        if (nextEl) { 
-            nextEl.classList.remove('view-hidden'); 
-            // Pequeno delay para a transição do CSS atuar de forma suave
-            setTimeout(function() { nextEl.classList.add('view-active'); }, 10);
-        }
-
+        if (nextEl) { nextEl.classList.remove('view-hidden'); setTimeout(function(){ nextEl.classList.add('view-active'); }, 10); }
         var cleanSetor = limparEmoji(currentSector);
         configurarContextoSetor(cleanSetor);
         if (viewId === 'view-submenu') configurarBotoesSubmenu(cleanSetor);
-
         currentViewId = viewId;
         atualizarUI(viewId);
         loadDataParaTela();
@@ -1410,11 +1496,8 @@
         history.back();
     }
 
-    window.addEventListener('popstate', function (event) {
-        ['modal-atividades', 'modal-confirm', 'modal-adm-email', 'modal-historico'].forEach(function (id) {
-            var m = document.getElementById(id);
-            if (m) { m.classList.add('hidden', 'opacity-0'); }
-        });
+    window.addEventListener('popstate', function(event){
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -1424,10 +1507,11 @@
         var dp = document.getElementById('date-picker');
         if (dp && dp.value) {
             var parts = dp.value.split('-');
-            workingDate = parts[2] + '/' + parts[1] + '/' + parts[0];
+            workingDate = parts[2]+'/'+parts[1]+'/'+parts[0];
             if (!appData[workingDate]) appData[workingDate] = {};
             mostrarToast('Data alterada: ' + workingDate);
-            loadDataParaTela();
+            // Recarrega do Firestore para a nova data
+            carregarDoFirestore(function(mudou){ loadDataParaTela(); });
         }
     }
 
@@ -1436,8 +1520,8 @@
             var saved = JSON.parse(localStorage.getItem('clientesList') || '[]');
             var dl = document.getElementById('clientesList');
             if (!dl) return;
-            dl.innerHTML = saved.map(function (v) { return '<option value="' + escapeHTML(v) + '">'; }).join('');
-        } catch (e) {}
+            dl.innerHTML = saved.map(function(v){ return '<option value="'+escapeHTML(v)+'">'; }).join('');
+        } catch(e){}
     }
 
     function registrarCliente(valor) {
@@ -1445,87 +1529,66 @@
         try {
             var v = valor.trim();
             var saved = JSON.parse(localStorage.getItem('clientesList') || '[]');
-            if (!saved.includes(v)) {
-                saved.push(v);
-                localStorage.setItem('clientesList', JSON.stringify(saved));
-                popularDatalist();
-            }
-        } catch (e) {}
+            if (!saved.includes(v)) { saved.push(v); localStorage.setItem('clientesList', JSON.stringify(saved)); popularDatalist(); }
+        } catch(e){}
     }
 
     function abrirModalAtividades(type) {
         editingBlockId = type;
         var servicoText = document.getElementById('atv-servico').value || '';
-        var currentSelected = servicoText ? servicoText.split(', ').map(function (s) { return s.trim(); }) : [];
-        var selectedSet = {};
-        var outrasText = '';
-
-        currentSelected.forEach(function (s) {
-            if (s.startsWith('Outras:')) { outrasText = s.replace('Outras:', '').trim(); selectedSet['Outras'] = true; }
+        var currentSelected = servicoText ? servicoText.split(', ').map(function(s){ return s.trim(); }) : [];
+        var selectedSet = {}, outrasText = '';
+        currentSelected.forEach(function(s){
+            if (s.startsWith('Outras:')) { outrasText = s.replace('Outras:','').trim(); selectedSet['Outras'] = true; }
             else selectedSet[s] = true;
         });
-
         var container = document.getElementById('lista-atividades');
-        container.innerHTML = currentPlanejamentoActivities.map(function (act) {
+        container.innerHTML = currentPlanejamentoActivities.map(function(act){
             var checked = selectedSet[act] ? 'checked' : '';
-            return '<label class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]"><input type="checkbox" value="' + escapeHTML(act) + '" class="chk-atividade w-6 h-6 text-blue-600 rounded focus:ring-blue-500 bg-gray-100 border-gray-300 dark:border-gray-600 dark:bg-gray-800" ' + checked + ' onchange="handleCheckboxChange(this)"><span class="text-sm font-bold text-gray-800 dark:text-gray-200 select-none leading-tight flex-1 uppercase tracking-wider">' + escapeHTML(act) + '</span></label>';
+            return '<label class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-colors active:scale-[0.98]"><input type="checkbox" value="'+escapeHTML(act)+'" class="chk-atividade w-6 h-6 text-blue-600 rounded focus:ring-blue-500 bg-gray-100 border-gray-300 dark:border-gray-600 dark:bg-gray-800" '+checked+' onchange="handleCheckboxChange(this)"><span class="text-sm font-bold text-gray-800 dark:text-gray-200 select-none leading-tight flex-1 uppercase tracking-wider">'+escapeHTML(act)+'</span></label>';
         }).join('');
-
         document.getElementById('input-outras-atividade').value = outrasText;
         toggleOutrasInput();
-
-        var modal   = document.getElementById('modal-atividades');
+        var modal = document.getElementById('modal-atividades');
         var content = document.getElementById('modal-atividades-content');
         modal.classList.remove('hidden');
-        setTimeout(function () { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+        setTimeout(function(){ modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
     }
 
     function handleCheckboxChange(element) {
-        var exclusivas = ['Realocação de setor', 'Disponível para Realocação', 'Outras', 'Outros'];
+        var exclusivas = ['Realocação de setor','Disponível para Realocação','Outras','Outros'];
         if (element.checked) {
             var isExcl = exclusivas.includes(element.value);
-            document.querySelectorAll('.chk-atividade').forEach(function (cb) {
-                if (cb === element) return;
-                if (isExcl || exclusivas.includes(cb.value)) cb.checked = false;
-            });
+            document.querySelectorAll('.chk-atividade').forEach(function(cb){ if(cb===element) return; if(isExcl||exclusivas.includes(cb.value)) cb.checked=false; });
         }
         toggleOutrasInput();
     }
 
     function toggleOutrasInput() {
-        var hasOutras = Array.from(document.querySelectorAll('.chk-atividade')).some(function (chk) { return chk.value === 'Outras' && chk.checked; });
+        var hasOutras = Array.from(document.querySelectorAll('.chk-atividade')).some(function(chk){ return chk.value==='Outras'&&chk.checked; });
         var div = document.getElementById('div-outras-atividade');
-        if (hasOutras) {
-            div.classList.remove('hidden');
-        } else {
-            div.classList.add('hidden');
-            document.getElementById('input-outras-atividade').value = '';
-        }
+        if (hasOutras) { div.classList.remove('hidden'); }
+        else { div.classList.add('hidden'); document.getElementById('input-outras-atividade').value = ''; }
     }
 
     function fecharModalAtividades() {
-        var modal   = document.getElementById('modal-atividades');
+        var modal = document.getElementById('modal-atividades');
         var content = document.getElementById('modal-atividades-content');
-        modal.classList.add('opacity-0');
-        content.classList.add('translate-y-full');
-        setTimeout(function () { modal.classList.add('hidden'); editingBlockId = null; }, 300);
+        modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+        setTimeout(function(){ modal.classList.add('hidden'); editingBlockId=null; }, 300);
     }
 
     function limparModalAtividades() {
-        document.querySelectorAll('.chk-atividade').forEach(function (chk) { chk.checked = false; });
+        document.querySelectorAll('.chk-atividade').forEach(function(chk){ chk.checked=false; });
         document.getElementById('input-outras-atividade').value = '';
         toggleOutrasInput();
     }
 
     function confirmarModalAtividades() {
         var selected = [];
-        document.querySelectorAll('.chk-atividade:checked').forEach(function (chk) {
-            if (chk.value === 'Outras') {
-                var text = document.getElementById('input-outras-atividade').value.trim().toUpperCase();
-                selected.push(text ? 'Outras: ' + text : 'Outras');
-            } else {
-                selected.push(chk.value);
-            }
+        document.querySelectorAll('.chk-atividade:checked').forEach(function(chk){
+            if (chk.value==='Outras') { var text=document.getElementById('input-outras-atividade').value.trim().toUpperCase(); selected.push(text?'Outras: '+text:'Outras'); }
+            else selected.push(chk.value);
         });
         var finalString = selected.join(', ');
         if (editingBlockId === 'planejamento') {
@@ -1533,13 +1596,8 @@
             var lbl = document.getElementById('lbl-atv-servico');
             if (lbl) {
                 lbl.textContent = finalString || 'Selecionar atividades...';
-                if (finalString) {
-                    lbl.classList.remove('text-gray-400', 'dark:text-gray-500', 'font-semibold');
-                    lbl.classList.add('text-gray-900', 'dark:text-white', 'font-bold');
-                } else {
-                    lbl.classList.add('text-gray-400', 'dark:text-gray-500', 'font-semibold');
-                    lbl.classList.remove('text-gray-900', 'dark:text-white', 'font-bold');
-                }
+                if (finalString) { lbl.classList.remove('text-gray-400','dark:text-gray-500','font-semibold'); lbl.classList.add('text-gray-900','dark:text-white','font-bold'); }
+                else             { lbl.classList.add('text-gray-400','dark:text-gray-500','font-semibold'); lbl.classList.remove('text-gray-900','dark:text-white','font-bold'); }
             }
             checkPlanejamentoBagsVisibility();
             debouncedSave();
@@ -1551,154 +1609,109 @@
         var sCont = document.getElementById('container-atv-sacas');
         var aCont = document.getElementById('container-atv-ajuda');
         var pCont = document.getElementById('container-atv-projecao');
-        if (!sCont || !aCont || !pCont) return;
-
-        if (currentSector.includes('Manutenção') || currentSector.includes('Operações')) {
-            [sCont, aCont, pCont].forEach(function (el) { el.classList.add('hidden'); });
-            document.getElementById('atv-ajuda').value = 'Não';
-            document.getElementById('atv-projecao').value = '';
-            toggleAjudaQtd();
-            return;
+        if (!sCont||!aCont||!pCont) return;
+        if (currentSector.includes('Manutenção')||currentSector.includes('Operações')) {
+            [sCont,aCont,pCont].forEach(function(el){ el.classList.add('hidden'); });
+            document.getElementById('atv-ajuda').value='Não'; document.getElementById('atv-projecao').value=''; toggleAjudaQtd(); return;
         }
         var servicoText = document.getElementById('atv-servico').value || '';
-        var currentSelected = servicoText ? servicoText.split(', ').map(function (s) { return s.trim(); }) : [];
-        if (!currentSelected.length) {
-            [sCont, aCont, pCont].forEach(function (el) { el.classList.remove('hidden'); });
-            return;
-        }
-        var requiresBags = currentSelected.some(function (act) {
-            return !isNoBagsActivity(act.startsWith('Outras:') ? 'Outras' : act);
-        });
+        var currentSelected = servicoText ? servicoText.split(', ').map(function(s){ return s.trim(); }) : [];
+        if (!currentSelected.length) { [sCont,aCont,pCont].forEach(function(el){ el.classList.remove('hidden'); }); return; }
+        var requiresBags = currentSelected.some(function(act){ return !isNoBagsActivity(act.startsWith('Outras:')?'Outras':act); });
         if (!requiresBags) {
-            [sCont, aCont, pCont].forEach(function (el) { el.classList.add('hidden'); });
-            document.getElementById('atv-sacas').value = '';
-            document.getElementById('atv-ajuda').value = 'Não';
-            document.getElementById('atv-projecao').value = '';
-            toggleAjudaQtd();
+            [sCont,aCont,pCont].forEach(function(el){ el.classList.add('hidden'); });
+            document.getElementById('atv-sacas').value=''; document.getElementById('atv-ajuda').value='Não'; document.getElementById('atv-projecao').value=''; toggleAjudaQtd();
         } else {
-            [sCont, aCont, pCont].forEach(function (el) { el.classList.remove('hidden'); });
+            [sCont,aCont,pCont].forEach(function(el){ el.classList.remove('hidden'); });
         }
     }
 
     function toggleAjudaQtd() {
-        var v = document.getElementById('atv-ajuda').value;
-        var el = document.getElementById('div-ajuda-qtd');
-        if (el) el.classList.toggle('hidden', v !== 'Sim');
+        var v=document.getElementById('atv-ajuda').value;
+        var el=document.getElementById('div-ajuda-qtd');
+        if(el) el.classList.toggle('hidden', v!=='Sim');
     }
 
     function getEmptySectorState() {
-        return {
-            timeBlocks:      [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }],
-            horInicial: '', horFinal: '',
-            pesoAmostra: '', pesoRetido: '', tolAmostra: '', tolPerc: '',
-            atvServico: '', atvSacas: '', atvAjuda: 'Não', atvAjudaQtd: '', atvProjecao: '',
-            justificativa: '', shiftName: '', shiftStart: '', shiftEnd: '',
-            osEquipamento: '', osProblema: '',
-            reqMatNome: '', reqMatQtd: '', reqMatJust: '',
-            reqComprasItens: []
-        };
+        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}], horInicial:'',horFinal:'', pesoAmostra:'',pesoRetido:'',tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
     }
 
     function loadDataParaTela() {
         if (currentViewId === 'view-divisao-quebra') {
             var qState = appData[workingDate] && appData[workingDate]['quebra_state'];
-            document.getElementById('quebra-peso-total').value = qState ? (qState.totalBalanca || '') : '';
-            renderizarLinhasQuebra(qState ? qState.sacas : ['', '']);
+            document.getElementById('quebra-peso-total').value = qState ? (qState.totalBalanca||'') : '';
+            renderizarLinhasQuebra(qState ? qState.sacas : ['','']);
             return;
         }
-        if (!currentSector || ['view-menu', 'view-submenu'].includes(currentViewId)) return;
-
+        if (!currentSector || ['view-menu','view-submenu'].includes(currentViewId)) return;
         var st = (appData[workingDate] && appData[workingDate][currentSector]) || getEmptySectorState();
-
         if (currentViewId === 'view-productivity') {
             window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
-            if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
+            if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
             document.getElementById('justificativa-meta').value = st.justificativa || '';
-            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
+            if (currentSector.includes('Rebenefício')||currentSector.includes('TESTE')) {
                 populateShiftSelector();
                 document.getElementById('shift-selector').value = st.shiftName  || '';
                 document.getElementById('shift-start').value    = st.shiftStart || '';
                 document.getElementById('shift-end').value      = st.shiftEnd   || '';
             }
-            renderTimeBlocks();
-            calcTotalProductivity();
+            renderTimeBlocks(); calcTotalProductivity();
         }
-        if (currentViewId === 'view-horimetro') {
-            document.getElementById('hor-inicial').value = st.horInicial || '';
-            document.getElementById('hor-final').value   = st.horFinal   || '';
-            calcHorimetro();
-        }
-        if (currentViewId === 'view-percentage') {
-            document.getElementById('peso-amostra').value = st.pesoAmostra || '';
-            document.getElementById('peso-retido').value  = st.pesoRetido  || '';
-            document.getElementById('tol-amostra').value  = st.tolAmostra  || '';
-            document.getElementById('tol-perc').value     = st.tolPerc     || '';
-            calcRetencao(); calcTolerancia();
-        }
+        if (currentViewId === 'view-horimetro') { document.getElementById('hor-inicial').value=st.horInicial||''; document.getElementById('hor-final').value=st.horFinal||''; calcHorimetro(); }
+        if (currentViewId === 'view-percentage') { document.getElementById('peso-amostra').value=st.pesoAmostra||''; document.getElementById('peso-retido').value=st.pesoRetido||''; document.getElementById('tol-amostra').value=st.tolAmostra||''; document.getElementById('tol-perc').value=st.tolPerc||''; calcRetencao(); calcTolerancia(); }
         if (currentViewId === 'view-atividades') {
             var servicoVal = st.atvServico || '';
             document.getElementById('atv-servico').value = servicoVal;
             var lbl = document.getElementById('lbl-atv-servico');
             if (lbl) {
                 lbl.textContent = servicoVal || 'Selecionar atividades...';
-                if (servicoVal) {
-                    lbl.classList.remove('text-gray-400', 'dark:text-gray-500', 'font-semibold');
-                    lbl.classList.add('text-gray-900', 'dark:text-white', 'font-bold');
-                } else {
-                    lbl.classList.add('text-gray-400', 'dark:text-gray-500', 'font-semibold');
-                    lbl.classList.remove('text-gray-900', 'dark:text-white', 'font-bold');
-                }
+                if (servicoVal) { lbl.classList.remove('text-gray-400','dark:text-gray-500','font-semibold'); lbl.classList.add('text-gray-900','dark:text-white','font-bold'); }
+                else            { lbl.classList.add('text-gray-400','dark:text-gray-500','font-semibold'); lbl.classList.remove('text-gray-900','dark:text-white','font-bold'); }
             }
-            var sacasInput = document.getElementById('atv-sacas');
-            if (sacasInput) sacasInput.value = st.atvSacas || '';
+            var sacasInput = document.getElementById('atv-sacas'); if (sacasInput) sacasInput.value = st.atvSacas||'';
             document.getElementById('atv-ajuda').value     = st.atvAjuda    || 'Não';
             document.getElementById('atv-ajuda-qtd').value = st.atvAjudaQtd || '';
             document.getElementById('atv-projecao').value  = st.atvProjecao || '';
-            toggleAjudaQtd();
-            checkPlanejamentoBagsVisibility();
+            toggleAjudaQtd(); checkPlanejamentoBagsVisibility();
         }
-        if (currentViewId === 'view-os') {
-            document.getElementById('os-equipamento').value = st.osEquipamento || '';
-            document.getElementById('os-problema').value    = st.osProblema    || '';
-        }
+        if (currentViewId === 'view-os') { document.getElementById('os-equipamento').value=st.osEquipamento||''; document.getElementById('os-problema').value=st.osProblema||''; }
         if (currentViewId === 'view-requisicao') {
-            document.getElementById('req-mat-nome').value = st.reqMatNome || '';
-            document.getElementById('req-mat-qtd').value  = st.reqMatQtd  || '';
-            document.getElementById('req-mat-just').value = st.reqMatJust || '';
+            document.getElementById('req-mat-nome').value = st.reqMatNome||'';
+            document.getElementById('req-mat-qtd').value  = st.reqMatQtd ||'';
+            document.getElementById('req-mat-just').value = st.reqMatJust||'';
             if (!st.reqComprasItens) st.reqComprasItens = [];
             renderReqComprasItens();
         }
     }
 
     function saveData() {
-        if (!currentSector || ['view-menu', 'view-submenu', 'view-divisao-quebra', 'view-conv-mm', 'view-conv-hz'].includes(currentViewId)) return;
+        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-conv-mm','view-conv-hz'].includes(currentViewId)) return;
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         var st = appData[workingDate][currentSector];
-
         if (currentViewId === 'view-productivity') {
             st.timeBlocks    = JSON.parse(JSON.stringify(window.tempTimeBlocks || []));
             st.justificativa = document.getElementById('justificativa-meta').value;
-            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
-                st.shiftName  = document.getElementById('shift-selector').value || '';
-                st.shiftStart = document.getElementById('shift-start').value    || '';
-                st.shiftEnd   = document.getElementById('shift-end').value      || '';
+            if (currentSector.includes('Rebenefício')||currentSector.includes('TESTE')) {
+                st.shiftName  = document.getElementById('shift-selector').value||'';
+                st.shiftStart = document.getElementById('shift-start').value   ||'';
+                st.shiftEnd   = document.getElementById('shift-end').value     ||'';
             }
         }
-        if (currentViewId === 'view-horimetro')  { st.horInicial = document.getElementById('hor-inicial').value; st.horFinal = document.getElementById('hor-final').value; }
-        if (currentViewId === 'view-percentage') { st.pesoAmostra = document.getElementById('peso-amostra').value; st.pesoRetido = document.getElementById('peso-retido').value; st.tolAmostra = document.getElementById('tol-amostra').value; st.tolPerc = document.getElementById('tol-perc').value; }
+        if (currentViewId === 'view-horimetro')  { st.horInicial=document.getElementById('hor-inicial').value; st.horFinal=document.getElementById('hor-final').value; }
+        if (currentViewId === 'view-percentage') { st.pesoAmostra=document.getElementById('peso-amostra').value; st.pesoRetido=document.getElementById('peso-retido').value; st.tolAmostra=document.getElementById('tol-amostra').value; st.tolPerc=document.getElementById('tol-perc').value; }
         if (currentViewId === 'view-atividades') {
-            st.atvServico   = document.getElementById('atv-servico').value;
-            var s = document.getElementById('atv-sacas'); if (s) st.atvSacas = s.value;
-            st.atvAjuda     = document.getElementById('atv-ajuda').value;
-            st.atvAjudaQtd  = document.getElementById('atv-ajuda-qtd').value;
-            st.atvProjecao  = document.getElementById('atv-projecao').value;
+            st.atvServico  = document.getElementById('atv-servico').value;
+            var s=document.getElementById('atv-sacas'); if(s) st.atvSacas=s.value;
+            st.atvAjuda    = document.getElementById('atv-ajuda').value;
+            st.atvAjudaQtd = document.getElementById('atv-ajuda-qtd').value;
+            st.atvProjecao = document.getElementById('atv-projecao').value;
         }
-        if (currentViewId === 'view-os')         { st.osEquipamento = document.getElementById('os-equipamento').value; st.osProblema = document.getElementById('os-problema').value; }
-        if (currentViewId === 'view-requisicao') { st.reqMatNome = document.getElementById('req-mat-nome').value; st.reqMatQtd = document.getElementById('req-mat-qtd').value; st.reqMatJust = document.getElementById('req-mat-just').value; }
-
+        if (currentViewId === 'view-os')         { st.osEquipamento=document.getElementById('os-equipamento').value; st.osProblema=document.getElementById('os-problema').value; }
+        if (currentViewId === 'view-requisicao') { st.reqMatNome=document.getElementById('req-mat-nome').value; st.reqMatQtd=document.getElementById('req-mat-qtd').value; st.reqMatJust=document.getElementById('req-mat-just').value; }
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch (e) { mostrarToast('Erro ao salvar. Verifique espaço no dispositivo.', true); }
+        catch(e){ mostrarToast('Erro ao salvar. Verifique espaço no dispositivo.', true); }
+        salvarNoFirestore(); // ← FIREBASE
     }
 
     function atualizarUI(viewId) {
@@ -1707,113 +1720,84 @@
         var zer  = document.getElementById('btn-zerar-dados');
         var vol  = document.getElementById('btn-voltar');
         var tit  = document.getElementById('header-title');
-
-        if (act)  act.classList.add('hidden');
-        if (foot) foot.classList.add('hidden');
-        if (zer)  zer.classList.add('hidden');
-
+        if(act)  act.classList.add('hidden');
+        if(foot) foot.classList.add('hidden');
+        if(zer)  zer.classList.add('hidden');
         if (viewId === 'view-menu') {
-            if (vol) vol.classList.add('hidden');
-            if (tit) tit.textContent = 'PRUMO';
-            if (isAdmin) {
-                var dp = document.getElementById('date-picker-container');
-                if (dp) { dp.classList.remove('hidden'); dp.classList.add('flex'); }
-            }
+            if(vol) vol.classList.add('hidden');
+            if(tit) tit.textContent = 'PRUMO';
+            if (isAdmin) { var dp=document.getElementById('date-picker-container'); if(dp){dp.classList.remove('hidden');dp.classList.add('flex');} }
         } else {
-            if (viewId === 'view-submenu') {
-                if (isAdmin) { if (vol) vol.classList.remove('hidden'); }
-                else { if (vol) vol.classList.add('hidden'); }
-            } else {
-                if (vol) vol.classList.remove('hidden');
-            }
-            if (tit) tit.textContent = currentSector || 'PRUMO';
-            var dp2 = document.getElementById('date-picker-container');
-            if (dp2) { dp2.classList.add('hidden'); dp2.classList.remove('flex'); }
-            if (viewId === 'view-submenu') atualizarQuickRead();
+            if (viewId==='view-submenu') { if(isAdmin){if(vol) vol.classList.remove('hidden');} else {if(vol) vol.classList.add('hidden');} }
+            else { if(vol) vol.classList.remove('hidden'); }
+            if(tit) tit.textContent = currentSector || 'PRUMO';
+            var dp2=document.getElementById('date-picker-container'); if(dp2){dp2.classList.add('hidden');dp2.classList.remove('flex');}
+            if (viewId==='view-submenu') atualizarQuickRead();
         }
-
-        var actionViews = ['view-productivity', 'view-atividades', 'view-percentage', 'view-horimetro', 'view-divisao-quebra', 'view-conv-mm', 'view-conv-hz', 'view-os', 'view-requisicao'];
+        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao'];
         if (actionViews.includes(viewId)) {
-            if (act) { act.classList.remove('hidden'); act.classList.add('flex'); }
-            if (viewId !== 'view-divisao-quebra' && foot) { foot.classList.remove('hidden'); foot.classList.add('block'); }
-            if (['view-productivity', 'view-atividades', 'view-divisao-quebra', 'view-os', 'view-requisicao'].includes(viewId) && zer) {
-                zer.classList.remove('hidden'); zer.classList.add('flex');
-            }
+            if(act){act.classList.remove('hidden');act.classList.add('flex');}
+            if(viewId!=='view-divisao-quebra'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
+            if(['view-productivity','view-atividades','view-divisao-quebra','view-os','view-requisicao'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
-
-        if (viewId === 'view-productivity') {
-            var shiftCont = document.getElementById('rebeneficio-shift-container');
-            var lblMedia  = document.getElementById('lbl-media-hora');
-            var isReb = currentSector.includes('Rebenefício') || currentSector.includes('TESTE');
-            if (shiftCont) { shiftCont.classList.toggle('hidden', !isReb); shiftCont.classList.toggle('block', isReb); }
-            if (lblMedia)  lblMedia.textContent = isReb ? 'Média/h (Turno)' : 'Média/h Total';
+        if (viewId==='view-productivity') {
+            var shiftCont=document.getElementById('rebeneficio-shift-container');
+            var lblMedia =document.getElementById('lbl-media-hora');
+            var isReb=currentSector.includes('Rebenefício')||currentSector.includes('TESTE');
+            if(shiftCont){shiftCont.classList.toggle('hidden',!isReb);shiftCont.classList.toggle('block',isReb);}
+            if(lblMedia) lblMedia.textContent=isReb?'Média/h (Turno)':'Média/h Total';
         }
-        if (viewId === 'view-atividades') checkPlanejamentoBagsVisibility();
-
-        var lblShare = document.getElementById('lbl-share-btn');
-        if (lblShare) {
-            var labels = { 'view-atividades': 'Compartilhar Atividades', 'view-os': 'Solicitar O.S', 'view-requisicao': 'Enviar Pedido' };
-            lblShare.textContent = labels[viewId] || 'Compartilhar Relatório';
-        }
+        if (viewId==='view-atividades') checkPlanejamentoBagsVisibility();
+        var lblShare=document.getElementById('lbl-share-btn');
+        if(lblShare){ var labels={'view-atividades':'Compartilhar Atividades','view-os':'Solicitar O.S','view-requisicao':'Enviar Pedido'}; lblShare.textContent=labels[viewId]||'Compartilhar Relatório'; }
     }
 
     function atualizarQuickRead() {
         var qrContainer = document.getElementById('submenu-quick-read');
         var st = appData[workingDate] && appData[workingDate][currentSector];
-        if (!st || !st.timeBlocks || !st.timeBlocks.length) { qrContainer.classList.add('hidden'); return; }
-        var totalMin = 0, totalSacas = 0;
-        st.timeBlocks.forEach(function (b) {
-            if (b.start && b.end) {
-                var hI = +b.start.split(':')[0], mI = +b.start.split(':')[1];
-                var hF = +b.end.split(':')[0], mF = +b.end.split(':')[1];
-                var mS = hI * 60 + mI, mE = hF * 60 + mF;
-                if (mE <= mS) mE += 1440;
-                totalMin += mE - mS;
-            }
-            if (b.bags && !isNoBagsActivity(b.activity)) totalSacas += parseInt(b.bags.replace(/\D/g, '') || '0');
+        if (!st||!st.timeBlocks||!st.timeBlocks.length) { qrContainer.classList.add('hidden'); return; }
+        var totalMin=0, totalSacas=0;
+        st.timeBlocks.forEach(function(b){
+            if(b.start&&b.end){ var mS=+b.start.split(':')[0]*60+(+b.start.split(':')[1]); var mE=+b.end.split(':')[0]*60+(+b.end.split(':')[1]); if(mE<=mS) mE+=1440; totalMin+=mE-mS; }
+            if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
         });
-        if (totalMin > 0 || totalSacas > 0) {
+        if (totalMin>0||totalSacas>0) {
             qrContainer.classList.remove('hidden');
             document.getElementById('qr-date').textContent         = workingDate;
             document.getElementById('quick-read-bags').textContent = totalSacas.toLocaleString('pt-BR');
-            document.getElementById('quick-read-time').textContent = Math.floor(totalMin / 60) + 'h ' + String(totalMin % 60).padStart(2, '0') + 'm';
+            document.getElementById('quick-read-time').textContent = Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
         } else { qrContainer.classList.add('hidden'); }
     }
 
     function renderizarLinhasQuebra(sacasArray) {
         var arr = sacasArray || [];
-        if (arr.length < 2) arr = arr.concat(new Array(2 - arr.length).fill(''));
-        document.getElementById('quebra-rows').innerHTML = arr.map(function (val) {
-            return '<tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas text-gray-900 dark:text-white" value="' + escapeHTML(String(val)) + '" placeholder="0"></td><td class="q-peso-teorico text-gray-600 dark:text-gray-400 font-medium">-</td><td class="q-perc text-gray-500 font-bold">-</td><td class="q-peso-real highlight-yellow bg-amber-50/50 dark:bg-amber-900/10">-</td></tr>';
+        if (arr.length < 2) arr = arr.concat(new Array(2-arr.length).fill(''));
+        document.getElementById('quebra-rows').innerHTML = arr.map(function(val){
+            return '<tr><td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas text-gray-900 dark:text-white" value="'+escapeHTML(String(val))+'" placeholder="0"></td><td class="q-peso-teorico text-gray-600 dark:text-gray-400 font-medium">-</td><td class="q-perc text-gray-500 font-bold">-</td><td class="q-peso-real highlight-yellow bg-amber-50/50 dark:bg-amber-900/10">-</td></tr>';
         }).join('');
         calcDivisaoQuebra();
     }
 
     function adicionarLinhaQuebra() {
-        var tbody = document.getElementById('quebra-rows');
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas text-gray-900 dark:text-white" placeholder="0"></td><td class="q-peso-teorico text-gray-600 dark:text-gray-400 font-medium">-</td><td class="q-perc text-gray-500 font-bold">-</td><td class="q-peso-real highlight-yellow bg-amber-50/50 dark:bg-amber-900/10">-</td>';
+        var tbody=document.getElementById('quebra-rows');
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td><input type="number" oninput="calcDivisaoQuebra()" class="q-sacas text-gray-900 dark:text-white" placeholder="0"></td><td class="q-peso-teorico text-gray-600 dark:text-gray-400 font-medium">-</td><td class="q-perc text-gray-500 font-bold">-</td><td class="q-peso-real highlight-yellow bg-amber-50/50 dark:bg-amber-900/10">-</td>';
         tbody.appendChild(tr);
         saveDataQuebra();
     }
 
     function calcDivisaoQuebra() {
-        var pesoTotal = parseFloat(document.getElementById('quebra-peso-total').value) || 0;
-        var rows = document.querySelectorAll('#quebra-rows tr');
-        var totalSacas = 0, totalPesoTeorico = 0;
-        
-        rows.forEach(function (row) { var s = parseFloat(row.querySelector('.q-sacas').value) || 0; totalSacas += s; totalPesoTeorico += s * 60; });
-        
-        rows.forEach(function (row) {
-            var s = parseFloat(row.querySelector('.q-sacas').value) || 0;
-            var pt = s * 60;
-            var perc = totalPesoTeorico > 0 ? pt / totalPesoTeorico : 0;
-            var real = pesoTotal * perc;
-            row.querySelector('.q-peso-teorico').textContent = s > 0 ? pt.toLocaleString('pt-BR') : '-';
-            row.querySelector('.q-perc').textContent         = s > 0 ? Math.round(perc * 100) + '%' : '-';
-            row.querySelector('.q-peso-real').textContent    = s > 0 ? Math.round(real).toLocaleString('pt-BR') : '-';
+        var pesoTotal=parseFloat(document.getElementById('quebra-peso-total').value)||0;
+        var rows=document.querySelectorAll('#quebra-rows tr');
+        var totalSacas=0, totalPesoTeorico=0;
+        rows.forEach(function(row){ var s=parseFloat(row.querySelector('.q-sacas').value)||0; totalSacas+=s; totalPesoTeorico+=s*60; });
+        rows.forEach(function(row){
+            var s=parseFloat(row.querySelector('.q-sacas').value)||0;
+            var pt=s*60, perc=totalPesoTeorico>0?pt/totalPesoTeorico:0, real=pesoTotal*perc;
+            row.querySelector('.q-peso-teorico').textContent = s>0?pt.toLocaleString('pt-BR'):'-';
+            row.querySelector('.q-perc').textContent         = s>0?Math.round(perc*100)+'%':'-';
+            row.querySelector('.q-peso-real').textContent    = s>0?Math.round(real).toLocaleString('pt-BR'):'-';
         });
-        
         document.getElementById('q-total-sacas').textContent = totalSacas;
         document.getElementById('q-total-peso').textContent  = totalPesoTeorico.toLocaleString('pt-BR');
         document.getElementById('q-total-real').textContent  = pesoTotal.toLocaleString('pt-BR');
@@ -1824,160 +1808,101 @@
         if (!appData[workingDate]) appData[workingDate] = {};
         appData[workingDate]['quebra_state'] = {
             totalBalanca: document.getElementById('quebra-peso-total').value,
-            sacas: Array.from(document.querySelectorAll('.q-sacas')).map(function (i) { return i.value; })
+            sacas: Array.from(document.querySelectorAll('.q-sacas')).map(function(i){ return i.value; })
         };
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch (e) {}
+        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+        salvarNoFirestore(); // ← FIREBASE
     }
 
     function switchTab(t) {
-        document.getElementById('tab-retencao').classList.toggle('hidden', t !== 'retencao');
-        document.getElementById('tab-tolerancia').classList.toggle('hidden', t !== 'tolerancia');
-        
-        var btnRet = document.getElementById('btn-tab-retencao');
-        var btnTol = document.getElementById('btn-tab-tolerancia');
-        
-        if(t === 'retencao') {
-            btnRet.className = "flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all";
-            btnTol.className = "flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all";
-        } else {
-            btnTol.className = "flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all";
-            btnRet.className = "flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all";
-        }
+        document.getElementById('tab-retencao').classList.toggle('hidden', t!=='retencao');
+        document.getElementById('tab-tolerancia').classList.toggle('hidden', t!=='tolerancia');
+        var btnRet=document.getElementById('btn-tab-retencao'), btnTol=document.getElementById('btn-tab-tolerancia');
+        if(t==='retencao'){ btnRet.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all"; btnTol.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all"; }
+        else { btnTol.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all"; btnRet.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all"; }
     }
 
     function calcRetencao() {
-        var a = parseFloat(document.getElementById('peso-amostra').value);
-        var r = parseFloat(document.getElementById('peso-retido').value);
-        document.getElementById('res-retencao').textContent = (!isNaN(a) && !isNaN(r) && a > 0) ? ((r / a) * 100).toFixed(2).replace('.', ',') + '%' : '0,00%';
+        var a=parseFloat(document.getElementById('peso-amostra').value), r=parseFloat(document.getElementById('peso-retido').value);
+        document.getElementById('res-retencao').textContent = (!isNaN(a)&&!isNaN(r)&&a>0)?((r/a)*100).toFixed(2).replace('.',',')+'%':'0,00%';
         debouncedSave();
     }
-
     function calcTolerancia() {
-        var a = parseFloat(document.getElementById('tol-amostra').value);
-        var p = parseFloat(document.getElementById('tol-perc').value);
-        document.getElementById('res-tolerancia').textContent = (!isNaN(a) && !isNaN(p) && a > 0) ? ((a * p) / 100).toFixed(2).replace('.', ',') : '0,00';
+        var a=parseFloat(document.getElementById('tol-amostra').value), p=parseFloat(document.getElementById('tol-perc').value);
+        document.getElementById('res-tolerancia').textContent = (!isNaN(a)&&!isNaN(p)&&a>0)?((a*p)/100).toFixed(2).replace('.',','):'0,00';
         debouncedSave();
     }
 
     function maskHorimetro(input) {
-        var val = input.value.replace(/[^\d,]/g, '').split(',');
-        if (val.length > 2) val = [val[0], val.slice(1).join('')];
-        var iP = val[0] ? parseInt(val[0], 10).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
-        input.value = val.length > 1 ? iP + ',' + val[1] : iP;
+        var val=input.value.replace(/[^\d,]/g,'').split(',');
+        if(val.length>2) val=[val[0],val.slice(1).join('')];
+        var iP=val[0]?parseInt(val[0],10).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.') :'';
+        input.value=val.length>1?iP+','+val[1]:iP;
         calcHorimetro();
     }
-
     function calcHorimetro() {
-        var inc = parseFloat(document.getElementById('hor-inicial').value.replace(/\./g, '').replace(',', '.'));
-        var fnl = parseFloat(document.getElementById('hor-final').value.replace(/\./g, '').replace(',', '.'));
-        var res = document.getElementById('res-horimetro');
-        if (res) {
-            if (!isNaN(inc) && !isNaN(fnl) && fnl >= inc) {
-                var diff = fnl - inc;
-                res.textContent = Math.floor(diff) + '.' + String(Math.round((diff - Math.floor(diff)) * 60)).padStart(2, '0');
-            } else { res.textContent = fnl < inc ? 'Erro' : '0.00'; }
-        }
+        var inc=parseFloat(document.getElementById('hor-inicial').value.replace(/\./g,'').replace(',','.')), fnl=parseFloat(document.getElementById('hor-final').value.replace(/\./g,'').replace(',','.'));
+        var res=document.getElementById('res-horimetro');
+        if(res){ if(!isNaN(inc)&&!isNaN(fnl)&&fnl>=inc){ var d=fnl-inc; res.textContent=Math.floor(d)+'.'+String(Math.round((d-Math.floor(d))*60)).padStart(2,'0'); } else { res.textContent=fnl<inc?'Erro':'0.00'; } }
         debouncedSave();
     }
 
-    function calcConvMm() { var v = parseFloat(document.getElementById('conv-mm-input').value); document.getElementById('res-conv-mm').textContent = !isNaN(v) ? (v / 10).toLocaleString('pt-BR') : '0'; }
-    function calcConvHz() { var v = parseFloat(document.getElementById('conv-hz-input').value); document.getElementById('res-conv-hz').textContent = !isNaN(v) ? (v * 60).toLocaleString('pt-BR') : '0'; }
+    function calcConvMm() { var v=parseFloat(document.getElementById('conv-mm-input').value); document.getElementById('res-conv-mm').textContent=!isNaN(v)?(v/10).toLocaleString('pt-BR'):'0'; }
+    function calcConvHz() { var v=parseFloat(document.getElementById('conv-hz-input').value); document.getElementById('res-conv-hz').textContent=!isNaN(v)?(v*60).toLocaleString('pt-BR'):'0'; }
 
     function calcMinutos(start, end) {
-        if (!start || !end) return 0;
-        var mS = +start.split(':')[0] * 60 + +start.split(':')[1];
-        var mE = +end.split(':')[0]   * 60 + +end.split(':')[1];
-        if (mE <= mS) mE += 1440;
-        return mE - mS;
+        if (!start||!end) return 0;
+        var mS=+start.split(':')[0]*60+(+start.split(':')[1]), mE=+end.split(':')[0]*60+(+end.split(':')[1]);
+        if(mE<=mS) mE+=1440;
+        return mE-mS;
     }
 
     function getDisplayActivity(b) {
         if (!b.activity) return '-';
-        var act = b.activity;
-        if ((b.activity === 'Outras' || b.activity === 'Outros') && b.activityDetail) act = 'Outras: ' + escapeHTML(b.activityDetail);
-        if (b.activity.includes('Repasse') && b.repasseJustificativa) act += ' (Motivo: ' + escapeHTML(b.repasseJustificativa) + ')';
+        var act=b.activity;
+        if((b.activity==='Outras'||b.activity==='Outros')&&b.activityDetail) act='Outras: '+escapeHTML(b.activityDetail);
+        if(b.activity.includes('Repasse')&&b.repasseJustificativa) act+=' (Motivo: '+escapeHTML(b.repasseJustificativa)+')';
         return act;
     }
-
-    function getDisplayBags(b) {
-        return isNoBagsActivity(b.activity) ? '-' : (escapeHTML(b.bags) || '-');
-    }
+    function getDisplayBags(b) { return isNoBagsActivity(b.activity)?'-':(escapeHTML(b.bags)||'-'); }
 
     function renderTimeBlocks() {
-        var container = document.getElementById('time-blocks-container');
-        if (!container) return;
-        container.innerHTML = (window.tempTimeBlocks || []).map(function (b) {
-            var hideBags  = isNoBagsActivity(b.activity);
-            var showCustom  = b.activity === 'Outras' || b.activity === 'Outros';
-            var showRepasse = b.activity && b.activity.includes('Repasse');
-            var diff = calcMinutos(b.start, b.end);
-            var durStr = diff > 0 ? Math.floor(diff / 60) + 'h ' + String(diff % 60).padStart(2, '0') + 'm' : '';
-            var mediaStr = '';
-            
-            if (durStr && b.bags && !hideBags) {
-                var sc = parseInt(b.bags.replace(/\D/g, '') || '0');
-                mediaStr = 'Média: ' + (sc / (diff / 60)).toFixed(1).replace('.', ',') + ' sc/h';
-            }
-            
-            var opts = currentActivities.map(function (opt) {
-                return '<option value="' + escapeHTML(opt) + '"' + (b.activity === opt ? ' selected' : '') + '>' + escapeHTML(opt) + '</option>';
-            }).join('');
-
-            return `
-            <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 md:p-6 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
-                <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-50 dark:bg-red-900/30 text-red-500 p-2 rounded-full border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 active:scale-95 transition-all shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg>
-                </button>
-                
+        var container=document.getElementById('time-blocks-container');
+        if(!container) return;
+        container.innerHTML=(window.tempTimeBlocks||[]).map(function(b){
+            var hideBags=isNoBagsActivity(b.activity), showCustom=b.activity==='Outras'||b.activity==='Outros', showRepasse=b.activity&&b.activity.includes('Repasse');
+            var diff=calcMinutos(b.start,b.end), durStr=diff>0?Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m':'', mediaStr='';
+            if(durStr&&b.bags&&!hideBags){ var sc=parseInt(b.bags.replace(/\D/g,'')||'0'); mediaStr='Média: '+(sc/(diff/60)).toFixed(1).replace('.',',')+'  sc/h'; }
+            var opts=currentActivities.map(function(opt){ return '<option value="'+escapeHTML(opt)+'"'+(b.activity===opt?' selected':'')+'>'+escapeHTML(opt)+'</option>'; }).join('');
+            return `<div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 md:p-6 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
+                <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-50 dark:bg-red-900/30 text-red-500 p-2 rounded-full border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 active:scale-95 transition-all shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                    <!-- Atividade (Ocupa linha toda no mobile, 7 cols no PC) -->
                     <div class="md:col-span-7 space-y-4">
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Atividade Efetuada</label>
-                            <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]">
-                                <option value="" disabled ${!b.activity ? 'selected' : ''}>Selecione...</option>
-                                ${opts}
-                            </select>
+                            <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"><option value="" disabled ${!b.activity?'selected':''}>Selecione...</option>${opts}</select>
                         </div>
-                        ${showCustom ? `
-                        <div>
-                            <input type="text" style="text-transform:uppercase" value="${escapeHTML(b.activityDetail || '')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500 placeholder-blue-300 dark:placeholder-blue-700" placeholder="Qual atividade?">
-                        </div>` : ''}
-                        ${showRepasse ? `
-                        <div>
-                            <input type="text" value="${escapeHTML(b.repasseJustificativa || '')}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-amber-900 dark:text-amber-100 focus:ring-2 focus:ring-amber-500 placeholder-amber-300 dark:placeholder-amber-700" placeholder="Motivo do repasse...">
-                        </div>` : ''}
+                        ${showCustom?`<div><input type="text" style="text-transform:uppercase" value="${escapeHTML(b.activityDetail||'')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500 placeholder-blue-300 dark:placeholder-blue-700" placeholder="Qual atividade?"></div>`:''}
+                        ${showRepasse?`<div><input type="text" value="${escapeHTML(b.repasseJustificativa||'')}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-amber-900 dark:text-amber-100 focus:ring-2 focus:ring-amber-500 placeholder-amber-300 dark:placeholder-amber-700" placeholder="Motivo do repasse..."></div>`:''}
                     </div>
-
-                    <!-- Horário (Ocupa linha toda no mobile, 5 cols no PC) -->
                     <div class="md:col-span-5 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800">
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Intervalo de Tempo</label>
                         <div class="flex items-center gap-2 justify-center">
-                            <input type="time" value="${b.start || ''}" onchange="updateBlock(${b.id},'start',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">
+                            <input type="time" value="${b.start||''}" onchange="updateBlock(${b.id},'start',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">
                             <span class="text-gray-400 text-xs font-bold px-1">até</span>
-                            <input type="time" value="${b.end || ''}" onchange="updateBlock(${b.id},'end',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">
+                            <input type="time" value="${b.end||''}" onchange="updateBlock(${b.id},'end',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">
                         </div>
-                        ${durStr ? `
-                        <div class="mt-3 text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3 text-xs">
-                            <span class="font-bold text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-md">⏱️ ${durStr}</span>
-                            ${mediaStr ? `<span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md">${mediaStr}</span>` : ''}
-                        </div>` : ''}
+                        ${durStr?`<div class="mt-3 text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3 text-xs"><span class="font-bold text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-md">⏱️ ${durStr}</span>${mediaStr?`<span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md">${mediaStr}</span>`:''}</div>`:''}
                     </div>
-
-                    <!-- Referência, Sacas e Observação (Bottom Row) -->
                     <div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-12 gap-4 mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <div class="sm:col-span-3">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
-                            <input type="text" value="${escapeHTML(b.ref || '')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="${escapeHTML(currentRefLabel)}">
+                            <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="${escapeHTML(currentRefLabel)}">
                         </div>
-                        ${!hideBags ? `
-                        <div class="sm:col-span-3">
-                            <label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label>
-                            <input type="text" inputmode="numeric" value="${escapeHTML(b.bags || '')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 placeholder-emerald-300" placeholder="Qtd">
-                        </div>` : ''}
-                        <div class="${hideBags ? 'sm:col-span-9' : 'sm:col-span-6'}">
+                        ${!hideBags?`<div class="sm:col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 placeholder-emerald-300" placeholder="Qtd"></div>`:''}
+                        <div class="${hideBags?'sm:col-span-9':'sm:col-span-6'}">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
-                            <input type="text" value="${escapeHTML(b.obs || '')}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Detalhes, lote, destino...">
+                            <input type="text" value="${escapeHTML(b.obs||'')}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Detalhes, lote, destino...">
                         </div>
                     </div>
                 </div>
@@ -1986,525 +1911,312 @@
     }
 
     function addTimeBlock() {
-        window.tempTimeBlocks.push({ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' });
+        window.tempTimeBlocks.push({id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''});
         renderTimeBlocks();
     }
-
     function removeTimeBlock(id) {
-        window.tempTimeBlocks = window.tempTimeBlocks.filter(function (b) { return b.id !== id; });
-        renderTimeBlocks();
+        window.tempTimeBlocks=window.tempTimeBlocks.filter(function(b){ return b.id!==id; });
+        renderTimeBlocks(); calcTotalProductivity();
+    }
+    function updateBlock(id,f,v) {
+        var b=window.tempTimeBlocks.find(function(x){ return x.id===id; });
+        if(b) b[f]=v;
+        saveData(); mostrarIndicadorSalvo();
+        if(f==='start'||f==='end'||f==='activity') renderTimeBlocks();
         calcTotalProductivity();
     }
-
-    function updateBlock(id, f, v) {
-        var b = window.tempTimeBlocks.find(function (x) { return x.id === id; });
-        if (b) b[f] = v;
-        saveData(); 
-        mostrarIndicadorSalvo();
-        if (f === 'start' || f === 'end' || f === 'activity') renderTimeBlocks();
-        calcTotalProductivity();
-    }
-
-    function updateBlockMasked(id, f, e) {
-        var v = e.value.replace(/\D/g, '');
-        e.value = v !== '' ? parseInt(v, 10).toLocaleString('pt-BR') : '';
-        updateBlock(id, f, e.value);
+    function updateBlockMasked(id,f,e) {
+        var v=e.value.replace(/\D/g,'');
+        e.value=v!==''?parseInt(v,10).toLocaleString('pt-BR'):'';
+        updateBlock(id,f,e.value);
     }
 
     function calcTotalProductivity() {
-        var totalMin = 0, totalSacas = 0;
-        (window.tempTimeBlocks || []).forEach(function (b) {
-            totalMin += calcMinutos(b.start, b.end);
-            if (b.bags && !isNoBagsActivity(b.activity)) totalSacas += parseInt(b.bags.replace(/\D/g, '') || '0');
+        var totalMin=0, totalSacas=0;
+        (window.tempTimeBlocks||[]).forEach(function(b){
+            totalMin+=calcMinutos(b.start,b.end);
+            if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
         });
-
-        var pTot = document.getElementById('prod-total');
-        if(pTot) pTot.value = totalSacas > 0 ? totalSacas.toLocaleString('pt-BR') : '0';
-
-        var bBadge = document.getElementById('header-bags-badge');
-        if (bBadge) {
-            bBadge.classList.toggle('hidden', totalSacas === 0);
-            if (totalSacas > 0) bBadge.textContent = totalSacas + ' SC';
-        }
-
-        var rT = document.getElementById('res-total-horas');
-        var rM = document.getElementById('res-media-hora');
-        if (rT) rT.textContent = Math.floor(totalMin / 60) + 'h ' + String(totalMin % 60).padStart(2, '0') + 'm';
-
-        var shiftMin = 0, tempoConsiderado = totalMin;
-        var isReb = currentSector.includes('Rebenefício') || currentSector.includes('TESTE');
-
-        if (isReb) {
-            var sStart = document.getElementById('shift-start')?.value;
-            var sEnd   = document.getElementById('shift-end')?.value;
-            if (sStart && sEnd) shiftMin = calcMinutos(sStart, sEnd);
-            
-            var divDisp = document.getElementById('div-horas-disponiveis');
-            var resDisp = document.getElementById('res-horas-disponiveis');
-            if (divDisp) divDisp.classList.remove('hidden');
-            if (resDisp) resDisp.textContent = Math.floor(shiftMin / 60) + 'h ' + String(shiftMin % 60).padStart(2, '0') + 'm';
-            
-            // Lógica rigorosa de tempo: Usa turno se setado. Se minutos exatos ultrapassarem, o operador estourou o turno, usa minutos.
-            if (shiftMin > 0 && (totalMin > shiftMin || totalMin === 0)) tempoConsiderado = shiftMin;
+        var pTot=document.getElementById('prod-total');
+        if(pTot) pTot.value=totalSacas>0?totalSacas.toLocaleString('pt-BR'):'0';
+        var bBadge=document.getElementById('header-bags-badge');
+        if(bBadge){ bBadge.classList.toggle('hidden',totalSacas===0); if(totalSacas>0) bBadge.textContent=totalSacas+' SC'; }
+        var rT=document.getElementById('res-total-horas'), rM=document.getElementById('res-media-hora');
+        if(rT) rT.textContent=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+        var shiftMin=0, tempoConsiderado=totalMin;
+        var isReb=currentSector.includes('Rebenefício')||currentSector.includes('TESTE');
+        if(isReb){
+            var sStart=document.getElementById('shift-start')&&document.getElementById('shift-start').value;
+            var sEnd  =document.getElementById('shift-end')  &&document.getElementById('shift-end').value;
+            if(sStart&&sEnd) shiftMin=calcMinutos(sStart,sEnd);
+            var divDisp=document.getElementById('div-horas-disponiveis'), resDisp=document.getElementById('res-horas-disponiveis');
+            if(divDisp) divDisp.classList.remove('hidden');
+            if(resDisp) resDisp.textContent=Math.floor(shiftMin/60)+'h '+String(shiftMin%60).padStart(2,'0')+'m';
+            if(shiftMin>0&&(totalMin>shiftMin||totalMin===0)) tempoConsiderado=shiftMin;
         } else {
-            var dd = document.getElementById('div-horas-disponiveis');
-            if (dd) dd.classList.add('hidden');
+            var dd=document.getElementById('div-horas-disponiveis'); if(dd) dd.classList.add('hidden');
         }
-
-        var mediaNum = tempoConsiderado > 0 && totalSacas > 0 ? totalSacas / (tempoConsiderado / 60) : 0;
-        if (rM) rM.textContent = mediaNum > 0 ? mediaNum.toFixed(1).replace('.', ',') : '0';
-
-        // Lógica de Metas Justificadas
-        var contJust = document.getElementById('container-justificativa');
-        var contSucs = document.getElementById('container-meta-sucesso');
-        if (isReb) {
-            var metaHora  = parseFloat(appData.config?.metaRebeneficioHora)  || 55;
-            var metaTurno = parseFloat(appData.config?.metaRebeneficioTurno) || 500;
-            var hasWorked = shiftMin > 0 || totalMin > 0;
-            if (hasWorked) {
-                var missed = totalSacas < metaTurno || mediaNum < metaHora;
-                if (contJust) contJust.classList.toggle('hidden', !missed);
-                if (contSucs) contSucs.classList.toggle('hidden', missed);
-            } else {
-                if (contJust) contJust.classList.add('hidden');
-                if (contSucs) contSucs.classList.add('hidden');
-            }
-        } else {
-            if (contJust) contJust.classList.add('hidden');
-            if (contSucs) contSucs.classList.add('hidden');
-        }
+        var mediaNum=tempoConsiderado>0&&totalSacas>0?totalSacas/(tempoConsiderado/60):0;
+        if(rM) rM.textContent=mediaNum>0?mediaNum.toFixed(1).replace('.',','):'0';
+        var contJust=document.getElementById('container-justificativa'), contSucs=document.getElementById('container-meta-sucesso');
+        if(isReb){
+            var metaHora=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaTurno=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
+            var hasWorked=shiftMin>0||totalMin>0;
+            if(hasWorked){ var missed=totalSacas<metaTurno||mediaNum<metaHora; if(contJust) contJust.classList.toggle('hidden',!missed); if(contSucs) contSucs.classList.toggle('hidden',missed); }
+            else { if(contJust) contJust.classList.add('hidden'); if(contSucs) contSucs.classList.add('hidden'); }
+        } else { if(contJust) contJust.classList.add('hidden'); if(contSucs) contSucs.classList.add('hidden'); }
     }
 
     function switchTabReq(t) {
-        abaReqAtual = t;
-        document.getElementById('tab-req-material').classList.toggle('hidden', t !== 'material');
-        document.getElementById('tab-req-compra').classList.toggle('hidden',   t !== 'compra');
-        ['material','compra'].forEach(function (tab) {
-            var btn = document.getElementById('btn-tab-req-' + tab);
-            if (!btn) return;
-            var active = t === tab;
-            btn.className = active 
-                ? "flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all"
-                : "flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all";
-        });
+        abaReqAtual=t;
+        document.getElementById('tab-req-material').classList.toggle('hidden',t!=='material');
+        document.getElementById('tab-req-compra').classList.toggle('hidden',t!=='compra');
+        ['material','compra'].forEach(function(tab){ var btn=document.getElementById('btn-tab-req-'+tab); if(!btn) return; var active=t===tab; btn.className=active?"flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all":"flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all"; });
     }
 
     function addReqCompraItem() {
-        var comp = document.getElementById('req-comp-nome').value.trim();
-        var qtd  = document.getElementById('req-comp-qtd').value.trim();
-        var cat  = document.getElementById('req-comp-cat').value;
-        var just = document.getElementById('req-comp-just').value.trim();
-        if (!comp || !qtd || !just) return mostrarToast('Preencha Item, Quantidade e Justificativa!', true);
-        
-        if (!appData[workingDate]) appData[workingDate] = {};
-        if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
-        if (!appData[workingDate][currentSector].reqComprasItens) appData[workingDate][currentSector].reqComprasItens = [];
-        
-        appData[workingDate][currentSector].reqComprasItens.push({ id: Date.now(), comp: comp, qtd: qtd, cat: cat, just: just });
-        
-        ['req-comp-nome','req-comp-qtd','req-comp-just'].forEach(function (id) { document.getElementById(id).value = ''; });
-        debouncedSave();
-        renderReqComprasItens();
+        var comp=document.getElementById('req-comp-nome').value.trim(), qtd=document.getElementById('req-comp-qtd').value.trim(), cat=document.getElementById('req-comp-cat').value, just=document.getElementById('req-comp-just').value.trim();
+        if(!comp||!qtd||!just) return mostrarToast('Preencha Item, Quantidade e Justificativa!', true);
+        if(!appData[workingDate]) appData[workingDate]={};
+        if(!appData[workingDate][currentSector]) appData[workingDate][currentSector]=getEmptySectorState();
+        if(!appData[workingDate][currentSector].reqComprasItens) appData[workingDate][currentSector].reqComprasItens=[];
+        appData[workingDate][currentSector].reqComprasItens.push({id:Date.now(),comp:comp,qtd:qtd,cat:cat,just:just});
+        ['req-comp-nome','req-comp-qtd','req-comp-just'].forEach(function(id){ document.getElementById(id).value=''; });
+        debouncedSave(); renderReqComprasItens();
     }
 
     function removeReqCompraItem(id) {
-        var st = appData[workingDate] && appData[workingDate][currentSector];
-        if (!st || !st.reqComprasItens) return;
-        st.reqComprasItens = st.reqComprasItens.filter(function (i) { return i.id !== id; });
-        debouncedSave();
-        renderReqComprasItens();
+        var st=appData[workingDate]&&appData[workingDate][currentSector];
+        if(!st||!st.reqComprasItens) return;
+        st.reqComprasItens=st.reqComprasItens.filter(function(i){ return i.id!==id; });
+        debouncedSave(); renderReqComprasItens();
     }
 
     function renderReqComprasItens() {
-        var cont = document.getElementById('req-compras-list');
-        var list = (appData[workingDate] && appData[workingDate][currentSector] && appData[workingDate][currentSector].reqComprasItens) || [];
-        cont.innerHTML = list.map(function (i) {
-            return `
-            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 relative shadow-sm group">
-                <button onclick="removeReqCompraItem(${i.id})" class="absolute top-3 right-3 text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors active:scale-95">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>
-                </button>
-                <div class="font-bold text-gray-900 dark:text-white pr-10 text-base">${escapeHTML(i.comp)}</div>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold px-2 py-1 rounded">Qtd: ${escapeHTML(i.qtd)}</span>
-                    <span class="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold px-2 py-1 rounded border border-blue-100 dark:border-blue-800/50">${escapeHTML(i.cat)}</span>
-                </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 italic">"${escapeHTML(i.just)}"</div>
-            </div>`;
+        var cont=document.getElementById('req-compras-list');
+        var list=(appData[workingDate]&&appData[workingDate][currentSector]&&appData[workingDate][currentSector].reqComprasItens)||[];
+        cont.innerHTML=list.map(function(i){
+            return `<div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 relative shadow-sm group"><button onclick="removeReqCompraItem(${i.id})" class="absolute top-3 right-3 text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors active:scale-95"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg></button><div class="font-bold text-gray-900 dark:text-white pr-10 text-base">${escapeHTML(i.comp)}</div><div class="flex items-center gap-2 mt-2"><span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold px-2 py-1 rounded">Qtd: ${escapeHTML(i.qtd)}</span><span class="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold px-2 py-1 rounded border border-blue-100 dark:border-blue-800/50">${escapeHTML(i.cat)}</span></div><div class="text-sm text-gray-500 dark:text-gray-400 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 italic">"${escapeHTML(i.just)}"</div></div>`;
         }).join('');
     }
 
-    function openModalReset()  { var m = document.getElementById('modal-confirm'); m.classList.remove('hidden'); setTimeout(function () { m.classList.add('opacity-100'); }, 10); }
-    function closeModalReset() { var m = document.getElementById('modal-confirm'); m.classList.remove('opacity-100'); setTimeout(function () { m.classList.add('hidden'); }, 300); }
+    function openModalReset()  { var m=document.getElementById('modal-confirm'); m.classList.remove('hidden'); setTimeout(function(){ m.classList.add('opacity-100'); },10); }
+    function closeModalReset() { var m=document.getElementById('modal-confirm'); m.classList.remove('opacity-100'); setTimeout(function(){ m.classList.add('hidden'); },300); }
 
     function executeReset() {
         closeModalReset();
-        if (currentViewId === 'view-productivity') {
-            window.tempTimeBlocks = [{ id: Date.now(), start: '', end: '', ref: '', bags: '', obs: '', activity: '' }];
-            document.getElementById('justificativa-meta').value = '';
-            if (currentSector.includes('Rebenefício') || currentSector.includes('TESTE')) {
-                document.getElementById('shift-selector').value = '';
-                document.getElementById('shift-start').value    = '';
-                document.getElementById('shift-end').value      = '';
-            }
+        if (currentViewId==='view-productivity') {
+            window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
+            document.getElementById('justificativa-meta').value='';
+            if(currentSector.includes('Rebenefício')||currentSector.includes('TESTE')){ document.getElementById('shift-selector').value=''; document.getElementById('shift-start').value=''; document.getElementById('shift-end').value=''; }
             renderTimeBlocks(); calcTotalProductivity();
-        } else if (currentViewId === 'view-divisao-quebra') {
-            document.getElementById('quebra-peso-total').value = '';
-            renderizarLinhasQuebra(['', '']);
-            saveDataQuebra();
-        } else if (currentViewId === 'view-os') {
-            document.getElementById('os-equipamento').value = '';
-            document.getElementById('os-problema').value    = '';
-        } else if (currentViewId === 'view-requisicao') {
-            ['req-mat-nome','req-mat-qtd','req-mat-just','req-comp-nome','req-comp-qtd','req-comp-just'].forEach(function (id) { document.getElementById(id).value = ''; });
-            document.getElementById('req-comp-cat').value = 'EPIs';
-            if (appData[workingDate] && appData[workingDate][currentSector]) appData[workingDate][currentSector].reqComprasItens = [];
+        } else if (currentViewId==='view-divisao-quebra') {
+            document.getElementById('quebra-peso-total').value=''; renderizarLinhasQuebra(['','']); saveDataQuebra();
+        } else if (currentViewId==='view-os') {
+            document.getElementById('os-equipamento').value=''; document.getElementById('os-problema').value='';
+        } else if (currentViewId==='view-requisicao') {
+            ['req-mat-nome','req-mat-qtd','req-mat-just','req-comp-nome','req-comp-qtd','req-comp-just'].forEach(function(id){ document.getElementById(id).value=''; });
+            document.getElementById('req-comp-cat').value='EPIs';
+            if(appData[workingDate]&&appData[workingDate][currentSector]) appData[workingDate][currentSector].reqComprasItens=[];
             renderReqComprasItens();
         } else {
-            document.getElementById('atv-servico').value = '';
-            var lbl = document.getElementById('lbl-atv-servico');
-            if (lbl) { lbl.textContent = 'Selecionar atividades...'; lbl.className = 'truncate pointer-events-none text-gray-400 dark:text-gray-500 font-semibold text-sm md:text-base'; }
-            var s = document.getElementById('atv-sacas'); if (s) s.value = '';
-            document.getElementById('atv-ajuda').value     = 'Não';
-            document.getElementById('atv-ajuda-qtd').value = '';
-            document.getElementById('atv-projecao').value  = '';
+            document.getElementById('atv-servico').value='';
+            var lbl=document.getElementById('lbl-atv-servico');
+            if(lbl){ lbl.textContent='Selecionar atividades...'; lbl.className='truncate pointer-events-none text-gray-400 dark:text-gray-500 font-semibold text-sm md:text-base'; }
+            var s=document.getElementById('atv-sacas'); if(s) s.value='';
+            document.getElementById('atv-ajuda').value='Não'; document.getElementById('atv-ajuda-qtd').value=''; document.getElementById('atv-projecao').value='';
             toggleAjudaQtd(); checkPlanejamentoBagsVisibility();
         }
-        if (currentViewId !== 'view-divisao-quebra') saveData();
+        if(currentViewId!=='view-divisao-quebra') saveData();
         mostrarToast('Tela limpa com sucesso.');
     }
 
     function abrirModalHistorico() {
-        var container = document.getElementById('lista-historico');
-        document.getElementById('historico-setor').textContent = limparEmoji(currentSector);
-        var items = [];
-        
-        Object.keys(appData).forEach(function (date) {
-            if (date === 'config' || date === workingDate) return;
-            var st = appData[date][currentSector];
-            if (!st || !st.timeBlocks) return;
-            var totalMin = 0, totalSacas = 0;
-            st.timeBlocks.forEach(function (b) {
-                if (b.start && b.end) {
-                    var mS = +b.start.split(':')[0] * 60 + +b.start.split(':')[1];
-                    var mE = +b.end.split(':')[0] * 60 + +b.end.split(':')[1];
-                    if (mE <= mS) mE += 1440;
-                    totalMin += mE - mS;
-                }
-                if (b.bags && !isNoBagsActivity(b.activity)) totalSacas += parseInt(b.bags.replace(/\D/g, '') || '0');
+        var container=document.getElementById('lista-historico');
+        document.getElementById('historico-setor').textContent=limparEmoji(currentSector);
+        var items=[];
+        Object.keys(appData).forEach(function(date){
+            if(date==='config'||date===workingDate) return;
+            var st=appData[date][currentSector];
+            if(!st||!st.timeBlocks) return;
+            var totalMin=0, totalSacas=0;
+            st.timeBlocks.forEach(function(b){
+                if(b.start&&b.end){ var mS=+b.start.split(':')[0]*60+(+b.start.split(':')[1]); var mE=+b.end.split(':')[0]*60+(+b.end.split(':')[1]); if(mE<=mS) mE+=1440; totalMin+=mE-mS; }
+                if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
             });
-            if (totalMin > 0 || totalSacas > 0) items.push({ date: date, sacs: totalSacas, min: totalMin });
+            if(totalMin>0||totalSacas>0) items.push({date:date,sacs:totalSacas,min:totalMin});
         });
-        
-        items.sort(function (a, b) {
-            var pa = a.date.split('/'), pb = b.date.split('/');
-            return new Date(pb[2] + '-' + pb[1] + '-' + pb[0]) - new Date(pa[2] + '-' + pa[1] + '-' + pa[0]);
-        });
-        items = items.slice(0, 5);
-        
-        container.innerHTML = items.length ? items.map(function (item) {
-            return `
-            <div class="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm group hover:border-blue-200 dark:hover:border-blue-900/50 transition-colors">
-                <div>
-                    <span class="text-xs font-black text-gray-500 uppercase tracking-widest">${item.date}</span><br>
-                    <span class="text-xl md:text-2xl font-black text-gray-900 dark:text-white mt-1 block">${item.sacs.toLocaleString('pt-BR')} sc</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tempo Apontado</span><br>
-                    <span class="text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mt-1 block">${Math.floor(item.min / 60)}h ${String(item.min % 60).padStart(2, '0')}m</span>
-                </div>
-            </div>`;
-        }).join('') : '<div class="text-center py-8"><p class="text-sm text-gray-500 font-medium">Nenhum registro consolidado anterior.</p></div>';
-
-        var modal = document.getElementById('modal-historico');
-        var content = document.getElementById('modal-historico-content');
+        items.sort(function(a,b){ var pa=a.date.split('/'),pb=b.date.split('/'); return new Date(pb[2]+'-'+pb[1]+'-'+pb[0])-new Date(pa[2]+'-'+pa[1]+'-'+pa[0]); });
+        items=items.slice(0,5);
+        container.innerHTML=items.length?items.map(function(item){
+            return `<div class="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm"><div><span class="text-xs font-black text-gray-500 uppercase tracking-widest">${item.date}</span><br><span class="text-xl md:text-2xl font-black text-gray-900 dark:text-white mt-1 block">${item.sacs.toLocaleString('pt-BR')} sc</span></div><div class="text-right"><span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tempo Apontado</span><br><span class="text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mt-1 block">${Math.floor(item.min/60)}h ${String(item.min%60).padStart(2,'0')}m</span></div></div>`;
+        }).join(''):'<div class="text-center py-8"><p class="text-sm text-gray-500 font-medium">Nenhum registro consolidado anterior.</p></div>';
+        var modal=document.getElementById('modal-historico'), content=document.getElementById('modal-historico-content');
         modal.classList.remove('hidden');
-        setTimeout(function () { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+        setTimeout(function(){ modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); },10);
     }
 
     function fecharModalHistorico() {
-        var modal = document.getElementById('modal-historico');
-        var content = document.getElementById('modal-historico-content');
+        var modal=document.getElementById('modal-historico'), content=document.getElementById('modal-historico-content');
         modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
-        setTimeout(function () { modal.classList.add('hidden'); }, 300);
+        setTimeout(function(){ modal.classList.add('hidden'); },300);
     }
 
-    var SETORES_ORDEM = ['⚙️ Rebenefício', '🚛 Expedição', '📦 Embalagem', '📥 Recebimento', '⏱️ Manutenção', '📊 Operações', '🧪 TESTE'];
+    var SETORES_ORDEM=['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','🧪 TESTE'];
 
     function isMetaOk(st, sectorName) {
-        if (!sectorName.includes('Rebenefício') && !sectorName.includes('TESTE')) return true;
-        var totalMin = 0, totalSacas = 0;
-        (st.timeBlocks || []).forEach(function (b) {
-            totalMin += calcMinutos(b.start, b.end);
-            if (b.bags && !isNoBagsActivity(b.activity)) totalSacas += parseInt(b.bags.replace(/\D/g, '') || '0');
-        });
-        var shiftMin = st.shiftStart && st.shiftEnd ? calcMinutos(st.shiftStart, st.shiftEnd) : 0;
-        var metaH = parseFloat(appData.config && appData.config.metaRebeneficioHora)  || 55;
-        var metaT = parseFloat(appData.config && appData.config.metaRebeneficioTurno) || 500;
-        var tempo = (shiftMin > 0 && totalMin > shiftMin) ? shiftMin : (shiftMin > 0 && totalMin === 0) ? shiftMin : totalMin;
-        var media = tempo > 0 && totalSacas > 0 ? totalSacas / (tempo / 60) : 0;
-        var hasWorked = totalMin > 0 || shiftMin > 0;
-        if (hasWorked && (totalSacas < metaT || media < metaH)) return !!(st.justificativa && st.justificativa.trim());
+        if(!sectorName.includes('Rebenefício')&&!sectorName.includes('TESTE')) return true;
+        var totalMin=0, totalSacas=0;
+        (st.timeBlocks||[]).forEach(function(b){ totalMin+=calcMinutos(b.start,b.end); if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0'); });
+        var shiftMin=st.shiftStart&&st.shiftEnd?calcMinutos(st.shiftStart,st.shiftEnd):0;
+        var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
+        var tempo=(shiftMin>0&&totalMin>shiftMin)?shiftMin:(shiftMin>0&&totalMin===0)?shiftMin:totalMin;
+        var media=tempo>0&&totalSacas>0?totalSacas/(tempo/60):0;
+        var hasWorked=totalMin>0||shiftMin>0;
+        if(hasWorked&&(totalSacas<metaT||media<metaH)) return !!(st.justificativa&&st.justificativa.trim());
         return true;
     }
 
     function gerarResumoGeral() {
         saveData();
-        var dayData = appData[workingDate] || {};
-        var bloqueio = SETORES_ORDEM.some(function (setor) { var st = dayData[setor]; return st && !isMetaOk(st, setor); });
-        if (bloqueio) return mostrarToast('Operadores de Rebenefício não justificaram a quebra de meta!', true);
-
-        var hasData = false, linhas = '';
-        SETORES_ORDEM.forEach(function (setor) {
-            var st = dayData[setor];
-            if (!st) return;
-            var blocks = (st.timeBlocks || []).filter(function (b) { return b.start || b.bags || b.ref; });
-            var cleanSetor = limparEmoji(setor);
-            if (!blocks.length && !st.atvServico && !(cleanSetor === 'Manutenção' && st.horInicial) && !((cleanSetor === 'Rebenefício' || cleanSetor === 'TESTE') && st.pesoAmostra)) return;
-            hasData = true;
-            linhas += '<tr><td colspan="4" class="sector-header">SETOR: ' + cleanSetor.toUpperCase() + '</td></tr>';
-            if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftName && st.shiftStart && st.shiftEnd) {
-                linhas += '<tr style="background-color:#fffbeb;"><td colspan="4" style="color:#b45309;font-size:11px;font-weight:bold;text-align:center;padding:8px;">⏱️ Turno: ' + escapeHTML(st.shiftName) + ' (' + escapeHTML(st.shiftStart) + ' às ' + escapeHTML(st.shiftEnd) + ')</td></tr>';
+        var dayData=appData[workingDate]||{};
+        var bloqueio=SETORES_ORDEM.some(function(setor){ var st=dayData[setor]; return st&&!isMetaOk(st,setor); });
+        if(bloqueio) return mostrarToast('Operadores de Rebenefício não justificaram a quebra de meta!', true);
+        var hasData=false, linhas='';
+        SETORES_ORDEM.forEach(function(setor){
+            var st=dayData[setor]; if(!st) return;
+            var blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.ref; });
+            var cleanSetor=limparEmoji(setor);
+            if(!blocks.length&&!st.atvServico&&!(cleanSetor==='Manutenção'&&st.horInicial)&&!((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra)) return;
+            hasData=true;
+            linhas+='<tr><td colspan="4" class="sector-header">SETOR: '+cleanSetor.toUpperCase()+'</td></tr>';
+            if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName&&st.shiftStart&&st.shiftEnd) {
+                linhas+='<tr style="background-color:#fffbeb;"><td colspan="4" style="color:#b45309;font-size:11px;font-weight:bold;text-align:center;padding:8px;">⏱️ Turno: '+escapeHTML(st.shiftName)+' ('+escapeHTML(st.shiftStart)+' às '+escapeHTML(st.shiftEnd)+')</td></tr>';
             }
-            var totalM = 0, totalS = 0;
-            var shiftMin = (cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftStart && st.shiftEnd ? calcMinutos(st.shiftStart, st.shiftEnd) : 0;
-            blocks.forEach(function (b) {
-                var diff = calcMinutos(b.start, b.end);
-                totalM += diff;
-                var timeInfo = (b.start && b.end) ? '<span style="font-size:10px;color:#6b7280;"><br>(' + b.start + ' - ' + b.end + ' | ' + Math.floor(diff/60) + 'h' + String(diff%60).padStart(2,'0') + 'm)</span>' : '';
-                var dAct  = getDisplayActivity(b);
-                var dBags = getDisplayBags(b);
-                if (b.bags && !isNoBagsActivity(b.activity)) totalS += parseInt(b.bags.replace(/\D/g,'') || '0');
-                linhas += '<tr><td style="font-weight:600;width:30%">' + dAct + timeInfo + '</td><td style="text-align:right;font-weight:bold;width:15%">' + dBags + '</td><td style="width:20%">' + (escapeHTML(b.ref) || '-') + '</td><td style="width:35%">' + (escapeHTML(b.obs) || '-') + '</td></tr>';
+            var totalM=0, totalS=0;
+            var shiftMin=(cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftStart&&st.shiftEnd?calcMinutos(st.shiftStart,st.shiftEnd):0;
+            blocks.forEach(function(b){
+                var diff=calcMinutos(b.start,b.end); totalM+=diff;
+                var timeInfo=(b.start&&b.end)?'<span style="font-size:10px;color:#6b7280;"><br>('+b.start+' - '+b.end+' | '+Math.floor(diff/60)+'h'+String(diff%60).padStart(2,'0')+'m)</span>':'';
+                var dAct=getDisplayActivity(b), dBags=getDisplayBags(b);
+                if(b.bags&&!isNoBagsActivity(b.activity)) totalS+=parseInt(b.bags.replace(/\D/g,'')||'0');
+                linhas+='<tr><td style="font-weight:600;width:30%">'+dAct+timeInfo+'</td><td style="text-align:right;font-weight:bold;width:15%">'+dBags+'</td><td style="width:20%">'+(escapeHTML(b.ref)||'-')+'</td><td style="width:35%">'+(escapeHTML(b.obs)||'-')+'</td></tr>';
             });
-            if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.justificativa) {
-                var tempo = (totalM > shiftMin && shiftMin > 0) ? shiftMin : (shiftMin > 0 && totalM === 0) ? shiftMin : totalM;
-                var metaH = parseFloat(appData.config && appData.config.metaRebeneficioHora)  || 55;
-                var metaT = parseFloat(appData.config && appData.config.metaRebeneficioTurno) || 500;
-                var media = tempo > 0 && totalS > 0 ? totalS / (tempo / 60) : 0;
-                if ((totalM > 0 || shiftMin > 0) && (totalS < metaT || media < metaH)) {
-                    linhas += '<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#b91c1c;font-size:12px;padding:10px;"><b>⚠️ Justificativa de Meta:</b> ' + escapeHTML(st.justificativa) + '</td></tr>';
-                }
+            if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.justificativa){
+                var tempo=(totalM>shiftMin&&shiftMin>0)?shiftMin:(shiftMin>0&&totalM===0)?shiftMin:totalM;
+                var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
+                var media=tempo>0&&totalS>0?totalS/(tempo/60):0;
+                if((totalM>0||shiftMin>0)&&(totalS<metaT||media<metaH)) linhas+='<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#b91c1c;font-size:12px;padding:10px;"><b>⚠️ Justificativa de Meta:</b> '+escapeHTML(st.justificativa)+'</td></tr>';
             }
-            if (st.atvServico) {
-                var ajuda = st.atvAjuda === 'Sim' ? ' | +' + (escapeHTML(st.atvAjudaQtd) || '?') + ' pessoas' : '';
-                linhas += '<tr style="background-color:#f8fafc;"><td style="font-style:italic;color:#475569;font-size:11px;">(Planejamento do Dia)</td><td style="text-align:right;color:#475569;font-weight:bold;">' + (escapeHTML(st.atvSacas) || '-') + '</td><td style="color:#475569;text-align:center">-</td><td style="color:#475569;">' + escapeHTML(st.atvServico) + ajuda + (st.atvProjecao ? ' | Entrega: ' + escapeHTML(st.atvProjecao) : '') + '</td></tr>';
-            }
-            if ((cleanSetor === 'Rebenefício' || cleanSetor === 'TESTE') && st.pesoAmostra && st.pesoRetido) {
-                var p = parseFloat(st.pesoAmostra), r = parseFloat(st.pesoRetido);
-                if (p > 0) linhas += '<tr style="background-color:#f0fdf4;"><td colspan="4" style="color:#15803d;font-size:12px;padding:10px;text-align:center"><b>🔍 Retenção de Peneira:</b> ' + ((r/p)*100).toFixed(2).replace('.', ',') + '% <span style="font-weight:normal;opacity:0.8">(Amostra: ' + p + 'g | Retido: ' + r + 'g)</span></td></tr>';
-            }
-            if (cleanSetor === 'Manutenção' && st.horInicial && st.horFinal) {
-                var ini = parseFloat(st.horInicial.replace(/\./g,'').replace(',','.')), fim = parseFloat(st.horFinal.replace(/\./g,'').replace(',','.'));
-                if (!isNaN(ini) && !isNaN(fim) && fim >= ini) {
-                    var df = fim - ini;
-                    linhas += '<tr style="background-color:#eff6ff;"><td colspan="4" style="color:#1d4ed8;font-size:12px;padding:10px;text-align:center"><b>⏱️ Horímetro Registrado:</b> ' + Math.floor(df) + '.' + String(Math.round((df-Math.floor(df))*60)).padStart(2,'0') + 'h</td></tr>';
-                }
-            }
+            if(st.atvServico){ var ajuda=st.atvAjuda==='Sim'?' | +'+(escapeHTML(st.atvAjudaQtd)||'?')+' pessoas':''; linhas+='<tr style="background-color:#f8fafc;"><td style="font-style:italic;color:#475569;font-size:11px;">(Planejamento do Dia)</td><td style="text-align:right;color:#475569;font-weight:bold;">'+(escapeHTML(st.atvSacas)||'-')+'</td><td style="color:#475569;text-align:center">-</td><td style="color:#475569;">'+escapeHTML(st.atvServico)+ajuda+(st.atvProjecao?' | Entrega: '+escapeHTML(st.atvProjecao):'')+' </td></tr>'; }
+            if((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra&&st.pesoRetido){ var p=parseFloat(st.pesoAmostra),r=parseFloat(st.pesoRetido); if(p>0) linhas+='<tr style="background-color:#f0fdf4;"><td colspan="4" style="color:#15803d;font-size:12px;padding:10px;text-align:center"><b>🔍 Retenção de Peneira:</b> '+((r/p)*100).toFixed(2).replace('.',',')+'% <span style="font-weight:normal;opacity:0.8">(Amostra: '+p+'g | Retido: '+r+'g)</span></td></tr>'; }
+            if(cleanSetor==='Manutenção'&&st.horInicial&&st.horFinal){ var ini=parseFloat(st.horInicial.replace(/\./g,'').replace(',','.')), fim=parseFloat(st.horFinal.replace(/\./g,'').replace(',','.')); if(!isNaN(ini)&&!isNaN(fim)&&fim>=ini){ var df=fim-ini; linhas+='<tr style="background-color:#eff6ff;"><td colspan="4" style="color:#1d4ed8;font-size:12px;padding:10px;text-align:center"><b>⏱️ Horímetro Registrado:</b> '+Math.floor(df)+'.'+String(Math.round((df-Math.floor(df))*60)).padStart(2,'0')+'h</td></tr>'; } }
         });
-
-        document.getElementById('container-tabela-adm').innerHTML = hasData
-            ? '<table class="adm-table"><tr style="background:#111827;color:white;"><th colspan="4" style="text-align:center;font-size:14px;padding:15px;color:white;font-family:Outfit, sans-serif;letter-spacing:0.1em">RELATÓRIO OPERACIONAL PRUMO <br><span style="font-size:11px;font-weight:normal;color:#9ca3af;letter-spacing:normal">' + workingDate + ' | Gestor Logado: ' + escapeHTML(operadorNome) + '</span></th></tr><tr><th style="width:30%">Atividade</th><th style="text-align:right;width:15%">Produção</th><th style="width:20%">Lote / Guia</th><th style="width:35%">Detalhes Extras</th></tr>' + linhas + '</table>'
-            : '<div style="text-align:center;padding:50px;color:#9ca3af;font-size:14px;">Sem movimentações registradas na data de ' + workingDate + '.</div>';
-
-        document.getElementById('adm-modal-date-label').textContent = 'Relatório Geral - ' + workingDate;
-        var modal = document.getElementById('modal-adm-email');
+        document.getElementById('container-tabela-adm').innerHTML=hasData
+            ?'<table class="adm-table"><tr style="background:#111827;color:white;"><th colspan="4" style="text-align:center;font-size:14px;padding:15px;color:white;font-family:Outfit, sans-serif;letter-spacing:0.1em">RELATÓRIO OPERACIONAL PRUMO <br><span style="font-size:11px;font-weight:normal;color:#9ca3af;letter-spacing:normal">'+workingDate+' | Gestor Logado: '+escapeHTML(operadorNome)+'</span></th></tr><tr><th style="width:30%">Atividade</th><th style="text-align:right;width:15%">Produção</th><th style="width:20%">Lote / Guia</th><th style="width:35%">Detalhes Extras</th></tr>'+linhas+'</table>'
+            :'<div style="text-align:center;padding:50px;color:#9ca3af;font-size:14px;">Sem movimentações registradas na data de '+workingDate+'.</div>';
+        document.getElementById('adm-modal-date-label').textContent='Relatório Geral - '+workingDate;
+        var modal=document.getElementById('modal-adm-email');
         modal.classList.remove('hidden');
-        setTimeout(function () { modal.classList.remove('opacity-0'); }, 10);
+        setTimeout(function(){ modal.classList.remove('opacity-0'); },10);
     }
 
-    function fecharModalAdm() {
-        var modal = document.getElementById('modal-adm-email');
-        modal.classList.add('opacity-0');
-        setTimeout(function () { modal.classList.add('hidden'); }, 300);
-    }
+    function fecharModalAdm() { var modal=document.getElementById('modal-adm-email'); modal.classList.add('opacity-0'); setTimeout(function(){ modal.classList.add('hidden'); },300); }
 
     function copiarTabelaAdm() {
-        var container = document.getElementById('container-tabela-adm');
-        if (!container) return;
+        var container=document.getElementById('container-tabela-adm'); if(!container) return;
         try {
-            var blobHtml = new Blob([container.innerHTML], { type: 'text/html' });
-            var blobText = new Blob([container.innerText],  { type: 'text/plain' });
-            navigator.clipboard.write([new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })])
-                .then(function () { mostrarToast('Tabela formatada e copiada para o e-mail!'); })
-                .catch(function () { fallbackCopy(container); });
-        } catch (e) { fallbackCopy(container); }
+            var blobHtml=new Blob([container.innerHTML],{type:'text/html'}), blobText=new Blob([container.innerText],{type:'text/plain'});
+            navigator.clipboard.write([new ClipboardItem({'text/html':blobHtml,'text/plain':blobText})]).then(function(){ mostrarToast('Tabela formatada e copiada para o e-mail!'); }).catch(function(){ fallbackCopy(container); });
+        } catch(e){ fallbackCopy(container); }
     }
 
     function fallbackCopy(el) {
-        try {
-            var range = document.createRange();
-            range.selectNode(el);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-            document.execCommand('copy');
-            window.getSelection().removeAllRanges();
-            mostrarToast('Tabela copiada (Modo Simples).');
-        } catch (e) { mostrarToast('O seu navegador não suporta cópia automática.', true); }
+        try { var range=document.createRange(); range.selectNode(el); window.getSelection().removeAllRanges(); window.getSelection().addRange(range); document.execCommand('copy'); window.getSelection().removeAllRanges(); mostrarToast('Tabela copiada (Modo Simples).'); }
+        catch(e){ mostrarToast('O seu navegador não suporta cópia automática.', true); }
     }
 
     function exportarExcel() {
         saveData();
-        var dayData = appData[workingDate] || {};
-        var bloqueio = SETORES_ORDEM.some(function (setor) { var st = dayData[setor]; return st && !isMetaOk(st, setor); });
-        if (bloqueio) return mostrarToast('Operadores de Rebenefício não justificaram a quebra de meta!', true);
-
-        var rows = [['Data','Setor','Atividade','Início','Fim','Guias/Ref','Produção/Sacas','Detalhe/Observação']];
-        SETORES_ORDEM.forEach(function (setor) {
-            var st = dayData[setor];
-            if (!st) return;
-            var cleanSetor = limparEmoji(setor);
-            if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftName) {
-                rows.push([workingDate, cleanSetor, 'TURNO: ' + st.shiftName, st.shiftStart || '', st.shiftEnd || '', '-', '-', '-']);
-            }
-            (st.timeBlocks || []).forEach(function (b) {
-                if (!b.start && !b.bags && !b.ref && !b.activity) return;
-                var motivo = (b.activity && b.activity.includes('Repasse') && b.repasseJustificativa) ? '[Motivo: ' + b.repasseJustificativa + ']' : '';
-                rows.push([workingDate, cleanSetor, getDisplayActivity(b), b.start || '', b.end || '', b.ref || '', String(getDisplayBags(b)).replace(/\D/g,''), ((b.obs || '') + ' ' + motivo).trim()]);
+        var dayData=appData[workingDate]||{};
+        var bloqueio=SETORES_ORDEM.some(function(setor){ var st=dayData[setor]; return st&&!isMetaOk(st,setor); });
+        if(bloqueio) return mostrarToast('Operadores de Rebenefício não justificaram a quebra de meta!', true);
+        var rows=[['Data','Setor','Atividade','Início','Fim','Guias/Ref','Produção/Sacas','Detalhe/Observação']];
+        SETORES_ORDEM.forEach(function(setor){
+            var st=dayData[setor]; if(!st) return;
+            var cleanSetor=limparEmoji(setor);
+            if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName) rows.push([workingDate,cleanSetor,'TURNO: '+st.shiftName,st.shiftStart||'',st.shiftEnd||'','-','-','-']);
+            (st.timeBlocks||[]).forEach(function(b){
+                if(!b.start&&!b.bags&&!b.ref&&!b.activity) return;
+                var motivo=(b.activity&&b.activity.includes('Repasse')&&b.repasseJustificativa)?'[Motivo: '+b.repasseJustificativa+']':'';
+                rows.push([workingDate,cleanSetor,getDisplayActivity(b),b.start||'',b.end||'',b.ref||'',String(getDisplayBags(b)).replace(/\D/g,''),((b.obs||'')+' '+motivo).trim()]);
             });
-            if (st.atvServico) rows.push([workingDate, cleanSetor, 'PLANEJAMENTO INICIAL', '', st.atvProjecao || '', '-', st.atvSacas || '', st.atvServico + (st.atvAjuda === 'Sim' ? ' (+' + (st.atvAjudaQtd || '?') + ' pessoas)' : '')]);
+            if(st.atvServico) rows.push([workingDate,cleanSetor,'PLANEJAMENTO INICIAL','',st.atvProjecao||'','-',st.atvSacas||'',st.atvServico+(st.atvAjuda==='Sim'?' (+'+(st.atvAjudaQtd||'?')+' pessoas)':'')]);
         });
-
-        if (rows.length <= 1) return mostrarToast('Não existem dados consolidados na data atual.', true);
-        
-        // Corrige caracteres latinos para Excel no Windows
-        var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';'); }).join('\r\n');
-        var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url; a.download = 'Prumo_Export_' + workingDate.replace(/\//g, '-') + '.csv';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        if(rows.length<=1) return mostrarToast('Não existem dados consolidados na data atual.', true);
+        var csv=rows.map(function(r){ return r.map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(';'); }).join('\r\n');
+        var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+        var url=URL.createObjectURL(blob), a=document.createElement('a');
+        a.href=url; a.download='Prumo_Export_'+workingDate.replace(/\//g,'-')+'.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         mostrarToast('Download do arquivo .CSV iniciado!');
     }
 
     function executarCompartilhamento(title, texto, cleanSetor) {
-        if (cleanSetor === 'TESTE') {
-            navigator.clipboard.writeText(texto).then(function () {
-                mostrarToast('Copiado! Redirecionando...');
-                setTimeout(function () { window.open('https://chat.whatsapp.com/HN0pDkOneOAJylOo1PbmtD', '_blank'); }, 1000);
-            }).catch(function () { mostrarToast('Erro ao copiar.', true); });
+        if(cleanSetor==='TESTE'){
+            navigator.clipboard.writeText(texto).then(function(){ mostrarToast('Copiado! Redirecionando...'); setTimeout(function(){ window.open('https://chat.whatsapp.com/HN0pDkOneOAJylOo1PbmtD','_blank'); },1000); }).catch(function(){ mostrarToast('Erro ao copiar.', true); });
             return;
         }
-        if (navigator.share) navigator.share({ title: title, text: texto }).catch(function () { fallbackCopiarTexto(texto); });
+        if(navigator.share) navigator.share({title:title,text:texto}).catch(function(){ fallbackCopiarTexto(texto); });
         else fallbackCopiarTexto(texto);
     }
-
-    function fallbackCopiarTexto(texto) {
-        navigator.clipboard.writeText(texto)
-            .then(function () { mostrarToast('Conteúdo copiado para envio manual!'); })
-            .catch(function () { mostrarToast('Erro de permissão no navegador.', true); });
-    }
+    function fallbackCopiarTexto(texto) { navigator.clipboard.writeText(texto).then(function(){ mostrarToast('Conteúdo copiado para envio manual!'); }).catch(function(){ mostrarToast('Erro de permissão no navegador.', true); }); }
 
     function compartilharRelatorio() {
-        if (!currentSector) return mostrarToast('Nenhum setor está aberto no momento.', true);
+        if(!currentSector) return mostrarToast('Nenhum setor está aberto no momento.', true);
         saveData();
-        var st = (appData[workingDate] && appData[workingDate][currentSector]) || {};
-        var cleanSetor = limparEmoji(currentSector);
-
-        if (currentViewId === 'view-productivity' && !isMetaOk(st, currentSector)) {
-            mostrarToast('Existe uma quebra de meta sem justificativa!', true);
-            var jEl = document.getElementById('justificativa-meta');
-            if (jEl) { jEl.focus(); jEl.scrollIntoView({behavior: 'smooth', block: 'center'}); }
-            return;
-        }
-
-        if (currentViewId === 'view-atividades') {
-            var servicoText = document.getElementById('atv-servico').value || '';
-            var sacas  = document.getElementById('atv-sacas').value || '0';
-            var ajuda  = document.getElementById('atv-ajuda').value;
-            var ajudaQtd = parseInt(document.getElementById('atv-ajuda-qtd').value) || 0;
-            var projecao = document.getElementById('atv-projecao').value || '';
-            
+        var st=(appData[workingDate]&&appData[workingDate][currentSector])||{};
+        var cleanSetor=limparEmoji(currentSector);
+        if(currentViewId==='view-productivity'&&!isMetaOk(st,currentSector)){ mostrarToast('Existe uma quebra de meta sem justificativa!', true); var jEl=document.getElementById('justificativa-meta'); if(jEl){jEl.focus();jEl.scrollIntoView({behavior:'smooth',block:'center'});} return; }
+        if(currentViewId==='view-atividades'){
+            var servicoText=document.getElementById('atv-servico').value||'', sacas=document.getElementById('atv-sacas').value||'0', ajuda=document.getElementById('atv-ajuda').value, ajudaQtd=parseInt(document.getElementById('atv-ajuda-qtd').value)||0, projecao=document.getElementById('atv-projecao').value||'';
             if(!servicoText) return mostrarToast('Selecione os serviços que fará no dia!', true);
-
-            var texto = '📋 *INFORME DE PLANEJAMENTO*\n\n📅 ' + workingDate + '\n👤 ' + operadorNome + '\n🏢 Setor: ' + cleanSetor + '\n\n*Serviços do Dia:*\n' + servicoText + '\n';
-            if (!currentSector.includes('Manutenção') && !currentSector.includes('Operações')) {
-                var currentSelected = servicoText ? servicoText.split(', ') : [];
-                var requiresBags = !currentSelected.length || currentSelected.some(function (a) { return !isNoBagsActivity(a.startsWith('Outras:') ? 'Outras' : a); });
-                if (requiresBags) {
-                    texto += '\n📦 *Volume Previsto:* ' + sacas + ' sc';
-                    texto += '\n🤝 *Apoio Extra:* ' + (ajuda === 'Sim' ? 'Sim (' + ajudaQtd + ' pessoa' + (ajudaQtd > 1 ? 's' : '') + ')' : 'Não Necessita');
-                }
-            }
-            if (projecao && projecao !== '--:--') texto += '\n⏰ *Conclusão Estimada:* ' + projecao;
-            executarCompartilhamento('Planejamento ' + cleanSetor, texto, cleanSetor);
-            return;
+            var texto='📋 *INFORME DE PLANEJAMENTO*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n*Serviços do Dia:*\n'+servicoText+'\n';
+            if(!currentSector.includes('Manutenção')&&!currentSector.includes('Operações')){ var cs=servicoText?servicoText.split(', '):[]; var reqB=!cs.length||cs.some(function(a){ return !isNoBagsActivity(a.startsWith('Outras:')?'Outras':a); }); if(reqB){ texto+='\n📦 *Volume Previsto:* '+sacas+' sc'; texto+='\n🤝 *Apoio Extra:* '+(ajuda==='Sim'?'Sim ('+ajudaQtd+' pessoa'+(ajudaQtd>1?'s':'')+')'  :'Não Necessita'); } }
+            if(projecao&&projecao!=='--:--') texto+='\n⏰ *Conclusão Estimada:* '+projecao;
+            executarCompartilhamento('Planejamento '+cleanSetor,texto,cleanSetor); return;
         }
-
-        if (currentViewId === 'view-os') {
-            var equip = document.getElementById('os-equipamento').value.trim();
-            var prob  = document.getElementById('os-problema').value.trim();
-            if (!equip || !prob) return mostrarToast('Informe a máquina e a descrição da falha.', true);
-            var texto = '🔧 *SOLICITAÇÃO DE MANUTENÇÃO (O.S)*\n\n📅 *DATA:* ' + workingDate + '\n👤 *COLABORADOR:* ' + operadorNome + '\n🏢 *SETOR:* ' + cleanSetor + '\n⚙️ *EQUIPAMENTO:* ' + equip + '\n\n⚠️ *DESCRIÇÃO DA FALHA:*\n' + prob;
-            executarCompartilhamento('OS - ' + equip, texto, cleanSetor);
-            return;
+        if(currentViewId==='view-os'){ var equip=document.getElementById('os-equipamento').value.trim(), prob=document.getElementById('os-problema').value.trim(); if(!equip||!prob) return mostrarToast('Informe a máquina e a descrição da falha.', true); var texto='🔧 *SOLICITAÇÃO DE MANUTENÇÃO (O.S)*\n\n📅 *DATA:* '+workingDate+'\n👤 *COLABORADOR:* '+operadorNome+'\n🏢 *SETOR:* '+cleanSetor+'\n⚙️ *EQUIPAMENTO:* '+equip+'\n\n⚠️ *DESCRIÇÃO DA FALHA:*\n'+prob; executarCompartilhamento('OS - '+equip,texto,cleanSetor); return; }
+        if(currentViewId==='view-requisicao'){
+            var texto='';
+            if(abaReqAtual==='material'){ var mat=document.getElementById('req-mat-nome').value.trim(), qtd=document.getElementById('req-mat-qtd').value.trim(), just=document.getElementById('req-mat-just').value.trim(); if(!mat||!qtd) return mostrarToast('Insira o nome do insumo e a quantidade.', true); texto='📦 *REQUISIÇÃO INTERNA DE ESTOQUE*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 '+cleanSetor+'\n\n🔹 *Material:* '+mat+'\n🔢 *Quantidade:* '+qtd+(just?'\n📝 *Para:* '+just:''); }
+            else { var itens=st.reqComprasItens||[]; if(!itens.length) return mostrarToast('A sua lista de compras está vazia!', true); texto='🛒 *SOLICITAÇÃO DE COMPRAS EXTERNAS*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n'; itens.forEach(function(item,idx){ texto+='*'+(idx+1)+'. '+item.comp+'*\n   - Quantidade: '+item.qtd+'\n   - Categoria: '+item.cat+'\n   - Motivo: '+item.just+'\n\n'; }); }
+            executarCompartilhamento('Requisição',texto,cleanSetor); return;
         }
-
-        if (currentViewId === 'view-requisicao') {
-            var texto = '';
-            if (abaReqAtual === 'material') {
-                var mat  = document.getElementById('req-mat-nome').value.trim();
-                var qtd  = document.getElementById('req-mat-qtd').value.trim();
-                var just = document.getElementById('req-mat-just').value.trim();
-                if (!mat || !qtd) return mostrarToast('Insira o nome do insumo e a quantidade.', true);
-                texto = '📦 *REQUISIÇÃO INTERNA DE ESTOQUE*\n\n📅 ' + workingDate + '\n👤 ' + operadorNome + '\n🏢 ' + cleanSetor + '\n\n🔹 *Material:* ' + mat + '\n🔢 *Quantidade:* ' + qtd + (just ? '\n📝 *Para:* ' + just : '');
-            } else {
-                var itens = st.reqComprasItens || [];
-                if (!itens.length) return mostrarToast('A sua lista de compras está vazia!', true);
-                texto = '🛒 *SOLICITAÇÃO DE COMPRAS EXTERNAS*\n\n📅 ' + workingDate + '\n👤 ' + operadorNome + '\n🏢 Setor: ' + cleanSetor + '\n\n';
-                itens.forEach(function (item, idx) {
-                    texto += '*' + (idx + 1) + '. ' + item.comp + '*\n   - Quantidade: ' + item.qtd + '\n   - Categoria: ' + item.cat + '\n   - Motivo: ' + item.just + '\n\n';
-                });
-            }
-            executarCompartilhamento('Requisição', texto, cleanSetor);
-            return;
-        }
-
-        // Lógica de compartilhamento do Boletim
-        var blocks = (st.timeBlocks || []).filter(function (b) { return b.start || b.bags || b.activity; });
+        var blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.activity; });
         if(!blocks.length) return mostrarToast('Nenhum dado lançado para o boletim.', true);
-
-        var totalSacas = 0, totalMin = 0, linhasBlocks = '';
-        blocks.forEach(function (b) {
-            if (b.bags && !isNoBagsActivity(b.activity)) totalSacas += parseInt(b.bags.replace(/\D/g,'') || '0');
-            var diff = calcMinutos(b.start, b.end);
-            totalMin += diff;
-            var dAct = getDisplayActivity(b);
-            var ref  = b.ref ? ' | ' + currentRefLabel.split('/')[0] + ': ' + b.ref : '';
-            var obs  = b.obs ? ' — ' + b.obs : '';
-            var sc   = (b.bags && !isNoBagsActivity(b.activity)) ? ' | *' + b.bags + ' sc*' : '';
-            linhasBlocks += '  • ' + dAct + ': ' + (b.start || '--:--') + ' às ' + (b.end || '--:--') + (diff > 0 ? ' (' + Math.floor(diff/60) + 'h ' + String(diff%60).padStart(2,'0') + 'm)' : '') + ref + sc + obs + '\n';
+        var totalSacas=0, totalMin=0, linhasBlocks='';
+        blocks.forEach(function(b){
+            if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
+            var diff=calcMinutos(b.start,b.end); totalMin+=diff;
+            var dAct=getDisplayActivity(b), ref=b.ref?' | '+currentRefLabel.split('/')[0]+': '+b.ref:'', obs=b.obs?' — '+b.obs:'', sc=(b.bags&&!isNoBagsActivity(b.activity))?' | *'+b.bags+' sc*':'';
+            linhasBlocks+='  • '+dAct+': '+(b.start||'--:--')+' às '+(b.end||'--:--')+(diff>0?' ('+Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m)':'')+ref+sc+obs+'\n';
         });
-
-        var horas = Math.floor(totalMin/60) + 'h ' + String(totalMin%60).padStart(2,'0') + 'm';
-        var texto = '*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: ' + cleanSetor.toUpperCase() + '*\n📅 ' + workingDate + '  |  👤 ' + operadorNome + '\n';
-        var shiftMin = 0, tempoConsid = totalMin;
-
-        if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.shiftName && st.shiftStart && st.shiftEnd) {
-            shiftMin = calcMinutos(st.shiftStart, st.shiftEnd);
-            var horasDisp = Math.floor(shiftMin/60) + 'h ' + String(shiftMin%60).padStart(2,'0') + 'm';
-            if (totalMin > shiftMin) tempoConsid = shiftMin;
-            var tempoConsidStr = Math.floor(tempoConsid/60) + 'h ' + String(tempoConsid%60).padStart(2,'0') + 'm';
-            texto += '⏱️ *Turno:* ' + st.shiftName + ' (' + st.shiftStart + ' às ' + st.shiftEnd + ')\n';
-            texto += '⏳ *Horas Disponíveis:* ' + horasDisp + '\n';
-            texto += '📌 *Horas Apontadas:* ' + horas + '\n';
-            texto += '▶️ *Tempo de Cálculo:* ' + tempoConsidStr + '\n';
-        } else {
-            texto += '⏱️ *Horas Totais Apontadas:* ' + horas + '\n';
-        }
-
-        texto += '─'.repeat(25) + '\n';
-        if (linhasBlocks) texto += '*Relatório de Atividades:*\n' + linhasBlocks + '\n';
-        if ((cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) && st.justificativa) {
-            var metaH = parseFloat(appData.config && appData.config.metaRebeneficioHora)  || 55;
-            var metaT = parseFloat(appData.config && appData.config.metaRebeneficioTurno) || 500;
-            var media = tempoConsid > 0 && totalSacas > 0 ? totalSacas / (tempoConsid/60) : 0;
-            if ((totalMin > 0 || shiftMin > 0) && (totalSacas < metaT || media < metaH)) texto += '⚠️ *Justificativa de Meta:* ' + st.justificativa + '\n\n';
-        }
-        
-        texto += '─'.repeat(25) + '\n📦 *Volume Diário:* ' + totalSacas.toLocaleString('pt-BR') + ' sacas';
-        executarCompartilhamento('Boletim ' + cleanSetor, texto, cleanSetor);
+        var horas=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+        var texto='*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: '+cleanSetor.toUpperCase()+'*\n📅 '+workingDate+'  |  👤 '+operadorNome+'\n';
+        var shiftMin=0, tempoConsid=totalMin;
+        if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName&&st.shiftStart&&st.shiftEnd){
+            shiftMin=calcMinutos(st.shiftStart,st.shiftEnd);
+            var horasDisp=Math.floor(shiftMin/60)+'h '+String(shiftMin%60).padStart(2,'0')+'m';
+            if(totalMin>shiftMin) tempoConsid=shiftMin;
+            var tCS=Math.floor(tempoConsid/60)+'h '+String(tempoConsid%60).padStart(2,'0')+'m';
+            texto+='⏱️ *Turno:* '+st.shiftName+' ('+st.shiftStart+' às '+st.shiftEnd+')\n⏳ *Horas Disponíveis:* '+horasDisp+'\n📌 *Horas Apontadas:* '+horas+'\n▶️ *Tempo de Cálculo:* '+tCS+'\n';
+        } else { texto+='⏱️ *Horas Totais Apontadas:* '+horas+'\n'; }
+        texto+='─'.repeat(25)+'\n';
+        if(linhasBlocks) texto+='*Relatório de Atividades:*\n'+linhasBlocks+'\n';
+        if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.justificativa){ var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500; var media=tempoConsid>0&&totalSacas>0?totalSacas/(tempoConsid/60):0; if((totalMin>0||shiftMin>0)&&(totalSacas<metaT||media<metaH)) texto+='⚠️ *Justificativa de Meta:* '+st.justificativa+'\n\n'; }
+        texto+='─'.repeat(25)+'\n📦 *Volume Diário:* '+totalSacas.toLocaleString('pt-BR')+' sacas';
+        executarCompartilhamento('Boletim '+cleanSetor,texto,cleanSetor);
     }
     </script>
 </body>
