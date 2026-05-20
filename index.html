@@ -1,931 +1,356 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="antialiased">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="HtmlBlox"/>
-<meta name="theme-color" content="#f0a500"/>
-<title>HtmlBlox</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Prumo">
+    <title>Prumo</title>
 
-<script>
-(function(){
-  const ICON=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0b0d12"/><rect x="60" y="60" width="176" height="176" rx="20" fill="#f0a500"/><rect x="276" y="60" width="176" height="176" rx="20" fill="#1a1e2b" stroke="#f0a500" stroke-width="8"/><rect x="60" y="276" width="176" height="176" rx="20" fill="#1a1e2b" stroke="#2e3348" stroke-width="8"/><rect x="276" y="276" width="80" height="80" rx="14" fill="#f0a500" opacity=".5"/><rect x="372" y="276" width="80" height="80" rx="14" fill="#f0a500"/><rect x="276" y="372" width="80" height="80" rx="14" fill="#f0a500"/><rect x="372" y="372" width="80" height="80" rx="14" fill="#1a1e2b" stroke="#f0a500" stroke-width="6"/><path d="M108 158L152 108L196 158M108 178L152 228L196 178" stroke="#0b0d12" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
-  const b64='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(ICON)));
-  const al=document.createElement('link'); al.rel='apple-touch-icon'; al.href=b64; document.head.appendChild(al);
-  const fl=document.createElement('link'); fl.rel='icon'; fl.type='image/svg+xml'; fl.href=b64; document.head.appendChild(fl);
-  const mf={name:"HtmlBlox",short_name:"HtmlBlox",description:"Editor inteligente de módulos HTML",start_url:"./",display:"standalone",background_color:"#0b0d12",theme_color:"#f0a500",orientation:"any",icons:[{src:b64,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
-  const ml=document.createElement('link'); ml.rel='manifest';
-  ml.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));
-  document.head.appendChild(ml);
-})();
-if('serviceWorker' in navigator){
-  const sw=`self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('Offline')))));`;
-  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'})),{scope:'./'}).catch(()=>{});
-}
-</script>
+    <link rel="manifest" id="pwa-manifest">
+    <link rel="icon" type="image/png" href="1000146124.png">
+    <link rel="apple-touch-icon" href="1000146124.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<script>window.tailwind={};window.tailwind.config={theme:{extend:{fontFamily:{ui:['Syne'],code:['JetBrains Mono','monospace']}}}};</script>
-<script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        (function () {
+            var manifestData = {
+                name: 'Prumo — Gestão Operacional',
+                short_name: 'Prumo',
+                description: 'Aplicativo para gestão operacional.',
+                start_url: './',
+                display: 'standalone',
+                background_color: '#1a1a1a',
+                theme_color: '#1a1a1a',
+                orientation: 'portrait-primary',
+                icons: [
+                    { src: '1000146124.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+                    { src: '1000146124.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+                ]
+            };
+            var el = document.getElementById('pwa-manifest');
+            if (el) {
+                el.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestData));
+            }
+        })();
+    </script>
 
-<style>
-:root{
-  --bg:#0b0d12; --s1:#13161f; --s2:#1a1e2b; --s3:#222636; --s4:#2e3348;
-  --accent:#f0a500; --txt:#dde2f0; --dim:#6b7491; --muted:#3d4460;
-  --danger:#f87171; --info:#60a5fa; --ok:#34d399; --purple:#a78bfa;
-  --hdr:54px; --ftr:52px; --mobtabs:44px;
-  --col:clamp(320px,42vw,540px); --r:12px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{height:100%;}
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                    .then(function (reg) { console.log('[SW] Registrado:', reg.scope); })
+                    .catch(function (err) { console.info('[SW] sw.js não encontrado — modo offline desativado.', err.message); });
+            });
+        }
+    </script>
 
-body{
-  font-family:'Syne',sans-serif;background:var(--bg);color:var(--txt);
-  height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;
-  display:grid;grid-template-rows:var(--hdr) 1fr var(--ftr);grid-template-columns:1fr;
-}
-@media(max-width:768px){body{grid-template-rows:var(--hdr) var(--mobtabs) 1fr var(--ftr);}}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--s4);border-radius:5px;}
-::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
 
-#hdr{grid-row:1;grid-column:1;background:var(--s1);border-bottom:1px solid var(--s3);display:flex;align-items:center;justify-content:space-between;padding:0 14px;gap:10px;z-index:50;min-width:0;}
-.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:0;}
-.logo-icon{width:34px;height:34px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.logo-icon svg{width:22px;height:22px;}
-.logo-name{font-weight:800;font-size:16px;letter-spacing:-.4px;color:var(--txt);}
-.logo-tag{font-size:10px;color:var(--dim);font-weight:600;background:var(--s2);border:1px solid var(--s3);padding:2px 7px;border-radius:99px;}
-#hdr-r{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-#status-pill{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);background:var(--bg);border:1px solid var(--s3);border-radius:99px;padding:3px 10px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-@media(max-width:580px){#status-pill,.logo-tag{display:none;}}
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        coffee: {
+                            50: '#fdfbf7', 100: '#f4ede4', 200: '#e6d5c3', 300: '#d5bba1',
+                            400: '#c5a080', 500: '#b8865c', 600: '#9b6c43', 700: '#7c5332',
+                            800: '#5c3d2e', 900: '#3e2723', 950: '#2b1b18'
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.03)',
+                    }
+                }
+            }
+        };
+    </script>
 
-#mob-tabs{display:none;grid-row:2;grid-column:1;background:var(--s1);border-bottom:1px solid var(--s3);z-index:40;}
-@media(max-width:768px){#mob-tabs{display:flex;}}
-.mob-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 8px;height:var(--mobtabs);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--dim);background:transparent;border:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s;-webkit-tap-highlight-color:transparent;}
-.mob-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+    <!-- ======================================================= -->
+    <!-- FIREBASE SDK (compat) — carregamento dinâmico seguro   -->
+    <!-- ======================================================= -->
+    <script>
+        var db = null; // será definido após carregamento do SDK
 
-#workspace{grid-row:2;grid-column:1;display:grid;grid-template-columns:var(--col) 1fr;min-height:0;overflow:hidden;position:relative;}
-@media(max-width:768px){#workspace{grid-row:3;grid-template-columns:1fr;grid-template-rows:1fr;}}
+        function initFirebase() {
+            try {
+                var firebaseConfig = {
+                    apiKey: "AIzaSyAoNnzwDgzemV5hV_j3hpT8ZrB4OvJBO38",
+                    authDomain: "prumo-mocha.firebaseapp.com",
+                    projectId: "prumo-mocha",
+                    storageBucket: "prumo-mocha.firebasestorage.app",
+                    messagingSenderId: "275208298962",
+                    appId: "1:275208298962:web:723e76534f9210d620a80b"
+                };
+                if (!firebase.apps || !firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                console.log('[Prumo] Firebase inicializado ✓');
+            } catch(e) {
+                console.warn('[Prumo] Falha ao inicializar Firebase:', e.message);
+                db = null;
+            }
+        }
 
-#col-edit{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--s3);min-height:0;background:var(--bg);}
-@media(max-width:768px){#col-edit{grid-column:1;grid-row:1;border-right:none;}#col-edit.hidden{display:none;}}
+        function carregarSDKFirebase(callback) {
+            var s1 = document.createElement('script');
+            s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
+            s1.onload = function () {
+                var s2 = document.createElement('script');
+                s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js';
+                s2.onload = function () {
+                    initFirebase();
+                    if (typeof callback === 'function') callback();
+                };
+                s2.onerror = function () {
+                    console.warn('[Prumo] firebase-firestore-compat.js não carregou.');
+                    if (typeof callback === 'function') callback();
+                };
+                document.head.appendChild(s2);
+            };
+            s1.onerror = function () {
+                console.warn('[Prumo] firebase-app-compat.js não carregou. App funciona offline.');
+                if (typeof callback === 'function') callback();
+            };
+            document.head.appendChild(s1);
+        }
+    </script>
 
-#edit-tb{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s1);border-bottom:1px solid var(--s3);gap:6px;flex-wrap:wrap;min-height:46px;}
-.tb-l{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-.tb-r{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-#modules-list{flex:1;overflow-y:auto;min-height:0;padding:16px;display:flex;flex-direction:column;gap:16px;}
-@media(max-width:768px){#modules-list{padding:14px;gap:18px;}}
+    <style>
+        :root { color-scheme: light dark; }
 
-#col-preview{display:flex;flex-direction:column;overflow:hidden;min-height:0;}
-@media(max-width:768px){#col-preview{grid-column:1;grid-row:1;height:100%;}#col-preview.hidden{display:none;}}
-#prev-tb{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--s1);border-bottom:1px solid var(--s3);}
-.tl-w{display:flex;align-items:center;gap:5px;}
-.tl{width:10px;height:10px;border-radius:50%;opacity:.75;}
-#prev-wrap{flex:1;position:relative;overflow:hidden;min-height:0;}
-#prev-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);text-align:center;padding:40px;background:var(--bg);z-index:1;}
-#prev-empty svg{opacity:.3;}
-#prev-iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:#fff;display:none;z-index:2;}
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            overscroll-behavior-y: none;
+        }
+        
+        html.dark body { background-color: #111827; }
 
-#rh{position:absolute;left:var(--col);top:0;bottom:0;width:8px;cursor:col-resize;z-index:20;background:transparent;transition:background .15s;}
-#rh:hover,#rh.drag{background:rgba(240,165,0,.2);}
-@media(max-width:768px){#rh{display:none;}}
+        h1, h2, h3, h4, .heading-font { font-family: 'Outfit', sans-serif; }
 
-/* ════════════ FOOTER ════════════ */
-#footer{
-  grid-row:3;grid-column:1;
-  background:var(--s1);border-top:1px solid var(--s3);
-  display:flex;align-items:center;
-  padding:0 10px 0 12px;gap:0;
-  min-height:var(--ftr);max-height:var(--ftr);
-  z-index:30;
-}
-@media(max-width:768px){#footer{grid-row:4;}}
+        @supports (-webkit-touch-callout: none) {
+            input, select, textarea { font-size: 16px !important; }
+        }
 
-.sec-tabs-wrap{display:flex;align-items:center;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-.sec-tabs-wrap::-webkit-scrollbar{display:none;}
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
-.sec-tab{display:inline-flex;align-items:center;gap:7px;height:var(--ftr);padding:0 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--dim);white-space:nowrap;cursor:pointer;border:none;background:transparent;border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
-.sec-tab:hover{color:var(--txt);}
-.sec-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:transform .2s;}
-.sec-tab.active .sdot{transform:scale(1.3);}
-.sclose{width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);opacity:.4;transition:opacity .12s,background .12s;}
-.sec-tab:hover .sclose{opacity:1;}
-.sclose:hover{background:rgba(248,113,113,.18);color:var(--danger);}
-.dpill{width:7px;height:7px;border-radius:50%;background:var(--info);flex-shrink:0;animation:blink 2s ease infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+        .view-hidden {
+            opacity: 0; pointer-events: none; position: absolute;
+            transform: translateX(10px); transition: opacity 0.25s ease, transform 0.25s ease;
+            width: 100%; height: 100%; visibility: hidden;
+        }
+        .view-active {
+            opacity: 1; pointer-events: auto; position: relative;
+            transform: translateX(0); transition: opacity 0.25s ease, transform 0.25s ease;
+            width: 100%; height: 100%; visibility: visible;
+        }
 
-#btn-ns{
-  flex-shrink:0;
-  width:36px;height:36px;margin-left:8px;
-  display:inline-flex;align-items:center;justify-content:center;
-  background:var(--accent);color:#0b0d12;border:none;border-radius:10px;cursor:pointer;
-  transition:transform .15s,box-shadow .15s;
-  box-shadow:0 2px 10px rgba(240,165,0,.3);
-  -webkit-tap-highlight-color:transparent;
-}
-#btn-ns:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(240,165,0,.5);}
-#btn-ns:active{transform:scale(.92);}
+        .toast-enter { transform: translateY(0) translateX(-50%); opacity: 1; }
+        .toast-leave { transform: translateY(100px) translateX(-50%); opacity: 0; pointer-events: none; }
 
-/* ════════════ MÓDULO CARD ════════════ */
-.mod-card{background:var(--s1);border:1px solid var(--s3);border-radius:var(--r);overflow:hidden;position:relative;flex-shrink:0;transition:border-color .2s,box-shadow .2s;animation:cin .25s ease both;box-shadow:0 4px 14px rgba(0,0,0,.18);}
-@keyframes cin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-.mod-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--mc,var(--accent));transition:width .15s;}
-.mod-card:focus-within{border-color:var(--mc,var(--accent));box-shadow:0 0 0 1.5px color-mix(in srgb,var(--mc,var(--accent)) 22%,transparent),0 6px 24px rgba(0,0,0,.35);}
-.mod-card:focus-within::before{width:5px;}
+        .adm-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Inter', sans-serif; font-size: 13px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+        .adm-table th, .adm-table td { border-bottom: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; }
+        .adm-table th { background-color: #f9fafb; font-weight: 700; color: #374151; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .adm-table tr:last-child td { border-bottom: none; }
+        .adm-table .sector-header { background-color: #3e2723; color: white; font-weight: 800; text-transform: uppercase; text-align: center; letter-spacing: 0.1em; font-family: 'Outfit', sans-serif; }
+        html.dark .adm-table { border-color: #374151; }
+        html.dark .adm-table th { background-color: #1f2937; color: #d1d5db; border-bottom-color: #374151; }
+        html.dark .adm-table td { border-bottom-color: #374151; color: #e5e7eb; }
+        html.dark .adm-table .sector-header { background-color: #111827; }
 
-.mod-head{display:flex;align-items:flex-start;justify-content:space-between;padding:13px 12px 13px 16px;background:var(--s2);border-bottom:1px solid var(--s3);gap:8px;user-select:none;}
-.mhl{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1;overflow:hidden;}
-.mh-top{display:flex;align-items:center;gap:8px;min-width:0;}
-.mcdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--mc);box-shadow:0 0 8px var(--mc);}
-.mname{font-size:14px;font-weight:800;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.mnum{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--s3);padding:2px 6px;border-radius:4px;flex-shrink:0;}
-.mdirty{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--info);background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);padding:2px 6px;border-radius:4px;flex-shrink:0;}
+        .quebra-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+        .quebra-table th, .quebra-table td { border-bottom: 1px solid #e5e7eb; padding: 12px 8px; text-align: center; }
+        .quebra-table th { font-weight: 700; text-transform: uppercase; color: #6b7280; font-size: 11px; letter-spacing: 0.05em; }
+        .quebra-table input { width: 100%; background: transparent; text-align: center; font-weight: 700; outline: none; border: 1px solid transparent; border-radius: 8px; padding: 8px 4px; transition: all .2s ease; }
+        .quebra-table input:focus { border-color: #b8865c; background: #fff; box-shadow: 0 0 0 2px rgba(184, 134, 92, 0.2); }
+        .quebra-table input:hover:not(:focus) { background: #f3f4f6; }
+        .highlight-yellow { color: #d97706 !important; font-weight: 900; }
+        html.dark .quebra-table th, html.dark .quebra-table td { border-bottom-color: #374151; }
+        html.dark .quebra-table th { color: #9ca3af; }
+        html.dark .quebra-table input:focus { background: #1f2937; }
+        html.dark .quebra-table input:hover:not(:focus) { background: #374151; }
+        html.dark .highlight-yellow { color: #fbbf24 !important; }
 
-.mh-analysis{display:flex;align-items:center;gap:6px;padding-left:17px;min-width:0;}
-.analysis-tag{display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0;text-transform:lowercase;}
-.analysis-desc{font-size:10.5px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        html.dark input[type="time"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.7); cursor: pointer; }
 
-.mact{display:flex;align-items:flex-start;gap:3px;flex-shrink:0;}
-.mbtn{display:inline-flex;align-items:center;gap:3px;height:28px;padding:0 9px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;border-radius:6px;border:1px solid var(--s3);cursor:pointer;background:transparent;color:var(--dim);white-space:nowrap;transition:background .12s,color .12s,border-color .12s;-webkit-tap-highlight-color:transparent;}
-.mbtn:active{transform:scale(.92);}
-.mbtn-reset:hover{background:rgba(96,165,250,.1);color:var(--info);border-color:rgba(96,165,250,.3);}
-.mbtn-del{padding:0 8px;}
-.mbtn-del:hover{background:rgba(248,113,113,.12);color:var(--danger);border-color:rgba(248,113,113,.3);}
-.cbtn{background:transparent;border:none;cursor:pointer;color:var(--dim);padding:2px 5px;font-size:15px;line-height:1;transition:color .12s,transform .2s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
-.cbtn:hover{color:var(--txt);}
-.mod-card.collapsed .cbtn{transform:rotate(-90deg);}
-.mod-card.collapsed .mod-body{display:none;}
-.mod-card.collapsed .mod-head{border-bottom:none;}
+        #save-indicator {
+            position: fixed; bottom: 84px; right: 20px; background: rgba(16,185,129,0.95);
+            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        #save-indicator.visible { opacity: 1; transform: translateY(0); }
 
-.mod-body{padding:13px 13px 11px 16px;}
-.mod-ta{font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.7;resize:vertical;min-height:140px;background:var(--bg);color:#b8c0dc;border:1px solid var(--s3);border-radius:8px;padding:12px 14px;width:100%;outline:none;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none;}
-@media(max-width:768px){.mod-ta{min-height:calc(100dvh * .18);font-size:12px;}}
-.mod-ta:focus{border-color:var(--mc,var(--accent));box-shadow:0 0 0 2.5px color-mix(in srgb,var(--mc,var(--accent)) 12%,transparent);}
-.mod-ta.dirty{border-color:rgba(96,165,250,.55);}
-.mod-ta.empty{border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.03);}
-.mod-hint{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+        /* Cloud sync indicator */
+        #cloud-indicator {
+            position: fixed; bottom: 84px; left: 20px; background: rgba(59,130,246,0.92);
+            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
+        }
+        #cloud-indicator.visible { opacity: 1; transform: translateY(0); }
 
-.btn{display:inline-flex;align-items:center;gap:5px;font-family:'Syne',sans-serif;font-weight:700;border:none;cursor:pointer;border-radius:8px;transition:transform .1s,opacity .15s,background .15s,box-shadow .15s;white-space:nowrap;line-height:1;-webkit-tap-highlight-color:transparent;}
-.btn:active{transform:scale(.93);}
-.btn-p{background:var(--accent);color:#0b0d12;padding:8px 15px;font-size:13px;box-shadow:0 2px 14px rgba(240,165,0,.28);}
-.btn-p:hover{opacity:.86;box-shadow:0 4px 22px rgba(240,165,0,.44);}
-.btn-g{background:var(--s2);color:var(--txt);border:1px solid var(--s3);padding:7px 13px;font-size:12px;}
-.btn-g:hover{background:var(--s4);}
-.btn-xs{padding:5px 10px;font-size:11px;border-radius:6px;}
-.tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:5px;border:1px solid var(--s3);background:var(--bg);color:var(--dim);}
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        html.dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-.empty-global{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:50px 28px;color:var(--txt);flex:1;height:100%;}
-.eg-icon-btn{width:80px;height:80px;border-radius:22px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#0b0d12;box-shadow:0 10px 36px rgba(240,165,0,.4);cursor:pointer;transition:transform .2s,box-shadow .2s;border:none;-webkit-tap-highlight-color:transparent;}
-.eg-icon-btn:hover{transform:scale(1.06);box-shadow:0 14px 44px rgba(240,165,0,.5);}
-.eg-icon-btn:active{transform:scale(.95);}
-.eg-title{font-size:22px;font-weight:800;color:var(--txt);}
-.eg-sub{font-size:13.5px;color:var(--dim);max-width:380px;line-height:1.55;}
+        @media print {
+            body { background: white !important; color: black !important; }
+            #user-sidebar, header, #action-bar, footer,
+            #view-menu, #view-submenu, #view-atividades, #view-productivity,
+            #view-horimetro, #view-percentage, #view-divisao-quebra,
+            #view-conv-mm, #view-conv-hz, #view-os, #view-requisicao, #view-op,
+            .print-hide { display: none !important; }
+            #modal-adm-email { display: block !important; position: static !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+            #modal-adm-email > div { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            .adm-table { border: 1px solid #000; width: 100%; }
+        }
+        
+        /* Dia pills ADM */
+        .dia-pill input:checked + span {
+            background-color: #7c3aed;
+            border-color: #7c3aed;
+            color: white;
+        }
+        html.dark .dia-pill input:checked + span {
+            background-color: #6d28d9;
+            border-color: #6d28d9;
+        }
+        /* Setor pills ADM */
+        .setor-pill input:checked + span {
+            background-color: #0f172a;
+            border-color: #0f172a;
+            color: white;
+        }
+        html.dark .setor-pill input:checked + span {
+            background-color: #e2e8f0;
+            border-color: #e2e8f0;
+            color: #0f172a;
+        }
+        /* Shift cards colaborador */
+        .shift-card { cursor: pointer; transition: all 0.2s ease; }
+        .shift-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); }
+        .shift-card.selected { border-color: #f59e0b !important; background-color: #fffbeb !important; }
+        html.dark .shift-card.selected { background-color: rgba(245,158,11,0.1) !important; }
 
-#toast{position:fixed;z-index:9999;bottom:calc(var(--ftr) + 14px);left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:11px 18px;font-size:12.5px;font-weight:700;color:var(--txt);opacity:0;white-space:nowrap;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 8px 36px rgba(0,0,0,.45);max-width:calc(100vw - 32px);overflow:hidden;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.tbar{position:absolute;bottom:0;left:0;height:2px;background:var(--accent);border-radius:0 0 10px 10px;animation:tshrink 3s linear forwards;}
-@keyframes tshrink{from{width:100%;}to{width:0;}}
+        /* ── Drag & Drop Submenu ── */
+        #submenu-grid { touch-action: none; }
+        .submenu-card {
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+        .submenu-card.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+            box-shadow: none !important;
+        }
+        .submenu-card.drag-over {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px #6366f1, 0 8px 24px -4px rgba(99,102,241,0.3) !important;
+        }
+        .submenu-card.long-press-active {
+            transform: scale(1.08) rotate(-1deg);
+            box-shadow: 0 12px 32px -4px rgba(0,0,0,0.25) !important;
+            z-index: 10;
+        }
+        #drag-hint {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: rgba(99,102,241,0.92); color: white; font-size: 11px; font-weight: 800;
+            letter-spacing: 0.06em; padding: 8px 20px; border-radius: 999px;
+            opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 60;
+            white-space: nowrap;
+        }
+        #drag-hint.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-#modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:9000;align-items:center;justify-content:center;padding:16px;}
-#modal-ov.open{display:flex;}
-#modal-box{background:var(--s1);border:1px solid var(--s4);border-radius:16px;padding:24px;width:100%;max-width:560px;max-height:90dvh;overflow-y:auto;box-shadow:0 28px 90px rgba(0,0,0,.65);animation:modal-in .2s ease;}
-@keyframes modal-in{from{opacity:0;transform:translateY(18px) scale(.96);}to{opacity:1;transform:none;}}
-.m-title{font-size:16px;font-weight:800;color:var(--txt);margin-bottom:20px;}
-.f-label{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;}
-.f-in{width:100%;background:var(--bg);color:var(--txt);border:1px solid var(--s4);border-radius:8px;padding:11px 13px;font-family:'Syne',sans-serif;font-size:13px;outline:none;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none;}
-.f-in:focus{border-color:var(--accent);box-shadow:0 0 0 2.5px rgba(240,165,0,.12);}
-.f-ta{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.65;resize:vertical;min-height:160px;}
-.f-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+        /* Ring de progresso long press */
+        .lp-ring {
+            position: absolute; inset: 0; border-radius: inherit;
+            pointer-events: none; overflow: hidden;
+        }
+        .lp-ring::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: conic-gradient(rgba(99,102,241,0.35) var(--lp, 0%), transparent 0%);
+            border-radius: inherit;
+        }
 
-#picker-list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;}
-.picker-item{display:flex;align-items:flex-start;gap:10px;background:var(--s2);border:1.5px solid var(--s3);border-radius:8px;padding:11px 12px;cursor:pointer;transition:border-color .15s,background .15s;}
-.picker-item:hover{background:var(--s3);}
-.picker-item.selected{border-color:var(--accent);background:rgba(240,165,0,.07);}
-.picker-item input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;margin-top:2px;cursor:pointer;}
-.pi-info{flex:1;min-width:0;}
-.pi-tag{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--dim);background:var(--bg);border:1px solid var(--s3);padding:1px 6px;border-radius:3px;margin-bottom:5px;display:inline-block;}
-.pi-desc{font-size:11px;color:var(--purple);margin-bottom:5px;font-weight:600;}
-.pi-name{width:100%;background:var(--bg);border:1px solid var(--s3);border-radius:5px;padding:6px 8px;font-size:12px;font-family:'Syne',sans-serif;color:var(--txt);outline:none;}
-.pi-name:focus{border-color:var(--accent);}
-
-#ns-detect{display:none;background:var(--s2);border:1px solid var(--s3);border-radius:8px;padding:12px 14px;}
-
-#pwa-banner{display:none;position:fixed;bottom:calc(var(--ftr)+12px);left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:420px;background:var(--s1);border:1px solid var(--s4);border-radius:16px;padding:16px 18px;z-index:8000;box-shadow:0 12px 50px rgba(0,0,0,.55),0 0 0 1px rgba(240,165,0,.1);animation:slideup .35s cubic-bezier(.34,1.56,.64,1) both;}
-@keyframes slideup{from{opacity:0;transform:translateX(-50%) translateY(24px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-#pwa-banner.visible{display:flex;align-items:center;gap:14px;}
-.pwa-icon{width:48px;height:48px;border-radius:12px;background:var(--accent);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.pwa-icon svg{width:28px;height:28px;}
-.pwa-txt{flex:1;min-width:0;}
-.pwa-txt strong{display:block;font-size:14px;font-weight:800;color:var(--txt);margin-bottom:2px;}
-.pwa-txt span{font-size:11px;color:var(--dim);}
-.pwa-btns{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
-#pwa-install{background:var(--accent);color:#0b0d12;border:none;border-radius:7px;padding:8px 13px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
-#pwa-dismiss{background:transparent;color:var(--dim);border:1px solid var(--s3);border-radius:7px;padding:6px 13px;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;cursor:pointer;}
-#pwa-dismiss:hover{color:var(--txt);}
-</style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        html.dark .glass-panel {
+            background: rgba(31, 41, 55, 0.9);
+        }
+    </style>
 </head>
-<body>
 
-<header id="hdr">
-  <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 40 40" fill="none">
-        <rect x="2" y="2" width="16" height="16" rx="3.5" fill="#0b0d12"/>
-        <rect x="22" y="2" width="16" height="16" rx="3.5" fill="#0b0d12" opacity=".55"/>
-        <rect x="2" y="22" width="16" height="16" rx="3.5" fill="#0b0d12" opacity=".55"/>
-        <rect x="22" y="22" width="16" height="16" rx="3.5" fill="#0b0d12" opacity=".28"/>
-        <path d="M7 11L10 8L13 11M7 15L10 18L13 15" stroke="white" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-    </div>
-    <span class="logo-name">HtmlBlox</span>
-    <span class="logo-tag">Análise Semântica</span>
-  </div>
-  <div id="hdr-r">
-    <span id="status-pill">Pronto</span>
-    <button class="btn btn-g btn-xs" onclick="copyAll()" title="Copiar HTML">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3a1 1 0 011-1h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <span class="hidden sm:inline">Copiar</span>
-    </button>
-    <button class="btn btn-g btn-xs" onclick="downloadHTML()" title="Baixar HTML">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="hidden sm:inline">Baixar</span>
-    </button>
-    <button class="btn btn-p" onclick="runPreview()" style="padding:8px 14px;font-size:12.5px;">
-      <svg width="11" height="11" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="currentColor"/></svg>
-      Executar
-    </button>
-  </div>
-</header>
+<body class="fixed inset-0 text-gray-800 dark:text-gray-100 flex flex-col items-center justify-center transition-colors duration-300">
 
-<div id="mob-tabs">
-  <button class="mob-tab active" id="mte" onclick="mobTab('edit')">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    Editar <span id="mob-cnt" style="font-size:10px;color:var(--dim);margin-left:2px;"></span>
-  </button>
-  <button class="mob-tab" id="mtp" onclick="mobTab('preview')">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 7l2 2-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Preview
-  </button>
-</div>
+    <datalist id="clientesList"></datalist>
+    <div id="drag-hint">🔀 Arraste para reordenar</div>
+    <div id="save-indicator" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Salvo</div>
+    <div id="cloud-indicator" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg> ☁️ Nuvem</div>
 
-<div id="workspace">
-  <div id="rh"></div>
-  <div id="col-edit">
-    <div id="edit-tb">
-      <div class="tb-l">
-        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);">Módulos</span>
-        <span id="mod-count" class="tag">0</span>
-        <span id="strat-badge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--purple);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);padding:2px 8px;border-radius:4px;"></span>
-      </div>
-      <div class="tb-r" id="edit-actions" style="display:none;">
-        <button class="btn btn-g btn-xs" onclick="openPickerModal()" title="Re-selecionar manualmente">🎯</button>
-        <button class="btn btn-g btn-xs" onclick="clearSection()">
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V3h4v1M5 4l1 9h4l1-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Limpar
-        </button>
-      </div>
-    </div>
-    <div id="modules-list"></div>
-  </div>
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/50 z-[90] backdrop-blur-sm opacity-0 transition-opacity duration-300 print-hide"></div>
 
-  <div id="col-preview">
-    <div id="prev-tb">
-      <div class="tl-w">
-        <div class="tl" style="background:#ff5f57;"></div>
-        <div class="tl" style="background:#febc2e;"></div>
-        <div class="tl" style="background:#28c840;"></div>
-        <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);">preview.html</span>
-      </div>
-      <span id="prev-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);">— não renderizado —</span>
-    </div>
-    <div id="prev-wrap">
-      <div id="prev-empty">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M9 9l3 3-3 3M13 15h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div>
-          <p style="font-size:14px;font-weight:700;color:var(--dim);margin-bottom:6px;">Nenhum preview</p>
-          <p style="font-size:12px;">Clique em <strong style="color:var(--accent);">Executar</strong> para renderizar</p>
+    <div id="app-container" class="w-full h-full bg-gray-50 dark:bg-gray-900 shadow-2xl overflow-hidden relative flex flex-col transition-all duration-300 max-w-[1920px] mx-auto">
+
+        <!-- SIDEBAR -->
+        <div id="user-sidebar" class="fixed top-0 right-0 h-full w-[85%] max-w-[320px] bg-white dark:bg-gray-800 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col border-l border-gray-100 dark:border-gray-700 print-hide">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
+                <span class="font-black text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 heading-font">Menu de Opções</span>
+                <button onclick="toggleSidebar()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-200 dark:bg-gray-700 p-2 rounded-full transition-colors active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="toggleTheme()" class="w-full text-left px-5 py-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl flex items-center gap-4 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-lg">🌗</div> 
+                    Alternar Tema
+                </button>
+                <button id="btn-install-sidebar" onclick="installPWA()" class="hidden w-full text-left px-5 py-4 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-2xl items-center gap-4 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-lg">📱</div>
+                    Instalar App
+                </button>
+                <div class="h-px bg-gray-100 dark:bg-gray-700 my-4 mx-2"></div>
+                
+                <button onclick="logout()" class="w-full text-left px-5 py-4 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl flex items-center gap-4 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-lg">🚪</div>
+                    Sair da Conta
+                </button>
+            </div>
+            <div class="p-4 text-center border-t border-gray-100 dark:border-gray-700">
+                 <p class="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Prumo OS v1.1 — Cloud</p>
+            </div>
         </div>
-      </div>
-      <iframe id="prev-iframe" title="Preview HTML"></iframe>
-    </div>
-  </div>
-</div>
 
-<footer id="footer">
-  <div class="sec-tabs-wrap" id="sec-tabs"></div>
-  <button id="btn-ns" onclick="openNewSectionModal()" title="Nova seção HTML">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-  </button>
-</footer>
+        <!-- HEADER -->
+        <header class="px-5 py-4 md:py-5 flex items-center justify-between glass-panel border-b border-gray-200 dark:border-gray-800 shadow-sm z-20 sticky top-0 shrink-0 print-hide">
+            <div class="w-10 flex items-center justify-start">
+                <button id="btn-voltar" onclick="goBack()" class="hidden p-2 -ml-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 rounded-full transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+            </div>
 
-<div id="toast"></div>
-
-<div id="modal-ov" onclick="closeModal(event)">
-  <div id="modal-box" onclick="event.stopPropagation()">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 class="m-title" id="modal-title" style="margin:0;"></h2>
-      <button onclick="closeModal()" style="background:none;border:none;color:var(--dim);font-size:24px;cursor:pointer;line-height:1;">&times;</button>
-    </div>
-    <div id="modal-body" style="display:flex;flex-direction:column;gap:16px;"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:22px;">
-      <button class="btn btn-g" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-p" id="modal-confirm" onclick="modalConfirm()">Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<div id="pwa-banner">
-  <div class="pwa-icon">
-    <svg viewBox="0 0 40 40" fill="none">
-      <rect x="2" y="2" width="16" height="16" rx="3.5" fill="#0b0d12"/>
-      <rect x="22" y="2" width="16" height="16" rx="3.5" fill="#0b0d12" opacity=".55"/>
-      <rect x="2" y="22" width="16" height="16" rx="3.5" fill="#0b0d12" opacity=".55"/>
-      <rect x="22" y="22" width="16" height="16" rx="3.5" fill="#0b0d12" opacity=".28"/>
-      <path d="M7 11L10 8L13 11M7 15L10 18L13 15" stroke="white" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    </svg>
-  </div>
-  <div class="pwa-txt"><strong>Instalar HtmlBlox</strong><span>App nativo Android / iPhone</span></div>
-  <div class="pwa-btns">
-    <button id="pwa-install">Instalar</button>
-    <button id="pwa-dismiss" onclick="dismissPWA()">Agora não</button>
-  </div>
-</div>
-
-<script>
-const PAL = ['#f0a500','#60a5fa','#34d399','#a78bfa','#f87171','#38bdf8','#fb923c','#a3e635'];
-const APP = { sections: new Map(), activeId: null, modalMode: null, mobView: 'edit', nextId: 1, _pickerPool: [], _pickerDoc: null, onConfirm: null, deferredPWA: null };
-
-/* PWA */
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); APP.deferredPWA = e; setTimeout(() => { if (!localStorage.getItem('pwa-dismissed')) document.getElementById('pwa-banner').classList.add('visible'); }, 1800); });
-document.getElementById('pwa-install').addEventListener('click', async () => { document.getElementById('pwa-banner').classList.remove('visible'); if (!APP.deferredPWA) return; APP.deferredPWA.prompt(); const { outcome } = await APP.deferredPWA.userChoice; if (outcome === 'accepted') showToast('🎉 HtmlBlox instalado!'); APP.deferredPWA = null; });
-function dismissPWA() { document.getElementById('pwa-banner').classList.remove('visible'); localStorage.setItem('pwa-dismissed','1'); }
-window.addEventListener('appinstalled', () => { document.getElementById('pwa-banner').classList.remove('visible'); });
-
-/* Persistência */
-function saveState() {
-  try {
-    const data = Array.from(APP.sections.entries()).map(([id, sec]) => ({
-      id, name: sec.name, color: sec.color, rawHTML: sec.rawHTML, strategy: sec.strategy, _manualIndices: sec._manualIndices,
-      modules: sec.modules.map(m => ({ nome: m.nome, kind: m.kind, desc: m.desc, originalHTML: m.originalHTML, currentHTML: m.currentHTML }))
-    }));
-    localStorage.setItem('htmlblox_v7', JSON.stringify({ activeId: APP.activeId, sections: data, nextId: APP.nextId }));
-  } catch(e) {}
-}
-let saveTimer; function debouncedSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 500); }
-function loadState() {
-  try {
-    const raw = localStorage.getItem('htmlblox_v7');
-    if (!raw) return false;
-    const state = JSON.parse(raw);
-    if (!state.sections?.length) return false;
-    APP.sections.clear();
-    state.sections.forEach(s => {
-      const res = parseHTML(s.rawHTML);
-      const merged = s.modules.map((sm, i) => {
-        const pm = res.modules[i] || {};
-        return { ...pm, ...sm, node: pm.node };
-      });
-      APP.sections.set(s.id, { id:s.id, name:s.name, color:s.color, rawHTML:s.rawHTML, parsedDoc:res.parsedDoc, strategy:s.strategy, _manualIndices: s._manualIndices, modules:merged });
-    });
-    APP.activeId = state.activeId || state.sections[0].id;
-    APP.nextId = state.nextId || 2;
-    return true;
-  } catch(e) { return false; }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadState(); renderAll(); initResize();
-  if (window.innerWidth <= 768) mobTab('edit');
-});
-
-/* ═══════════════════════════════════════════════════
-   PARSER SEMÂNTICO — segue exatamente os 4 passos:
-   1. Identifica container raiz (desce wrappers únicos)
-   2. Filtra ruído (script/style/meta + irrelevantes)
-   3. Classifica filhos diretos por papel semântico
-   4. Gera kind + name + desc para cada bloco
-═══════════════════════════════════════════════════ */
-function parseHTML(rawHTML) {
-  const p = new DOMParser();
-  const doc = p.parseFromString(rawHTML, 'text/html');
-
-  // PASSO 1: encontrar container raiz
-  let container = doc.body;
-  for (let depth = 0; depth < 3; depth++) {
-    const kids = visibleChildren(container);
-    if (kids.length === 1 && ['DIV','MAIN','SECTION','ARTICLE'].includes(kids[0].tagName)) {
-      const grand = visibleChildren(kids[0]);
-      if (grand.length >= 2) { container = kids[0]; continue; }
-    }
-    break;
-  }
-
-  // PASSO 2 + 3: filhos visíveis significativos
-  let nodes = visibleChildren(container).filter(isSignificant);
-  let strategy = 'Análise semântica';
-
-  const explicit = Array.from(doc.body.querySelectorAll('[data-modulo]'));
-  if (explicit.length) { nodes = explicit; strategy = 'Atributo data-modulo'; }
-  else if (!nodes.length) {
-    const all = visibleChildren(container);
-    nodes = all.length ? all : [doc.body];
-    strategy = 'Fallback (raiz)';
-  }
-
-  // PASSO 4: análise semântica de cada nó
-  const modules = nodes.map((n, i) => {
-    const a = analyzeNode(n, i);
-    return { nome: n.getAttribute('data-modulo') || a.name, kind: a.kind, desc: a.desc, node: n, originalHTML: n.outerHTML, currentHTML: n.outerHTML };
-  });
-
-  return { parsedDoc: doc, strategy, modules };
-}
-
-function visibleChildren(el) {
-  return Array.from(el.children).filter(n => !['SCRIPT','STYLE','LINK','META','NOSCRIPT','TEMPLATE'].includes(n.tagName));
-}
-
-function isSignificant(n) {
-  const text = n.textContent.trim();
-  if (['TABLE','FORM','IMG','SVG','VIDEO','IFRAME','CANVAS'].includes(n.tagName)) return true;
-  if (n.querySelector('table,form,img,svg,canvas,video,iframe')) return true;
-  if (text.length >= 25) return true;
-  if (/^H[1-6]$/.test(n.tagName)) return true;
-  return false;
-}
-
-function analyzeNode(node, i) {
-  const tag = node.tagName.toLowerCase();
-  const tbls = (tag === 'table' ? 1 : 0) + node.querySelectorAll('table').length;
-  const forms = (tag === 'form' ? 1 : 0) + node.querySelectorAll('form').length;
-  const inputs = node.querySelectorAll('input,select,textarea,button[type=submit]').length;
-  const imgs = node.querySelectorAll('img,svg,video,canvas,iframe').length;
-  const links = node.querySelectorAll('a').length;
-  const lis = node.querySelectorAll('li').length;
-  const headings = node.querySelectorAll('h1,h2,h3,h4,h5,h6');
-  const text = node.textContent.trim();
-  const txtLen = text.length;
-  const heading = headings[0]?.textContent.trim();
-
-  if (tag === 'header')
-    return { kind:'cabeçalho', name: heading || 'Cabeçalho', desc: `Cabeçalho${imgs?' com logo':''}${links>2?', navegação':''}${heading?' e título':''}.` };
-
-  if (headings.length >= 1 && headings[0].tagName === 'H1' && txtLen < 250)
-    return { kind:'cabeçalho', name: heading, desc: 'Título principal do documento.' };
-
-  if (tag === 'footer')
-    return { kind:'rodapé', name: heading || 'Rodapé', desc: `Rodapé${links?` com ${links} link(s)`:''}.` };
-
-  if (tag === 'nav')
-    return { kind:'navegação', name: heading || 'Navegação', desc: `Menu de navegação com ${links} link(s).` };
-
-  if (tag === 'table' || (tbls === 1 && node.querySelector('table') && (txtLen - node.querySelector('table').textContent.length) < 80)) {
-    const t = tag === 'table' ? node : node.querySelector('table');
-    const caption = t.querySelector('caption')?.textContent.trim();
-    const firstRow = t.querySelector('tr');
-    const cols = firstRow ? firstRow.querySelectorAll('th,td').length : 0;
-    const rows = t.querySelectorAll('tbody tr').length || t.querySelectorAll('tr').length;
-    const name = caption || heading || t.querySelector('th')?.textContent.trim() || `Tabela ${i+1}`;
-    return { kind:'tabela', name: name.slice(0,45), desc: `Tabela${cols?` (${cols} colunas × ${rows} linhas)`:''}.` };
-  }
-
-  if (tag === 'form' || (inputs >= 2 && forms <= 1))
-    return { kind:'formulário', name: heading || `Formulário ${i+1}`, desc: `Formulário com ${inputs} campo(s).` };
-
-  if ((tag === 'ul' || tag === 'ol') || (lis >= 3 && txtLen < 600))
-    return { kind:'lista', name: heading || `Lista ${i+1}`, desc: `Lista com ${lis} item(ns).` };
-
-  if (imgs >= 1 && txtLen < 120)
-    return { kind:'mídia', name: heading || `Mídia ${i+1}`, desc: `Bloco visual com ${imgs} elemento(s) de mídia.` };
-
-  if (tag === 'article' || tag === 'section')
-    return { kind:'conteúdo', name: heading || `Seção ${i+1}`, desc: `${tag === 'article' ? 'Artigo' : 'Seção'} de conteúdo${heading?` "${heading.slice(0,30)}"`:''}.` };
-
-  if (txtLen > 200)
-    return { kind:'conteúdo', name: heading || text.slice(0,40), desc: `Bloco de texto com ${txtLen} caracteres.` };
-
-  if (tag === 'p')
-    return { kind:'conteúdo', name: text.slice(0,40) || `Parágrafo ${i+1}`, desc: 'Parágrafo de texto.' };
-
-  let name = heading || node.id?.replace(/[-_]/g,' ') || Array.from(node.classList||[]).find(c => c.length > 2 && !/^(col|row|flex|grid|container|wrapper|inner|outer)$/i.test(c))?.replace(/[-_]/g,' ') || `Bloco ${i+1}`;
-  return { kind:'genérico', name: name.slice(0,40), desc: `Contêiner${tbls?` com ${tbls} tabela(s)`:''}${forms?` com formulário`:''}${imgs?` com mídia`:''}.` };
-}
-
-function kindColor(kind) {
-  return { 'cabeçalho':'#f0a500','rodapé':'#6b7491','navegação':'#38bdf8','tabela':'#34d399','formulário':'#a78bfa','lista':'#fb923c','mídia':'#f87171','conteúdo':'#60a5fa','genérico':'#9499b0' }[kind] || '#f0a500';
-}
-
-function createSection(name, rawHTML, color) {
-  const id = 's' + (APP.nextId++);
-  const res = parseHTML(rawHTML);
-  return { id, name, color, rawHTML, parsedDoc: res.parsedDoc, modules: res.modules, strategy: res.strategy };
-}
-
-/* ══ BUILD FINAL ══ */
-function buildFinalHTML(sec) {
-  const p = new DOMParser();
-  const dc = p.parseFromString(sec.rawHTML, 'text/html');
-
-  let container = dc.body;
-  for (let depth = 0; depth < 3; depth++) {
-    const kids = visibleChildren(container);
-    if (kids.length === 1 && ['DIV','MAIN','SECTION','ARTICLE'].includes(kids[0].tagName)) {
-      const grand = visibleChildren(kids[0]);
-      if (grand.length >= 2) { container = kids[0]; continue; }
-    }
-    break;
-  }
-
-  let targetNodes;
-  if (sec.strategy === 'Atributo data-modulo') targetNodes = Array.from(dc.body.querySelectorAll('[data-modulo]'));
-  else if (sec.strategy === 'Seleção manual') {
-    const all = visibleChildren(container);
-    targetNodes = (sec._manualIndices || []).map(i => all[i]).filter(Boolean);
-  } else {
-    targetNodes = visibleChildren(container).filter(isSignificant);
-    if (!targetNodes.length) targetNodes = visibleChildren(container);
-    if (!targetNodes.length) targetNodes = [dc.body];
-  }
-
-  sec.modules.forEach((mod, i) => {
-    const target = targetNodes[i];
-    if (!target) return;
-    if (!mod.currentHTML.trim()) { target.remove(); return; }
-    const tpl = dc.createElement('template');
-    tpl.innerHTML = mod.currentHTML;
-    target.parentNode.insertBefore(tpl.content, target);
-    target.remove();
-  });
-
-  return '<!DOCTYPE html>\n' + dc.documentElement.outerHTML;
-}
-
-/* ══ RENDER ══ */
-function renderAll() { renderTabs(); renderModules(); }
-
-function renderTabs() {
-  const wrap = document.getElementById('sec-tabs');
-  wrap.innerHTML = '';
-  APP.sections.forEach(sec => {
-    const active = sec.id === APP.activeId;
-    const dirty = sec.modules.some(m => m.currentHTML !== m.originalHTML);
-    const tab = document.createElement('button');
-    tab.className = 'sec-tab' + (active ? ' active' : '');
-    tab.innerHTML = `<span class="sdot" style="background:${sec.color};"></span><span>${esc(sec.name)}</span>` + (dirty ? `<span class="dpill"></span>` : '') + `<span class="sclose" onclick="closeSection(event,'${sec.id}')">✕</span>`;
-    tab.onclick = e => { if (e.target.closest('.sclose')) return; switchSection(sec.id); };
-    wrap.appendChild(tab);
-  });
-}
-
-function renderModules() {
-  const list = document.getElementById('modules-list');
-  const count = document.getElementById('mod-count');
-  const mc = document.getElementById('mob-cnt');
-  const sb = document.getElementById('strat-badge');
-  const ea = document.getElementById('edit-actions');
-
-  if (APP.sections.size === 0) {
-    count.textContent = '0'; sb.style.display = 'none'; ea.style.display = 'none';
-    if (mc) mc.textContent = '';
-    list.innerHTML = `
-      <div class="empty-global">
-        <button class="eg-icon-btn" onclick="openNewSectionModal()" title="Adicionar HTML">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
-        <p class="eg-title">Bem-vindo ao HtmlBlox</p>
-        <p class="eg-sub">Cole seu HTML e o analisador semântico vai identificar cabeçalhos, tabelas, formulários, listas e conteúdos — dividindo tudo em blocos editáveis com classificação automática.</p>
-      </div>`;
-    clearPrev();
-    return;
-  }
-
-  const sec = APP.sections.get(APP.activeId);
-  if (!sec) return;
-  count.textContent = sec.modules.length;
-  if (mc) mc.textContent = sec.modules.length ? `(${sec.modules.length})` : '';
-  sb.style.display = 'inline-flex'; sb.textContent = '🧠 ' + sec.strategy;
-  ea.style.display = 'flex';
-
-  if (!sec.modules.length) {
-    list.innerHTML = `<div class="empty-global" style="padding:40px 20px;">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--dim)"><rect x="3" y="3" width="18" height="18" rx="3" stroke-width="1.2"/><path d="M8 8h8M8 12h5M8 16h3" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <p style="font-size:14px;font-weight:700;color:var(--dim);margin:8px 0;">Nenhum bloco detectado</p>
-      <p style="font-size:12px;color:var(--muted);">Use <strong>🎯</strong> para selecionar manualmente.</p>
-    </div>`;
-    return;
-  }
-
-  list.innerHTML = sec.modules.map((mod, i) => {
-    const c = kindColor(mod.kind);
-    const dirty = mod.currentHTML !== mod.originalHTML;
-    const empty = mod.currentHTML.trim() === '';
-    return `
-<div class="mod-card" id="mc-${sec.id}-${i}" style="--mc:${c};animation-delay:${Math.min(i*40,200)}ms;">
-  <div class="mod-head">
-    <div class="mhl">
-      <div class="mh-top">
-        <button class="cbtn" onclick="toggleCol('${sec.id}',${i})">▾</button>
-        <span class="mcdot"></span>
-        <span class="mname" title="${esc(mod.nome)}">${esc(mod.nome)}</span>
-        <span class="mnum">#${i+1}</span>
-        ${dirty?`<span class="mdirty">editado</span>`:''}
-      </div>
-      <div class="mh-analysis">
-        <span class="analysis-tag" style="color:${c};background:color-mix(in srgb,${c} 12%,transparent);border:1px solid color-mix(in srgb,${c} 28%,transparent);">${mod.kind}</span>
-        <span class="analysis-desc" title="${esc(mod.desc)}">${esc(mod.desc)}</span>
-      </div>
-    </div>
-    <div class="mact">
-      <button class="mbtn mbtn-reset" onclick="resetMod('${sec.id}',${i})" title="Restaurar original">
-        <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M3 8a5 5 0 1 0 1-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M3 3v3h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <button class="mbtn mbtn-del" onclick="removeMod('${sec.id}',${i})" title="Remover bloco">
-        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-  </div>
-  <div class="mod-body">
-    <textarea id="ta-${sec.id}-${i}" data-sec="${sec.id}" data-idx="${i}"
-      class="mod-ta${dirty?' dirty':''}${empty?' empty':''}"
-      spellcheck="false" autocorrect="off" autocapitalize="off"
-      oninput="onTa('${sec.id}',${i},this)" onkeydown="handleTab(event)"
-    >${esc(mod.currentHTML)}</textarea>
-    <p class="mod-hint">Edite este bloco — o restante do documento é preservado</p>
-  </div>
-</div>`;
-  }).join('');
-}
-
-function onTa(secId, idx, el) {
-  const sec = APP.sections.get(secId); if(!sec) return;
-  const mod = sec.modules[idx]; if(!mod) return;
-  mod.currentHTML = el.value;
-  const dirty = el.value !== mod.originalHTML;
-  const empty = el.value.trim() === '';
-  el.classList.toggle('dirty', dirty && !empty);
-  el.classList.toggle('empty', empty);
-  const card = document.getElementById(`mc-${secId}-${idx}`);
-  if (card) {
-    let badge = card.querySelector('.mdirty');
-    if (dirty && !badge) { badge = Object.assign(document.createElement('span'), {className:'mdirty', textContent:'editado'}); card.querySelector('.mh-top').appendChild(badge); }
-    else if (!dirty && badge) badge.remove();
-  }
-  renderTabs(); debouncedSave();
-}
-
-function handleTab(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const start = e.target.selectionStart, end = e.target.selectionEnd;
-    e.target.value = e.target.value.substring(0, start) + '  ' + e.target.value.substring(end);
-    e.target.selectionStart = e.target.selectionEnd = start + 2;
-    onTa(e.target.dataset.sec, parseInt(e.target.dataset.idx), e.target);
-  }
-}
-
-function toggleCol(secId, idx) { document.getElementById(`mc-${secId}-${idx}`)?.classList.toggle('collapsed'); }
-
-function mobTab(v) {
-  APP.mobView = v;
-  document.getElementById('col-edit').classList.toggle('hidden', v !== 'edit');
-  document.getElementById('col-preview').classList.toggle('hidden', v !== 'preview');
-  document.getElementById('mte').classList.toggle('active', v === 'edit');
-  document.getElementById('mtp').classList.toggle('active', v === 'preview');
-}
-
-function switchSection(id) { APP.activeId = id; renderAll(); clearPrev(); }
-
-function resetMod(secId, idx) {
-  const mod = APP.sections.get(secId)?.modules[idx]; if (!mod) return;
-  mod.currentHTML = mod.originalHTML;
-  renderAll(); saveState(); showToast(`↩ "${mod.nome}" restaurado`);
-}
-function removeMod(secId, idx) {
-  const sec = APP.sections.get(secId); if (!sec) return;
-  const nome = sec.modules[idx]?.nome;
-  sec.modules.splice(idx, 1);
-  renderAll(); saveState(); showToast(`✖ "${nome}" removido`);
-}
-function closeSection(ev, id) {
-  ev.stopPropagation();
-  const sec = APP.sections.get(id);
-  openConfirmModal(`Fechar "${sec.name}"?`, () => {
-    APP.sections.delete(id);
-    if (APP.activeId === id) APP.activeId = APP.sections.keys().next().value || null;
-    renderAll(); clearPrev(); saveState(); showToast(`✖ "${sec.name}" fechada`);
-  });
-}
-function clearSection() {
-  const sec = APP.sections.get(APP.activeId); if (!sec) return;
-  if (!sec.modules.length) { showToast('⚠ Seção já vazia'); return; }
-  openConfirmModal(`Limpar todos os ${sec.modules.length} blocos?`, () => {
-    sec.modules = []; renderAll(); saveState(); showToast('🧹 Seção limpa');
-  });
-}
-
-function openModal() { document.getElementById('modal-ov').classList.add('open'); document.body.style.overflow = 'hidden'; }
-function closeModal(ev) {
-  if (ev && ev.target !== document.getElementById('modal-ov')) return;
-  document.getElementById('modal-ov').classList.remove('open');
-  document.body.style.overflow = '';
-  APP.modalMode = null; APP.onConfirm = null;
-  const b = document.getElementById('modal-confirm');
-  b.style.background = ''; b.style.color = '';
-}
-
-function openConfirmModal(msg, cb) {
-  APP.modalMode = 'confirm'; APP.onConfirm = cb;
-  document.getElementById('modal-title').textContent = 'Confirmar';
-  document.getElementById('modal-body').innerHTML = `<p style="font-size:14px;color:var(--txt);text-align:center;padding:8px 0;">${msg}</p>`;
-  const b = document.getElementById('modal-confirm');
-  b.textContent = 'Sim, continuar';
-  b.style.background = 'var(--danger)'; b.style.color = '#fff';
-  openModal();
-}
-
-function openNewSectionModal() {
-  APP.modalMode = 'ns';
-  document.getElementById('modal-title').textContent = 'Nova Análise HTML';
-  document.getElementById('modal-body').innerHTML = `
-    <div><label class="f-label">Nome do projeto</label>
-    <input id="ns-n" class="f-in" placeholder="Ex: Boletim 20/05, Landing Page..."/></div>
-    <div>
-      <label class="f-label">Cole o HTML completo</label>
-      <textarea id="ns-h" class="f-in f-ta" rows="9" placeholder="O HtmlBlox vai analisar a estrutura e dividir em blocos semânticos automaticamente..." oninput="nsCount()"></textarea>
-    </div>
-    <div id="ns-detect"></div>`;
-  document.getElementById('modal-confirm').textContent = 'Analisar';
-  openModal(); setTimeout(() => document.getElementById('ns-n')?.focus(), 80);
-}
-
-function nsCount() {
-  const html = document.getElementById('ns-h')?.value.trim();
-  const det = document.getElementById('ns-detect');
-  if (!html || html.length < 20) { det.style.display = 'none'; return; }
-  try {
-    const res = parseHTML(html);
-    det.style.display = 'block';
-    det.innerHTML = `
-      <p style="font-size:12.5px;font-weight:800;color:var(--txt);margin-bottom:6px;">
-        <span style="color:${res.modules.length>0?'var(--ok)':'var(--danger)'};">${res.modules.length>0?'✅':'⚠️'}</span>
-        ${res.modules.length} bloco(s) detectado(s)
-      </p>
-      <p style="font-size:11px;color:var(--purple);margin-bottom:8px;font-weight:600;">🧠 ${res.strategy}</p>
-      <div style="font-size:11px;color:var(--dim);display:flex;flex-direction:column;gap:5px;">
-        ${res.modules.slice(0,5).map(m => {
-          const c = kindColor(m.kind);
-          return `<div style="display:flex;align-items:flex-start;gap:7px;">
-            <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:color-mix(in srgb,${c} 12%,transparent);color:${c};border:1px solid color-mix(in srgb,${c} 25%,transparent);flex-shrink:0;margin-top:1px;text-transform:lowercase;">${m.kind}</span>
-            <span><strong style="color:var(--txt);">${esc(m.nome)}</strong> — ${esc(m.desc)}</span>
-          </div>`;
-        }).join('')}
-        ${res.modules.length>5?`<div style="color:var(--muted);">... e mais ${res.modules.length-5} bloco(s)</div>`:''}
-      </div>`;
-  } catch(e) { det.style.display = 'none'; }
-}
-
-function openPickerModal() {
-  const sec = APP.sections.get(APP.activeId); if (!sec) return;
-  APP.modalMode = 'picker';
-  const p = new DOMParser();
-  const doc = p.parseFromString(sec.rawHTML, 'text/html');
-  let container = doc.body;
-  for (let depth = 0; depth < 3; depth++) {
-    const kids = visibleChildren(container);
-    if (kids.length === 1 && ['DIV','MAIN','SECTION','ARTICLE'].includes(kids[0].tagName)) {
-      const grand = visibleChildren(kids[0]);
-      if (grand.length >= 2) { container = kids[0]; continue; }
-    }
-    break;
-  }
-  const pool = visibleChildren(container);
-  APP._pickerPool = pool; APP._pickerDoc = doc;
-  document.getElementById('modal-title').textContent = '🎯 Re-selecionar Blocos';
-  document.getElementById('modal-body').innerHTML = `
-    <p style="font-size:12px;color:var(--dim);">${pool.length} elemento(s) disponíveis. Marque o que vira módulo.</p>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
-      <span id="pick-count" style="font-size:11px;color:var(--dim);">0 selecionados</span>
-      <div style="display:flex;gap:6px;">
-        <button class="btn btn-g btn-xs" onclick="pickerAll(true)">Todos</button>
-        <button class="btn btn-g btn-xs" onclick="pickerAll(false)">Nenhum</button>
-      </div>
-    </div>
-    <div id="picker-list">
-      ${pool.map((n, i) => {
-        const a = analyzeNode(n, i);
-        const c = kindColor(a.kind);
-        return `<label class="picker-item" id="pi-${i}" onclick="pickerToggle(${i})">
-          <input type="checkbox" id="pck-${i}" onchange="pickerCount()" onclick="event.stopPropagation()"/>
-          <div class="pi-info">
-            <span class="pi-tag">&lt;${n.tagName.toLowerCase()}&gt;</span>
-            <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:color-mix(in srgb,${c} 12%,transparent);color:${c};border:1px solid color-mix(in srgb,${c} 25%,transparent);margin-left:5px;text-transform:lowercase;">${a.kind}</span>
-            <div class="pi-desc">${esc(a.desc)}</div>
-            <input class="pi-name" type="text" id="pn-${i}" value="${esc(a.name)}" placeholder="Nome do módulo" onclick="event.stopPropagation()"/>
-          </div>
-        </label>`;
-      }).join('')}
-    </div>`;
-  document.getElementById('modal-confirm').textContent = 'Aplicar';
-  openModal(); pickerAll(true);
-}
-function pickerToggle(i) { const cb = document.getElementById(`pck-${i}`); cb.checked = !cb.checked; document.getElementById(`pi-${i}`).classList.toggle('selected', cb.checked); pickerCount(); }
-function pickerAll(s) { (APP._pickerPool||[]).forEach((_,i) => { const cb = document.getElementById(`pck-${i}`); if(cb){cb.checked=s; document.getElementById(`pi-${i}`)?.classList.toggle('selected',s);} }); pickerCount(); }
-function pickerCount() { const n = (APP._pickerPool||[]).filter((_,i) => document.getElementById(`pck-${i}`)?.checked).length; document.getElementById('pick-count').textContent = `${n} selecionado(s)`; }
-
-function modalConfirm() {
-  if (APP.modalMode === 'confirm') { if (APP.onConfirm) APP.onConfirm(); closeModal(); return; }
-
-  if (APP.modalMode === 'ns') {
-    const name = document.getElementById('ns-n')?.value.trim();
-    const html = document.getElementById('ns-h')?.value.trim();
-    if (!name) { showToast('⚠ Informe o nome'); return; }
-    if (!html) { showToast('⚠ Cole o HTML'); return; }
-    const color = PAL[APP.sections.size % PAL.length];
-    const sec = createSection(name, html, color);
-    APP.sections.set(sec.id, sec); APP.activeId = sec.id;
-    closeModal(); renderAll(); saveState();
-    if (sec.modules.length > 0) { setTimeout(() => runPreview(), 150); showToast(`✅ ${sec.modules.length} bloco(s) · ${sec.strategy}`); }
-    else showToast('⚠ Nenhum bloco detectado — use 🎯');
-
-  } else if (APP.modalMode === 'picker') {
-    const sec = APP.sections.get(APP.activeId); if (!sec) return;
-    const pool = APP._pickerPool || [];
-    const sel = pool.map((_,i) => document.getElementById(`pck-${i}`)?.checked ? i : -1).filter(i => i >= 0);
-    if (!sel.length) { showToast('⚠ Selecione ao menos 1 bloco'); return; }
-    const names = sel.map(i => document.getElementById(`pn-${i}`)?.value.trim() || `Bloco ${i+1}`);
-    const chosen = sel.map(i => pool[i]);
-    sec.strategy = 'Seleção manual';
-    sec._manualIndices = sel;
-    sec.modules = chosen.map((n, i) => {
-      const a = analyzeNode(n, i);
-      return { nome: names[i], kind: a.kind, desc: a.desc, node: n, originalHTML: n.outerHTML, currentHTML: n.outerHTML };
-    });
-    closeModal(); renderAll(); saveState();
-    setTimeout(() => runPreview(), 150);
-    showToast(`✅ ${sec.modules.length} bloco(s) selecionado(s)`);
-  }
-}
-
-function runPreview() {
-  const sec = APP.sections.get(APP.activeId); if (!sec) { showToast('⚠ Nenhuma seção'); return; }
-  try {
-    const html = buildFinalHTML(sec);
-    const iframe = document.getElementById('prev-iframe');
-    iframe.srcdoc = html; iframe.style.display = 'block';
-    document.getElementById('prev-empty').style.display = 'none';
-    const now = new Date().toLocaleTimeString('pt-BR');
-    document.getElementById('prev-status').textContent = `Renderizado às ${now}`;
-    setStatus(`Preview · ${now}`);
-    renderTabs(); showToast('✅ Preview renderizado!');
-    if (window.innerWidth <= 768) mobTab('preview');
-  } catch(e) { showToast('❌ Erro ao montar HTML'); console.error(e); }
-}
-async function copyAll() {
-  const sec = APP.sections.get(APP.activeId); if (!sec) return;
-  try { await navigator.clipboard.writeText(buildFinalHTML(sec)); showToast('📋 HTML copiado!'); }
-  catch { fallbackCopy(buildFinalHTML(sec)); showToast('📋 HTML copiado!'); }
-}
-function downloadHTML() {
-  const sec = APP.sections.get(APP.activeId); if (!sec) return;
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([buildFinalHTML(sec)], {type:'text/html;charset=utf-8'})), download: `${sec.name.replace(/\W+/g,'_')}.html` });
-  document.body.appendChild(a); a.click(); a.remove();
-  showToast('💾 Download iniciado');
-}
-function clearPrev() {
-  document.getElementById('prev-iframe').style.display = 'none';
-  document.getElementById('prev-empty').style.display = 'flex';
-  document.getElementById('prev-status').textContent = '— não renderizado —';
-}
-
-function initResize() {
-  const rh = document.getElementById('rh'); if (!rh) return;
-  let drag = false, sx = 0, sw = 0;
-  rh.addEventListener('mousedown', e => { drag = true; sx = e.clientX; sw = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--col')); rh.classList.add('drag'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; e.preventDefault(); });
-  document.addEventListener('mousemove', e => { if (!drag) return; const nw = Math.min(Math.max(sw + e.clientX - sx, 240), window.innerWidth * .65); document.documentElement.style.setProperty('--col', nw + 'px'); rh.style.left = nw + 'px'; });
-  document.addEventListener('mouseup', () => { if (!drag) return; drag = false; rh.classList.remove('drag'); document.body.style.cursor = ''; document.body.style.userSelect = ''; });
-}
-function setStatus(m) { const el = document.getElementById('status-pill'); if (el) el.textContent = m; }
-let toastT = null;
-function showToast(msg) { const t = document.getElementById('toast'); clearTimeout(toastT); t.innerHTML = msg + '<span class="tbar"></span>'; t.classList.add('show'); toastT = setTimeout(() => t.classList.remove('show'), 3000); }
-function fallbackCopy(txt) { const ta = Object.assign(document.createElement('textarea'), { value: txt }); ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runPreview(); }
-  if (e.key === 'Escape') { const ov = document.getElementById('modal-ov'); if (ov.classList.contains('open')) closeModal(); }
-});
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 768) {
-    document.getElementById('col-edit').classList.remove('hidden');
-    document.getElementById('col-preview').classList.remove('hidden');
-  } else { mobTab(APP.mobView); }
-});
-</script>
-</body>
-</html>
+            <button onclick="voltarParaHome()" class="flex flex-col items-center justify-center group hover:opacity-80 active:scale-95 transition-all">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl md:text-2xl group-hover:rotate-12 transition-transform duration-300">☕</span>
+                    <h1 id="header-title" class="text-lg md:text-xl font-black uppercase tracking-[0.15em] text-gray-900 dark:t
