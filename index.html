@@ -950,39 +950,19 @@
                 <div class="w-full max-w-3xl mx-auto flex flex-col pb-4">
                     
                     <div id="adm-panel" class="hidden flex-col gap-6">
-                        <div id="date-picker-container" class="hidden w-full bg-white dark:bg-gray-800 rounded-2xl shadow-soft border border-gray-200 dark:border-gray-700 p-5 items-center justify-between transition-colors">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-bold text-gray-900 dark:text-white heading-font">Data da Operação</h3>
-                                    <p class="text-xs text-gray-500">Visualizar registros passados</p>
-                                </div>
-                            </div>
-                            <input type="date" id="date-picker" onchange="changeWorkingDate()" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-semibold text-sm rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                        </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button onclick="gerarResumoGeral()" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-800 dark:text-gray-100 font-bold py-5 px-6 rounded-2xl transition-all shadow-soft flex items-center gap-4 group">
-                                <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📄</div>
-                                <div class="text-left">
-                                    <div class="text-sm uppercase tracking-wider heading-font">Resumo Geral</div>
-                                    <div class="text-xs text-gray-500 font-normal">Consolidado do dia</div>
-                                </div>
-                            </button>
                             <button onclick="abrirModalAtvAdm()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
                                 <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📋</div>
                                 <div class="text-left">
-                                    <div class="text-sm uppercase tracking-wider heading-font">Registros de Ativ.</div>
+                                    <div class="text-sm uppercase tracking-wider heading-font">Registro de Atividades</div>
                                     <div class="text-xs text-blue-100 font-normal">Consultar e editar</div>
                                 </div>
                             </button>
-                            <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                            <button onclick="gerarResumoGeral()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
                                 <div class="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📊</div>
                                 <div class="text-left">
-                                    <div class="text-sm uppercase tracking-wider heading-font">Exportar Planilha</div>
-                                    <div class="text-xs text-emerald-100 font-normal">Formato CSV</div>
+                                    <div class="text-sm uppercase tracking-wider heading-font">Relatórios</div>
+                                    <div class="text-xs text-emerald-100 font-normal">PDF • XLSX</div>
                                 </div>
                             </button>
                         </div>
@@ -1464,19 +1444,32 @@
                                 Adicionar Guia / Período
                             </button>
 
-                            <div id="container-justificativa" class="hidden mt-8 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/50 rounded-3xl p-6 transition-all shadow-soft">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/50 flex items-center justify-center text-red-600 dark:text-red-400">
-                                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <div id="container-justificativa" class="hidden mt-6">
+                                <button onclick="toggleJustificativaBox()" class="w-full flex items-center justify-between bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/50 rounded-2xl px-5 py-4 text-left active:scale-[0.98] transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/50 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        </div>
+                                        <span class="text-sm font-bold text-red-800 dark:text-red-400 uppercase tracking-widest heading-font">Meta não atingida. Justifique:</span>
                                     </div>
-                                    <label class="text-sm font-bold text-red-800 dark:text-red-400 uppercase tracking-widest heading-font">Meta não atingida. Justifique:</label>
+                                    <span id="just-expand-icon" class="text-red-400 font-black text-2xl leading-none select-none">+</span>
+                                </button>
+                                <div id="just-expand-content" class="hidden mt-2 px-1">
+                                    <textarea id="justificativa-meta" maxlength="200" oninput="debouncedSave()" rows="3" class="w-full bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800/50 rounded-xl p-4 outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400 resize-none" placeholder="Descreva os motivos da quebra de produtividade..."></textarea>
                                 </div>
-                                <textarea id="justificativa-meta" maxlength="200" oninput="debouncedSave()" rows="3" class="w-full bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800/50 rounded-xl p-4 outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400 resize-none" placeholder="Descreva os motivos da quebra de produtividade..."></textarea>
                             </div>
 
                             <div id="container-meta-sucesso" class="hidden mt-8 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-900/50 rounded-3xl p-6 transition-all shadow-soft flex items-center justify-center gap-4">
                                 <div class="w-12 h-12 rounded-full bg-emerald-200 dark:bg-emerald-800/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl">🏆</div>
                                 <span class="text-emerald-800 dark:text-emerald-400 font-black text-sm md:text-base uppercase tracking-[0.2em] heading-font">Meta Atingida! Bom trabalho!</span>
+                            </div>
+
+                            <!-- Histórico de Produção do Turno -->
+                            <div id="historico-producao-section" class="hidden mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Histórico de Produção</h3>
+                                </div>
+                                <div id="historico-producao-lista" class="space-y-3"></div>
                             </div>
                         </div>
                     </div>
@@ -1736,6 +1729,20 @@
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
+            <div id="modal-filtro-periodo-adm" class="hidden shrink-0 mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Filtrar Período</p>
+                <div class="flex gap-2 items-end">
+                    <div class="flex-1">
+                        <label class="text-[10px] text-gray-400 font-medium mb-1 block">De</label>
+                        <input type="date" id="filtro-periodo-de" onchange="aplicarFiltroPeriodoAdm()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-xs font-semibold rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <span class="text-gray-400 text-sm pb-2">→</span>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-gray-400 font-medium mb-1 block">Até</label>
+                        <input type="date" id="filtro-periodo-ate" onchange="aplicarFiltroPeriodoAdm()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-xs font-semibold rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
             <div id="modal-op-lista" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
         </div>
     </div>
@@ -1762,6 +1769,29 @@
                         Compartilhar
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALHE DE PRODUÇÃO -->
+    <div id="modal-prod-detalhe" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-prod-detalhe-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                <div>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Produção do Dia</h3>
+                    <p id="modal-prod-subtitle" class="text-xs text-gray-400 mt-0.5"></p>
+                </div>
+                <button onclick="fecharModalProdDetalhe()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="modal-prod-body" class="flex-1 overflow-y-auto space-y-3 p-6"></div>
+            <div class="px-6 pb-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex gap-3 shrink-0">
+                <button id="btn-prod-editar" onclick="editarProducao()" class="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-colors active:scale-95">✏️ Editar</button>
+                <button onclick="compartilharProdDetalhe()" class="flex-1 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                    Compartilhar
+                </button>
             </div>
         </div>
     </div>
@@ -1897,18 +1927,34 @@
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 w-full max-w-6xl shadow-2xl max-h-[95vh] flex flex-col border border-gray-200 dark:border-gray-700">
             <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4 mb-6 shrink-0 print-hide">
                 <div>
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Resumo Consolidado</h3>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Relatórios</h3>
                     <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase" id="adm-modal-date-label"></p>
                 </div>
                 <button onclick="fecharModalAdm()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95 transition-all">
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
+            <!-- Filtro de Período -->
+            <div class="shrink-0 mb-4 pb-4 border-b border-gray-100 dark:border-gray-700 print-hide">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Período do Relatório</p>
+                <div class="flex gap-3 items-end">
+                    <div class="flex-1">
+                        <label class="text-[10px] text-gray-400 font-medium mb-1 block">De</label>
+                        <input type="date" id="relatorio-de" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-xs font-semibold rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <span class="text-gray-400 text-sm pb-2">→</span>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-gray-400 font-medium mb-1 block">Até</label>
+                        <input type="date" id="relatorio-ate" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-xs font-semibold rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <button onclick="renderRelatorio()" class="shrink-0 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs uppercase tracking-wider active:scale-95 transition-all">Gerar</button>
+                </div>
+            </div>
             <div class="flex-1 overflow-auto rounded-xl p-1 bg-gray-50 dark:bg-gray-900/50 print:border-none print:overflow-visible custom-scrollbar" id="container-tabela-adm"></div>
             <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-3 shrink-0 print-hide">
-                <button onclick="copiarTabelaAdm()" class="flex-1 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl active:scale-[0.98] shadow-md text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                    Copiar P/ E-mail
+                <button onclick="exportarXLSX()" class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl active:scale-[0.98] shadow-md text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Exportar XLSX
                 </button>
                 <button onclick="window.print()" class="flex-1 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl active:scale-[0.98] shadow-md text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors">
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -1928,39 +1974,34 @@
     // Campos por setor
     var OP_CAMPOS = {
         'Recebimento': [
-            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
-            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
-            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
-            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
-            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 320', icon: '⚖️' }
+            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
+            { id: 'op-ref',       label: 'Lote | Guia | Contrato', type: 'text',   placeholder: 'Ex: 001', icon: '📋' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 320', icon: '⚖️' }
         ],
         'Rebenefício': [
-            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
-            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
-            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
-            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
-            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 500', icon: '⚖️' }
+            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
+            { id: 'op-ref',       label: 'Lote | Guia | Contrato', type: 'text',   placeholder: 'Ex: 001', icon: '📋' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 500', icon: '⚖️' }
         ],
         'TESTE': [
-            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
-            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
-            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
-            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
-            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 500', icon: '⚖️' }
+            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
+            { id: 'op-ref',       label: 'Lote | Guia | Contrato', type: 'text',   placeholder: 'Ex: 001', icon: '📋' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 500', icon: '⚖️' }
         ],
         'Expedição': [
-            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
-            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
-            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
-            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
-            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 200', icon: '⚖️' }
+            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
+            { id: 'op-ref',       label: 'Lote | Guia | Contrato', type: 'text',   placeholder: 'Ex: 001', icon: '📋' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 200', icon: '⚖️' }
         ],
         'Embalagem': [
-            { id: 'op-atividade', label: 'Atividade',           type: 'select',    icon: '🔖' },
-            { id: 'op-tipo-ref',  label: 'Tipo de Referência',  type: 'select-ref',icon: '📋' },
-            { id: 'op-ref',       label: 'Número',              type: 'text',      placeholder: 'Ex: 001', icon: '📄' },
-            { id: 'op-cliente',   label: 'Cliente / Fazenda',   type: 'text',      placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
-            { id: 'op-sacas',     label: 'Quantidade de Sacas', type: 'number',    placeholder: 'Ex: 150', icon: '⚖️' }
+            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
+            { id: 'op-ref',       label: 'Lote | Guia | Contrato', type: 'text',   placeholder: 'Ex: 001', icon: '📋' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 150', icon: '⚖️' }
         ]
     };
 
@@ -1977,33 +2018,22 @@
         var atividadesSetor = ACTIVITIES_MAP[clean] || [];
         var html = '';
 
-        // Renderizar Tipo de Referência + Número lado a lado em grid
-        var tipoRef = campos.find(function(c){ return c.id === 'op-tipo-ref'; });
-        var numRef  = campos.find(function(c){ return c.id === 'op-ref'; });
-        var restante = campos.filter(function(c){ return c.id !== 'op-tipo-ref' && c.id !== 'op-ref'; });
-
-        if (tipoRef && numRef) {
-            html += '<div class="grid grid-cols-2 gap-3">' +
-                // Select tipo
-                '<div>' +
-                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + tipoRef.icon + ' Tipo</label>' +
-                    '<select id="op-tipo-ref" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer">' +
-                        '<option value="Lote">📋 Lote</option>' +
-                        '<option value="Guia">📄 Guia</option>' +
-                        '<option value="Contrato">📃 Contrato</option>' +
-                    '</select>' +
-                '</div>' +
-                // Input número
-                '<div>' +
-                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + numRef.icon + ' Número</label>' +
-                    '<input type="text" id="op-ref" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all" placeholder="Ex: 001">' +
-                '</div>' +
+        // Renderizar Atividade primeiro
+        var atvCampo = campos.find(function(c){ return c.id === 'op-atividade'; });
+        if (atvCampo) {
+            var optsAtv = '<option value="" disabled selected>Selecione a atividade...</option>' +
+                atividadesSetor.map(function(a){ return '<option value="'+escapeHTML(a)+'">'+escapeHTML(a)+'</option>'; }).join('');
+            html += '<div>' +
+                '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + atvCampo.icon + ' ' + atvCampo.label + '</label>' +
+                '<select id="op-atividade" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer">' +
+                optsAtv + '</select>' +
             '</div>';
         }
 
-        restante.forEach(function(c) {
+        // Renderizar demais campos (exceto op-atividade já renderizado)
+        campos.filter(function(c){ return c.id !== 'op-atividade'; }).forEach(function(c) {
             if (c.type === 'select') {
-                var opts = '<option value="" disabled selected>Selecione a atividade...</option>' +
+                var opts = '<option value="" disabled selected>Selecione...</option>' +
                     atividadesSetor.map(function(a) {
                         return '<option value="' + escapeHTML(a) + '">' + escapeHTML(a) + '</option>';
                     }).join('');
@@ -2020,20 +2050,7 @@
             }
         });
 
-        // Renderizar atividade PRIMEIRO (antes do grid de ref)
-        var atvCampo = campos.find(function(c){ return c.id === 'op-atividade'; });
-        if (atvCampo) {
-            var optsAtv = '<option value="" disabled selected>Selecione a atividade...</option>' +
-                atividadesSetor.map(function(a){ return '<option value="'+escapeHTML(a)+'">'+escapeHTML(a)+'</option>'; }).join('');
-            container.innerHTML =
-                '<div>' +
-                    '<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">' + atvCampo.icon + ' ' + atvCampo.label + '</label>' +
-                    '<select id="op-atividade" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer">' +
-                    optsAtv + '</select>' +
-                '</div>' + html;
-        } else {
-            container.innerHTML = html;
-        }
+        container.innerHTML = html;
 
         var lbl = document.getElementById('op-data-label');
         if (lbl) lbl.textContent = workingDate;
@@ -2059,33 +2076,17 @@
 
         var op = { id: Date.now(), hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) };
 
-        // Validar e ler campos normais
+        // Validar e ler todos os campos
         var valido = true;
         campos.forEach(function(c) {
-            if (c.id === 'op-tipo-ref' || c.id === 'op-ref') return; // tratados separado
             var el = document.getElementById(c.id);
             if (!el) { valido = false; return; }
             var val = el.value ? el.value.trim() : '';
             if (!val) { valido = false; return; }
             op[c.id] = val;
         });
-
-        // Ler tipo de referência + número e montar referência composta
-        var tipoEl = document.getElementById('op-tipo-ref');
-        var numEl  = document.getElementById('op-ref');
-        if (tipoEl && numEl) {
-            var tipo = tipoEl.value || 'Guia';
-            var num  = numEl.value ? numEl.value.trim() : '';
-            if (!num) { valido = false; }
-            else {
-                op['op-tipo-ref'] = tipo;
-                op['op-ref']      = num;
-                // Compatibilidade: preencher op-lote ou op-guia conforme tipo
-                if (tipo === 'Lote')     op['op-lote'] = num;
-                else if (tipo === 'Contrato') op['op-guia'] = 'CT-' + num;
-                else                     op['op-guia'] = num;
-            }
-        }
+        // Compatibilidade: preencher op-lote para exibição nos cards
+        if (op['op-ref']) op['op-lote'] = op['op-ref'];
 
         if (!valido) return mostrarToast('Preencha todos os campos, incluindo atividade e referência.', true);
 
@@ -2099,8 +2100,6 @@
             if (el.tagName === 'SELECT') el.selectedIndex = 0;
             else el.value = '';
         });
-        var numEl2 = document.getElementById('op-ref');
-        if (numEl2) numEl2.value = '';
 
         renderListaOPs();
         mostrarToast('OP registrada com sucesso!');
@@ -2134,12 +2133,7 @@
             return;
         }
         var clean = limparEmoji(currentSector);
-        // Rótulo dinâmico baseado no tipo cadastrado
-        var _getLabelRef = function(op) {
-            var tipo = op['op-tipo-ref'] || (clean.includes('Recebimento') ? 'Lote' : 'Guia');
-            return tipo;
-        };
-        var labelRef = clean.includes('Recebimento') ? 'Lote' : 'Guia'; // fallback
+        var _getLabelRef = function(op) { return 'Ref.'; };
 
         var STATUS_CONFIG = {
             'aguardando': { icon: '📋', label: 'Aguardando',   border: 'border-gray-200 dark:border-gray-700',         num: 'bg-gray-100 dark:bg-gray-700 text-gray-500' },
@@ -2148,7 +2142,7 @@
         };
 
         container.innerHTML = ops.map(function(op, i) {
-            var refVal    = op['op-lote'] || op['op-guia'] || '-';
+            var refVal    = op['op-ref'] || op['op-lote'] || op['op-guia'] || '-';
             var sacas     = op['op-sacas'] || '-';
             var atividade = op['op-atividade'] || '';
             var status    = op.status || 'aguardando';
@@ -2195,9 +2189,7 @@
             var ref       = op['op-ref'] || op['op-lote'] || op['op-guia'] || '';
             var sacas     = op['op-sacas'] || '';
             var atividade = op['op-atividade'] || '';
-            var tipo      = op['op-tipo-ref'] || (clean.includes('Recebimento') ? 'Lote' : 'Guia');
-            var labelRef  = tipo + ' ' + ref;
-            return { id: op.id, label: labelRef, ref: ref, sacas: sacas, atividade: atividade, tipo: tipo };
+            return { id: op.id, label: ref, ref: ref, sacas: sacas, atividade: atividade };
         });
     }
 
@@ -2270,8 +2262,9 @@
             container.innerHTML = '<div class="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl"><p class="text-sm text-gray-400">Nenhuma atividade salva ainda.</p></div>';
             return;
         }
-        container.innerHTML = regs.map(function(r, i) {
-            var sacasStr   = r.sacas ? r.sacas + ' sc' : '';
+        container.innerHTML = regs.slice().reverse().map(function(r, i) {
+            var sacasNum   = parseInt(String(r.sacas||'0').replace(/\D/g,''))||0;
+            var sacasStr   = sacasNum>0 ? String(sacasNum).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' sc' : '';
             var projecaoStr = r.projecao ? '⏰ ' + r.projecao : '';
             var ajudaStr   = r.ajuda === 'Sim' ? '🤝 +' + (r.ajudaQtd||'?') + ' ajudantes' : '';
             var editBadge  = r.editado ? '<span class="text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-bold px-1.5 py-0.5 rounded">editado</span>' : '';
@@ -2314,7 +2307,7 @@
         var ajudaStr = r.ajuda === 'Sim' ? 'Sim — ' + (r.ajudaQtd||'?') + ' ajudante(s)' : 'Não';
         body.innerHTML =
             _atvDetalheField('📋 Atividade(s)', r.servico) +
-            (r.sacas    ? _atvDetalheField('⚖️ Volume', r.sacas + ' sacas') : '') +
+            (r.sacas    ? _atvDetalheField('⚖️ Volume', String(parseInt(String(r.sacas).replace(/\D/g,''))||0).replace(/\B(?=(\d{3})+(?!\d))/g,'.') + ' sacas') : '') +
             (r.projecao ? _atvDetalheField('⏰ Projeção de Entrega', r.projecao) : '') +
             _atvDetalheField('🤝 Apoio', ajudaStr);
 
@@ -2421,11 +2414,13 @@
         if (!r) return fecharModalAtvDetalhe();
         var cleanSetor = limparEmoji(currentSector);
         var ajudaStr = r.ajuda === 'Sim' ? 'Sim — ' + (r.ajudaQtd||'?') + ' ajudante(s)' : 'Não';
+        var sacasFormatado = r.sacas ? String(parseInt(String(r.sacas).replace(/\D/g,''))||0).replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '';
         var nl = '\n';
         var texto = '📋 *INFORME DE PLANEJAMENTO*' + nl + nl +
-            '📅 ' + r.data + nl + '👤 ' + r.operador + nl + '🏢 Setor: ' + cleanSetor +
-            nl + nl + '*Serviços do Dia:*' + nl + r.servico +
-            (r.sacas    ? nl + nl + '📦 *Volume Previsto:* ' + r.sacas + ' sc' : '') +
+            '📅 ' + r.data + ' 👤 ' + r.operador + nl +
+            '🏢 Setor: ' + cleanSetor + nl + nl +
+            '*Serviços do Dia:*' + nl + nl + r.servico +
+            (sacasFormatado ? nl + nl + '📦 *Volume Previsto:* ' + sacasFormatado + ' sc' : '') +
             (r.projecao ? nl + '⏰ *Conclusão Estimada:* ' + r.projecao : '') +
             nl + '🤝 *Apoio Extra:* ' + ajudaStr;
         fecharModalAtvDetalhe();
@@ -2434,20 +2429,56 @@
 
     // ── Painel ADM: acesso a registros de todos os setores
     function abrirModalAtvAdm() {
-        // Coletamos todos os registros do dia de todos os setores
-        var todos = [];
+        var filtroDiv = document.getElementById('modal-filtro-periodo-adm');
+        if (filtroDiv) {
+            filtroDiv.classList.remove('hidden');
+            var partes = workingDate.split('/');
+            var isoDate = partes[2] + '-' + partes[1] + '-' + partes[0];
+            var deEl = document.getElementById('filtro-periodo-de');
+            var ateEl = document.getElementById('filtro-periodo-ate');
+            if (deEl && !deEl.value) deEl.value = isoDate;
+            if (ateEl && !ateEl.value) ateEl.value = isoDate;
+        }
+        _renderListaRegistrosAdm();
+        var modal = document.getElementById('modal-op-seletor');
+        var mc    = document.getElementById('modal-op-seletor-content');
+        var title = mc.querySelector('h3');
+        if (title) title.textContent = 'Registros de Atividades';
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); mc.classList.remove('translate-y-full'); }, 10);
+    }
+
+    function aplicarFiltroPeriodoAdm() { _renderListaRegistrosAdm(); }
+
+    function _renderListaRegistrosAdm() {
+        var deEl = document.getElementById('filtro-periodo-de');
+        var ateEl = document.getElementById('filtro-periodo-ate');
+        var deVal = deEl ? deEl.value : '';
+        var ateVal = ateEl ? ateEl.value : '';
         var setoresOP = ['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações'];
-        setoresOP.forEach(function(setor) {
-            var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
-            regs.forEach(function(r) { todos.push(Object.assign({}, r, {_setor: setor})); });
+        var todos = [];
+        Object.keys(appData).forEach(function(dataKey) {
+            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataKey)) return;
+            if (deVal || ateVal) {
+                var p = dataKey.split('/');
+                var iso = p[2] + '-' + p[1] + '-' + p[0];
+                if (deVal && iso < deVal) return;
+                if (ateVal && iso > ateVal) return;
+            }
+            setoresOP.forEach(function(setor) {
+                var regs = (appData[dataKey]['_registros_atv'] && appData[dataKey]['_registros_atv'][setor]) || [];
+                regs.forEach(function(r) { todos.push(Object.assign({}, r, {_setor: setor, _data: dataKey})); });
+            });
         });
-        todos.sort(function(a,b){ return a.id - b.id; });
-
+        todos.sort(function(a, b) {
+            var pa = a._data.split('/'), pb = b._data.split('/');
+            var ia = pa[2]+pa[1]+pa[0], ib = pb[2]+pb[1]+pb[0];
+            if (ia !== ib) return ia.localeCompare(ib);
+            return a.id - b.id;
+        });
         var lista = document.getElementById('modal-op-lista');
-        var cleanSetorAtual = currentSector;
-
         lista.innerHTML = !todos.length
-            ? '<p class="text-sm text-gray-400 text-center py-6">Nenhuma atividade registrada hoje.</p>'
+            ? '<p class="text-sm text-gray-400 text-center py-6">Nenhuma atividade registrada no período.</p>'
             : todos.map(function(r) {
                 var setorLabel = limparEmoji(r._setor);
                 var sacasStr = r.sacas ? r.sacas + ' sc' : '-';
@@ -2459,6 +2490,7 @@
                             '<div class="flex items-center gap-2 flex-wrap mb-1">' +
                                 '<span class="text-[10px] font-black bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded uppercase">' + escapeHTML(setorLabel) + '</span>' +
                                 '<span class="text-[10px] text-gray-400">👤 ' + escapeHTML(r.operador) + '</span>' +
+                                '<span class="text-[10px] font-semibold text-blue-400">📅 ' + escapeHTML(r._data) + '</span>' +
                                 editBadge + bloqBadge +
                             '</div>' +
                             '<p class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(r.servico) + '</p>' +
@@ -2466,47 +2498,39 @@
                         '</div>' +
                         '<div class="flex gap-2 shrink-0">' +
                             (r.bloqueado
-                                ? '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" class="btn-adm-desbloquear-atv text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors active:scale-95">🔓</button>'
-                                : '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" class="btn-adm-bloquear-atv text-[10px] font-bold text-red-500 bg-red-50 border border-red-200 px-2 py-1.5 rounded-lg hover:bg-red-100 transition-colors active:scale-95">🔒</button>') +
-                            '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" class="btn-adm-editar-atv text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition-colors active:scale-95">✏️</button>' +
+                                ? '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" data-data="' + escapeHTML(r._data) + '" class="btn-adm-desbloquear-atv text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors active:scale-95">🔓</button>'
+                                : '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" data-data="' + escapeHTML(r._data) + '" class="btn-adm-bloquear-atv text-[10px] font-bold text-red-500 bg-red-50 border border-red-200 px-2 py-1.5 rounded-lg hover:bg-red-100 transition-colors active:scale-95">🔒</button>') +
+                            '<button data-setor="' + escapeHTML(r._setor) + '" data-id="' + r.id + '" data-data="' + escapeHTML(r._data) + '" class="btn-adm-editar-atv text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition-colors active:scale-95">✏️</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
             }).join('');
-
-        var modal = document.getElementById('modal-op-seletor');
-        var mc    = document.getElementById('modal-op-seletor-content');
-        var title = mc.querySelector('h3');
-        if (title) title.textContent = 'Registros de Atividades — ' + workingDate;
-        modal.classList.remove('hidden');
-        setTimeout(function(){
-            modal.classList.remove('opacity-0');
-            mc.classList.remove('translate-y-full');
-            // Event delegation para botões ADM
-            lista.querySelectorAll('.btn-adm-bloquear-atv').forEach(function(btn){
-                btn.addEventListener('click', function(){ admBloquearAtv(btn.dataset.setor, parseInt(btn.dataset.id)); });
-            });
-            lista.querySelectorAll('.btn-adm-desbloquear-atv').forEach(function(btn){
-                btn.addEventListener('click', function(){ admDesbloquearAtv(btn.dataset.setor, parseInt(btn.dataset.id)); });
-            });
-            lista.querySelectorAll('.btn-adm-editar-atv').forEach(function(btn){
-                btn.addEventListener('click', function(){ admEditarAtv(btn.dataset.setor, parseInt(btn.dataset.id)); });
-            });
-        }, 10);
+        lista.querySelectorAll('.btn-adm-bloquear-atv').forEach(function(btn){
+            btn.addEventListener('click', function(){ admBloquearAtv(btn.dataset.setor, parseInt(btn.dataset.id), btn.dataset.data); });
+        });
+        lista.querySelectorAll('.btn-adm-desbloquear-atv').forEach(function(btn){
+            btn.addEventListener('click', function(){ admDesbloquearAtv(btn.dataset.setor, parseInt(btn.dataset.id), btn.dataset.data); });
+        });
+        lista.querySelectorAll('.btn-adm-editar-atv').forEach(function(btn){
+            btn.addEventListener('click', function(){ admEditarAtv(btn.dataset.setor, parseInt(btn.dataset.id), btn.dataset.data); });
+        });
     }
 
-    function admBloquearAtv(setor, id) {
-        var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+    function admBloquearAtv(setor, id, data) {
+        var dataAlvo = data || workingDate;
+        var regs = (appData[dataAlvo] && appData[dataAlvo]['_registros_atv'] && appData[dataAlvo]['_registros_atv'][setor]) || [];
         var r = regs.find(function(x){ return x.id === id; });
-        if (r) { r.bloqueado = true; _salvarRegistrosAtv(); abrirModalAtvAdm(); mostrarToast('Registro bloqueado.'); }
+        if (r) { r.bloqueado = true; _salvarRegistrosAtv(); _renderListaRegistrosAdm(); mostrarToast('Registro bloqueado.'); }
     }
-    function admDesbloquearAtv(setor, id) {
-        var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+    function admDesbloquearAtv(setor, id, data) {
+        var dataAlvo = data || workingDate;
+        var regs = (appData[dataAlvo] && appData[dataAlvo]['_registros_atv'] && appData[dataAlvo]['_registros_atv'][setor]) || [];
         var r = regs.find(function(x){ return x.id === id; });
-        if (r) { r.bloqueado = false; r.editado = false; _salvarRegistrosAtv(); abrirModalAtvAdm(); mostrarToast('Registro desbloqueado — colaborador pode editar novamente.'); }
+        if (r) { r.bloqueado = false; r.editado = false; _salvarRegistrosAtv(); _renderListaRegistrosAdm(); mostrarToast('Registro desbloqueado — colaborador pode editar novamente.'); }
     }
-    function admEditarAtv(setor, id) {
-        var regs = (appData[workingDate] && appData[workingDate]['_registros_atv'] && appData[workingDate]['_registros_atv'][setor]) || [];
+    function admEditarAtv(setor, id, data) {
+        var dataAlvo = data || workingDate;
+        var regs = (appData[dataAlvo] && appData[dataAlvo]['_registros_atv'] && appData[dataAlvo]['_registros_atv'][setor]) || [];
         var r = regs.find(function(x){ return x.id === id; });
         if (!r) return;
         var novoServico = prompt('Editar atividade (ADM):\nAtual: ' + r.servico + '\n\nNovo valor:');
@@ -2514,7 +2538,7 @@
             r.servico = novoServico.trim();
             r.editado = true;
             _salvarRegistrosAtv();
-            abrirModalAtvAdm();
+            _renderListaRegistrosAdm();
             mostrarToast('Registro alterado pelo ADM.');
         }
     }
@@ -2528,6 +2552,8 @@
         _opSeletorBlockId = blockId;
         var ops = getOPsParaBoletim();
         var lista = document.getElementById('modal-op-lista');
+        var f = document.getElementById('modal-filtro-periodo-adm');
+        if (f) f.classList.add('hidden');
         var clean = limparEmoji(currentSector);
         lista.innerHTML = ops.map(function(op) {
             var rawOp = getOPs().find(function(o){ return o.id === op.id; }) || {};
@@ -3112,8 +3138,7 @@
         var els = {
             nameDisplay: document.getElementById('user-name-display'),
             welcomeMsg:  document.getElementById('welcome-message'),
-            adm:         document.getElementById('adm-panel'),
-            dp:          document.getElementById('date-picker-container')
+            adm:         document.getElementById('adm-panel')
         };
         if (els.nameDisplay) { els.nameDisplay.textContent = operadorNome; els.nameDisplay.classList.remove('hidden'); }
         if (els.welcomeMsg)  els.welcomeMsg.classList.remove('hidden');
@@ -3630,6 +3655,7 @@
         loadDataParaTela();
         if (viewId === 'view-op') { renderFormularioOP(); renderListaOPs(); }
         if (viewId === 'view-atividades') { renderListaRegistrosAtv(); }
+        if (viewId === 'view-productivity') { renderHistoricoProducao(); }
     }
 
     function navigate(viewId, sectorName, replace) {
@@ -3655,21 +3681,6 @@
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
     });
 
-    function changeWorkingDate() {
-        var dp = document.getElementById('date-picker');
-        if (dp && dp.value) {
-            var parts = dp.value.split('-');
-            workingDate = parts[2]+'/'+parts[1]+'/'+parts[0];
-            if (!appData[workingDate]) appData[workingDate] = {};
-            mostrarToast('Data alterada: ' + workingDate);
-            // Reiniciar listener do Firestore para a nova data
-            if (_firestoreListener) { _firestoreListener(); _firestoreListener = null; }
-            carregarDoFirestore(function(mudou){
-                loadDataParaTela();
-                iniciarListenerFirestore();
-            });
-        }
-    }
 
     function popularDatalist() {
         try {
@@ -3892,12 +3903,18 @@
         if (!currentSector || ['view-menu','view-submenu'].includes(currentViewId)) return;
         var st = (appData[workingDate] && appData[workingDate][currentSector]) || getEmptySectorState();
         if (currentViewId === 'view-productivity') {
-            window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
-            if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
-            document.getElementById('justificativa-meta').value = st.justificativa || '';
-            // Renderiza cards de turno para qualquer setor
+            if (st.producaoFinalizada && !isAdmin) {
+                window.tempTimeBlocks = [{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
+            } else {
+                window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
+                if (!window.tempTimeBlocks.length) window.tempTimeBlocks = [{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
+            }
+            var jEl=document.getElementById('justificativa-meta'); if(jEl) jEl.value=st.justificativa||'';
+            var jc=document.getElementById('just-expand-content'), ji=document.getElementById('just-expand-icon');
+            if(jc){ if(st.justificativa){ jc.classList.remove('hidden'); if(ji) ji.textContent='−'; } else { jc.classList.add('hidden'); if(ji) ji.textContent='+'; } }
             renderShiftCards();
             renderTimeBlocks(); calcTotalProductivity();
+            renderHistoricoProducao();
         }
         if (currentViewId === 'view-horimetro') { document.getElementById('hor-inicial').value=st.horInicial||''; document.getElementById('hor-final').value=st.horFinal||''; calcHorimetro(); }
         if (currentViewId === 'view-percentage') { document.getElementById('peso-amostra').value=st.pesoAmostra||''; document.getElementById('peso-retido').value=st.pesoRetido||''; document.getElementById('tol-amostra').value=st.tolAmostra||''; document.getElementById('tol-perc').value=st.tolPerc||''; calcRetencao(); calcTolerancia(); }
@@ -3972,14 +3989,12 @@
             if(vol) vol.classList.add('hidden');
             if(tit) tit.textContent = '';
             if(subtitle) subtitle.classList.add('hidden');
-            if (isAdmin) { var dp=document.getElementById('date-picker-container'); if(dp){dp.classList.remove('hidden');dp.classList.add('flex');} }
         } else {
             if (viewId==='view-submenu') { if(isAdmin){if(vol) vol.classList.remove('hidden');} else {if(vol) vol.classList.add('hidden');} }
             else { if(vol) vol.classList.remove('hidden'); }
             // Show sector name as subtitle below divider
             if(tit) tit.textContent = limparEmoji(currentSector) || '';
             if(subtitle) { subtitle.classList.toggle('hidden', !currentSector); }
-            var dp2=document.getElementById('date-picker-container'); if(dp2){dp2.classList.add('hidden');dp2.classList.remove('flex');}
             if (viewId==='view-submenu') {
                 atualizarQuickRead();
                 setTimeout(function(){ _applySubmenuOrder(); _initDragSubmenu(); }, 50);
@@ -3987,9 +4002,9 @@
         }
         var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op'];
         if (actionViews.includes(viewId)) {
-            if(act){act.classList.remove('hidden');act.classList.add('flex');}
+            if(isAdmin&&act){act.classList.remove('hidden');act.classList.add('flex');}
             if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
-            if(['view-productivity','view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
+            if(isAdmin&&['view-productivity','view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
         if (viewId==='view-productivity') {
             var shiftCont=document.getElementById('rebeneficio-shift-container');
@@ -4004,7 +4019,7 @@
         }
         if (viewId==='view-atividades') checkPlanejamentoBagsVisibility();
         var lblShare=document.getElementById('lbl-share-btn');
-        if(lblShare){ var labels={'view-atividades':'Compartilhar Atividades','view-os':'Solicitar O.S','view-requisicao':'Enviar Pedido','view-op':''}; lblShare.textContent=labels[viewId]||'Compartilhar Relatório'; }
+        if(lblShare){ var labels={'view-atividades':'Compartilhar Atividades','view-os':'Solicitar O.S','view-requisicao':'Enviar Pedido','view-op':'','view-productivity':'Salvar Produção'}; lblShare.textContent=labels[viewId]||'Compartilhar Relatório'; }
     }
 
     function atualizarQuickRead() {
@@ -4156,8 +4171,8 @@
                         </div>
                         ${durStr?`<div class="mt-3 text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3 text-xs"><span class="font-bold text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-md">⏱️ ${durStr}</span>${mediaStr?`<span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md">${mediaStr}</span>`:''}</div>`:''}
                     </div>
-                    <div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-12 gap-4 mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
-                        <div class="sm:col-span-3">
+                    <div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-12 gap-5 mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div class="sm:col-span-4">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
                             <div class="flex gap-2">
                                 <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="${escapeHTML(currentRefLabel)}">
@@ -4165,7 +4180,7 @@
                             </div>
                         </div>
                         ${!hideBags?`<div class="sm:col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 placeholder-emerald-300" placeholder="Qtd"></div>`:''}
-                        <div class="${hideBags?'sm:col-span-9':'sm:col-span-6'}">
+                        <div class="${hideBags?'sm:col-span-8':'sm:col-span-5'}">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
                             <input type="text" value="${escapeHTML(b.obs||'')}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Detalhes, lote, destino...">
                         </div>
@@ -4255,7 +4270,7 @@
         if(isReb){
             var metaHora=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaTurno=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
             var hasWorked=shiftMin>0||totalMin>0;
-            if(hasWorked){ var missed=totalSacas<metaTurno||mediaNum<metaHora; if(contJust) contJust.classList.toggle('hidden',!missed); if(contSucs) contSucs.classList.toggle('hidden',missed); }
+            if(hasWorked&&totalSacas>0){ var missed=totalSacas<metaTurno||mediaNum<metaHora; if(contJust) contJust.classList.toggle('hidden',!missed); if(contSucs) contSucs.classList.toggle('hidden',missed); if(missed){ var jVal=document.getElementById('justificativa-meta'); if(jVal&&jVal.value){ var jc2=document.getElementById('just-expand-content'),ji2=document.getElementById('just-expand-icon'); if(jc2&&jc2.classList.contains('hidden')){ jc2.classList.remove('hidden'); if(ji2) ji2.textContent='−'; } } } }
             else { if(contJust) contJust.classList.add('hidden'); if(contSucs) contSucs.classList.add('hidden'); }
         } else { if(contJust) contJust.classList.add('hidden'); if(contSucs) contSucs.classList.add('hidden'); }
     }
@@ -4383,51 +4398,89 @@
         return true;
     }
 
+    function _renderSetorLinhas(setor, st) {
+        var linhas='', blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.ref; });
+        var cleanSetor=limparEmoji(setor);
+        if(!blocks.length&&!st.atvServico&&!(cleanSetor==='Manutenção'&&st.horInicial)&&!((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra)) return '';
+        linhas+='<tr><td colspan="4" class="sector-header">SETOR: '+cleanSetor.toUpperCase()+'</td></tr>';
+        if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName&&st.shiftStart&&st.shiftEnd)
+            linhas+='<tr style="background-color:#fffbeb;"><td colspan="4" style="color:#b45309;font-size:11px;font-weight:bold;text-align:center;padding:8px;">⏱️ Turno: '+escapeHTML(st.shiftName)+' ('+escapeHTML(st.shiftStart)+' às '+escapeHTML(st.shiftEnd)+')</td></tr>';
+        var totalM=0, totalS=0;
+        var shiftMin=(cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftStart&&st.shiftEnd?calcMinutos(st.shiftStart,st.shiftEnd):0;
+        blocks.forEach(function(b){
+            var diff=calcMinutos(b.start,b.end); totalM+=diff;
+            var timeInfo=(b.start&&b.end)?'<span style="font-size:10px;color:#6b7280;"><br>('+b.start+' - '+b.end+' | '+Math.floor(diff/60)+'h'+String(diff%60).padStart(2,'0')+'m)</span>':'';
+            var dAct=getDisplayActivity(b), dBags=getDisplayBags(b);
+            if(b.bags&&!isNoBagsActivity(b.activity)) totalS+=parseInt(b.bags.replace(/\D/g,'')||'0');
+            linhas+='<tr><td style="font-weight:600;width:30%">'+dAct+timeInfo+'</td><td style="text-align:right;font-weight:bold;width:15%">'+dBags+'</td><td style="width:20%">'+(escapeHTML(b.ref)||'-')+'</td><td style="width:35%">'+(escapeHTML(b.obs)||'-')+'</td></tr>';
+        });
+        if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.justificativa){
+            var tempo=(totalM>shiftMin&&shiftMin>0)?shiftMin:(shiftMin>0&&totalM===0)?shiftMin:totalM;
+            var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
+            var media=tempo>0&&totalS>0?totalS/(tempo/60):0;
+            if((totalM>0||shiftMin>0)&&(totalS<metaT||media<metaH)) linhas+='<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#b91c1c;font-size:12px;padding:10px;"><b>⚠️ Justificativa de Meta:</b> '+escapeHTML(st.justificativa)+'</td></tr>';
+        }
+        if(st.atvServico){ var ajuda=st.atvAjuda==='Sim'?' | +'+(escapeHTML(st.atvAjudaQtd)||'?')+' pessoas':''; linhas+='<tr style="background-color:#f8fafc;"><td style="font-style:italic;color:#475569;font-size:11px;">(Planejamento do Dia)</td><td style="text-align:right;color:#475569;font-weight:bold;">'+(escapeHTML(st.atvSacas)||'-')+'</td><td style="color:#475569;text-align:center">-</td><td style="color:#475569;">'+escapeHTML(st.atvServico)+ajuda+(st.atvProjecao?' | Entrega: '+escapeHTML(st.atvProjecao):'')+' </td></tr>'; }
+        if((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra&&st.pesoRetido){ var p=parseFloat(st.pesoAmostra),r=parseFloat(st.pesoRetido); if(p>0) linhas+='<tr style="background-color:#f0fdf4;"><td colspan="4" style="color:#15803d;font-size:12px;padding:10px;text-align:center"><b>🔍 Retenção de Peneira:</b> '+((r/p)*100).toFixed(2).replace('.',',')+'% <span style="font-weight:normal;opacity:0.8">(Amostra: '+p+'g | Retido: '+r+'g)</span></td></tr>'; }
+        if(cleanSetor==='Manutenção'&&st.horInicial&&st.horFinal){ var ini=parseFloat(st.horInicial.replace(/\./g,'').replace(',','.')), fim=parseFloat(st.horFinal.replace(/\./g,'').replace(',','.')); if(!isNaN(ini)&&!isNaN(fim)&&fim>=ini){ var df=fim-ini; linhas+='<tr style="background-color:#eff6ff;"><td colspan="4" style="color:#1d4ed8;font-size:12px;padding:10px;text-align:center"><b>⏱️ Horímetro Registrado:</b> '+Math.floor(df)+'.'+String(Math.round((df-Math.floor(df))*60)).padStart(2,'0')+'h</td></tr>'; } }
+        return linhas;
+    }
+
+    function renderRelatorio() {
+        var deEl=document.getElementById('relatorio-de'), ateEl=document.getElementById('relatorio-ate');
+        if(!deEl||!ateEl||!deEl.value||!ateEl.value) return mostrarToast('Selecione o período.', true);
+        var deDate=new Date(deEl.value+'T00:00:00'), ateDate=new Date(ateEl.value+'T00:00:00');
+        if(deDate>ateDate) return mostrarToast('A data inicial deve ser anterior à final.', true);
+        var deParts=deEl.value.split('-'), ateParts=ateEl.value.split('-');
+        var deBR=deParts[2]+'/'+deParts[1]+'/'+deParts[0], ateBR=ateParts[2]+'/'+ateParts[1]+'/'+ateParts[0];
+        document.getElementById('adm-modal-date-label').textContent=deBR+' → '+ateBR;
+        var hasData=false, linhas='', cur=new Date(deDate);
+        while(cur<=ateDate){
+            var dd=String(cur.getDate()).padStart(2,'0'), mm=String(cur.getMonth()+1).padStart(2,'0'), yyyy=cur.getFullYear();
+            var dataKey=dd+'/'+mm+'/'+yyyy, dayData=appData[dataKey];
+            if(dayData){
+                var dayLinhas='';
+                SETORES_ORDEM.forEach(function(setor){ var st=dayData[setor]; if(st) dayLinhas+=_renderSetorLinhas(setor,st); });
+                if(dayLinhas){ hasData=true; linhas+='<tr style="background:#1e40af;color:white;"><td colspan="4" style="text-align:center;font-size:13px;font-weight:bold;padding:10px;letter-spacing:0.05em;">📅 '+dataKey+'</td></tr>'+dayLinhas; }
+            }
+            cur.setDate(cur.getDate()+1);
+        }
+        document.getElementById('container-tabela-adm').innerHTML=hasData
+            ?'<table class="adm-table"><tr style="background:#111827;color:white;"><th colspan="4" style="text-align:center;font-size:14px;padding:15px;font-family:Outfit,sans-serif;letter-spacing:0.1em;">RELATÓRIO OPERACIONAL PRUMO<br><span style="font-size:11px;font-weight:normal;color:#9ca3af;letter-spacing:normal;">'+deBR+' → '+ateBR+' | Gestor: '+escapeHTML(operadorNome)+'</span></th></tr><tr><th style="width:30%">Atividade</th><th style="text-align:right;width:15%">Produção</th><th style="width:20%">Lote / Guia</th><th style="width:35%">Detalhes</th></tr>'+linhas+'</table>'
+            :'<div style="text-align:center;padding:50px;color:#9ca3af;font-size:14px;">Sem movimentações registradas no período selecionado.</div>';
+    }
+
     function gerarResumoGeral() {
         saveData();
-        var dayData=appData[workingDate]||{};
-        var bloqueio=SETORES_ORDEM.some(function(setor){ var st=dayData[setor]; return st&&!isMetaOk(st,setor); });
-        if(bloqueio) return mostrarToast('Operadores de Rebenefício não justificaram a quebra de meta!', true);
-        var hasData=false, linhas='';
-        SETORES_ORDEM.forEach(function(setor){
-            var st=dayData[setor]; if(!st) return;
-            var blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.ref; });
-            var cleanSetor=limparEmoji(setor);
-            if(!blocks.length&&!st.atvServico&&!(cleanSetor==='Manutenção'&&st.horInicial)&&!((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra)) return;
-            hasData=true;
-            linhas+='<tr><td colspan="4" class="sector-header">SETOR: '+cleanSetor.toUpperCase()+'</td></tr>';
-            if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName&&st.shiftStart&&st.shiftEnd) {
-                linhas+='<tr style="background-color:#fffbeb;"><td colspan="4" style="color:#b45309;font-size:11px;font-weight:bold;text-align:center;padding:8px;">⏱️ Turno: '+escapeHTML(st.shiftName)+' ('+escapeHTML(st.shiftStart)+' às '+escapeHTML(st.shiftEnd)+')</td></tr>';
-            }
-            var totalM=0, totalS=0;
-            var shiftMin=(cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftStart&&st.shiftEnd?calcMinutos(st.shiftStart,st.shiftEnd):0;
-            blocks.forEach(function(b){
-                var diff=calcMinutos(b.start,b.end); totalM+=diff;
-                var timeInfo=(b.start&&b.end)?'<span style="font-size:10px;color:#6b7280;"><br>('+b.start+' - '+b.end+' | '+Math.floor(diff/60)+'h'+String(diff%60).padStart(2,'0')+'m)</span>':'';
-                var dAct=getDisplayActivity(b), dBags=getDisplayBags(b);
-                if(b.bags&&!isNoBagsActivity(b.activity)) totalS+=parseInt(b.bags.replace(/\D/g,'')||'0');
-                linhas+='<tr><td style="font-weight:600;width:30%">'+dAct+timeInfo+'</td><td style="text-align:right;font-weight:bold;width:15%">'+dBags+'</td><td style="width:20%">'+(escapeHTML(b.ref)||'-')+'</td><td style="width:35%">'+(escapeHTML(b.obs)||'-')+'</td></tr>';
-            });
-            if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.justificativa){
-                var tempo=(totalM>shiftMin&&shiftMin>0)?shiftMin:(shiftMin>0&&totalM===0)?shiftMin:totalM;
-                var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
-                var media=tempo>0&&totalS>0?totalS/(tempo/60):0;
-                if((totalM>0||shiftMin>0)&&(totalS<metaT||media<metaH)) linhas+='<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#b91c1c;font-size:12px;padding:10px;"><b>⚠️ Justificativa de Meta:</b> '+escapeHTML(st.justificativa)+'</td></tr>';
-            }
-            if(st.atvServico){ var ajuda=st.atvAjuda==='Sim'?' | +'+(escapeHTML(st.atvAjudaQtd)||'?')+' pessoas':''; linhas+='<tr style="background-color:#f8fafc;"><td style="font-style:italic;color:#475569;font-size:11px;">(Planejamento do Dia)</td><td style="text-align:right;color:#475569;font-weight:bold;">'+(escapeHTML(st.atvSacas)||'-')+'</td><td style="color:#475569;text-align:center">-</td><td style="color:#475569;">'+escapeHTML(st.atvServico)+ajuda+(st.atvProjecao?' | Entrega: '+escapeHTML(st.atvProjecao):'')+' </td></tr>'; }
-            if((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra&&st.pesoRetido){ var p=parseFloat(st.pesoAmostra),r=parseFloat(st.pesoRetido); if(p>0) linhas+='<tr style="background-color:#f0fdf4;"><td colspan="4" style="color:#15803d;font-size:12px;padding:10px;text-align:center"><b>🔍 Retenção de Peneira:</b> '+((r/p)*100).toFixed(2).replace('.',',')+'% <span style="font-weight:normal;opacity:0.8">(Amostra: '+p+'g | Retido: '+r+'g)</span></td></tr>'; }
-            if(cleanSetor==='Manutenção'&&st.horInicial&&st.horFinal){ var ini=parseFloat(st.horInicial.replace(/\./g,'').replace(',','.')), fim=parseFloat(st.horFinal.replace(/\./g,'').replace(',','.')); if(!isNaN(ini)&&!isNaN(fim)&&fim>=ini){ var df=fim-ini; linhas+='<tr style="background-color:#eff6ff;"><td colspan="4" style="color:#1d4ed8;font-size:12px;padding:10px;text-align:center"><b>⏱️ Horímetro Registrado:</b> '+Math.floor(df)+'.'+String(Math.round((df-Math.floor(df))*60)).padStart(2,'0')+'h</td></tr>'; } }
-        });
-        document.getElementById('container-tabela-adm').innerHTML=hasData
-            ?'<table class="adm-table"><tr style="background:#111827;color:white;"><th colspan="4" style="text-align:center;font-size:14px;padding:15px;color:white;font-family:Outfit, sans-serif;letter-spacing:0.1em">RELATÓRIO OPERACIONAL PRUMO <br><span style="font-size:11px;font-weight:normal;color:#9ca3af;letter-spacing:normal">'+workingDate+' | Gestor Logado: '+escapeHTML(operadorNome)+'</span></th></tr><tr><th style="width:30%">Atividade</th><th style="text-align:right;width:15%">Produção</th><th style="width:20%">Lote / Guia</th><th style="width:35%">Detalhes Extras</th></tr>'+linhas+'</table>'
-            :'<div style="text-align:center;padding:50px;color:#9ca3af;font-size:14px;">Sem movimentações registradas na data de '+workingDate+'.</div>';
-        document.getElementById('adm-modal-date-label').textContent='Relatório Geral - '+workingDate;
+        var partes=workingDate.split('/'), isoDate=partes[2]+'-'+partes[1]+'-'+partes[0];
+        var deEl=document.getElementById('relatorio-de'), ateEl=document.getElementById('relatorio-ate');
+        if(deEl&&!deEl.value) deEl.value=isoDate;
+        if(ateEl&&!ateEl.value) ateEl.value=isoDate;
+        renderRelatorio();
         var modal=document.getElementById('modal-adm-email');
         modal.classList.remove('hidden');
         setTimeout(function(){ modal.classList.remove('opacity-0'); },10);
     }
 
     function fecharModalAdm() { var modal=document.getElementById('modal-adm-email'); modal.classList.add('opacity-0'); setTimeout(function(){ modal.classList.add('hidden'); },300); }
+
+    function exportarXLSX() {
+        var container = document.getElementById('container-tabela-adm');
+        if (!container || !container.innerHTML.trim()) return mostrarToast('Sem dados para exportar.', true);
+        var html = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+            '<head><meta charset="UTF-8"><style>table{border-collapse:collapse;}td,th{border:1px solid #ccc;padding:6px 10px;font-size:12px;}</style></head>' +
+            '<body>' + container.innerHTML + '</body></html>';
+        var blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        var deEl=document.getElementById('relatorio-de'), ateEl=document.getElementById('relatorio-ate');
+        var periodo=(deEl&&deEl.value?deEl.value:'')+(ateEl&&ateEl.value&&ateEl.value!==deEl.value?'_a_'+ateEl.value:'');
+        a.download = 'Prumo_Relatorio_' + (periodo||workingDate.replace(/\//g,'-')) + '.xls';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        mostrarToast('Download do relatório .XLS iniciado!');
+    }
 
     function copiarTabelaAdm() {
         var container=document.getElementById('container-tabela-adm'); if(!container) return;
@@ -4487,6 +4540,8 @@
         // Mostrar modal de seleção
         _compartilharPendente = callback;
         var lista = document.getElementById('modal-op-lista');
+        var f = document.getElementById('modal-filtro-periodo-adm');
+        if (f) f.classList.add('hidden');
         var clean = limparEmoji(currentSector);
         var labelRef = clean.includes('Recebimento') ? 'Lote' : 'Guia';
         lista.innerHTML =
@@ -4537,13 +4592,32 @@
         saveData();
         var st=(appData[workingDate]&&appData[workingDate][currentSector])||{};
         var cleanSetor=limparEmoji(currentSector);
-        if(currentViewId==='view-productivity'&&!isMetaOk(st,currentSector)){ mostrarToast('Existe uma quebra de meta sem justificativa!', true); var jEl=document.getElementById('justificativa-meta'); if(jEl){jEl.focus();jEl.scrollIntoView({behavior:'smooth',block:'center'});} return; }
+        if(currentViewId==='view-productivity'){
+            if(!isMetaOk(st,currentSector)){ mostrarToast('Existe uma quebra de meta sem justificativa!', true); var jEl2=document.getElementById('justificativa-meta'); if(jEl2){var jc3=document.getElementById('just-expand-content'),ji3=document.getElementById('just-expand-icon'); if(jc3){jc3.classList.remove('hidden'); if(ji3) ji3.textContent='−';} jEl2.focus(); jEl2.scrollIntoView({behavior:'smooth',block:'center'});} return; }
+            // Salvar snapshot
+            if(!appData[workingDate]) appData[workingDate]={};
+            if(!appData[workingDate][currentSector]) appData[workingDate][currentSector]=getEmptySectorState();
+            var curSt=appData[workingDate][currentSector];
+            var jElVal=document.getElementById('justificativa-meta');
+            curSt.producaoSalva={timeBlocks:JSON.parse(JSON.stringify(window.tempTimeBlocks||[])),shiftName:curSt.shiftName||'',shiftStart:curSt.shiftStart||'',shiftEnd:curSt.shiftEnd||'',justificativa:jElVal?jElVal.value:'',savedAt:new Date().toLocaleString('pt-BR'),editado:false};
+            curSt.producaoFinalizada=true;
+            saveData();
+            // Limpar área de edição
+            window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
+            if(jElVal) jElVal.value='';
+            var jc4=document.getElementById('just-expand-content'),ji4=document.getElementById('just-expand-icon');
+            if(jc4){jc4.classList.add('hidden'); if(ji4) ji4.textContent='+';}
+            renderTimeBlocks(); calcTotalProductivity();
+            mostrarToast('Produção salva! ✓');
+            renderHistoricoProducao();
+            return;
+        }
         if(currentViewId==='view-atividades'){
             var servicoText=document.getElementById('atv-servico').value||'', sacas=document.getElementById('atv-sacas').value||'0', ajuda=document.getElementById('atv-ajuda').value, ajudaQtd=parseInt(document.getElementById('atv-ajuda-qtd').value)||0, projecao=document.getElementById('atv-projecao').value||'';
             if(!servicoText) return mostrarToast('Selecione os serviços que fará no dia!', true);
-            var texto='📋 *INFORME DE PLANEJAMENTO*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n*Serviços do Dia:*\n'+servicoText+'\n';
-            if(!currentSector.includes('Manutenção')&&!currentSector.includes('Operações')){ var cs=servicoText?servicoText.split(', '):[]; var reqB=!cs.length||cs.some(function(a){ return !isNoBagsActivity(a.startsWith('Outras:')?'Outras':a); }); if(reqB){ texto+='\n📦 *Volume Previsto:* '+sacas+' sc'; texto+='\n🤝 *Apoio Extra:* '+(ajuda==='Sim'?'Sim ('+ajudaQtd+' pessoa'+(ajudaQtd>1?'s':'')+')'  :'Não Necessita'); } }
-            if(projecao&&projecao!=='--:--') texto+='\n⏰ *Conclusão Estimada:* '+projecao;
+            var sacasFormatado=String(parseInt(String(sacas).replace(/\D/g,''))||0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+            var texto='📋 *INFORME DE PLANEJAMENTO*\n\n📅 '+workingDate+' 👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n*Serviços do Dia:*\n\n'+servicoText;
+            if(!currentSector.includes('Manutenção')&&!currentSector.includes('Operações')){ var cs=servicoText?servicoText.split(', '):[]; var reqB=!cs.length||cs.some(function(a){ return !isNoBagsActivity(a.startsWith('Outras:')?'Outras':a); }); if(reqB){ texto+='\n\n📦 *Volume Previsto:* '+sacasFormatado+' sc'; if(projecao&&projecao!=='--:--') texto+='\n⏰ *Conclusão Estimada:* '+projecao; texto+='\n🤝 *Apoio Extra:* '+(ajuda==='Sim'?'Sim ('+ajudaQtd+' pessoa'+(ajudaQtd>1?'s':'')+')'  :'Não Necessita'); } else if(projecao&&projecao!=='--:--') texto+='\n\n⏰ *Conclusão Estimada:* '+projecao; } else if(projecao&&projecao!=='--:--') texto+='\n\n⏰ *Conclusão Estimada:* '+projecao;
             executarCompartilhamento('Planejamento '+cleanSetor,texto,cleanSetor); return;
         }
         if(currentViewId==='view-os'){ var equip=document.getElementById('os-equipamento').value.trim(), prob=document.getElementById('os-problema').value.trim(); if(!equip||!prob) return mostrarToast('Informe a máquina e a descrição da falha.', true); var texto='🔧 *SOLICITAÇÃO DE MANUTENÇÃO (O.S)*\n\n📅 *DATA:* '+workingDate+'\n👤 *COLABORADOR:* '+operadorNome+'\n🏢 *SETOR:* '+cleanSetor+'\n⚙️ *EQUIPAMENTO:* '+equip+'\n\n⚠️ *DESCRIÇÃO DA FALHA:*\n'+prob; executarCompartilhamento('OS - '+equip,texto,cleanSetor); return; }
@@ -4587,6 +4661,192 @@
         if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.justificativa){ var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500; var media=tempoConsid>0&&totalSacas>0?totalSacas/(tempoConsid/60):0; if((totalMin>0||shiftMin>0)&&(totalSacas<metaT||media<metaH)) texto+='⚠️ *Justificativa de Meta:* '+st.justificativa+'\n\n'; }
         texto+='─'.repeat(25)+'\n📦 *Volume Diário:* '+totalSacas.toLocaleString('pt-BR')+' sacas';
         executarCompartilhamento('Boletim '+cleanSetor,texto,cleanSetor);
+    }
+
+    function toggleJustificativaBox() {
+        var c=document.getElementById('just-expand-content'), i=document.getElementById('just-expand-icon');
+        if(!c) return;
+        var hidden=c.classList.contains('hidden');
+        c.classList.toggle('hidden',!hidden);
+        if(i) i.textContent=hidden?'−':'+';
+        if(hidden){ var ta=document.getElementById('justificativa-meta'); if(ta) setTimeout(function(){ ta.focus(); },50); }
+    }
+
+    var _prodDetalheKey=null;
+
+    function abrirModalProdDetalhe(dataKey) {
+        _prodDetalheKey=dataKey;
+        var st=(appData[dataKey]&&appData[dataKey][currentSector])||{};
+        var saved=st.producaoSalva||{};
+        var cleanSetor=limparEmoji(currentSector);
+        var blocks=(saved.timeBlocks||st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.activity; });
+        var shiftName=saved.shiftName||st.shiftName||'';
+        var shiftStart=saved.shiftStart||st.shiftStart||'';
+        var shiftEnd=saved.shiftEnd||st.shiftEnd||'';
+        var justificativa=saved.justificativa||st.justificativa||'';
+        var sub=document.getElementById('modal-prod-subtitle');
+        if(sub) sub.textContent=dataKey+' · '+cleanSetor+(saved.savedAt?' · Salvo em '+saved.savedAt:'');
+        var totalSacas=0,totalMin=0;
+        var html='';
+        if(shiftName&&shiftStart&&shiftEnd){
+            html+='<div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-xl px-4 py-3 flex items-center gap-3"><span class="text-lg">⏱️</span><div><p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Turno</p><p class="text-sm font-bold text-gray-900 dark:text-white">'+escapeHTML(shiftName)+' · '+escapeHTML(shiftStart)+' às '+escapeHTML(shiftEnd)+'</p></div></div>';
+        }
+        blocks.forEach(function(b){
+            if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
+            var diff=calcMinutos(b.start,b.end); totalMin+=diff;
+            var dAct=getDisplayActivity(b);
+            var scStr=b.bags&&!isNoBagsActivity(b.activity)?'<span class="font-bold text-emerald-600 dark:text-emerald-400">📦 '+String(parseInt(b.bags.replace(/\D/g,'')||'0')).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' sc</span>':'';
+            html+='<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">'+
+                '<p class="text-sm font-bold text-gray-900 dark:text-white mb-2">'+escapeHTML(dAct)+'</p>'+
+                '<div class="flex flex-wrap gap-3 text-xs text-gray-500">'+
+                (b.start?'<span>🕐 '+b.start+' → '+(b.end||'--:--')+(diff>0?' ('+Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m)':'')+'</span>':'')+
+                scStr+
+                (b.ref?'<span>📋 '+escapeHTML(b.ref)+'</span>':'')+
+                (b.obs?'<span>📝 '+escapeHTML(b.obs)+'</span>':'')+
+                '</div></div>';
+        });
+        if(totalSacas||totalMin){
+            var sacasStr=String(totalSacas).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+            var horasStr=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+            html+='<div class="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-4 text-center"><p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Produzido</p><p class="text-3xl font-black text-emerald-600 dark:text-emerald-400">'+sacasStr+' sc</p><p class="text-xs text-gray-500 mt-1">⏱️ '+horasStr+' apontados</p></div>';
+        }
+        if(justificativa){
+            html+='<div class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-4"><p class="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-1">⚠️ Justificativa de Meta</p><p class="text-sm text-gray-900 dark:text-white">'+escapeHTML(justificativa)+'</p></div>';
+        }
+        var body=document.getElementById('modal-prod-body');
+        if(body) body.innerHTML=html||'<p class="text-center text-gray-400 text-sm py-8">Sem registros para esta data.</p>';
+        var btnEdit=document.getElementById('btn-prod-editar');
+        if(btnEdit){
+            var podeEditar=!saved.editado||isAdmin;
+            if(!podeEditar){ btnEdit.classList.add('hidden'); }
+            else { btnEdit.classList.remove('hidden'); btnEdit.textContent=isAdmin&&saved.editado?'🔓 Editar (ADM)':'✏️ Editar'+((!isAdmin)?' (1 vez)':''); }
+        }
+        var modal=document.getElementById('modal-prod-detalhe');
+        var mc=document.getElementById('modal-prod-detalhe-content');
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); mc.classList.remove('translate-y-full'); },10);
+    }
+
+    function fecharModalProdDetalhe() {
+        var modal=document.getElementById('modal-prod-detalhe');
+        var mc=document.getElementById('modal-prod-detalhe-content');
+        if(mc) mc.classList.add('translate-y-full');
+        if(modal){ modal.classList.add('opacity-0'); setTimeout(function(){ modal.classList.add('hidden'); _prodDetalheKey=null; },300); }
+    }
+
+    function compartilharProdDetalhe() {
+        var key=_prodDetalheKey;
+        fecharModalProdDetalhe();
+        if(key) setTimeout(function(){ compartilharProducaoDia(key); },350);
+    }
+
+    function editarProducao() {
+        if(!_prodDetalheKey) return;
+        if(_prodDetalheKey!==workingDate){ mostrarToast('Para editar, mude a data de trabalho para '+_prodDetalheKey, true); return; }
+        var st=(appData[_prodDetalheKey]&&appData[_prodDetalheKey][currentSector])||{};
+        var saved=st.producaoSalva||{};
+        if(saved.editado&&!isAdmin){ mostrarToast('Registro já editado. Fale com o Gestor.', true); return; }
+        // Carrega os blocos de volta para edição
+        window.tempTimeBlocks=JSON.parse(JSON.stringify(saved.timeBlocks||st.timeBlocks||[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}]));
+        if(!window.tempTimeBlocks.length) window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
+        // Marca como editado e libera edição
+        if(st.producaoSalva) st.producaoSalva.editado=!isAdmin; // ADM pode editar sem marcar
+        st.producaoFinalizada=false;
+        st.timeBlocks=JSON.parse(JSON.stringify(window.tempTimeBlocks));
+        st.justificativa=saved.justificativa||'';
+        saveData();
+        fecharModalProdDetalhe();
+        if(currentViewId!=='view-productivity'){ renderView('view-productivity'); }
+        else { renderTimeBlocks(); calcTotalProductivity(); renderHistoricoProducao(); }
+        mostrarToast('Carregado para edição. Salve ao concluir.');
+    }
+
+    function renderHistoricoProducao() {
+        var section=document.getElementById('historico-producao-section');
+        var lista=document.getElementById('historico-producao-lista');
+        if(!section||!lista||!currentSector) return;
+        var datas=Object.keys(appData).filter(function(k){
+            if(k==='config') return false;
+            var day=appData[k]; if(!day||!day[currentSector]) return false;
+            var st=day[currentSector];
+            var blocks=(st.producaoSalva&&st.producaoSalva.timeBlocks)||st.timeBlocks||[];
+            return blocks.some(function(b){ return b.start||b.bags; });
+        });
+        if(!datas.length){ section.classList.add('hidden'); return; }
+        datas.sort(function(a,b){
+            var toMs=function(d){ var p=d.split('/'); return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])).getTime(); };
+            return toMs(b)-toMs(a);
+        });
+        section.classList.remove('hidden');
+        lista.innerHTML=datas.map(function(dataKey){
+            var st=appData[dataKey][currentSector];
+            var saved=st.producaoSalva||{};
+            var blocks=(saved.timeBlocks)||st.timeBlocks||[];
+            var shiftName=(saved.shiftName)||st.shiftName||'';
+            var totalSacas=0,totalMin=0;
+            blocks.forEach(function(b){
+                if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
+                if(b.start&&b.end){ var mS=+b.start.split(':')[0]*60+(+b.start.split(':')[1]),mE=+b.end.split(':')[0]*60+(+b.end.split(':')[1]); if(mE<=mS) mE+=1440; totalMin+=mE-mS; }
+            });
+            var sacasStr=String(totalSacas).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+            var horasStr=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+            var shiftStr=shiftName?' · '+shiftName:'';
+            var isHoje=dataKey===workingDate;
+            var borderCls=isHoje?'border-emerald-300 dark:border-emerald-700':'border-gray-200 dark:border-gray-700';
+            var iconCls=isHoje?'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400':'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400';
+            var dateLbl=isHoje?dataKey+' <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-bold px-1.5 py-0.5 rounded">hoje</span>':dataKey;
+            var editadoBadge=saved.editado?'<span class="text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-600 font-bold px-1.5 py-0.5 rounded ml-1">editado</span>':'';
+            return '<button onclick="abrirModalProdDetalhe(\''+dataKey+'\')" class="w-full text-left bg-white dark:bg-gray-800 border '+borderCls+' hover:border-blue-300 dark:hover:border-blue-700 rounded-2xl p-4 shadow-sm transition-all active:scale-[0.98] group">'+
+                '<div class="flex items-center justify-between gap-3">'+
+                    '<div class="flex items-center gap-3">'+
+                        '<div class="w-9 h-9 rounded-full '+iconCls+' flex items-center justify-center text-base shrink-0">📅</div>'+
+                        '<div>'+
+                            '<p class="text-sm font-black text-gray-900 dark:text-white">'+dateLbl+editadoBadge+'</p>'+
+                            '<p class="text-[11px] text-gray-500 mt-0.5">📦 '+sacasStr+' sc · ⏱️ '+horasStr+shiftStr+'</p>'+
+                        '</div>'+
+                    '</div>'+
+                    '<svg class="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>'+
+                '</div>'+
+            '</button>';
+        }).join('');
+    }
+
+    function compartilharProducaoDia(dataKey) {
+        var st=(appData[dataKey]&&appData[dataKey][currentSector])||{};
+        var saved=st.producaoSalva||{};
+        var cleanSetor=limparEmoji(currentSector);
+        var blocks=((saved.timeBlocks)||st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.activity; });
+        if(!blocks.length) return mostrarToast('Sem dados de produção para esta data.', true);
+        var shiftName=(saved.shiftName)||st.shiftName||'';
+        var shiftStart=(saved.shiftStart)||st.shiftStart||'';
+        var shiftEnd=(saved.shiftEnd)||st.shiftEnd||'';
+        var justificativa=(saved.justificativa)||st.justificativa||'';
+        var totalSacas=0,totalMin=0,linhasBlocks='';
+        blocks.forEach(function(b){
+            if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
+            var diff=calcMinutos(b.start,b.end); totalMin+=diff;
+            var dAct=getDisplayActivity(b),ref=b.ref?' | Ref: '+b.ref:'',obs=b.obs?' — '+b.obs:'',sc=(b.bags&&!isNoBagsActivity(b.activity))?' | *'+b.bags+' sc*':'';
+            linhasBlocks+='  • '+dAct+': '+(b.start||'--:--')+' às '+(b.end||'--:--')+(diff>0?' ('+Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m)':'')+ref+sc+obs+'\n';
+        });
+        var horas=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+        var texto='*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: '+cleanSetor.toUpperCase()+'*\n📅 '+dataKey+'  |  👤 '+operadorNome+'\n';
+        var shiftMin=0,tempoConsid=totalMin;
+        if(shiftName&&shiftStart&&shiftEnd){
+            shiftMin=calcMinutos(shiftStart,shiftEnd);
+            var horasDisp=Math.floor(shiftMin/60)+'h '+String(shiftMin%60).padStart(2,'0')+'m';
+            if(totalMin>shiftMin) tempoConsid=shiftMin;
+            var tCS=Math.floor(tempoConsid/60)+'h '+String(tempoConsid%60).padStart(2,'0')+'m';
+            texto+='⏱️ *Turno:* '+shiftName+' ('+shiftStart+' às '+shiftEnd+')\n⏳ *Horas Disponíveis:* '+horasDisp+'\n📌 *Horas Apontadas:* '+horas+'\n▶️ *Tempo de Cálculo:* '+tCS+'\n';
+        } else { texto+='⏱️ *Horas Totais Apontadas:* '+horas+'\n'; }
+        texto+='─'.repeat(25)+'\n';
+        if(linhasBlocks) texto+='*Relatório de Atividades:*\n'+linhasBlocks+'\n';
+        if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&justificativa){
+            var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55,metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
+            var media=tempoConsid>0&&totalSacas>0?totalSacas/(tempoConsid/60):0;
+            if((totalMin>0||shiftMin>0)&&(totalSacas<metaT||media<metaH)) texto+='⚠️ *Justificativa de Meta:* '+justificativa+'\n\n';
+        }
+        texto+='─'.repeat(25)+'\n📦 *Volume Diário:* '+totalSacas.toLocaleString('pt-BR')+' sacas';
+        executarCompartilhamento('Boletim '+dataKey+' '+cleanSetor,texto,cleanSetor);
     }
     </script>
 </body>
