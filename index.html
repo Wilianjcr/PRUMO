@@ -584,13 +584,8 @@
         html.dark input[type="time"]::-webkit-calendar-picker-indicator,
         html.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.7); cursor: pointer; }
 
-        #save-indicator {
-            position: fixed; bottom: 84px; right: 20px; background: rgba(16,185,129,0.95);
-            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
-            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        #save-indicator.visible { opacity: 1; transform: translateY(0); }
+        #save-indicator { display: none; }
+        #save-indicator.visible { display: none; }
 
         /* Offline indicator */
         #offline-indicator {
@@ -602,15 +597,9 @@
         }
         #offline-indicator.visible { transform: translateY(0); }
 
-        /* Cloud sync indicator */
-        #cloud-indicator {
-            position: fixed; bottom: 84px; left: 20px; background: rgba(59,130,246,0.92);
-            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
-        }
-        #cloud-indicator.visible { opacity: 1; transform: translateY(0); }
+        /* Cloud sync indicator — hidden, sync is silent */
+        #cloud-indicator { display: none; }
+        #cloud-indicator.visible { display: none; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -2162,7 +2151,7 @@
 
     function salvarOPs() {
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){ mostrarToast('Erro ao salvar localmente. Verifique espaço.', true); }
+        catch(e){ console.warn('[Prumo] localStorage cheio (OPs):', e.message); try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e2){} }
         salvarNoFirestore();
     }
 
@@ -2305,7 +2294,7 @@
 
     function _salvarRegistrosAtv() {
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){ mostrarToast('Erro ao salvar localmente. Verifique espaço.', true); }
+        catch(e){ console.warn('[Prumo] localStorage cheio (Atv):', e.message); try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e2){} }
         salvarNoFirestore();
     }
 
@@ -2781,6 +2770,7 @@
 
     var _syncRetryCount = 0;
     var _syncMaxRetries = 3;
+    var _pendingSync = false;
 
     /** Salva dados do dia + config no Firestore com debounce de 2s */
     function salvarNoFirestore() {
@@ -2803,7 +2793,8 @@
                       if (_syncRetryCount <= _syncMaxRetries) {
                           setTimeout(function(){ salvarNoFirestore(); }, 5000 * _syncRetryCount);
                       } else {
-                          mostrarToast('Erro ao sincronizar. Dados salvos localmente.', true);
+                          console.warn('[Prumo] Sync falhou após ' + _syncMaxRetries + ' tentativas. Dados seguros no localStorage.');
+                          _pendingSync = true;
                       }
                   });
             }
@@ -2845,9 +2836,6 @@
             if (callback) callback(mudou);
         }).catch(function(e){
             console.warn('[Firebase] carregar:', e.message);
-            if (navigator.onLine) {
-                mostrarToast('Falha ao carregar da nuvem. Usando dados locais.', true);
-            }
             if (callback) callback(false);
         });
     }
@@ -3209,7 +3197,12 @@
             var el = document.getElementById('offline-indicator');
             if (el) el.classList.toggle('visible', !navigator.onLine);
         }
-        window.addEventListener('online', function() { atualizarStatusOnline(); salvarNoFirestore(); });
+        window.addEventListener('online', function() {
+            atualizarStatusOnline();
+            _syncRetryCount = 0;
+            _pendingSync = false;
+            salvarNoFirestore();
+        });
         window.addEventListener('offline', atualizarStatusOnline);
         atualizarStatusOnline();
     };
@@ -4110,11 +4103,10 @@
         if (currentViewId === 'view-requisicao') { st.reqMatNome=document.getElementById('req-mat-nome').value; st.reqMatQtd=document.getElementById('req-mat-qtd').value; st.reqMatJust=document.getElementById('req-mat-just').value; }
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
         catch(e){
-            // Tentar liberar espaço removendo dados antigos antes de desistir
             try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-            catch(e2){ mostrarToast('Erro ao salvar. Verifique espaço no dispositivo.', true); }
+            catch(e2){ console.warn('[Prumo] localStorage cheio:', e2.message); }
         }
-        salvarNoFirestore(); // ← FIREBASE
+        salvarNoFirestore();
     }
 
     function atualizarUI(viewId) {
