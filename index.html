@@ -584,13 +584,8 @@
         html.dark input[type="time"]::-webkit-calendar-picker-indicator,
         html.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.7); cursor: pointer; }
 
-        #save-indicator {
-            position: fixed; bottom: 84px; right: 20px; background: rgba(16,185,129,0.95);
-            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
-            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        #save-indicator.visible { opacity: 1; transform: translateY(0); }
+        #save-indicator { display: none; }
+        #save-indicator.visible { display: none; }
 
         /* Offline indicator */
         #offline-indicator {
@@ -602,15 +597,9 @@
         }
         #offline-indicator.visible { transform: translateY(0); }
 
-        /* Cloud sync indicator */
-        #cloud-indicator {
-            position: fixed; bottom: 84px; left: 20px; background: rgba(59,130,246,0.92);
-            color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-            padding: 6px 14px; border-radius: 9999px; opacity: 0; transform: translateY(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
-        }
-        #cloud-indicator.visible { opacity: 1; transform: translateY(0); }
+        /* Cloud sync indicator — hidden, sync is silent */
+        #cloud-indicator { display: none; }
+        #cloud-indicator.visible { display: none; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -829,6 +818,7 @@
                             <div class="w-[80%] h-2 rounded" style="background:#073642;border:1px solid #586e75"></div>
                             <div class="w-[60%] h-1.5 rounded mt-1" style="background:#586e75"></div>
                             <div class="w-[70%] h-4 rounded mt-1.5" style="background:#b58900"></div>
+                        </div>
                     </div>
                     <p class="text-[10px] font-bold mt-1.5 mb-0.5 text-center" style="color: var(--text-primary, '')">Solarized Dark</p>
                 </button>
@@ -1153,6 +1143,7 @@
                                         <label class="setor-pill"><input type="checkbox" value="📥 Recebimento" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-blue-300">📥 Rec.</span></label>
                                         <label class="setor-pill"><input type="checkbox" value="⏱️ Manutenção" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-rose-300">⏱️ Man.</span></label>
                                         <label class="setor-pill"><input type="checkbox" value="📊 Operações" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-cyan-300">📊 Op.</span></label>
+                                        <label class="setor-pill"><input type="checkbox" value="☕ Qualidade" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-amber-300">☕ Qual.</span></label>
                                         <button type="button" onclick="toggleTodosSetores()" class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all">Todos</button>
                                     </div>
                                 </div>
@@ -1172,6 +1163,7 @@
                                     <button onclick="filtrarTurnosAdm('🚛 Expedição')" id="filtro-exp" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Exp.</button>
                                     <button onclick="filtrarTurnosAdm('📦 Embalagem')" id="filtro-emb" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Emb.</button>
                                     <button onclick="filtrarTurnosAdm('📥 Recebimento')" id="filtro-rec" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Rec.</button>
+                                    <button onclick="filtrarTurnosAdm('☕ Qualidade')" id="filtro-qual" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Qual.</button>
                                 </div>
                                 <div class="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar" id="adm-lista-turnos"></div>
                             </div>
@@ -1987,6 +1979,7 @@
                         <option value="📦 Embalagem">📦 Embalagem</option>
                         <option value="📊 Operações">📊 Operações</option>
                         <option value="⏱️ Manutenção">⏱️ Manutenção</option>
+                        <option value="☕ Qualidade">☕ Qualidade</option>
                     </select>
                 </div>
                 <button onclick="realizarLogin()" class="w-full bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold py-4 rounded-xl active:scale-[0.98] shadow-md transition-all mt-6 text-sm uppercase tracking-widest heading-font">Entrar</button>
@@ -2089,6 +2082,12 @@
             { id: 'op-ref',       label: 'Lote | Guia | Contrato', type: 'text',   placeholder: 'Ex: 001', icon: '📋' },
             { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
             { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 150', icon: '⚖️' }
+        ],
+        'Qualidade': [
+            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
+            { id: 'op-ref',       label: 'Lote | Amostra',         type: 'text',   placeholder: 'Ex: AM-001', icon: '📋' },
+            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
+            { id: 'op-sacas',     label: 'Qtd. de Amostras',       type: 'number', placeholder: 'Ex: 12', icon: '🧪' }
         ]
     };
 
@@ -2152,7 +2151,7 @@
 
     function salvarOPs() {
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){ mostrarToast('Erro ao salvar localmente. Verifique espaço.', true); }
+        catch(e){ console.warn('[Prumo] localStorage cheio (OPs):', e.message); try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e2){} }
         salvarNoFirestore();
     }
 
@@ -2295,7 +2294,7 @@
 
     function _salvarRegistrosAtv() {
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){ mostrarToast('Erro ao salvar localmente. Verifique espaço.', true); }
+        catch(e){ console.warn('[Prumo] localStorage cheio (Atv):', e.message); try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e2){} }
         salvarNoFirestore();
     }
 
@@ -2544,7 +2543,7 @@
         var ateEl = document.getElementById('filtro-periodo-ate');
         var deVal = deEl ? deEl.value : '';
         var ateVal = ateEl ? ateEl.value : '';
-        var setoresOP = ['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações'];
+        var setoresOP = ['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','☕ Qualidade'];
         var todos = [];
         Object.keys(appData).forEach(function(dataKey) {
             if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataKey)) return;
@@ -2771,6 +2770,7 @@
 
     var _syncRetryCount = 0;
     var _syncMaxRetries = 3;
+    var _pendingSync = false;
 
     /** Salva dados do dia + config no Firestore com debounce de 2s */
     function salvarNoFirestore() {
@@ -2793,7 +2793,8 @@
                       if (_syncRetryCount <= _syncMaxRetries) {
                           setTimeout(function(){ salvarNoFirestore(); }, 5000 * _syncRetryCount);
                       } else {
-                          mostrarToast('Erro ao sincronizar. Dados salvos localmente.', true);
+                          console.warn('[Prumo] Sync falhou após ' + _syncMaxRetries + ' tentativas. Dados seguros no localStorage.');
+                          _pendingSync = true;
                       }
                   });
             }
@@ -2835,9 +2836,6 @@
             if (callback) callback(mudou);
         }).catch(function(e){
             console.warn('[Firebase] carregar:', e.message);
-            if (navigator.onLine) {
-                mostrarToast('Falha ao carregar da nuvem. Usando dados locais.', true);
-            }
             if (callback) callback(false);
         });
     }
@@ -3199,7 +3197,12 @@
             var el = document.getElementById('offline-indicator');
             if (el) el.classList.toggle('visible', !navigator.onLine);
         }
-        window.addEventListener('online', function() { atualizarStatusOnline(); salvarNoFirestore(); });
+        window.addEventListener('online', function() {
+            atualizarStatusOnline();
+            _syncRetryCount = 0;
+            _pendingSync = false;
+            salvarNoFirestore();
+        });
         window.addEventListener('offline', atualizarStatusOnline);
         atualizarStatusOnline();
     };
@@ -3289,7 +3292,8 @@
         { emoji: '🚛', nome: '🚛 Expedição', label: 'Expedição' },
         { emoji: '📦', nome: '📦 Embalagem', label: 'Embalagem' },
         { emoji: '📊', nome: '📊 Operações', label: 'Operações' },
-        { emoji: '⏱️', nome: '⏱️ Manutenção', label: 'Manutenção' }
+        { emoji: '⏱️', nome: '⏱️ Manutenção', label: 'Manutenção' },
+        { emoji: '☕', nome: '☕ Qualidade', label: 'Qualidade' }
     ];
 
     function _getSetoresOrder() {
@@ -3323,7 +3327,8 @@
             'Expedição':   { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-600 dark:text-orange-400', ring: 'focus:ring-orange-500' },
             'Embalagem':   { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400', ring: 'focus:ring-purple-500' },
             'Operações':   { bg: 'bg-cyan-50 dark:bg-cyan-900/20', text: 'text-cyan-600 dark:text-cyan-400', ring: 'focus:ring-cyan-500' },
-            'Manutenção':  { bg: 'bg-rose-50 dark:bg-rose-900/20', text: 'text-rose-600 dark:text-rose-400', ring: 'focus:ring-rose-500' }
+            'Manutenção':  { bg: 'bg-rose-50 dark:bg-rose-900/20', text: 'text-rose-600 dark:text-rose-400', ring: 'focus:ring-rose-500' },
+            'Qualidade':   { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-600 dark:text-amber-400', ring: 'focus:ring-amber-500' }
         };
         grid.innerHTML = setores.map(function(s){
             var c = colors[s.label] || { bg:'bg-gray-50 dark:bg-gray-700', text:'text-gray-600', ring:'focus:ring-gray-500' };
@@ -3693,7 +3698,7 @@
     function populateShiftSelector() { renderShiftCards(); }
     function onShiftChange(sel) { debouncedSave(); calcTotalProductivity(); }
 
-    var NO_BAGS_LIST = ['Conferência de Estoque','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras','Outros','Conferência de Estoque (M.I)','Recebimento e Conferência de Sacas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização'];
+    var NO_BAGS_LIST = ['Conferência de Estoque','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras','Outros','Conferência de Estoque (M.I)','Recebimento e Conferência de Sacas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Cupping','Certificação','Controle de Estoque','Emissão de Guias','Reunião','Treinamento / Curso'];
     function isNoBagsActivity(activity) {
         if (!activity) return false;
         return NO_BAGS_LIST.some(function(item){ return activity.startsWith(item); });
@@ -3706,7 +3711,8 @@
         'Expedição':   ['Pilha simples (Liga)','Ensaque','Embarque (Exportação)','Produção de Vácuo','Coleta (Mercado interno)'],
         'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)'],
         'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Outros'],
-        'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outros']
+        'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outros'],
+        'Qualidade':   ['Análise de Amostras (Fornecedor)','Análise de Amostras (Interna)','Análise de Amostras (Cliente)','Torra de Amostras','Cupping','Certificação','Outros']
     };
     var PLANEJAMENTO_MAP = {
         'Recebimento': ['Recebimento de café','Pilha simples (Liga)','Ensaque','Embarque (Mercado interno)','Conferência de Estoque','Guardar Café (Rebenefício)','Separar Lotes (Expedição)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
@@ -3715,7 +3721,8 @@
         'Expedição':   ['Pilha simples (Liga)','Ensaque','Embarque (Exportação)','Produção de Vácuo','Coleta (Mercado interno)','Fracionamento de Lote','Conferência de Estoque (M.I)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
         'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)','Conferência de Estoque','Recebimento e Conferência de Sacas','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
         'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Limpeza do Setor','Outras'],
-        'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outras']
+        'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outras'],
+        'Qualidade':   ['Análise de Amostras (Fornecedor)','Análise de Amostras (Interna)','Análise de Amostras (Cliente)','Torra de Amostras','Cupping','Certificação','Controle de Estoque','Emissão de Guias','Reunião','Treinamento / Curso','Limpeza do Setor','Outras']
     };
     // OP_ACTIVITIES_MAP: mesmas atividades do ACTIVITIES_MAP disponíveis nas OPs por setor
     // (já usa ACTIVITIES_MAP diretamente — mapeamento de correspondência para cruzamento)
@@ -3750,6 +3757,7 @@
         if (cleanSetor.includes('Recebimento'))                                      currentRefLabel = 'Guia/Lote';
         else if (cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) currentRefLabel = 'Guia';
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = 'Guia/Contrato';
+        else if (cleanSetor.includes('Qualidade'))                                   currentRefLabel = 'Lote/Amostra';
         else currentRefLabel = 'Referência';
         currentActivities             = ACTIVITIES_MAP[cleanSetor]   || [];
         currentPlanejamentoActivities = PLANEJAMENTO_MAP[cleanSetor] || [];
@@ -3757,13 +3765,13 @@
 
     function configurarBotoesSubmenu(cleanSetor) {
         var hide = function(id, cond){ var el=document.getElementById(id); if(!el) return; el.classList.toggle('hidden',cond); if(!cond) el.classList.add('flex'); };
-        hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações');
+        hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações'||cleanSetor==='Qualidade');
         hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
         hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
         hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
         hide('btn-menu-conv-mm',  cleanSetor!=='Operações');
         hide('btn-menu-conv-hz',  cleanSetor!=='Operações');
-        var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE'];
+        var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE','Qualidade'];
         hide('btn-menu-op', !setoresOP.some(function(s){ return cleanSetor.includes(s); }));
     }
 
@@ -4095,11 +4103,10 @@
         if (currentViewId === 'view-requisicao') { st.reqMatNome=document.getElementById('req-mat-nome').value; st.reqMatQtd=document.getElementById('req-mat-qtd').value; st.reqMatJust=document.getElementById('req-mat-just').value; }
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
         catch(e){
-            // Tentar liberar espaço removendo dados antigos antes de desistir
             try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-            catch(e2){ mostrarToast('Erro ao salvar. Verifique espaço no dispositivo.', true); }
+            catch(e2){ console.warn('[Prumo] localStorage cheio:', e2.message); }
         }
-        salvarNoFirestore(); // ← FIREBASE
+        salvarNoFirestore();
     }
 
     function atualizarUI(viewId) {
@@ -4510,7 +4517,7 @@
         setTimeout(function(){ modal.classList.add('hidden'); },300);
     }
 
-    var SETORES_ORDEM=['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','🧪 TESTE'];
+    var SETORES_ORDEM=['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','☕ Qualidade','🧪 TESTE'];
 
     function isMetaOk(st, sectorName) {
         if(!sectorName.includes('Rebenefício')&&!sectorName.includes('TESTE')) return true;
