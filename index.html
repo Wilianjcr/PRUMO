@@ -1048,31 +1048,6 @@
                             <div id="adm-setores-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
                         </div>
 
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-soft">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                </div>
-                                <h3 class="font-bold text-sm md:text-base text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h3>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Hora</label>
-                                    <div class="relative">
-                                        <input type="number" id="adm-meta-hora" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="55" onchange="salvarMetasAdm()">
-                                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/h</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Turno</label>
-                                    <div class="relative">
-                                        <input type="number" id="adm-meta-turno" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="500" onchange="salvarMetasAdm()">
-                                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/t</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft overflow-hidden">
                             <!-- Header -->
                             <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
@@ -1202,6 +1177,13 @@
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Boletim</h3>
+                        </button>
+
+                        <button id="btn-menu-metas" data-key="metas" onclick="navigate('view-metas',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500 relative overflow-hidden"><div class="lp-ring"></div>
+                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
+                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Metas</h3>
                         </button>
 
                         <button id="btn-menu-quebra" data-key="quebra" onclick="navigate('view-divisao-quebra',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500 relative overflow-hidden"><div class="lp-ring"></div>
@@ -1466,6 +1448,49 @@
                         </div>
                     </div>
 
+                    <div id="prod-tab-bar" class="hidden mb-6">
+                        <div class="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1">
+                            <button onclick="switchProdTab('boletim')" id="prod-tab-boletim" class="flex-1 py-2.5 text-sm font-bold uppercase tracking-wider rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">Boletim</button>
+                            <button onclick="switchProdTab('metas')" id="prod-tab-metas" class="flex-1 py-2.5 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all">Metas</button>
+                        </div>
+                    </div>
+
+                    <div id="prod-tab-metas-content" class="hidden mb-8">
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Metas do Setor</h3>
+                                    <p class="text-xs text-gray-400 mt-0.5">Metas definidas pelo gestor para o Rebenefício</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 text-center">
+                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Meta Sacas / Hora</span>
+                                    <div class="flex items-baseline justify-center gap-1">
+                                        <span id="info-meta-hora" class="text-4xl font-black text-amber-700 dark:text-amber-300 tracking-tighter">55</span>
+                                        <span class="text-sm font-bold text-amber-400">sc/h</span>
+                                    </div>
+                                </div>
+                                <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 text-center">
+                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Meta Sacas / Turno</span>
+                                    <div class="flex items-baseline justify-center gap-1">
+                                        <span id="info-meta-turno" class="text-4xl font-black text-amber-700 dark:text-amber-300 tracking-tighter">500</span>
+                                        <span class="text-sm font-bold text-amber-400">sc/t</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-start gap-3">
+                                <span class="text-gray-400 text-lg mt-0.5">ℹ️</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Produzir abaixo dessas metas exige justificativa no Boletim. Caso tenha dúvidas, procure seu gestor.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prod-tab-boletim-content">
+
                     <div id="rebeneficio-shift-container" class="hidden mb-8 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-3xl p-6 transition-all">
                         <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center gap-3">
@@ -1543,7 +1568,48 @@
                         </div>
                     </div>
 
+                    </div><!-- /prod-tab-boletim-content -->
 
+                </div>
+            </div>
+
+            <div id="view-metas" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
+                <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
+                    <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h2>
+                        <p class="text-sm text-gray-500 mt-1">Defina as metas do setor Rebenefício</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Configurar Metas</h3>
+                                <p class="text-xs text-gray-400 mt-0.5">Valores usados para calcular desempenho dos operadores</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Hora</label>
+                                <div class="relative">
+                                    <input type="number" id="adm-meta-hora" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="55" onchange="salvarMetasAdm()">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/h</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Turno</label>
+                                <div class="relative">
+                                    <input type="number" id="adm-meta-turno" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="500" onchange="salvarMetasAdm()">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/t</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-start gap-3">
+                            <span class="text-amber-500 text-lg mt-0.5">💡</span>
+                            <p class="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">Quando a produção ficar abaixo dessas metas, o operador será notificado e precisará justificar a quebra de meta no Boletim Diário.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -3427,9 +3493,39 @@
         appData.config.metaRebeneficioHora  = document.getElementById('adm-meta-hora').value  || 55;
         appData.config.metaRebeneficioTurno = document.getElementById('adm-meta-turno').value || 500;
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
-        salvarNoFirestore(); // ← FIREBASE
-        mostrarToast('Metas do sistema atualizadas!');
+        salvarNoFirestore();
+        mostrarToast('Metas atualizadas!');
         if (currentViewId === 'view-productivity') calcTotalProductivity();
+    }
+
+    function atualizarMetasInfo() {
+        var mH=appData.config&&appData.config.metaRebeneficioHora||55;
+        var mT=appData.config&&appData.config.metaRebeneficioTurno||500;
+        var elH=document.getElementById('info-meta-hora');
+        var elT=document.getElementById('info-meta-turno');
+        if(elH) elH.textContent=mH;
+        if(elT) elT.textContent=mT;
+    }
+
+    function switchProdTab(tab) {
+        var boletimContent=document.getElementById('prod-tab-boletim-content');
+        var metasContent=document.getElementById('prod-tab-metas-content');
+        var btnBoletim=document.getElementById('prod-tab-boletim');
+        var btnMetas=document.getElementById('prod-tab-metas');
+        var activeClass='flex-1 py-2.5 text-sm font-bold uppercase tracking-wider rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all';
+        var inactiveClass='flex-1 py-2.5 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all';
+        if(tab==='metas') {
+            if(boletimContent) boletimContent.classList.add('hidden');
+            if(metasContent) metasContent.classList.remove('hidden');
+            if(btnBoletim) btnBoletim.className=inactiveClass;
+            if(btnMetas) btnMetas.className=activeClass;
+            atualizarMetasInfo();
+        } else {
+            if(boletimContent) boletimContent.classList.remove('hidden');
+            if(metasContent) metasContent.classList.add('hidden');
+            if(btnBoletim) btnBoletim.className=activeClass;
+            if(btnMetas) btnMetas.className=inactiveClass;
+        }
     }
 
     /** Garante que clicar em qualquer pill atualiza o estilo mesmo sem CSS :checked */
@@ -3757,6 +3853,7 @@
     function configurarBotoesSubmenu(cleanSetor) {
         var hide = function(id, cond){ var el=document.getElementById(id); if(!el) return; el.classList.toggle('hidden',cond); if(!cond) el.classList.add('flex'); };
         hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações'||cleanSetor==='Qualidade');
+        hide('btn-menu-metas', !isAdmin||!(cleanSetor==='Rebenefício'||cleanSetor==='TESTE'));
         hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
         hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
         hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
@@ -4125,17 +4222,24 @@
                 setTimeout(function(){ _applySubmenuOrder(); _initDragSubmenu(); }, 50);
             }
         }
-        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op'];
+        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op','view-metas'];
         if (actionViews.includes(viewId)) {
             if(isAdmin&&act){act.classList.remove('hidden');act.classList.add('flex');}
-            if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
+            if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&viewId!=='view-metas'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
             if(isAdmin&&['view-productivity','view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
+        }
+        if (viewId==='view-metas') {
+            var el1=document.getElementById('adm-meta-hora'), el2=document.getElementById('adm-meta-turno');
+            if(el1) el1.value=appData.config&&appData.config.metaRebeneficioHora||55;
+            if(el2) el2.value=appData.config&&appData.config.metaRebeneficioTurno||500;
         }
         if (viewId==='view-productivity') {
             var shiftCont=document.getElementById('rebeneficio-shift-container');
             var lblMedia =document.getElementById('lbl-media-hora');
             var isReb=currentSector.includes('Rebenefício')||currentSector.includes('TESTE');
-            // Mostrar seletor de turno para todos os setores que tenham turnos cadastrados
+            var tabBar=document.getElementById('prod-tab-bar');
+            if(tabBar) tabBar.classList.toggle('hidden',!isReb||isAdmin);
+            if(isReb&&!isAdmin) { atualizarMetasInfo(); switchProdTab('boletim'); }
             var turnosDoSetor = ((appData.config && appData.config.turnos) || []).filter(function(t){ return t.setor === currentSector; });
             var mostrarShift = turnosDoSetor.length > 0;
             if(shiftCont){shiftCont.classList.toggle('hidden',!mostrarShift);shiftCont.classList.toggle('block',mostrarShift);}
