@@ -2813,6 +2813,7 @@
     // ============================================================
     var _firestoreTimer = null;
     var _firestoreListener = null;
+    var _configListener = null;
 
     function dateToDocId(date) {
         return (date || workingDate).replace(/\//g, '-');
@@ -2871,22 +2872,35 @@
             db.collection('operacoes').doc('config').get()
         ]).then(function (docs) {
             var mudou = false;
-            // Dados do dia
             if (docs[0] && docs[0].exists) {
                 var nuvemDia = docs[0].data() || {};
                 if (!appData[workingDate]) appData[workingDate] = {};
                 Object.keys(nuvemDia).forEach(function (setor) {
                     var local = appData[workingDate][setor];
-                    var vazio = !local || !local.timeBlocks || local.timeBlocks.length === 0;
-                    if (vazio) { appData[workingDate][setor] = nuvemDia[setor]; mudou = true; }
+                    var nuvem = nuvemDia[setor];
+                    var localTs = (local && local._lastModifiedAt) || 0;
+                    var nuvemTs = (nuvem && nuvem._lastModifiedAt) || 0;
+                    var localVazio = !local || !local.timeBlocks || local.timeBlocks.length === 0;
+                    if (localVazio || nuvemTs > localTs) {
+                        appData[workingDate][setor] = nuvem; mudou = true;
+                    }
                 });
             }
-            // Config
             if (docs[1] && docs[1].exists) {
                 var nuvemCfg = docs[1].data() || {};
-                var semTurnos = !appData.config.turnos || appData.config.turnos.length === 0;
-                if (semTurnos && nuvemCfg.turnos && nuvemCfg.turnos.length > 0) {
-                    appData.config = Object.assign({}, appData.config, nuvemCfg); mudou = true;
+                var localCfg = appData.config || {};
+                if (nuvemCfg.turnos && nuvemCfg.turnos.length > 0) {
+                    var localSemTurnos = !localCfg.turnos || localCfg.turnos.length === 0;
+                    if (localSemTurnos || nuvemCfg._lastModifiedAt > (localCfg._lastModifiedAt || 0)) {
+                        appData.config = Object.assign({}, localCfg, nuvemCfg); mudou = true;
+                    }
+                }
+                if (nuvemCfg.metaRebeneficioHora !== undefined || nuvemCfg.metaRebeneficioTurno !== undefined) {
+                    if (nuvemCfg._lastModifiedAt > (localCfg._lastModifiedAt || 0)) {
+                        appData.config.metaRebeneficioHora = nuvemCfg.metaRebeneficioHora || appData.config.metaRebeneficioHora;
+                        appData.config.metaRebeneficioTurno = nuvemCfg.metaRebeneficioTurno || appData.config.metaRebeneficioTurno;
+                        mudou = true;
+                    }
                 }
             }
             if (mudou) { try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){} }
@@ -2897,9 +2911,9 @@
         });
     }
 
-    /** Escuta mudanças em tempo real de outros setores no mesmo dia */
+    /** Escuta mudanças em tempo real no mesmo dia + config */
     function iniciarListenerFirestore() {
-        if (!db || isAdmin) return;
+        if (!db) return;
         if (_firestoreListener) _firestoreListener();
         _firestoreListener = db.collection('operacoes').doc(dateToDocId(workingDate))
             .onSnapshot(function(doc){
@@ -2908,10 +2922,35 @@
                 var mudou = false;
                 if (!appData[workingDate]) appData[workingDate] = {};
                 Object.keys(nuvem).forEach(function(setor){
-                    if (setor !== currentSector) { appData[workingDate][setor] = nuvem[setor]; mudou = true; }
+                    if (setor === currentSector && !isAdmin) return;
+                    var local = appData[workingDate][setor];
+                    var localTs = (local && local._lastModifiedAt) || 0;
+                    var nuvemTs = (nuvem[setor] && nuvem[setor]._lastModifiedAt) || 0;
+                    if (nuvemTs > localTs) {
+                        appData[workingDate][setor] = nuvem[setor]; mudou = true;
+                    }
                 });
-                if (mudou) { try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){} }
+                if (mudou) {
+                    try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+                    if (isAdmin) loadDataParaTela();
+                }
             }, function(e){ console.warn('[Firebase] listener:', e.message); });
+
+        if (_configListener) _configListener();
+        _configListener = db.collection('operacoes').doc('config')
+            .onSnapshot(function(doc){
+                if (!doc.exists) return;
+                var nuvemCfg = doc.data() || {};
+                var localCfg = appData.config || {};
+                var nuvemTs = nuvemCfg._lastModifiedAt || 0;
+                var localTs = localCfg._lastModifiedAt || 0;
+                if (nuvemTs > localTs) {
+                    appData.config = Object.assign({}, localCfg, nuvemCfg);
+                    try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+                    if (currentViewId === 'view-productivity') calcTotalProductivity();
+                    atualizarMetasInfo();
+                }
+            }, function(e){ console.warn('[Firebase] config listener:', e.message); });
     }
 
     /** Botão manual "Sincronizar Nuvem" no sidebar */
@@ -3482,6 +3521,7 @@
     function logout() {
         saveData();
         if (_firestoreListener) { _firestoreListener(); _firestoreListener = null; }
+        if (_configListener) { _configListener(); _configListener = null; }
         localStorage.removeItem('operadorNome');
         localStorage.removeItem('operadorIsAdmin');
         localStorage.removeItem('operadorSetor');
@@ -3492,6 +3532,7 @@
         if (!appData.config) appData.config = {};
         appData.config.metaRebeneficioHora  = document.getElementById('adm-meta-hora').value  || 55;
         appData.config.metaRebeneficioTurno = document.getElementById('adm-meta-turno').value || 500;
+        appData.config._lastModifiedAt = Date.now();
         try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
         salvarNoFirestore();
         mostrarToast('Metas atualizadas!');
