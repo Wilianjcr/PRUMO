@@ -107,11 +107,6 @@
                     firebase.initializeApp(firebaseConfig);
                 }
                 db = firebase.firestore();
-                if (firebase.auth) {
-                    firebase.auth().signInAnonymously()
-                        .then(function(){ console.log('[Prumo] Auth anônima OK ✓'); })
-                        .catch(function(e){ console.warn('[Prumo] Auth anônima falhou:', e.message); });
-                }
                 console.log('[Prumo] Firebase inicializado ✓');
             } catch(e) {
                 console.warn('[Prumo] Falha ao inicializar Firebase:', e.message);
@@ -130,7 +125,14 @@
                     s3.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js';
                     s3.onload = function () {
                         initFirebase();
-                        if (typeof callback === 'function') callback();
+                        if (firebase.auth) {
+                            firebase.auth().signInAnonymously()
+                                .then(function(){ console.log('[Prumo] Auth anônima OK ✓'); })
+                                .catch(function(e){ console.warn('[Prumo] Auth anônima falhou:', e.message); })
+                                .then(function(){ if (typeof callback === 'function') callback(); });
+                        } else {
+                            if (typeof callback === 'function') callback();
+                        }
                     };
                     s3.onerror = function () {
                         console.warn('[Prumo] firebase-auth-compat.js não carregou.');
