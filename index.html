@@ -40,7 +40,20 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
-                    .then(function (reg) { console.log('[SW] Registrado:', reg.scope); })
+                    .then(function (reg) {
+                        console.log('[SW] Registrado:', reg.scope);
+                        reg.addEventListener('updatefound', function() {
+                            var newSW = reg.installing;
+                            if (newSW) {
+                                newSW.addEventListener('statechange', function() {
+                                    if (newSW.state === 'activated' && navigator.serviceWorker.controller) {
+                                        console.log('[SW] Nova versão ativa — recarregando...');
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        });
+                    })
                     .catch(function (err) { console.info('[SW] sw.js não encontrado — modo offline desativado.', err.message); });
             });
         }
@@ -2882,18 +2895,14 @@
         ]).then(function (docs) {
             var mudou = false;
             if (docs[0] && docs[0].exists) {
-                var nuvemDia = docs[0].data() || {};
-                if (!appData[workingDate]) appData[workingDate] = {};
-                Object.keys(nuvemDia).forEach(function (setor) {
-                    appData[workingDate][setor] = nuvemDia[setor];
-                    mudou = true;
-                });
+                appData[workingDate] = docs[0].data() || {};
+                mudou = true;
             }
             if (docs[1] && docs[1].exists) {
                 var nuvemCfg = docs[1].data() || {};
-                appData.config = Object.assign({}, appData.config, nuvemCfg);
-                if (!appData.config.turnos) appData.config.turnos = [];
-                if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
+                nuvemCfg.turnos = nuvemCfg.turnos || [];
+                nuvemCfg.metasHistorico = nuvemCfg.metasHistorico || [];
+                appData.config = nuvemCfg;
                 mudou = true;
             }
             if (mudou) { _cachearLocal(); }
@@ -2915,17 +2924,9 @@
         _firestoreListener = db.collection('operacoes').doc(dateToDocId(workingDate))
             .onSnapshot(function(doc){
                 if (!doc.exists) return;
-                var nuvem = doc.data() || {};
-                var mudou = false;
-                if (!appData[workingDate]) appData[workingDate] = {};
-                Object.keys(nuvem).forEach(function(setor){
-                    if (setor === currentSector && !isAdmin) return;
-                    appData[workingDate][setor] = nuvem[setor]; mudou = true;
-                });
-                if (mudou) {
-                    _cachearLocal();
-                    if (isAdmin) loadDataParaTela();
-                }
+                appData[workingDate] = doc.data() || {};
+                _cachearLocal();
+                loadDataParaTela();
             }, function(e){ console.warn('[Firebase] listener:', e.message); });
 
         if (_configListener) _configListener();
@@ -2933,9 +2934,9 @@
             .onSnapshot(function(doc){
                 if (!doc.exists) return;
                 var nuvemCfg = doc.data() || {};
-                appData.config = Object.assign({}, appData.config, nuvemCfg);
-                if (!appData.config.turnos) appData.config.turnos = [];
-                if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
+                nuvemCfg.turnos = nuvemCfg.turnos || [];
+                nuvemCfg.metasHistorico = nuvemCfg.metasHistorico || [];
+                appData.config = nuvemCfg;
                 _cachearLocal();
                 if (currentViewId === 'view-productivity') calcTotalProductivity();
                 if (currentViewId === 'view-metas') renderMetasHistorico();
@@ -3272,6 +3273,7 @@
                         populateShiftSelector();
                     }
                 }
+                if (operadorNome) iniciarListenerFirestore();
             });
         });
 
@@ -3282,8 +3284,14 @@
         window.addEventListener('online', function() {
             atualizarStatusOnline();
             _syncRetryCount = 0;
-            _pendingSync = false;
-            salvarNoFirestore();
+            if (_pendingSync) {
+                _pendingSync = false;
+                salvarNoFirestore();
+            }
+            carregarDoFirestore(function(mudou){
+                if (mudou) loadDataParaTela();
+            });
+            iniciarListenerFirestore();
         });
         window.addEventListener('offline', atualizarStatusOnline);
         atualizarStatusOnline();
@@ -3332,7 +3340,6 @@
             if (modal) modal.classList.add('hidden');
             exibirBoasVindas();
             navigate(isAdmin ? 'view-menu' : 'view-submenu', isAdmin ? null : currentSector, true);
-            iniciarListenerFirestore();
         } else {
             if (modal) modal.classList.remove('hidden');
         }
