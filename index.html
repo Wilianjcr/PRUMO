@@ -1482,9 +1482,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-6 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-start gap-3">
-                                <span class="text-gray-400 text-lg mt-0.5">ℹ️</span>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Produzir abaixo dessas metas exige justificativa no Boletim. Caso tenha dúvidas, procure seu gestor.</p>
+                            <div class="mt-6 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4">
+                                <p id="info-meta-data" class="text-xs text-gray-500 dark:text-gray-400 text-center font-semibold"></p>
+                                <p class="text-[10px] text-gray-400 text-center mt-1">Produzir abaixo dessas metas exige justificativa. Dúvidas? Procure seu gestor.</p>
                             </div>
                         </div>
                     </div>
@@ -1577,38 +1577,49 @@
                 <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
                     <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h2>
-                        <p class="text-sm text-gray-500 mt-1">Defina as metas do setor Rebenefício</p>
+                        <p class="text-sm text-gray-500 mt-1">Defina e confirme as metas do setor Rebenefício</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft">
-                        <div class="flex items-center gap-3 mb-8">
+
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft mb-6">
+                        <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
                                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Configurar Metas</h3>
-                                <p class="text-xs text-gray-400 mt-0.5">Valores usados para calcular desempenho dos operadores</p>
+                                <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Nova Meta</h3>
+                                <p class="text-xs text-gray-400 mt-0.5">Preencha os valores e confirme para ativar</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Hora</label>
                                 <div class="relative">
-                                    <input type="number" id="adm-meta-hora" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="55" onchange="salvarMetasAdm()">
+                                    <input type="number" id="adm-meta-hora" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="55">
                                     <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/h</span>
                                 </div>
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Turno</label>
                                 <div class="relative">
-                                    <input type="number" id="adm-meta-turno" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="500" onchange="salvarMetasAdm()">
+                                    <input type="number" id="adm-meta-turno" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="500">
                                     <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/t</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-8 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-start gap-3">
-                            <span class="text-amber-500 text-lg mt-0.5">💡</span>
-                            <p class="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">Quando a produção ficar abaixo dessas metas, o operador será notificado e precisará justificar a quebra de meta no Boletim Diário.</p>
+                        <button onclick="confirmarMeta()" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-sm transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Confirmar Meta
+                        </button>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-xs">Histórico de Metas</h3>
                         </div>
+                        <div id="metas-historico-lista" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
@@ -2207,8 +2218,7 @@
     }
 
     function salvarOPs() {
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){ console.warn('[Prumo] localStorage cheio (OPs):', e.message); try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e2){} }
+        _cachearLocal();
         salvarNoFirestore();
     }
 
@@ -2350,8 +2360,7 @@
     }
 
     function _salvarRegistrosAtv() {
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){ console.warn('[Prumo] localStorage cheio (Atv):', e.message); try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e2){} }
+        _cachearLocal();
         salvarNoFirestore();
     }
 
@@ -2864,7 +2873,7 @@
         }, 2000);
     }
 
-    /** Carrega dados do dia + config do Firestore e mescla com localStorage */
+    /** Carrega dados do Firestore — nuvem é a fonte primária */
     function carregarDoFirestore(callback) {
         if (!db) { if (callback) callback(false); return; }
         Promise.all([
@@ -2876,34 +2885,18 @@
                 var nuvemDia = docs[0].data() || {};
                 if (!appData[workingDate]) appData[workingDate] = {};
                 Object.keys(nuvemDia).forEach(function (setor) {
-                    var local = appData[workingDate][setor];
-                    var nuvem = nuvemDia[setor];
-                    var localTs = (local && local._lastModifiedAt) || 0;
-                    var nuvemTs = (nuvem && nuvem._lastModifiedAt) || 0;
-                    var localVazio = !local || !local.timeBlocks || local.timeBlocks.length === 0;
-                    if (localVazio || nuvemTs > localTs) {
-                        appData[workingDate][setor] = nuvem; mudou = true;
-                    }
+                    appData[workingDate][setor] = nuvemDia[setor];
+                    mudou = true;
                 });
             }
             if (docs[1] && docs[1].exists) {
                 var nuvemCfg = docs[1].data() || {};
-                var localCfg = appData.config || {};
-                if (nuvemCfg.turnos && nuvemCfg.turnos.length > 0) {
-                    var localSemTurnos = !localCfg.turnos || localCfg.turnos.length === 0;
-                    if (localSemTurnos || nuvemCfg._lastModifiedAt > (localCfg._lastModifiedAt || 0)) {
-                        appData.config = Object.assign({}, localCfg, nuvemCfg); mudou = true;
-                    }
-                }
-                if (nuvemCfg.metaRebeneficioHora !== undefined || nuvemCfg.metaRebeneficioTurno !== undefined) {
-                    if (nuvemCfg._lastModifiedAt > (localCfg._lastModifiedAt || 0)) {
-                        appData.config.metaRebeneficioHora = nuvemCfg.metaRebeneficioHora || appData.config.metaRebeneficioHora;
-                        appData.config.metaRebeneficioTurno = nuvemCfg.metaRebeneficioTurno || appData.config.metaRebeneficioTurno;
-                        mudou = true;
-                    }
-                }
+                appData.config = Object.assign({}, appData.config, nuvemCfg);
+                if (!appData.config.turnos) appData.config.turnos = [];
+                if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
+                mudou = true;
             }
-            if (mudou) { try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){} }
+            if (mudou) { _cachearLocal(); }
             if (callback) callback(mudou);
         }).catch(function(e){
             console.warn('[Firebase] carregar:', e.message);
@@ -2911,7 +2904,11 @@
         });
     }
 
-    /** Escuta mudanças em tempo real no mesmo dia + config */
+    function _cachearLocal() {
+        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+    }
+
+    /** Escuta mudanças em tempo real — nuvem é fonte primária */
     function iniciarListenerFirestore() {
         if (!db) return;
         if (_firestoreListener) _firestoreListener();
@@ -2923,15 +2920,10 @@
                 if (!appData[workingDate]) appData[workingDate] = {};
                 Object.keys(nuvem).forEach(function(setor){
                     if (setor === currentSector && !isAdmin) return;
-                    var local = appData[workingDate][setor];
-                    var localTs = (local && local._lastModifiedAt) || 0;
-                    var nuvemTs = (nuvem[setor] && nuvem[setor]._lastModifiedAt) || 0;
-                    if (nuvemTs > localTs) {
-                        appData[workingDate][setor] = nuvem[setor]; mudou = true;
-                    }
+                    appData[workingDate][setor] = nuvem[setor]; mudou = true;
                 });
                 if (mudou) {
-                    try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+                    _cachearLocal();
                     if (isAdmin) loadDataParaTela();
                 }
             }, function(e){ console.warn('[Firebase] listener:', e.message); });
@@ -2941,15 +2933,13 @@
             .onSnapshot(function(doc){
                 if (!doc.exists) return;
                 var nuvemCfg = doc.data() || {};
-                var localCfg = appData.config || {};
-                var nuvemTs = nuvemCfg._lastModifiedAt || 0;
-                var localTs = localCfg._lastModifiedAt || 0;
-                if (nuvemTs > localTs) {
-                    appData.config = Object.assign({}, localCfg, nuvemCfg);
-                    try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
-                    if (currentViewId === 'view-productivity') calcTotalProductivity();
-                    atualizarMetasInfo();
-                }
+                appData.config = Object.assign({}, appData.config, nuvemCfg);
+                if (!appData.config.turnos) appData.config.turnos = [];
+                if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
+                _cachearLocal();
+                if (currentViewId === 'view-productivity') calcTotalProductivity();
+                if (currentViewId === 'view-metas') renderMetasHistorico();
+                atualizarMetasInfo();
             }, function(e){ console.warn('[Firebase] config listener:', e.message); });
     }
 
@@ -2963,8 +2953,6 @@
                 if (isAdmin) {
                     renderTurnosAdm();
                     populateShiftSelector();
-                    document.getElementById('adm-meta-hora').value  = appData.config && appData.config.metaRebeneficioHora  || 55;
-                    document.getElementById('adm-meta-turno').value = appData.config && appData.config.metaRebeneficioTurno || 500;
                 }
                 mostrarToast('☁️ Dados atualizados da nuvem!');
             } else {
@@ -3282,8 +3270,6 @@
                     if (isAdmin) {
                         renderTurnosAdm();
                         populateShiftSelector();
-                        document.getElementById('adm-meta-hora').value  = appData.config && appData.config.metaRebeneficioHora  || 55;
-                        document.getElementById('adm-meta-turno').value = appData.config && appData.config.metaRebeneficioTurno || 500;
                     }
                 }
             });
@@ -3329,8 +3315,9 @@
             appData = saved ? JSON.parse(saved) : {};
         } catch(e){ appData = {}; }
         if (!appData[workingDate]) appData[workingDate] = {};
-        if (!appData.config) appData.config = { metaRebeneficioHora: 55, metaRebeneficioTurno: 500, turnos: [] };
+        if (!appData.config) appData.config = { metaRebeneficioHora: 55, metaRebeneficioTurno: 500, turnos: [], metasHistorico: [] };
         if (!appData.config.turnos) appData.config.turnos = [];
+        if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
     }
 
     function checkLogin() {
@@ -3370,8 +3357,6 @@
         if (isAdmin) {
             if (els.adm) { els.adm.classList.remove('hidden'); els.adm.classList.add('flex'); }
             if (els.dp && currentViewId === 'view-menu') { els.dp.classList.remove('hidden'); els.dp.classList.add('flex'); }
-            document.getElementById('adm-meta-hora').value  = appData.config && appData.config.metaRebeneficioHora  || 55;
-            document.getElementById('adm-meta-turno').value = appData.config && appData.config.metaRebeneficioTurno || 500;
             renderTurnosAdm();
             renderSetoresAdm();
             _initAdmSetoresDrag();
@@ -3528,24 +3513,95 @@
         window.location.reload();
     }
 
+    function getMetaAtiva() {
+        var hist = (appData.config && appData.config.metasHistorico) || [];
+        if (hist.length > 0) return hist[hist.length - 1];
+        var h = (appData.config && appData.config.metaRebeneficioHora) || 55;
+        var t = (appData.config && appData.config.metaRebeneficioTurno) || 500;
+        return { hora: h, turno: t };
+    }
+
     function salvarMetasAdm() {
+        confirmarMeta();
+    }
+
+    function confirmarMeta() {
+        var elH = document.getElementById('adm-meta-hora');
+        var elT = document.getElementById('adm-meta-turno');
+        if (!elH || !elT) return;
+        var hora = parseFloat(elH.value);
+        var turno = parseFloat(elT.value);
+        if (!hora || hora <= 0) return mostrarToast('Informe a Meta Sacas/Hora!', true);
+        if (!turno || turno <= 0) return mostrarToast('Informe a Meta Sacas/Turno!', true);
+
         if (!appData.config) appData.config = {};
-        appData.config.metaRebeneficioHora  = document.getElementById('adm-meta-hora').value  || 55;
-        appData.config.metaRebeneficioTurno = document.getElementById('adm-meta-turno').value || 500;
-        appData.config._lastModifiedAt = Date.now();
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
+        if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
+
+        var agora = Date.now();
+        var dataHoje = new Date().toLocaleDateString('pt-BR');
+        var horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        appData.config.metasHistorico.push({
+            hora: hora,
+            turno: turno,
+            data: dataHoje,
+            horaConfirmacao: horaAgora,
+            confirmedAt: agora,
+            confirmedBy: operadorNome || 'Admin'
+        });
+
+        appData.config.metaRebeneficioHora = hora;
+        appData.config.metaRebeneficioTurno = turno;
+        appData.config._lastModifiedAt = agora;
+
+        _cachearLocal();
         salvarNoFirestore();
-        mostrarToast('Metas atualizadas!');
+        mostrarToast('Meta confirmada!');
+        elH.value = '';
+        elT.value = '';
+        renderMetasHistorico();
         if (currentViewId === 'view-productivity') calcTotalProductivity();
     }
 
+    function renderMetasHistorico() {
+        var container = document.getElementById('metas-historico-lista');
+        if (!container) return;
+        var hist = (appData.config && appData.config.metasHistorico) || [];
+        if (hist.length === 0) {
+            container.innerHTML = '<p class="text-center text-sm text-gray-400 py-4">Nenhuma meta confirmada ainda.</p>';
+            return;
+        }
+        var html = '';
+        var reversed = hist.slice().reverse();
+        reversed.forEach(function(m, idx) {
+            var isAtiva = idx === 0;
+            var borderClass = isAtiva ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800';
+            var badge = isAtiva ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Ativa</span>' : '';
+            html += '<div class="border rounded-2xl p-4 '+borderClass+' transition-all">';
+            html += '<div class="flex items-center justify-between mb-2">';
+            html += '<div class="flex items-center gap-2">';
+            html += '<span class="text-xs font-bold text-gray-500 dark:text-gray-400">'+m.data+' '+m.horaConfirmacao+'</span>';
+            html += badge;
+            html += '</div>';
+            html += '<span class="text-[10px] text-gray-400">por '+escapeHTML(m.confirmedBy || 'Admin')+'</span>';
+            html += '</div>';
+            html += '<div class="flex gap-6">';
+            html += '<div><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sacas/Hora</span><div class="text-lg font-black text-gray-900 dark:text-white">'+m.hora+'<span class="text-xs text-gray-400 ml-1">sc/h</span></div></div>';
+            html += '<div><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sacas/Turno</span><div class="text-lg font-black text-gray-900 dark:text-white">'+m.turno+'<span class="text-xs text-gray-400 ml-1">sc/t</span></div></div>';
+            html += '</div></div>';
+        });
+        container.innerHTML = html;
+    }
+
     function atualizarMetasInfo() {
-        var mH=appData.config&&appData.config.metaRebeneficioHora||55;
-        var mT=appData.config&&appData.config.metaRebeneficioTurno||500;
-        var elH=document.getElementById('info-meta-hora');
-        var elT=document.getElementById('info-meta-turno');
-        if(elH) elH.textContent=mH;
-        if(elT) elT.textContent=mT;
+        var meta = getMetaAtiva();
+        var elH = document.getElementById('info-meta-hora');
+        var elT = document.getElementById('info-meta-turno');
+        if (elH) elH.textContent = meta.hora;
+        if (elT) elT.textContent = meta.turno;
+        var elData = document.getElementById('info-meta-data');
+        if (elData && meta.data) elData.textContent = 'Atualizada em ' + meta.data + ' ' + (meta.horaConfirmacao || '');
+        else if (elData) elData.textContent = '';
     }
 
     function switchProdTab(tab) {
@@ -4230,11 +4286,7 @@
         }
         if (currentViewId === 'view-os')         { st.osEquipamento=document.getElementById('os-equipamento').value; st.osProblema=document.getElementById('os-problema').value; }
         if (currentViewId === 'view-requisicao') { st.reqMatNome=document.getElementById('req-mat-nome').value; st.reqMatQtd=document.getElementById('req-mat-qtd').value; st.reqMatJust=document.getElementById('req-mat-just').value; }
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-        catch(e){
-            try { limparDadosAntigos(); localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); }
-            catch(e2){ console.warn('[Prumo] localStorage cheio:', e2.message); }
-        }
+        _cachearLocal();
         salvarNoFirestore();
     }
 
@@ -4270,9 +4322,9 @@
             if(isAdmin&&['view-productivity','view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
         if (viewId==='view-metas') {
-            var el1=document.getElementById('adm-meta-hora'), el2=document.getElementById('adm-meta-turno');
-            if(el1) el1.value=appData.config&&appData.config.metaRebeneficioHora||55;
-            if(el2) el2.value=appData.config&&appData.config.metaRebeneficioTurno||500;
+            document.getElementById('adm-meta-hora').value = '';
+            document.getElementById('adm-meta-turno').value = '';
+            renderMetasHistorico();
         }
         if (viewId==='view-productivity') {
             var shiftCont=document.getElementById('rebeneficio-shift-container');
@@ -4350,8 +4402,8 @@
             totalBalanca: document.getElementById('quebra-peso-total').value,
             sacas: Array.from(document.querySelectorAll('.q-sacas')).map(function(i){ return i.value; })
         };
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
-        salvarNoFirestore(); // ← FIREBASE
+        _cachearLocal();
+        salvarNoFirestore();
     }
 
     function switchTab(t) {
