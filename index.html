@@ -2854,38 +2854,49 @@
     var _syncMaxRetries = 3;
     var _pendingSync = false;
 
+    /** Executa o envio imediato ao Firestore (sem debounce) */
+    function _executarSyncFirestore() {
+        var dayData = appData[workingDate];
+        if (dayData) {
+            var payload = JSON.parse(JSON.stringify(dayData));
+            if (currentSector && payload[currentSector]) {
+                payload[currentSector]._lastModifiedAt = Date.now();
+                payload[currentSector]._lastModifiedBy = operadorNome || '';
+            }
+            db.collection('operacoes').doc(dateToDocId(workingDate))
+              .set(payload, { merge: true })
+              .then(function(){ mostrarIndicadorNuvem(); _syncRetryCount = 0; })
+              .catch(function(e){
+                  console.warn('[Firebase] salvar dia:', e.message);
+                  _syncRetryCount++;
+                  if (_syncRetryCount <= _syncMaxRetries) {
+                      setTimeout(function(){ salvarNoFirestore(); }, 5000 * _syncRetryCount);
+                  } else {
+                      console.warn('[Prumo] Sync falhou após ' + _syncMaxRetries + ' tentativas. Dados seguros no localStorage.');
+                      _pendingSync = true;
+                  }
+              });
+        }
+        if (appData.config) {
+            db.collection('operacoes').doc('config')
+              .set(JSON.parse(JSON.stringify(appData.config)), { merge: true })
+              .catch(function(e){ console.warn('[Firebase] salvar config:', e.message); });
+        }
+    }
+
     /** Salva dados do dia + config no Firestore com debounce de 2s */
     function salvarNoFirestore() {
         if (!db) return;
         clearTimeout(_firestoreTimer);
-        _firestoreTimer = setTimeout(function () {
-            var dayData = appData[workingDate];
-            if (dayData) {
-                var payload = JSON.parse(JSON.stringify(dayData));
-                if (currentSector && payload[currentSector]) {
-                    payload[currentSector]._lastModifiedAt = Date.now();
-                    payload[currentSector]._lastModifiedBy = operadorNome || '';
-                }
-                db.collection('operacoes').doc(dateToDocId(workingDate))
-                  .set(payload, { merge: true })
-                  .then(function(){ mostrarIndicadorNuvem(); _syncRetryCount = 0; })
-                  .catch(function(e){
-                      console.warn('[Firebase] salvar dia:', e.message);
-                      _syncRetryCount++;
-                      if (_syncRetryCount <= _syncMaxRetries) {
-                          setTimeout(function(){ salvarNoFirestore(); }, 5000 * _syncRetryCount);
-                      } else {
-                          console.warn('[Prumo] Sync falhou após ' + _syncMaxRetries + ' tentativas. Dados seguros no localStorage.');
-                          _pendingSync = true;
-                      }
-                  });
-            }
-            if (appData.config) {
-                db.collection('operacoes').doc('config')
-                  .set(JSON.parse(JSON.stringify(appData.config)))
-                  .catch(function(e){ console.warn('[Firebase] salvar config:', e.message); });
-            }
-        }, 2000);
+        _firestoreTimer = setTimeout(_executarSyncFirestore, 2000);
+    }
+
+    /** Cancela o debounce e salva imediatamente — usar ao fechar/minimizar */
+    function flushSyncFirestore() {
+        if (!db) return;
+        clearTimeout(_firestoreTimer);
+        _firestoreTimer = null;
+        _executarSyncFirestore();
     }
 
     /** Carrega dados do Firestore — nuvem é a fonte primária */
@@ -3236,8 +3247,8 @@
     // INICIALIZAÇÃO
     // ============================================================
     // Salvar dados ao fechar/minimizar a aba para evitar perda de dados
-    window.addEventListener('beforeunload', function() { saveData(); });
-    document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') saveData(); });
+    window.addEventListener('beforeunload', function() { saveData(); flushSyncFirestore(); });
+    document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') { saveData(); flushSyncFirestore(); } });
 
     window.onload = function () {
         // Fechar splash screen após animação
