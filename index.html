@@ -1621,7 +1621,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button onclick="confirmarMeta()" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-sm transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
+                        <button id="btn-confirmar-meta" onclick="confirmarMeta()" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-sm transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
                             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                             Confirmar Meta
                         </button>
@@ -3561,14 +3561,29 @@
         var dataHoje = new Date().toLocaleDateString('pt-BR');
         var horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-        appData.config.metasHistorico.push({
-            hora: hora,
-            turno: turno,
-            data: dataHoje,
-            horaConfirmacao: horaAgora,
-            confirmedAt: agora,
-            confirmedBy: operadorNome || 'Admin'
-        });
+        if (_editMetaIdx >= 0 && appData.config.metasHistorico[_editMetaIdx]) {
+            var entry = appData.config.metasHistorico[_editMetaIdx];
+            entry.hora = hora;
+            entry.turno = turno;
+            entry.data = dataHoje;
+            entry.horaConfirmacao = horaAgora;
+            entry.confirmedAt = agora;
+            entry.confirmedBy = operadorNome || 'Admin';
+            _editMetaIdx = -1;
+            var btn = document.getElementById('btn-confirmar-meta');
+            if (btn) btn.innerHTML = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Confirmar Meta';
+            mostrarToast('Meta atualizada!');
+        } else {
+            appData.config.metasHistorico.push({
+                hora: hora,
+                turno: turno,
+                data: dataHoje,
+                horaConfirmacao: horaAgora,
+                confirmedAt: agora,
+                confirmedBy: operadorNome || 'Admin'
+            });
+            mostrarToast('Meta confirmada!');
+        }
 
         appData.config.metaRebeneficioHora = hora;
         appData.config.metaRebeneficioTurno = turno;
@@ -3576,12 +3591,34 @@
 
         _cachearLocal();
         salvarNoFirestore();
-        mostrarToast('Meta confirmada!');
         elH.value = '';
         elT.value = '';
         renderMetasHistorico();
         if (currentViewId === 'view-productivity') calcTotalProductivity();
     }
+
+    function fmtNum(n) {
+        var num = Number(n);
+        if (isNaN(num)) return String(n);
+        return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    var _editMetaIdx = -1;
+
+    function editarMetaHistorico(realIdx) {
+        var hist = (appData.config && appData.config.metasHistorico) || [];
+        var m = hist[realIdx];
+        if (!m) return;
+        _editMetaIdx = realIdx;
+        document.getElementById('adm-meta-hora').value = m.hora;
+        document.getElementById('adm-meta-turno').value = m.turno;
+        var btn = document.getElementById('btn-confirmar-meta');
+        if (btn) btn.innerHTML = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.172-8.172z"/></svg> Atualizar Meta';
+        var form = document.getElementById('adm-meta-hora');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        mostrarToast('Editando meta — altere os valores e confirme.');
+    }
+    window.editarMetaHistorico = editarMetaHistorico;
 
     function renderMetasHistorico() {
         var container = document.getElementById('metas-historico-lista');
@@ -3594,20 +3631,22 @@
         var html = '';
         var reversed = hist.slice().reverse();
         reversed.forEach(function(m, idx) {
+            var realIdx = hist.length - 1 - idx;
             var isAtiva = idx === 0;
             var borderClass = isAtiva ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800';
             var badge = isAtiva ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Ativa</span>' : '';
+            var editBtn = '<button onclick="editarMetaHistorico('+realIdx+')" class="ml-auto text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 active:scale-95 transition-all"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.172-8.172z"/></svg>Editar</button>';
             html += '<div class="border rounded-2xl p-4 '+borderClass+' transition-all">';
             html += '<div class="flex items-center justify-between mb-2">';
             html += '<div class="flex items-center gap-2">';
             html += '<span class="text-xs font-bold text-gray-500 dark:text-gray-400">'+m.data+' '+m.horaConfirmacao+'</span>';
             html += badge;
             html += '</div>';
-            html += '<span class="text-[10px] text-gray-400">por '+escapeHTML(m.confirmedBy || 'Admin')+'</span>';
+            html += '<div class="flex items-center gap-3"><span class="text-[10px] text-gray-400">por '+escapeHTML(m.confirmedBy || 'Admin')+'</span>'+editBtn+'</div>';
             html += '</div>';
             html += '<div class="flex gap-6">';
-            html += '<div><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sacas/Hora</span><div class="text-lg font-black text-gray-900 dark:text-white">'+m.hora+'<span class="text-xs text-gray-400 ml-1">sc/h</span></div></div>';
-            html += '<div><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sacas/Turno</span><div class="text-lg font-black text-gray-900 dark:text-white">'+m.turno+'<span class="text-xs text-gray-400 ml-1">sc/t</span></div></div>';
+            html += '<div><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sacas/Hora</span><div class="text-lg font-black text-gray-900 dark:text-white">'+fmtNum(m.hora)+'<span class="text-xs text-gray-400 ml-1">sc/h</span></div></div>';
+            html += '<div><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sacas/Turno</span><div class="text-lg font-black text-gray-900 dark:text-white">'+fmtNum(m.turno)+'<span class="text-xs text-gray-400 ml-1">sc/t</span></div></div>';
             html += '</div></div>';
         });
         container.innerHTML = html;
@@ -3617,8 +3656,8 @@
         var meta = getMetaAtiva();
         var elH = document.getElementById('info-meta-hora');
         var elT = document.getElementById('info-meta-turno');
-        if (elH) elH.textContent = meta.hora;
-        if (elT) elT.textContent = meta.turno;
+        if (elH) elH.textContent = fmtNum(meta.hora);
+        if (elT) elT.textContent = fmtNum(meta.turno);
         var elData = document.getElementById('info-meta-data');
         if (elData && meta.data) elData.textContent = 'Atualizada em ' + meta.data + ' ' + (meta.horaConfirmacao || '');
         else if (elData) elData.textContent = '';
@@ -4335,15 +4374,18 @@
                 setTimeout(function(){ _applySubmenuOrder(); _initDragSubmenu(); }, 50);
             }
         }
-        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op','view-metas'];
+        var actionViews = ['view-productivity','view-atividades','view-percentage','view-horimetro','view-divisao-quebra','view-conv-mm','view-conv-hz','view-os','view-requisicao','view-op'];
         if (actionViews.includes(viewId)) {
             if(isAdmin&&act){act.classList.remove('hidden');act.classList.add('flex');}
             if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&viewId!=='view-metas'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
             if(isAdmin&&['view-productivity','view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
         if (viewId==='view-metas') {
+            _editMetaIdx = -1;
             document.getElementById('adm-meta-hora').value = '';
             document.getElementById('adm-meta-turno').value = '';
+            var btnMeta = document.getElementById('btn-confirmar-meta');
+            if (btnMeta) btnMeta.innerHTML = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Confirmar Meta';
             renderMetasHistorico();
         }
         if (viewId==='view-productivity') {
