@@ -1478,9 +1478,15 @@
                     </div>
 
                     <div id="prod-tab-bar" class="hidden mb-6">
-                        <div class="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1">
-                            <button onclick="switchProdTab('boletim')" id="prod-tab-boletim" class="flex-1 py-2.5 text-sm font-bold uppercase tracking-wider rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">Boletim</button>
-                            <button onclick="switchProdTab('metas')" id="prod-tab-metas" class="flex-1 py-2.5 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all">Metas</button>
+                        <div class="flex gap-3">
+                            <button onclick="switchProdTab('boletim')" id="prod-tab-boletim" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-95 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md">
+                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                Boletim
+                            </button>
+                            <button onclick="switchProdTab('metas')" id="prod-tab-metas" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-95 border-2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 hover:border-amber-400 hover:text-amber-600 dark:hover:border-amber-500 dark:hover:text-amber-400">
+                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                Metas
+                            </button>
                         </div>
                     </div>
 
@@ -3113,6 +3119,8 @@
                     appData[workingDate][currentSector].timeBlocks = JSON.parse(JSON.stringify(window.tempTimeBlocks));
                 }
                 _cachearLocal();
+                // Não re-renderizar se o usuário está ativamente editando o boletim
+                if (_prodFormDirty && currentViewId === 'view-productivity') return;
                 // Skip full re-render if the user has an input focused inside the form
                 var container = document.getElementById('time-blocks-container');
                 if (container && document.activeElement && container.contains(document.activeElement)) return;
@@ -3381,6 +3389,7 @@
     var currentPlanejamentoActivities = [];
     var currentViewId = 'view-menu';
     var currentSector = '';
+    var _prodFormDirty = false; // true enquanto usuário tem edições não salvas no boletim
     var abaReqAtual = 'material';
     var operadorNome = '';
     var isAdmin = false;
@@ -3843,19 +3852,21 @@
         var metasContent=document.getElementById('prod-tab-metas-content');
         var btnBoletim=document.getElementById('prod-tab-boletim');
         var btnMetas=document.getElementById('prod-tab-metas');
-        var activeClass='flex-1 py-2.5 text-sm font-bold uppercase tracking-wider rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all';
-        var inactiveClass='flex-1 py-2.5 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-lg hover:text-gray-900 dark:hover:text-white transition-all';
+        var activeBoletim='flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-95 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md';
+        var activeMetas='flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-95 bg-amber-500 dark:bg-amber-400 text-white dark:text-gray-900 shadow-md';
+        var inactiveBoletim='flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-95 border-2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300';
+        var inactiveMetas='flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold uppercase tracking-wider transition-all active:scale-95 border-2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 hover:border-amber-400 hover:text-amber-600 dark:hover:border-amber-500 dark:hover:text-amber-400';
         if(tab==='metas') {
             if(boletimContent) boletimContent.classList.add('hidden');
             if(metasContent) metasContent.classList.remove('hidden');
-            if(btnBoletim) btnBoletim.className=inactiveClass;
-            if(btnMetas) btnMetas.className=activeClass;
+            if(btnBoletim) btnBoletim.className=inactiveBoletim;
+            if(btnMetas) btnMetas.className=activeMetas;
             atualizarMetasInfo();
         } else {
             if(boletimContent) boletimContent.classList.remove('hidden');
             if(metasContent) metasContent.classList.add('hidden');
-            if(btnBoletim) btnBoletim.className=activeClass;
-            if(btnMetas) btnMetas.className=inactiveClass;
+            if(btnBoletim) btnBoletim.className=activeBoletim;
+            if(btnMetas) btnMetas.className=inactiveMetas;
         }
     }
 
@@ -4168,6 +4179,7 @@
         });
         el.className = el.className.replace('bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-400','bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500');
         _atualizarResumoTurno(nome, inicio, fim, intervaloInicio||'', intervaloFim||'');
+        _prodFormDirty = true;
         debouncedSave();
         calcTotalProductivity();
     }
@@ -4376,6 +4388,7 @@
 
     function renderView(viewId, sectorName) {
         saveData();
+        _prodFormDirty = false; // Ao navegar, descarta estado "sujo" do form anterior
         if (sectorName) currentSector = sectorName;
         document.querySelectorAll('main > div').forEach(function(el){ el.classList.remove('view-active'); el.classList.add('view-hidden'); });
         var nextEl = document.getElementById(viewId);
@@ -4641,7 +4654,7 @@
         if (!currentSector || ['view-menu','view-submenu'].includes(currentViewId)) return;
         var st = (appData[workingDate] && appData[workingDate][currentSector]) || getEmptySectorState();
         if (currentViewId === 'view-productivity') {
-            if (st.producaoFinalizada && !isAdmin) {
+            if (st.producaoFinalizada && !isAdmin && !_prodFormDirty) {
                 window.tempTimeBlocks = [{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
             } else {
                 window.tempTimeBlocks = JSON.parse(JSON.stringify(st.timeBlocks || []));
@@ -5002,16 +5015,19 @@
     }
 
     function addTimeBlock() {
+        _prodFormDirty = true;
         window.tempTimeBlocks.push({id:Date.now(),start:'',end:'',extraTimes:[],ref:'',bags:'',obs:'',activity:'',tipoProducao:[]});
         renderTimeBlocks();
     }
     function removeTimeBlock(id) {
+        _prodFormDirty = true;
         window.tempTimeBlocks=window.tempTimeBlocks.filter(function(b){ return b.id!==id; });
         renderTimeBlocks(); calcTotalProductivity();
     }
     function updateBlock(id,f,v) {
         var b=window.tempTimeBlocks.find(function(x){ return x.id===id; });
         if(b) b[f]=v;
+        _prodFormDirty = true;
         saveData(); mostrarIndicadorSalvo();
         if(f==='activity') renderTimeBlocks();
         calcTotalProductivity();
@@ -5026,6 +5042,7 @@
         if(!b) return;
         if(!b.extraTimes) b.extraTimes=[];
         b.extraTimes.push({start:'',end:''});
+        _prodFormDirty = true;
         saveData(); renderTimeBlocks(); calcTotalProductivity();
     }
     window.addBlockTime=addBlockTime;
@@ -5050,6 +5067,7 @@
             if(!b.extraTimes[timeIdx-1]) b.extraTimes[timeIdx-1]={start:'',end:''};
             b.extraTimes[timeIdx-1][field]=value;
         }
+        _prodFormDirty = true;
         saveData(); renderTimeBlocks(); calcTotalProductivity();
     }
     window.updateBlockTime=updateBlockTime;
@@ -5066,6 +5084,7 @@
     function updateBlockLote(blockId, lote) {
         var b = (window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
         if (b) b.tipoLote = lote;
+        _prodFormDirty = true;
         saveData(); mostrarIndicadorSalvo();
     }
     window.updateBlockLote = updateBlockLote;
@@ -5180,6 +5199,7 @@
             return;
         }
         if (currentViewId==='view-productivity') {
+            _prodFormDirty = false;
             window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
             document.getElementById('justificativa-meta').value='';
             var hSel=document.getElementById('shift-selector'); if(hSel) hSel.value='';
@@ -5458,6 +5478,7 @@
             var jElVal=document.getElementById('justificativa-meta');
             curSt.producaoSalva={timeBlocks:JSON.parse(JSON.stringify(window.tempTimeBlocks||[])),shiftName:curSt.shiftName||'',shiftStart:curSt.shiftStart||'',shiftEnd:curSt.shiftEnd||'',justificativa:jElVal?jElVal.value:'',savedAt:new Date().toLocaleString('pt-BR'),editado:false};
             curSt.producaoFinalizada=true;
+            _prodFormDirty = false;
             // Limpar área de edição antes de salvar para que o estado limpo seja persistido
             window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
             if(jElVal) jElVal.value='';
