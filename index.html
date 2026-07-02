@@ -4595,6 +4595,8 @@
             if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&viewId!=='view-metas'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
             if(isAdmin&&['view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
+        // Boletim: mostra botão "Salvar Produção" no rodapé sem mostrar a barra de ação vermelha
+        if(viewId==='view-productivity'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
         if (viewId==='view-metas') {
             _editMetaIdx = -1;
             document.getElementById('adm-meta-hora').value = '';
@@ -4781,7 +4783,7 @@
                         ${!hideBags?`<div class="sm:col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 placeholder-emerald-300" placeholder="Qtd"></div>`:''}
                         <div class="${hideBags?'sm:col-span-8':'sm:col-span-5'}">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
-                            <input type="text" value="${escapeHTML(b.obs||'')}" list="clientesList" onchange="updateBlock(${b.id},'obs',this.value); registrarCliente(this.value);" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Detalhes, lote, destino...">
+                            <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Detalhes, lote, destino...">
                         </div>
                     </div>
                 </div>
@@ -5341,11 +5343,12 @@
 
     function editarProducao() {
         if(!_prodDetalheKey) return;
-        var st=(appData[_prodDetalheKey]&&appData[_prodDetalheKey][currentSector])||{};
+        var dataKey=_prodDetalheKey; // captura antes de fechar, pois fechar zera _prodDetalheKey após 300ms
+        var st=(appData[dataKey]&&appData[dataKey][currentSector])||{};
         var saved=st.producaoSalva||{};
         if(saved.editado&&!isAdmin){ mostrarToast('Registro já editado. Fale com o Gestor.', true); return; }
         fecharModalProdDetalhe();
-        setTimeout(function(){ abrirModalEditarProd(_prodDetalheKey); }, 320);
+        setTimeout(function(){ abrirModalEditarProd(dataKey); }, 320);
     }
 
     var _editProdKey=null;
