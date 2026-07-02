@@ -4930,12 +4930,18 @@
                 var d=calcMinutos(t.start||'',t.end||'');
                 var durStr=d>0?Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m':'';
                 var canRemove=allTimes.length>1;
-                return '<div class="flex items-center gap-1.5">'+
-                    '<input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(t.start||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
-                    '<span class="text-gray-400 text-[10px] font-bold shrink-0">→</span>'+
-                    '<input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(t.end||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
-                    (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap">'+durStr+'</span>':'<div class="w-14 shrink-0"></div>')+
-                    (canRemove?'<button onclick="removeBlockTime('+b.id+','+ti+')" class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:text-red-600 active:scale-90 transition-all"><svg width="12" height="12" fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>':'<div class="w-7 shrink-0"></div>')+
+                return '<div class="flex items-end gap-1.5">'+
+                    '<div class="flex flex-col flex-1 min-w-0">'+
+                        '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
+                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(t.start||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                    '</div>'+
+                    '<span class="text-gray-400 text-[10px] font-bold shrink-0 pb-2.5">→</span>'+
+                    '<div class="flex flex-col flex-1 min-w-0">'+
+                        '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
+                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(t.end||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                    '</div>'+
+                    (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-14 shrink-0"></div>')+
+                    (canRemove?'<button onclick="removeBlockTime('+b.id+','+ti+')" class="shrink-0 w-10 h-10 min-w-[40px] flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:text-red-600 active:scale-90 transition-all self-end"><svg width="14" height="14" fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>':'<div class="w-10 shrink-0"></div>')+
                 '</div>';
             }).join('');
             var tipoHtml='';
@@ -4948,6 +4954,41 @@
                     }).join('')+
                 '</div></div>';
             }
+            var paradaHtml=(function(){
+                var p=b.parada||{};
+                var ativo=!!p.ativo;
+                var pd=ativo&&p.inicio&&p.fim?calcMinutos(p.inicio,p.fim):0;
+                var pdStr=pd>0?Math.floor(pd/60)+'h '+String(pd%60).padStart(2,'0')+'m':'';
+                return '<div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">'+
+                    '<label class="flex items-center gap-2.5 cursor-pointer select-none">'+
+                        '<input type="checkbox"'+(ativo?' checked':'')+' onchange="toggleParada('+b.id+',this.checked)" class="w-4 h-4 accent-red-500 rounded">'+
+                        '<span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Registrar Parada</span>'+
+                    '</label>'+
+                    (ativo?
+                        '<div class="mt-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-2xl p-4 space-y-3">'+
+                            '<div>'+
+                                '<label class="block text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2">⛔ Período de Parada</label>'+
+                                '<div class="flex items-end gap-1.5">'+
+                                    '<div class="flex flex-col flex-1 min-w-0">'+
+                                        '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
+                                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(p.inicio||'')+'" oninput="mascaraHorario(this)" onblur="updateParadaField('+b.id+',\'inicio\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm focus:ring-2 focus:ring-red-400">'+
+                                    '</div>'+
+                                    '<span class="text-red-300 font-bold shrink-0 pb-2.5 text-sm">→</span>'+
+                                    '<div class="flex flex-col flex-1 min-w-0">'+
+                                        '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
+                                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(p.fim||'')+'" oninput="mascaraHorario(this)" onblur="updateParadaField('+b.id+',\'fim\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm focus:ring-2 focus:ring-red-400">'+
+                                    '</div>'+
+                                    (pdStr?'<span class="shrink-0 text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-lg self-end mb-0.5">'+pdStr+'</span>':'<div class="w-14 shrink-0"></div>')+
+                                '</div>'+
+                            '</div>'+
+                            '<div>'+
+                                '<label class="block text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1.5">Motivo</label>'+
+                                '<input type="text" value="'+escapeHTML(p.motivo||'')+'" oninput="updateParadaField('+b.id+',\'motivo\',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400" placeholder="Descreva o motivo...">'+
+                            '</div>'+
+                        '</div>'
+                    :'')+
+                '</div>';
+            })();
             return `<div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
     <div class="space-y-4">
         <div>
@@ -4980,9 +5021,10 @@
             ${!hideBags?`<div class="col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-3 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500" placeholder="Qtd"></div>`:''}
             <div class="col-span-4">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
-                <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500" placeholder="Clientes">
+                <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value.toUpperCase())" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500" placeholder="Clientes">
             </div>
         </div>
+        ${paradaHtml}
     </div>
 </div>`;
         }).join('');
@@ -5105,6 +5147,49 @@
         updateBlockTime(blockId, timeIdx, field, v);
     }
     window.atualizarHorarioBloco = atualizarHorarioBloco;
+
+    function focarProximoHorario(event, el) {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        var all = Array.from(document.querySelectorAll('#time-blocks-container input[data-timeinput]'));
+        var idx = all.indexOf(el);
+        if (idx >= 0 && idx < all.length - 1) {
+            all[idx + 1].focus();
+            setTimeout(function(){ all[idx + 1].select(); }, 30);
+        } else {
+            el.blur();
+        }
+    }
+    window.focarProximoHorario = focarProximoHorario;
+
+    function toggleParada(blockId, checked) {
+        var b = (window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if (!b) return;
+        if (!b.parada) b.parada = { ativo: false, inicio: '', fim: '', motivo: '' };
+        b.parada.ativo = checked;
+        _prodFormDirty = true;
+        saveData(); renderTimeBlocks(); calcTotalProductivity();
+    }
+    window.toggleParada = toggleParada;
+
+    function updateParadaField(blockId, field, value) {
+        var b = (window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if (!b) return;
+        if (!b.parada) b.parada = { ativo: true, inicio: '', fim: '', motivo: '' };
+        if (field === 'inicio' || field === 'fim') {
+            var m = value.match(/^(\d{1,2}):(\d{2})$/);
+            var v = '';
+            if (m) { var h=parseInt(m[1]),mn=parseInt(m[2]); if(h<=23&&mn<=59) v=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0'); }
+            b.parada[field] = v;
+            _prodFormDirty = true;
+            saveData(); renderTimeBlocks(); calcTotalProductivity();
+        } else {
+            b.parada[field] = value;
+            _prodFormDirty = true;
+            saveData(); mostrarIndicadorSalvo();
+        }
+    }
+    window.updateParadaField = updateParadaField;
 
     function calcTotalProductivity() {
         var totalMin=0, totalSacas=0;
@@ -5523,6 +5608,10 @@
             var diff=calcMinutos(b.start,b.end); totalMin+=diff;
             var dAct=getDisplayActivity(b), ref=b.ref?' | '+currentRefLabel.split('/')[0]+': '+b.ref:'', obs=b.obs?' — '+b.obs:'', sc=(b.bags&&!isNoBagsActivity(b.activity))?' | *'+b.bags+' sc*':'';
             linhasBlocks+='  • '+dAct+': '+(b.start||'--:--')+' às '+(b.end||'--:--')+(diff>0?' ('+Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m)':'')+ref+sc+obs+'\n';
+            if(b.parada&&b.parada.ativo){
+                var pm=calcMinutos(b.parada.inicio||'',b.parada.fim||'');
+                linhasBlocks+='    ⛔ Parada: '+(b.parada.inicio||'--:--')+' às '+(b.parada.fim||'--:--')+(pm>0?' ('+Math.floor(pm/60)+'h '+String(pm%60).padStart(2,'0')+'m)':'')+(b.parada.motivo?' — '+b.parada.motivo:'')+'\n';
+            }
         });
         var horas=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
         var texto='*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: '+cleanSetor.toUpperCase()+'*\n📅 '+workingDate+'  |  👤 '+operadorNome+'\n';
@@ -5578,6 +5667,11 @@
             var tipoStr=_loteLabel?'<span>🏭 '+_loteLabel+'</span>':'';
             var allTimes=getBlockAllTimes(b).filter(function(t){return t.start||t.end;});
             var timesHtml=allTimes.map(function(t){var d=calcMinutos(t.start||'',t.end||'');return '<span>🕐 '+(t.start||'--:--')+' → '+(t.end||'--:--')+(d>0?' ('+Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m)':'')+'</span>';}).join('');
+            var paradaDetalhe='';
+            if(b.parada&&b.parada.ativo){
+                var pm2=calcMinutos(b.parada.inicio||'',b.parada.fim||'');
+                paradaDetalhe='<div class="mt-2 text-xs text-red-500 font-semibold">⛔ Parada: '+(b.parada.inicio||'--:--')+' → '+(b.parada.fim||'--:--')+(pm2>0?' ('+Math.floor(pm2/60)+'h '+String(pm2%60).padStart(2,'0')+'m)':'')+(b.parada.motivo?' — '+escapeHTML(b.parada.motivo):'')+' </div>';
+            }
             html+='<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">'+
                 '<p class="text-sm font-bold text-gray-900 dark:text-white mb-2">'+escapeHTML(dAct)+'</p>'+
                 '<div class="flex flex-wrap gap-3 text-xs text-gray-500">'+
@@ -5585,7 +5679,7 @@
                 (b.ref?'<span>📋 '+escapeHTML(b.ref)+'</span>':'')+
                 (b.obs?'<span>📝 '+escapeHTML(b.obs)+'</span>':'')+
                 tipoStr+
-                '</div></div>';
+                '</div>'+paradaDetalhe+'</div>';
         });
         if(totalSacas||totalMin){
             var sacasStr=String(totalSacas).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
