@@ -2021,6 +2021,26 @@
         </div>
     </div>
 
+    <!-- MODAL: EDITAR PRODUÇÃO -->
+    <div id="modal-editar-prod" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[126] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-editar-prod-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                <div>
+                    <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Editar Produção</h3>
+                    <p id="modal-editar-prod-subtitle" class="text-xs text-gray-400 mt-0.5"></p>
+                </div>
+                <button onclick="fecharModalEditarProd()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="modal-editar-prod-body" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+            <div class="px-6 pb-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex gap-3 shrink-0">
+                <button onclick="fecharModalEditarProd()" class="flex-1 py-3.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors active:scale-95">Cancelar</button>
+                <button onclick="salvarEdicaoProd()" class="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-colors active:scale-95">Salvar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="fixed inset-0 z-[999] flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #0d1520 100%);">
         <style>
@@ -4249,7 +4269,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); } });
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -5321,24 +5341,122 @@
 
     function editarProducao() {
         if(!_prodDetalheKey) return;
-        if(_prodDetalheKey!==workingDate){ mostrarToast('Para editar, mude a data de trabalho para '+_prodDetalheKey, true); return; }
         var st=(appData[_prodDetalheKey]&&appData[_prodDetalheKey][currentSector])||{};
         var saved=st.producaoSalva||{};
         if(saved.editado&&!isAdmin){ mostrarToast('Registro já editado. Fale com o Gestor.', true); return; }
-        // Carrega os blocos de volta para edição
-        window.tempTimeBlocks=JSON.parse(JSON.stringify(saved.timeBlocks||st.timeBlocks||[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}]));
-        if(!window.tempTimeBlocks.length) window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
-        // Marca como editado e libera edição
-        if(st.producaoSalva) st.producaoSalva.editado=!isAdmin; // ADM pode editar sem marcar
-        st.producaoFinalizada=false;
-        st.timeBlocks=JSON.parse(JSON.stringify(window.tempTimeBlocks));
-        st.justificativa=saved.justificativa||'';
-        saveData();
         fecharModalProdDetalhe();
-        if(currentViewId!=='view-productivity'){ renderView('view-productivity'); }
-        else { renderTimeBlocks(); calcTotalProductivity(); renderHistoricoProducao(); }
-        mostrarToast('Carregado para edição. Salve ao concluir.');
+        setTimeout(function(){ abrirModalEditarProd(_prodDetalheKey); }, 320);
     }
+
+    var _editProdKey=null;
+    var _editProdBlocks=[];
+    var _editProdJust='';
+
+    function abrirModalEditarProd(dataKey) {
+        if(!dataKey) return;
+        _editProdKey=dataKey;
+        var st=(appData[dataKey]&&appData[dataKey][currentSector])||{};
+        var saved=st.producaoSalva||{};
+        var cleanSetor=limparEmoji(currentSector);
+        _editProdBlocks=JSON.parse(JSON.stringify(saved.timeBlocks||st.timeBlocks||[]));
+        if(!_editProdBlocks.length) _editProdBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
+        _editProdJust=saved.justificativa||st.justificativa||'';
+        var sub=document.getElementById('modal-editar-prod-subtitle');
+        if(sub) sub.textContent=dataKey+' · '+cleanSetor;
+        _renderEditProdBlocks();
+        var modal=document.getElementById('modal-editar-prod');
+        var mc=document.getElementById('modal-editar-prod-content');
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); mc.classList.remove('translate-y-full'); },10);
+    }
+    window.abrirModalEditarProd=abrirModalEditarProd;
+
+    function fecharModalEditarProd() {
+        var modal=document.getElementById('modal-editar-prod');
+        var mc=document.getElementById('modal-editar-prod-content');
+        if(mc) mc.classList.add('translate-y-full');
+        if(modal){ modal.classList.add('opacity-0'); setTimeout(function(){ modal.classList.add('hidden'); _editProdKey=null; _editProdBlocks=[]; },300); }
+    }
+    window.fecharModalEditarProd=fecharModalEditarProd;
+
+    function _renderEditProdBlocks() {
+        var body=document.getElementById('modal-editar-prod-body');
+        if(!body) return;
+        var blocksHtml=_editProdBlocks.map(function(b,i){
+            var hideBags=isNoBagsActivity(b.activity);
+            var opts=currentActivities.map(function(opt){ return '<option value="'+escapeHTML(opt)+'"'+(b.activity===opt?' selected':'')+'>'+escapeHTML(opt)+'</option>'; }).join('');
+            return '<div class="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 space-y-3">'+
+                '<div class="flex items-center justify-between">'+
+                    '<span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Registro '+(i+1)+'</span>'+
+                    (_editProdBlocks.length>1?'<button onclick="removerEditProdBlock('+i+')" class="text-red-400 hover:text-red-600 text-xs font-bold px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors active:scale-95">✕ Remover</button>':'')+
+                '</div>'+
+                '<select onchange="updateEditProdBlock('+i+',\'activity\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">'+
+                    '<option value="" disabled'+(b.activity?'':' selected')+'>Selecione a atividade...</option>'+opts+
+                '</select>'+
+                '<div class="grid grid-cols-2 gap-3">'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><input type="time" value="'+escapeHTML(b.start||'')+'" oninput="updateEditProdBlock('+i+',\'start\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><input type="time" value="'+escapeHTML(b.end||'')+'" oninput="updateEditProdBlock('+i+',\'end\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
+                '</div>'+
+                '<div class="grid grid-cols-2 gap-3">'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
+                    '<div id="edit-prod-bags-'+i+'"'+(hideBags?' style="display:none"':'')+'>'+
+                        '<label class="block text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Sacas</label>'+
+                        '<input type="text" inputmode="numeric" value="'+escapeHTML(b.bags||'')+'" oninput="updateEditProdBlock('+i+',\'bags\',this.value)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500" placeholder="Qtd">'+
+                    '</div>'+
+                '</div>'+
+                '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Observações</label><input type="text" value="'+escapeHTML(b.obs||'')+'" oninput="updateEditProdBlock('+i+',\'obs\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500" placeholder="Detalhes, destino..."></div>'+
+            '</div>';
+        }).join('');
+        var justHtml='<div class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-2xl p-4 space-y-2">'+
+            '<label class="block text-[10px] font-bold text-red-600 uppercase tracking-widest">Justificativa de Meta</label>'+
+            '<textarea id="edit-prod-just" rows="2" oninput="_editProdJust=this.value" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800/50 rounded-xl py-2.5 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-red-400 resize-none" placeholder="Justifique a quebra de meta (se houver)...">'+escapeHTML(_editProdJust)+'</textarea>'+
+        '</div>';
+        var addBtn='<button onclick="adicionarEditProdBlock()" class="w-full py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl text-gray-600 dark:text-gray-300 font-bold text-xs uppercase tracking-wider active:scale-[0.98] flex justify-center items-center gap-2 transition-all"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Adicionar Registro</button>';
+        body.innerHTML=blocksHtml+addBtn+justHtml;
+    }
+
+    function updateEditProdBlock(idx,field,value) {
+        if(!_editProdBlocks[idx]) return;
+        _editProdBlocks[idx][field]=value;
+        if(field==='activity'){
+            var bagsDiv=document.getElementById('edit-prod-bags-'+idx);
+            if(bagsDiv) bagsDiv.style.display=isNoBagsActivity(value)?'none':'';
+        }
+    }
+    window.updateEditProdBlock=updateEditProdBlock;
+
+    function removerEditProdBlock(idx) {
+        _editProdBlocks.splice(idx,1);
+        _renderEditProdBlocks();
+    }
+    window.removerEditProdBlock=removerEditProdBlock;
+
+    function adicionarEditProdBlock() {
+        _editProdBlocks.push({id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''});
+        _renderEditProdBlocks();
+    }
+    window.adicionarEditProdBlock=adicionarEditProdBlock;
+
+    function salvarEdicaoProd() {
+        if(!_editProdKey) return;
+        if(!appData[_editProdKey]) return mostrarToast('Registro não encontrado.', true);
+        if(!appData[_editProdKey][currentSector]) return mostrarToast('Setor não encontrado.', true);
+        var st=appData[_editProdKey][currentSector];
+        var justEl=document.getElementById('edit-prod-just');
+        if(justEl) _editProdJust=justEl.value;
+        if(!st.producaoSalva) st.producaoSalva={};
+        st.producaoSalva.timeBlocks=JSON.parse(JSON.stringify(_editProdBlocks));
+        st.producaoSalva.justificativa=_editProdJust;
+        st.producaoSalva.editado=!isAdmin;
+        st.producaoSalva.editadoEm=new Date().toLocaleString('pt-BR');
+        st.producaoSalva.editadoPor=operadorNome||(isAdmin?'Admin':'');
+        saveData();
+        salvarNoFirestore();
+        fecharModalEditarProd();
+        renderHistoricoProducao();
+        mostrarToast('Produção atualizada! ✓');
+    }
+    window.salvarEdicaoProd=salvarEdicaoProd;
 
     function renderHistoricoProducao() {
         var section=document.getElementById('historico-producao-section');
