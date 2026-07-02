@@ -1498,28 +1498,37 @@
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Metas do Setor</h3>
-                                    <p class="text-xs text-gray-400 mt-0.5">Metas definidas pelo gestor para o Rebenefício</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Metas definidas pelo gestor para este setor</p>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 text-center">
-                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Meta Sacas / Hora</span>
-                                    <div class="flex items-baseline justify-center gap-1">
-                                        <span id="info-meta-hora" class="text-4xl font-black text-amber-700 dark:text-amber-300 tracking-tighter">55</span>
-                                        <span class="text-sm font-bold text-amber-400">sc/h</span>
+                            <div id="info-meta-cards">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 text-center">
+                                        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Meta Sacas / Hora</span>
+                                        <div class="flex items-baseline justify-center gap-1">
+                                            <span id="info-meta-hora" class="text-4xl font-black text-amber-700 dark:text-amber-300 tracking-tighter">55</span>
+                                            <span class="text-sm font-bold text-amber-400">sc/h</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 text-center">
+                                        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Meta Sacas / Turno</span>
+                                        <div class="flex items-baseline justify-center gap-1">
+                                            <span id="info-meta-turno" class="text-4xl font-black text-amber-700 dark:text-amber-300 tracking-tighter">500</span>
+                                            <span class="text-sm font-bold text-amber-400">sc/t</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 text-center">
-                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Meta Sacas / Turno</span>
-                                    <div class="flex items-baseline justify-center gap-1">
-                                        <span id="info-meta-turno" class="text-4xl font-black text-amber-700 dark:text-amber-300 tracking-tighter">500</span>
-                                        <span class="text-sm font-bold text-amber-400">sc/t</span>
-                                    </div>
+                                <div class="mt-6 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4">
+                                    <p id="info-meta-data" class="text-xs text-gray-500 dark:text-gray-400 text-center font-semibold"></p>
+                                    <p class="text-[10px] text-gray-400 text-center mt-1">Produzir abaixo dessas metas exige justificativa. Dúvidas? Procure seu gestor.</p>
                                 </div>
                             </div>
-                            <div class="mt-6 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4">
-                                <p id="info-meta-data" class="text-xs text-gray-500 dark:text-gray-400 text-center font-semibold"></p>
-                                <p class="text-[10px] text-gray-400 text-center mt-1">Produzir abaixo dessas metas exige justificativa. Dúvidas? Procure seu gestor.</p>
+                            <div id="info-sem-meta" class="hidden py-8 text-center">
+                                <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3 text-gray-400 dark:text-gray-500">
+                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                </div>
+                                <p class="text-sm font-bold text-gray-400 dark:text-gray-500">Sem metas disponíveis no momento</p>
+                                <p class="text-[10px] text-gray-300 dark:text-gray-600 mt-1">O gestor ainda não configurou metas para este setor.</p>
                             </div>
                         </div>
                     </div>
@@ -1582,40 +1591,13 @@
                 <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
                     <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h2>
-                        <p class="text-sm text-gray-500 mt-1">Defina e confirme as metas do setor Rebenefício</p>
+                        <p class="text-sm text-gray-500 mt-1">Defina e confirme as metas por setor e turno</p>
                     </div>
 
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft mb-6">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Nova Meta</h3>
-                                <p class="text-xs text-gray-400 mt-0.5">Preencha os valores e confirme para ativar</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Hora</label>
-                                <div class="relative">
-                                    <input type="number" id="adm-meta-hora" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="55">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/h</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block ml-1">Meta Sacas / Turno</label>
-                                <div class="relative">
-                                    <input type="number" id="adm-meta-turno" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" placeholder="500">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/t</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button id="btn-confirmar-meta" onclick="confirmarMeta()" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-sm transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
-                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            Confirmar Meta
-                        </button>
-                    </div>
+                    <button onclick="abrirModalNovaMeta()" class="mb-6 w-full flex items-center justify-center gap-3 py-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl uppercase tracking-wider text-sm transition-all active:scale-[0.98] shadow-md">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Registrar nova meta
+                    </button>
 
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 shadow-soft">
                         <div class="flex items-center gap-3 mb-5">
@@ -1879,7 +1861,7 @@
             <div id="lista-atividades" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-6 custom-scrollbar"></div>
             <div id="div-outras-atividade" class="hidden shrink-0 mb-6 transition-all bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
                 <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Descreva a atividade</label>
-                <input type="text" id="input-outras-atividade" placeholder="Detalhes..." style="text-transform: uppercase;" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+                <input type="text" id="input-outras-atividade" placeholder="Detalhes..." class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
             </div>
             <div class="flex gap-4 shrink-0 mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
                 <button onclick="limparModalAtividades()" class="w-1/3 py-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl active:scale-95 transition-colors text-xs uppercase tracking-wider">Limpar</button>
@@ -3717,69 +3699,22 @@
         window.location.reload();
     }
 
-    function getMetaAtiva() {
+    function getMetaParaSetor(setor) {
         var hist = (appData.config && appData.config.metasHistorico) || [];
-        if (hist.length > 0) return hist[hist.length - 1];
-        var h = (appData.config && appData.config.metaRebeneficioHora) || 55;
-        var t = (appData.config && appData.config.metaRebeneficioTurno) || 500;
-        return { hora: h, turno: t };
-    }
-
-    function salvarMetasAdm() {
-        confirmarMeta();
-    }
-
-    function confirmarMeta() {
-        var elH = document.getElementById('adm-meta-hora');
-        var elT = document.getElementById('adm-meta-turno');
-        if (!elH || !elT) return;
-        var hora = parseFloat(elH.value);
-        var turno = parseFloat(elT.value);
-        if (!hora || hora <= 0) return mostrarToast('Informe a Meta Sacas/Hora!', true);
-        if (!turno || turno <= 0) return mostrarToast('Informe a Meta Sacas/Turno!', true);
-
-        if (!appData.config) appData.config = {};
-        if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
-
-        var agora = Date.now();
-        var dataHoje = new Date().toLocaleDateString('pt-BR');
-        var horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-        if (_editMetaIdx >= 0 && appData.config.metasHistorico[_editMetaIdx]) {
-            var entry = appData.config.metasHistorico[_editMetaIdx];
-            entry.hora = hora;
-            entry.turno = turno;
-            entry.data = dataHoje;
-            entry.horaConfirmacao = horaAgora;
-            entry.confirmedAt = agora;
-            entry.confirmedBy = operadorNome || 'Admin';
-            _editMetaIdx = -1;
-            var btn = document.getElementById('btn-confirmar-meta');
-            if (btn) btn.innerHTML = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Confirmar Meta';
-            mostrarToast('Meta atualizada!');
-        } else {
-            appData.config.metasHistorico.push({
-                hora: hora,
-                turno: turno,
-                data: dataHoje,
-                horaConfirmacao: horaAgora,
-                confirmedAt: agora,
-                confirmedBy: operadorNome || 'Admin'
-            });
-            mostrarToast('Meta confirmada!');
+        for (var i = hist.length - 1; i >= 0; i--) {
+            var m = hist[i];
+            if (!m.setor || m.setor === setor) return m;
         }
-
-        appData.config.metaRebeneficioHora = hora;
-        appData.config.metaRebeneficioTurno = turno;
-        appData.config._lastModifiedAt = agora;
-
-        _cachearLocal();
-        salvarNoFirestore();
-        elH.value = '';
-        elT.value = '';
-        renderMetasHistorico();
-        if (currentViewId === 'view-productivity') calcTotalProductivity();
+        // Legacy fallback for Rebenefício from old config fields
+        if (setor && (setor.includes('Rebenefício') || setor.includes('TESTE'))) {
+            var h = (appData.config && appData.config.metaRebeneficioHora) || 0;
+            var t = (appData.config && appData.config.metaRebeneficioTurno) || 0;
+            if (h > 0 || t > 0) return { hora: h, turno: t };
+        }
+        return null;
     }
+    // Keep getMetaAtiva as alias for backward compatibility with any remaining calls
+    function getMetaAtiva() { return getMetaParaSetor(currentSector) || { hora: 55, turno: 500 }; }
 
     function fmtNum(n) {
         var num = Number(n);
@@ -3790,17 +3725,7 @@
     var _editMetaIdx = -1;
 
     function editarMetaHistorico(realIdx) {
-        var hist = (appData.config && appData.config.metasHistorico) || [];
-        var m = hist[realIdx];
-        if (!m) return;
-        _editMetaIdx = realIdx;
-        document.getElementById('adm-meta-hora').value = m.hora;
-        document.getElementById('adm-meta-turno').value = m.turno;
-        var btn = document.getElementById('btn-confirmar-meta');
-        if (btn) btn.innerHTML = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.172-8.172z"/></svg> Atualizar Meta';
-        var form = document.getElementById('adm-meta-hora');
-        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        mostrarToast('Editando meta — altere os valores e confirme.');
+        abrirModalNovaMeta(realIdx);
     }
     window.editarMetaHistorico = editarMetaHistorico;
 
@@ -3820,11 +3745,13 @@
             var borderClass = isAtiva ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800';
             var badge = isAtiva ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Ativa</span>' : '';
             var editBtn = '<button onclick="editarMetaHistorico('+realIdx+')" class="ml-auto text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 active:scale-95 transition-all"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.172-8.172z"/></svg>Editar</button>';
+            var setorBadge = m.setor ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50">'+escapeHTML(m.setor)+(m.turnoNome?' · '+escapeHTML(m.turnoNome):'')+'</span>' : '';
             html += '<div class="border rounded-2xl p-4 '+borderClass+' transition-all">';
             html += '<div class="flex items-center justify-between mb-2">';
-            html += '<div class="flex items-center gap-2">';
+            html += '<div class="flex items-center gap-2 flex-wrap">';
             html += '<span class="text-xs font-bold text-gray-500 dark:text-gray-400">'+m.data+' '+m.horaConfirmacao+'</span>';
             html += badge;
+            html += setorBadge;
             html += '</div>';
             html += '<div class="flex items-center gap-3"><span class="text-[10px] text-gray-400">por '+escapeHTML(m.confirmedBy || 'Admin')+'</span>'+editBtn+'</div>';
             html += '</div>';
@@ -3837,15 +3764,156 @@
     }
 
     function atualizarMetasInfo() {
-        var meta = getMetaAtiva();
-        var elH = document.getElementById('info-meta-hora');
-        var elT = document.getElementById('info-meta-turno');
-        if (elH) elH.textContent = fmtNum(meta.hora);
-        if (elT) elT.textContent = fmtNum(meta.turno);
-        var elData = document.getElementById('info-meta-data');
-        if (elData && meta.data) elData.textContent = 'Atualizada em ' + meta.data + ' ' + (meta.horaConfirmacao || '');
-        else if (elData) elData.textContent = '';
+        var meta = getMetaParaSetor(currentSector);
+        var cards = document.getElementById('info-meta-cards');
+        var semMeta = document.getElementById('info-sem-meta');
+        if (!meta) {
+            if (cards) cards.classList.add('hidden');
+            if (semMeta) semMeta.classList.remove('hidden');
+        } else {
+            if (cards) cards.classList.remove('hidden');
+            if (semMeta) semMeta.classList.add('hidden');
+            var elH = document.getElementById('info-meta-hora');
+            var elT = document.getElementById('info-meta-turno');
+            if (elH) elH.textContent = fmtNum(meta.hora);
+            if (elT) elT.textContent = fmtNum(meta.turno);
+            var elData = document.getElementById('info-meta-data');
+            if (elData && meta.data) elData.textContent = 'Atualizada em ' + meta.data + ' ' + (meta.horaConfirmacao || '');
+            else if (elData) elData.textContent = '';
+        }
     }
+
+    function _calcMetaTurnoDurMin(setorVal, turnoNomeVal) {
+        var turnos = (appData.config && appData.config.turnos) || [];
+        var turnoObj = turnoNomeVal
+            ? turnos.find(function(t) { return t.setor === setorVal && t.nome === turnoNomeVal; })
+            : turnos.find(function(t) { return t.setor === setorVal; });
+        if (!turnoObj || !turnoObj.inicio || !turnoObj.fim) return 0;
+        var dur = calcMinutos(turnoObj.inicio, turnoObj.fim);
+        if (turnoObj.intervaloInicio && turnoObj.intervaloFim) dur -= calcMinutos(turnoObj.intervaloInicio, turnoObj.intervaloFim);
+        return dur > 0 ? dur : 0;
+    }
+
+    function onMetaSetorChange() {
+        var setorSel = document.getElementById('modal-meta-setor');
+        var setor = setorSel ? setorSel.value : '';
+        var turnos = (appData.config && appData.config.turnos) || [];
+        var setorTurnos = turnos.filter(function(t) { return t.setor === setor; });
+        var wrapper = document.getElementById('modal-meta-turno-wrapper');
+        var turnoSel = document.getElementById('modal-meta-turno');
+        if (setorTurnos.length > 1) {
+            if (wrapper) wrapper.classList.remove('hidden');
+            if (turnoSel) turnoSel.innerHTML = setorTurnos.map(function(t) {
+                return '<option value="'+escapeHTML(t.nome)+'">'+escapeHTML(t.nome)+'</option>';
+            }).join('');
+        } else {
+            if (wrapper) wrapper.classList.add('hidden');
+            if (turnoSel) turnoSel.innerHTML = setorTurnos.length === 1 ? '<option value="'+escapeHTML(setorTurnos[0].nome)+'">'+escapeHTML(setorTurnos[0].nome)+'</option>' : '';
+        }
+        onMetaTurnoValChange();
+    }
+    window.onMetaSetorChange = onMetaSetorChange;
+
+    function onMetaTurnoValChange() {
+        var setorSel = document.getElementById('modal-meta-setor');
+        var turnoSel = document.getElementById('modal-meta-turno');
+        var setorVal = setorSel ? setorSel.value : '';
+        var turnoNomeVal = turnoSel ? turnoSel.value : '';
+        var sacasTurno = parseFloat(document.getElementById('modal-meta-turno-val').value) || 0;
+        var durMin = _calcMetaTurnoDurMin(setorVal, turnoNomeVal);
+        var horaCalc = (durMin > 0 && sacasTurno > 0) ? sacasTurno / (durMin / 60) : 0;
+        var infoEl = document.getElementById('modal-meta-hora-info');
+        var calcEl = document.getElementById('modal-meta-hora-calc');
+        if (sacasTurno > 0) {
+            if (infoEl) infoEl.classList.remove('hidden');
+            if (calcEl) calcEl.textContent = horaCalc > 0 ? horaCalc.toFixed(1).replace('.', ',') : '—';
+        } else {
+            if (infoEl) infoEl.classList.add('hidden');
+        }
+    }
+    window.onMetaTurnoValChange = onMetaTurnoValChange;
+
+    function abrirModalNovaMeta(editIdx) {
+        _editMetaIdx = (editIdx !== undefined && editIdx !== null) ? editIdx : -1;
+        var turnos = (appData.config && appData.config.turnos) || [];
+        var setores = [];
+        turnos.forEach(function(t) { if (t.setor && setores.indexOf(t.setor) === -1) setores.push(t.setor); });
+        var setorSel = document.getElementById('modal-meta-setor');
+        if (setorSel) {
+            setorSel.innerHTML = setores.length
+                ? setores.map(function(s) { return '<option value="'+escapeHTML(s)+'">'+escapeHTML(s)+'</option>'; }).join('')
+                : '<option value="">Nenhum setor cadastrado</option>';
+        }
+        var titulo = document.getElementById('modal-meta-titulo');
+        if (titulo) titulo.textContent = _editMetaIdx >= 0 ? 'Editar Meta' : 'Nova Meta';
+        if (_editMetaIdx >= 0) {
+            var m = (appData.config && appData.config.metasHistorico && appData.config.metasHistorico[_editMetaIdx]);
+            if (m) {
+                if (setorSel && m.setor) setorSel.value = m.setor;
+                onMetaSetorChange();
+                var turnoSel = document.getElementById('modal-meta-turno');
+                if (turnoSel && m.turnoNome) turnoSel.value = m.turnoNome;
+                var turnoValEl = document.getElementById('modal-meta-turno-val');
+                if (turnoValEl) turnoValEl.value = m.turno;
+                onMetaTurnoValChange();
+            }
+        } else {
+            onMetaSetorChange();
+            var turnoValEl2 = document.getElementById('modal-meta-turno-val');
+            if (turnoValEl2) turnoValEl2.value = '';
+            var infoEl = document.getElementById('modal-meta-hora-info');
+            if (infoEl) infoEl.classList.add('hidden');
+        }
+        var modal = document.getElementById('modal-nova-meta');
+        if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+    }
+    window.abrirModalNovaMeta = abrirModalNovaMeta;
+
+    function fecharModalNovaMeta() {
+        var modal = document.getElementById('modal-nova-meta');
+        if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        _editMetaIdx = -1;
+    }
+    window.fecharModalNovaMeta = fecharModalNovaMeta;
+
+    function confirmarMetaPopup() {
+        var setorSel = document.getElementById('modal-meta-setor');
+        var turnoWrapper = document.getElementById('modal-meta-turno-wrapper');
+        var turnoSel = document.getElementById('modal-meta-turno');
+        var setorVal = setorSel ? setorSel.value : '';
+        var turnoNomeVal = (turnoWrapper && !turnoWrapper.classList.contains('hidden') && turnoSel) ? turnoSel.value : '';
+        var sacasTurno = parseFloat(document.getElementById('modal-meta-turno-val').value);
+        if (!setorVal) return mostrarToast('Selecione o setor!', true);
+        if (!sacasTurno || sacasTurno <= 0) return mostrarToast('Informe a meta de sacas/turno!', true);
+        var durMin = _calcMetaTurnoDurMin(setorVal, turnoNomeVal);
+        var horaCalc = durMin > 0 ? sacasTurno / (durMin / 60) : 0;
+        if (!appData.config) appData.config = {};
+        if (!appData.config.metasHistorico) appData.config.metasHistorico = [];
+        var agora = Date.now();
+        var dataHoje = new Date().toLocaleDateString('pt-BR');
+        var horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        var entry = { hora: horaCalc, turno: sacasTurno, setor: setorVal, turnoNome: turnoNomeVal, data: dataHoje, horaConfirmacao: horaAgora, confirmedAt: agora, confirmedBy: operadorNome || 'Admin' };
+        if (_editMetaIdx >= 0 && appData.config.metasHistorico[_editMetaIdx]) {
+            Object.assign(appData.config.metasHistorico[_editMetaIdx], entry);
+            mostrarToast('Meta atualizada!');
+        } else {
+            appData.config.metasHistorico.push(entry);
+            mostrarToast('Meta confirmada!');
+        }
+        // Update legacy fields for Rebenefício
+        if (setorVal.includes('Rebenefício') || setorVal.includes('TESTE')) {
+            appData.config.metaRebeneficioHora = horaCalc;
+            appData.config.metaRebeneficioTurno = sacasTurno;
+        }
+        appData.config._lastModifiedAt = agora;
+        _cachearLocal();
+        salvarNoFirestore();
+        fecharModalNovaMeta();
+        renderMetasHistorico();
+        atualizarMetasInfo();
+        if (currentViewId === 'view-productivity') calcTotalProductivity();
+    }
+    window.confirmarMetaPopup = confirmarMetaPopup;
 
     function switchProdTab(tab) {
         var boletimContent=document.getElementById('prod-tab-boletim-content');
@@ -4426,7 +4494,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); } });
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -4767,18 +4835,14 @@
         // Boletim usa botão inline — footer não é exibido para esse view
         if (viewId==='view-metas') {
             _editMetaIdx = -1;
-            document.getElementById('adm-meta-hora').value = '';
-            document.getElementById('adm-meta-turno').value = '';
-            var btnMeta = document.getElementById('btn-confirmar-meta');
-            if (btnMeta) btnMeta.innerHTML = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Confirmar Meta';
             renderMetasHistorico();
         }
         if (viewId==='view-productivity') {
             var lblMedia=document.getElementById('lbl-media-hora');
             var isReb=currentSector.includes('Rebenefício')||currentSector.includes('TESTE');
             var tabBar=document.getElementById('prod-tab-bar');
-            if(tabBar) tabBar.classList.toggle('hidden',!isReb||isAdmin);
-            if(isReb&&!isAdmin) { atualizarMetasInfo(); switchProdTab('boletim'); }
+            if(tabBar) tabBar.classList.toggle('hidden', isAdmin);
+            if(!isAdmin) { atualizarMetasInfo(); switchProdTab('boletim'); }
             if(lblMedia) lblMedia.textContent=isReb?'Média/h (Turno)':'Média/h Total';
             renderShiftCards();
         }
@@ -4930,7 +4994,10 @@
                 var d=calcMinutos(t.start||'',t.end||'');
                 var durStr=d>0?Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m':'';
                 var canRemove=allTimes.length>1;
-                return '<div class="flex items-end gap-1.5">'+
+                var wrapOpen=canRemove?'<div class="time-row-sw relative overflow-hidden rounded-xl" data-blockid="'+b.id+'" data-timeidx="'+ti+'"><div class="absolute inset-0 flex items-center justify-end pr-4 bg-red-500 rounded-xl pointer-events-none"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6h14z" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':'<div class="rounded-xl">';
+                var wrapInner='<div class="time-row-content flex items-end gap-1.5'+(canRemove?' bg-white dark:bg-gray-800':'')+'">';
+                var wrapClose='</div>'+(canRemove?'</div>':'');
+                return wrapOpen+wrapInner+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
                         '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(t.start||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
@@ -4940,9 +5007,8 @@
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
                         '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(t.end||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
                     '</div>'+
-                    (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-14 shrink-0"></div>')+
-                    (canRemove?'<button onclick="removeBlockTime('+b.id+','+ti+')" class="shrink-0 w-10 h-10 min-w-[40px] flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:text-red-600 active:scale-90 transition-all self-end"><svg width="14" height="14" fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>':'<div class="w-10 shrink-0"></div>')+
-                '</div>';
+                    (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-10 shrink-0"></div>')+
+                wrapClose;
             }).join('');
             var tipoHtml='';
             if(isReb){
@@ -4983,7 +5049,7 @@
                             '</div>'+
                             '<div>'+
                                 '<label class="block text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1.5">Motivo</label>'+
-                                '<input type="text" value="'+escapeHTML(p.motivo||'')+'" oninput="updateParadaField('+b.id+',\'motivo\',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400" placeholder="Descreva o motivo...">'+
+                                '<input type="text" value="'+escapeHTML(p.motivo||'')+'" oninput="updateParadaField('+b.id+',\'motivo\',this.value.toUpperCase())" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400" placeholder="Descreva o motivo...">'+
                             '</div>'+
                         '</div>'
                     :'')+
@@ -4994,7 +5060,7 @@
         <div>
             <div class="flex items-center justify-between mb-1.5"><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atividade Efetuada</label>${usarOpBtn}</div>
             <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"><option value="" disabled ${!b.activity?'selected':''}>Selecione a atividade...</option>${opts}</select>
-            ${showCustom?`<input type="text" style="text-transform:uppercase" value="${escapeHTML(b.activityDetail||'')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="mt-2 w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500" placeholder="Qual atividade?">`:''}
+            ${showCustom?`<input type="text" value="${escapeHTML(b.activityDetail||'')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="mt-2 w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500" placeholder="Qual atividade?">`:''}
             ${showRepasse?`<input type="text" value="${escapeHTML(b.repasseJustificativa||'')}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="mt-2 w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-amber-900 dark:text-amber-100 focus:ring-2 focus:ring-amber-500" placeholder="Motivo do repasse...">`:''}
             ${opBadge}
         </div>
@@ -5014,7 +5080,7 @@
             <div class="${!hideBags?'col-span-5':'col-span-7'}">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
                 <div class="flex gap-2">
-                    <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 min-w-0 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="N° Guia">
+                    <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" class="flex-1 min-w-0 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="N° Guia">
                     ${getOPsParaBoletim().length?'<button data-blockid="'+b.id+'" class="btn-importar-op shrink-0 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 rounded-xl px-2 py-2 text-xs font-bold hover:bg-cyan-100 transition-colors active:scale-95">&#128203;</button>':''}
                 </div>
             </div>
@@ -5029,6 +5095,41 @@
 </div>`;
         }).join('');
         _bindBotoesOP();
+        _initSwipeRows();
+    }
+
+    function _initSwipeRows() {
+        document.querySelectorAll('#time-blocks-container .time-row-sw').forEach(function(row) {
+            var content = row.querySelector('.time-row-content');
+            if (!content) return;
+            var startX = 0, curX = 0, active = false;
+            row.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+                curX = startX;
+                active = true;
+                content.style.transition = 'none';
+            }, { passive: true });
+            row.addEventListener('touchmove', function(e) {
+                if (!active) return;
+                curX = e.touches[0].clientX;
+                var dx = curX - startX;
+                if (dx < 0) content.style.transform = 'translateX(' + dx + 'px)';
+            }, { passive: true });
+            row.addEventListener('touchend', function() {
+                if (!active) return;
+                active = false;
+                var dx = curX - startX;
+                content.style.transition = 'transform 0.2s ease';
+                if (dx < -75) {
+                    content.style.transform = 'translateX(-110%)';
+                    var bid = parseInt(row.dataset.blockid);
+                    var tidx = parseInt(row.dataset.timeidx);
+                    setTimeout(function() { removeBlockTime(bid, tidx); }, 210);
+                } else {
+                    content.style.transform = '';
+                }
+            });
+        });
     }
 
     function _bindBotoesOP() {
@@ -5228,10 +5329,11 @@
         var mediaNum=tempoConsiderado>0&&totalSacas>0?totalSacas/(tempoConsiderado/60):0;
         if(rM) rM.textContent=mediaNum>0?mediaNum.toFixed(1).replace('.',','):'0';
         var contJust=document.getElementById('container-justificativa'), contSucs=document.getElementById('container-meta-sucesso');
-        if(isReb){
-            var metaHora=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaTurno=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
+        var metaSetor=getMetaParaSetor(currentSector);
+        if(metaSetor){
+            var metaHora=parseFloat(metaSetor.hora)||0, metaTurno=parseFloat(metaSetor.turno)||0;
             var hasWorked=shiftMin>0||totalMin>0;
-            if(hasWorked&&totalSacas>0){ var missed=totalSacas<metaTurno||mediaNum<metaHora; if(contJust) contJust.classList.toggle('hidden',!missed); if(contSucs) contSucs.classList.toggle('hidden',missed); if(missed){ var jVal=document.getElementById('justificativa-meta'); if(jVal&&jVal.value){ var jc2=document.getElementById('just-expand-content'),ji2=document.getElementById('just-expand-icon'); if(jc2&&jc2.classList.contains('hidden')){ jc2.classList.remove('hidden'); if(ji2) ji2.textContent='−'; } } } }
+            if(hasWorked&&totalSacas>0){ var missed=(metaTurno>0&&totalSacas<metaTurno)||(metaHora>0&&mediaNum<metaHora); if(contJust) contJust.classList.toggle('hidden',!missed); if(contSucs) contSucs.classList.toggle('hidden',missed); if(missed){ var jVal=document.getElementById('justificativa-meta'); if(jVal&&jVal.value){ var jc2=document.getElementById('just-expand-content'),ji2=document.getElementById('just-expand-icon'); if(jc2&&jc2.classList.contains('hidden')){ jc2.classList.remove('hidden'); if(ji2) ji2.textContent='−'; } } } }
             else { if(contJust) contJust.classList.add('hidden'); if(contSucs) contSucs.classList.add('hidden'); }
         } else { if(contJust) contJust.classList.add('hidden'); if(contSucs) contSucs.classList.add('hidden'); }
     }
@@ -5776,7 +5878,7 @@
                     '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.end||'')+'" oninput="mascaraHorario(this);updateEditProdBlock('+i+',\'end\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
                 '</div>'+
                 '<div class="grid grid-cols-2 gap-3">'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
                     '<div id="edit-prod-bags-'+i+'"'+(hideBags?' style="display:none"':'')+'>'+
                         '<label class="block text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Sacas</label>'+
                         '<input type="text" inputmode="numeric" value="'+escapeHTML(b.bags||'')+'" oninput="updateEditProdBlock('+i+',\'bags\',this.value)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500" placeholder="Qtd">'+
@@ -5949,5 +6051,51 @@
         executarCompartilhamento('Boletim '+dataKey+' '+cleanSetor,texto,cleanSetor);
     }
     </script>
+
+    <!-- MODAL: NOVA / EDITAR META -->
+    <div id="modal-nova-meta" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6)">
+        <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="bg-amber-500 p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <span id="modal-meta-titulo" class="font-black text-white uppercase tracking-widest heading-font text-sm">Nova Meta</span>
+                </div>
+                <button onclick="fecharModalNovaMeta()" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-all active:scale-90">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path stroke-linecap="round" d="M2 2l8 8M2 10l8-8"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Setor</label>
+                    <select id="modal-meta-setor" onchange="onMetaSetorChange()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 appearance-none"></select>
+                </div>
+                <div id="modal-meta-turno-wrapper" class="hidden">
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Turno</label>
+                    <select id="modal-meta-turno" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 appearance-none"></select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Meta Sacas / Turno</label>
+                    <div class="relative">
+                        <input type="number" id="modal-meta-turno-val" oninput="onMetaTurnoValChange()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-4 text-2xl font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all pr-16" placeholder="500">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">sc/t</span>
+                    </div>
+                </div>
+                <div id="modal-meta-hora-info" class="hidden bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700/50 rounded-xl p-4 text-center">
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Equivalente em Sacas / Hora</span>
+                    <div class="flex items-baseline justify-center gap-1">
+                        <span id="modal-meta-hora-calc" class="text-3xl font-black text-amber-700 dark:text-amber-300"></span>
+                        <span class="text-sm font-bold text-amber-400">sc/h</span>
+                    </div>
+                    <span class="text-[10px] text-amber-500 dark:text-amber-600 block mt-1">calculado com base na duração do turno</span>
+                </div>
+                <button onclick="confirmarMetaPopup()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    Confirmar Meta
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
