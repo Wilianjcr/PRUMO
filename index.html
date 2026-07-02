@@ -569,6 +569,7 @@
         .view-active {
             opacity: 1; pointer-events: auto; position: relative;
             transform: translateX(0); transition: opacity 0.25s ease, transform 0.25s ease;
+            height: 100%; overflow-y: auto; overflow-x: hidden; overscroll-behavior: none;
             width: 100%; height: 100%; visibility: visible;
         }
 
@@ -1019,9 +1020,9 @@
         </div>
 
         <!-- MAIN -->
-        <main class="flex-1 relative overflow-x-hidden overflow-y-auto flex flex-col transition-colors duration-300 print-hide" style="overscroll-behavior:none">
+        <main class="flex-1 relative overflow-hidden flex flex-col transition-colors duration-300 print-hide">
 
-            <div id="view-menu" class="view-active w-full flex flex-col p-4 md:p-8">
+            <div id="view-menu" class="view-active w-full flex flex-col p-4 md:p-8 min-h-full">
                 <div class="mb-6 mt-2 text-center flex flex-col items-center justify-center shrink-0">
                     <p id="welcome-message" class="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-[0.2em] uppercase mb-1 hidden">Visão do Gestor</p>
                     <h1 id="user-name-display" class="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight heading-font hidden"></h1>
@@ -1097,6 +1098,15 @@
                                     </div>
                                 </div>
 
+                                <!-- Intervalo (Almoço / Janta) -->
+                                <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
+                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
+                                    <input type="time" id="adm-turno-intervalo-inicio" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]" placeholder="--:--">
+                                    <span class="text-amber-400 font-bold shrink-0">→</span>
+                                    <input type="time" id="adm-turno-intervalo-fim" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]" placeholder="--:--">
+                                    <span class="text-[10px] text-amber-500 dark:text-amber-500 font-medium">(opcional — descontado das horas disponíveis)</span>
+                                </div>
+
                                 <!-- Linha 2: Dias da Semana (horizontal compacto) -->
                                 <div>
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dias da Semana</label>
@@ -1136,11 +1146,11 @@
                             <!-- Filtro por setor + Lista -->
                             <div class="p-5">
                                 <div class="flex gap-1.5 mb-4 flex-wrap" id="adm-filtro-setor">
-                                    <button onclick="filtrarTurnosAdm('todos')" id="filtro-todos" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-900 text-white dark:bg-white dark:text-gray-900 transition-all">Todos</button>
-                                    <button onclick="filtrarTurnosAdm('⚙️ Rebenefício')" id="filtro-reb" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Reb.</button>
-                                    <button onclick="filtrarTurnosAdm('🚛 Expedição')" id="filtro-exp" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Exp.</button>
-                                    <button onclick="filtrarTurnosAdm('📦 Embalagem')" id="filtro-emb" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Emb.</button>
-                                    <button onclick="filtrarTurnosAdm('📥 Recebimento')" id="filtro-rec" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Rec.</button>
+                                    <button onclick="filtrarTurnosAdm('todos')" id="filtro-todos" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white dark:bg-white text-gray-900 shadow-sm transition-all">Todos</button>
+                                    <button onclick="filtrarTurnosAdm('⚙️ Rebenefício')" id="filtro-reb" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Rebenefício</button>
+                                    <button onclick="filtrarTurnosAdm('🚛 Expedição')" id="filtro-exp" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Expedição</button>
+                                    <button onclick="filtrarTurnosAdm('📦 Embalagem')" id="filtro-emb" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Embalagem</button>
+                                    <button onclick="filtrarTurnosAdm('📥 Recebimento')" id="filtro-rec" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Recebimento</button>
                                 </div>
                                 <div class="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar" id="adm-lista-turnos"></div>
                             </div>
@@ -1427,6 +1437,11 @@
                 <div class="w-full max-w-5xl mx-auto flex flex-col flex-1">
                     <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font text-center mb-4">Boletim Diário</h2>
+                        <!-- Seletor de turno (visível quando há 2+ turnos para o setor) -->
+                        <div id="shift-selector-bar" class="hidden mb-4">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Selecione seu turno</p>
+                            <div id="shift-pills" class="flex flex-wrap justify-center gap-2"></div>
+                        </div>
                         <!-- Barra de totais inline no cabeçalho -->
                         <div class="flex items-center justify-center gap-4 sm:gap-6 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3">
                             <div>
@@ -1508,6 +1523,8 @@
                     <input type="hidden" id="shift-selector" value="">
                     <input type="hidden" id="shift-start" value="">
                     <input type="hidden" id="shift-end" value="">
+                    <input type="hidden" id="shift-intervalo-inicio" value="">
+                    <input type="hidden" id="shift-intervalo-fim" value="">
 
                     <div class="flex-1 space-y-6 pb-6">
                         <div>
@@ -2043,6 +2060,14 @@
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Fim</label>
                         <input type="time" id="edit-turno-fim" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px]">
                     </div>
+                </div>
+                <!-- Intervalo (Almoço / Janta) -->
+                <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
+                    <input type="time" id="edit-turno-intervalo-inicio" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]">
+                    <span class="text-amber-400 font-bold shrink-0">→</span>
+                    <input type="time" id="edit-turno-intervalo-fim" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]">
+                    <span class="text-[10px] text-amber-500 font-medium">(opcional)</span>
                 </div>
                 <!-- Dias da Semana -->
                 <div>
@@ -3078,8 +3103,19 @@
         _firestoreListener = db.collection('operacoes').doc(dateToDocId(workingDate))
             .onSnapshot(function(doc){
                 if (!doc.exists) return;
-                appData[workingDate] = doc.data() || {};
+                var remoteData = doc.data() || {};
+                appData[workingDate] = remoteData;
+                // Preserve in-memory edits: if user is actively editing productivity view,
+                // don't let a Firestore snapshot (triggered by our own debounced save) overwrite
+                // keystrokes that haven't been flushed yet.
+                if (currentViewId === 'view-productivity' && currentSector && window.tempTimeBlocks && window.tempTimeBlocks.length) {
+                    if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
+                    appData[workingDate][currentSector].timeBlocks = JSON.parse(JSON.stringify(window.tempTimeBlocks));
+                }
                 _cachearLocal();
+                // Skip full re-render if the user has an input focused inside the form
+                var container = document.getElementById('time-blocks-container');
+                if (container && document.activeElement && container.contains(document.activeElement)) return;
                 loadDataParaTela();
             }, function(e){ console.warn('[Firebase] listener:', e.message); });
 
@@ -3879,16 +3915,23 @@
         });
     }
 
+    var _FILTRO_SETOR_MAP = {
+        'todos': 'todos',
+        'reb':   '⚙️ Rebenefício',
+        'exp':   '🚛 Expedição',
+        'emb':   '📦 Embalagem',
+        'rec':   '📥 Recebimento'
+    };
     function filtrarTurnosAdm(setor) {
         _filtroSetorAtivo = setor;
-        // Atualizar botões de filtro
-        ['todos','reb','exp','emb','rec'].forEach(function(id){
+        Object.keys(_FILTRO_SETOR_MAP).forEach(function(id){
             var btn = document.getElementById('filtro-'+id);
             if (!btn) return;
-            btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all ' +
-                (((id==='todos'&&setor==='todos')||(id!=='todos'&&setor.includes(btn.textContent)))
-                    ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200');
+            var isActive = (id==='todos' ? setor==='todos' : _FILTRO_SETOR_MAP[id]===setor);
+            btn.className = 'px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ' +
+                (isActive
+                    ? 'bg-white dark:bg-white text-gray-900 shadow-sm'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600');
         });
         renderTurnosAdm();
     }
@@ -3926,6 +3969,7 @@
                         '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 dark:bg-gray-900/50 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">'+escapeHTML(t.setor||'')+'</span>'+
                     '</div>'+
                     '<span class="text-xs text-gray-500 font-semibold">⏰ '+escapeHTML(t.inicio)+' → '+escapeHTML(t.fim)+'</span>'+
+                    ((t.intervaloInicio&&t.intervaloFim)?'<span class="text-[10px] text-amber-500 font-semibold ml-2">☕ '+escapeHTML(t.intervaloInicio)+' → '+escapeHTML(t.intervaloFim)+'</span>':'')+
                     '<span class="block text-[10px] text-gray-400 font-medium mt-0.5">📅 '+escapeHTML(dias)+'</span>'+
                 '</div>'+
                 '<div class="flex gap-1.5 shrink-0">'+
@@ -3972,6 +4016,10 @@
         if (ini) ini.value = t.inicio || '';
         var fim = document.getElementById('edit-turno-fim');
         if (fim) fim.value = t.fim || '';
+        var intIni = document.getElementById('edit-turno-intervalo-inicio');
+        if (intIni) intIni.value = t.intervaloInicio || '';
+        var intFim = document.getElementById('edit-turno-intervalo-fim');
+        if (intFim) intFim.value = t.intervaloFim || '';
         document.querySelectorAll('#edit-turno-dias input').forEach(function(c){
             c.checked = t.dias && t.dias.indexOf(c.value) !== -1;
         });
@@ -4009,6 +4057,8 @@
         t.inicio = inicio;
         t.fim    = fim;
         t.dias   = dias;
+        t.intervaloInicio = (document.getElementById('edit-turno-intervalo-inicio')||{}).value||'';
+        t.intervaloFim    = (document.getElementById('edit-turno-intervalo-fim')||{}).value||'';
         fecharModalEditarTurno();
         salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
         mostrarToast('Turno atualizado!');
@@ -4022,6 +4072,8 @@
         var inicio = document.getElementById('adm-turno-inicio').value;
         var fim    = document.getElementById('adm-turno-fim').value;
         var dias   = Array.from(document.querySelectorAll('#adm-turno-dias input:checked')).map(function(c){ return c.value; });
+        var intervaloInicio = (document.getElementById('adm-turno-intervalo-inicio')||{}).value||'';
+        var intervaloFim    = (document.getElementById('adm-turno-intervalo-fim')||{}).value||'';
         if (!nome)           return mostrarToast('Selecione o nome do turno (1°, 2° ou 3°).', true);
         if (!setores.length) return mostrarToast('Selecione ao menos um setor.', true);
         if (!inicio || !fim) return mostrarToast('Informe o horário de início e fim.', true);
@@ -4029,11 +4081,13 @@
         if (!appData.config) appData.config = {};
         if (!appData.config.turnos) appData.config.turnos = [];
         setores.forEach(function(setor) {
-            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias });
+            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias, intervaloInicio: intervaloInicio, intervaloFim: intervaloFim });
         });
         if (nomeEl) nomeEl.value = '';
         document.getElementById('adm-turno-inicio').value = '';
         document.getElementById('adm-turno-fim').value = '';
+        var intIni = document.getElementById('adm-turno-intervalo-inicio'); if(intIni) intIni.value='';
+        var intFim = document.getElementById('adm-turno-intervalo-fim');    if(intFim) intFim.value='';
         document.querySelectorAll('#adm-turno-dias input').forEach(function(c){ c.checked = false; });
         document.querySelectorAll('#adm-turno-setores input').forEach(function(c){ c.checked = false; });
         salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
@@ -4047,7 +4101,7 @@
         salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
     }
 
-    /** Auto-seleciona o turno do colaborador com base na hora atual */
+    /** Seleciona/exibe turno — mostra pills quando há 2+ turnos para o setor */
     function renderShiftCards() {
         var turnos = (appData.config && appData.config.turnos) || [];
         var setorAtual = currentSector;
@@ -4058,18 +4112,16 @@
             return setorOk && diaOk;
         });
 
+        var selectorBar = document.getElementById('shift-selector-bar');
+        var pillsEl     = document.getElementById('shift-pills');
+
         if (!turnosFiltrados.length) {
-            // Nenhum turno cadastrado — esconde badge
             var sep  = document.getElementById('shift-badge-sep');
             var wrap = document.getElementById('shift-badge-wrap');
             if (sep)  sep.style.display  = 'none';
             if (wrap) wrap.style.display = 'none';
-            var hid = document.getElementById('shift-selector');
-            var hIni = document.getElementById('shift-start');
-            var hFim = document.getElementById('shift-end');
-            if (hid)  hid.value  = '';
-            if (hIni) hIni.value = '';
-            if (hFim) hFim.value = '';
+            ['shift-selector','shift-start','shift-end','shift-intervalo-inicio','shift-intervalo-fim'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+            if (selectorBar) selectorBar.classList.add('hidden');
             return;
         }
 
@@ -4077,14 +4129,12 @@
         var agora = new Date();
         var horaAtual = String(agora.getHours()).padStart(2,'0') + ':' + String(agora.getMinutes()).padStart(2,'0');
 
-        // 1º: turno que encobre a hora atual
-        var turnoMatch = turnosFiltrados.find(function(t){ return t.inicio <= horaAtual && horaAtual <= t.fim; });
+        // 1º: turno salvo pelo usuário (tem prioridade quando há múltiplos turnos)
+        var savedName = (appData[workingDate] && appData[workingDate][setorAtual] && appData[workingDate][setorAtual].shiftName) || '';
+        var turnoMatch = savedName ? turnosFiltrados.find(function(t){ return t.nome === savedName; }) : null;
 
-        // 2º: turno salvo anteriormente (troca de data/hora fora do turno)
-        if (!turnoMatch) {
-            var savedName = (appData[workingDate] && appData[workingDate][setorAtual] && appData[workingDate][setorAtual].shiftName) || '';
-            if (savedName) turnoMatch = turnosFiltrados.find(function(t){ return t.nome === savedName; });
-        }
+        // 2º: turno que encobre a hora atual
+        if (!turnoMatch) turnoMatch = turnosFiltrados.find(function(t){ return t.inicio <= horaAtual && horaAtual <= t.fim; });
 
         // 3º: único turno disponível
         if (!turnoMatch && turnosFiltrados.length === 1) turnoMatch = turnosFiltrados[0];
@@ -4092,22 +4142,48 @@
         // 4º: primeiro da lista
         if (!turnoMatch) turnoMatch = turnosFiltrados[0];
 
-        _atualizarResumoTurno(turnoMatch.nome, turnoMatch.inicio, turnoMatch.fim);
+        if (turnosFiltrados.length > 1) {
+            // Mostrar seletor de pills
+            if (selectorBar) selectorBar.classList.remove('hidden');
+            if (pillsEl) {
+                pillsEl.innerHTML = turnosFiltrados.map(function(t){
+                    var active = t === turnoMatch;
+                    var intStr = (t.intervaloInicio&&t.intervaloFim) ? ' <span class="opacity-60 text-[9px]">☕'+t.intervaloInicio+'→'+t.intervaloFim+'</span>' : '';
+                    return '<button onclick="selecionarTurnoCard(this,\''+escapeHTML(t.nome)+'\',\''+escapeHTML(t.inicio)+'\',\''+escapeHTML(t.fim)+'\',\''+escapeHTML(t.intervaloInicio||'')+'\',\''+escapeHTML(t.intervaloFim||'')+'\')" class="turno-pill px-4 py-2 rounded-xl text-xs font-bold transition-all border-2 '+(active?'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500':'bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-400')+'">'+
+                        escapeHTML(t.nome)+'<span class="text-[10px] ml-1.5 opacity-80">'+escapeHTML(t.inicio)+' → '+escapeHTML(t.fim)+'</span>'+intStr+
+                    '</button>';
+                }).join('');
+            }
+        } else {
+            if (selectorBar) selectorBar.classList.add('hidden');
+        }
+
+        _atualizarResumoTurno(turnoMatch.nome, turnoMatch.inicio, turnoMatch.fim, turnoMatch.intervaloInicio||'', turnoMatch.intervaloFim||'');
     }
 
-    function selecionarTurnoCard(el, nome, inicio, fim) {
-        _atualizarResumoTurno(nome, inicio, fim);
+    function selecionarTurnoCard(el, nome, inicio, fim, intervaloInicio, intervaloFim) {
+        // Atualizar estado visual das pills
+        document.querySelectorAll('.turno-pill').forEach(function(p){
+            p.className = p.className.replace('bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500','bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-400');
+        });
+        el.className = el.className.replace('bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-400','bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500');
+        _atualizarResumoTurno(nome, inicio, fim, intervaloInicio||'', intervaloFim||'');
         debouncedSave();
         calcTotalProductivity();
     }
+    window.selecionarTurnoCard = selecionarTurnoCard;
 
-    function _atualizarResumoTurno(nome, inicio, fim) {
-        var hid  = document.getElementById('shift-selector');
-        var hIni = document.getElementById('shift-start');
-        var hFim = document.getElementById('shift-end');
-        if (hid)  hid.value  = nome;
-        if (hIni) hIni.value = inicio;
-        if (hFim) hFim.value = fim;
+    function _atualizarResumoTurno(nome, inicio, fim, intervaloInicio, intervaloFim) {
+        var hid    = document.getElementById('shift-selector');
+        var hIni   = document.getElementById('shift-start');
+        var hFim   = document.getElementById('shift-end');
+        var hIntIni= document.getElementById('shift-intervalo-inicio');
+        var hIntFim= document.getElementById('shift-intervalo-fim');
+        if (hid)    hid.value    = nome;
+        if (hIni)   hIni.value   = inicio;
+        if (hFim)   hFim.value   = fim;
+        if (hIntIni) hIntIni.value = intervaloInicio || '';
+        if (hIntFim) hIntFim.value = intervaloFim    || '';
 
         // Badge discreto no cabeçalho
         var sep   = document.getElementById('shift-badge-sep');
@@ -4133,8 +4209,8 @@
 
     var ACTIVITIES_MAP = {
         'Recebimento': ['Recebimento de café','Pilha simples (Liga)','Ensaque','Embarque (Mercado interno)'],
-        'Rebenefício': ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)'],
-        'TESTE':       ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)'],
+        'Rebenefício': ['Produção','Aproveitamento','Repasse'],
+        'TESTE':       ['Produção','Aproveitamento','Repasse'],
         'Expedição':   ['Pilha simples (Liga)','Ensaque','Embarque (Exportação)','Produção de Vácuo','Coleta (Mercado interno)'],
         'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)'],
         'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Outros'],
@@ -4142,8 +4218,8 @@
     };
     var PLANEJAMENTO_MAP = {
         'Recebimento': ['Recebimento de café','Pilha simples (Liga)','Ensaque','Embarque (Mercado interno)','Conferência de Estoque','Guardar Café (Rebenefício)','Separar Lotes (Expedição)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'Rebenefício': ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
-        'TESTE':       ['Produção (Macro Lote)','Repasse (Macro Lote)','Produção (Micro Lote)','Repasse (Micro Lote)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'Rebenefício': ['Produção','Aproveitamento','Repasse','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
+        'TESTE':       ['Produção','Aproveitamento','Repasse','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
         'Expedição':   ['Pilha simples (Liga)','Ensaque','Embarque (Exportação)','Produção de Vácuo','Coleta (Mercado interno)','Fracionamento de Lote','Conferência de Estoque (M.I)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
         'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)','Conferência de Estoque','Recebimento e Conferência de Sacas','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
         'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Limpeza do Setor','Outras'],
@@ -4303,10 +4379,11 @@
         if (sectorName) currentSector = sectorName;
         document.querySelectorAll('main > div').forEach(function(el){ el.classList.remove('view-active'); el.classList.add('view-hidden'); });
         var nextEl = document.getElementById(viewId);
-        if (nextEl) { nextEl.classList.remove('view-hidden'); nextEl.classList.add('view-active'); }
-        // Sempre volta ao topo ao trocar de tela
-        var mainEl = document.querySelector('main');
-        if (mainEl) mainEl.scrollTop = 0;
+        if (nextEl) {
+            nextEl.classList.remove('view-hidden');
+            nextEl.classList.add('view-active');
+            nextEl.scrollTop = 0; // Sempre inicia no topo
+        }
         var cleanSetor = limparEmoji(currentSector);
         configurarContextoSetor(cleanSetor);
         if (viewId === 'view-submenu') configurarBotoesSubmenu(cleanSetor);
@@ -4340,8 +4417,6 @@
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
-        var mainEl = document.querySelector('main');
-        if (mainEl) mainEl.scrollTop = 0;
     });
 
 
@@ -4614,9 +4689,11 @@
         if (currentViewId === 'view-productivity') {
             st.timeBlocks    = JSON.parse(JSON.stringify(window.tempTimeBlocks || []));
             st.justificativa = document.getElementById('justificativa-meta').value;
-            st.shiftName  = document.getElementById('shift-selector') ? document.getElementById('shift-selector').value||'' : '';
-            st.shiftStart = document.getElementById('shift-start')   ? document.getElementById('shift-start').value  ||'' : '';
-            st.shiftEnd   = document.getElementById('shift-end')     ? document.getElementById('shift-end').value    ||'' : '';
+            st.shiftName  = document.getElementById('shift-selector')         ? document.getElementById('shift-selector').value         ||'' : '';
+            st.shiftStart = document.getElementById('shift-start')            ? document.getElementById('shift-start').value            ||'' : '';
+            st.shiftEnd   = document.getElementById('shift-end')              ? document.getElementById('shift-end').value              ||'' : '';
+            st.shiftIntervalStart = document.getElementById('shift-intervalo-inicio') ? document.getElementById('shift-intervalo-inicio').value ||'' : '';
+            st.shiftIntervalEnd   = document.getElementById('shift-intervalo-fim')    ? document.getElementById('shift-intervalo-fim').value    ||'' : '';
         }
         if (currentViewId === 'view-horimetro')  { st.horInicial=document.getElementById('hor-inicial').value; st.horFinal=document.getElementById('hor-final').value; }
         if (currentViewId === 'view-percentage') { st.pesoAmostra=document.getElementById('peso-amostra').value; st.pesoRetido=document.getElementById('peso-retido').value; st.tolAmostra=document.getElementById('tol-amostra').value; st.tolPerc=document.getElementById('tol-perc').value; }
@@ -4841,17 +4918,22 @@
                 var durStr=d>0?Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m':'';
                 var canRemove=allTimes.length>1;
                 return '<div class="flex items-center gap-1.5">'+
-                    '<input type="time" value="'+escapeHTML(t.start||'')+'" onchange="updateBlockTime('+b.id+','+ti+',\'start\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                    '<input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(t.start||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
                     '<span class="text-gray-400 text-[10px] font-bold shrink-0">→</span>'+
-                    '<input type="time" value="'+escapeHTML(t.end||'')+'" onchange="updateBlockTime('+b.id+','+ti+',\'end\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                    '<input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(t.end||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
                     (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap">'+durStr+'</span>':'<div class="w-14 shrink-0"></div>')+
                     (canRemove?'<button onclick="removeBlockTime('+b.id+','+ti+')" class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:text-red-600 active:scale-90 transition-all"><svg width="12" height="12" fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>':'<div class="w-7 shrink-0"></div>')+
                 '</div>';
             }).join('');
             var tipoHtml='';
             if(isReb){
-                var checked=b.tipoProducao||[];
-                tipoHtml='<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Tipo de Produção</label><div class="flex flex-wrap gap-x-5 gap-y-2">'+['Produção','Aproveitamento','Repasse'].map(function(tipo){return '<label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox"'+(checked.includes(tipo)?' checked':'')+' onchange="updateBlockTipo('+b.id+',\''+tipo+'\',this.checked)" class="w-4 h-4 rounded accent-blue-600"><span class="text-sm font-bold text-gray-700 dark:text-gray-200">'+tipo+'</span></label>';}).join('')+'</div></div>';
+                var lote=b.tipoLote||'';
+                tipoHtml='<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Tipo de Lote</label><div class="flex gap-5">'+
+                    ['Macro Lote','Micro Lote'].map(function(t){
+                        var val=t==='Macro Lote'?'Macro':'Micro';
+                        return '<label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="radio" name="lote-'+b.id+'" value="'+val+'"'+(lote===val?' checked':'')+' onchange="updateBlockLote('+b.id+',this.value)" class="w-4 h-4 accent-blue-600"><span class="text-sm font-bold text-gray-700 dark:text-gray-200">'+t+'</span></label>';
+                    }).join('')+
+                '</div></div>';
             }
             return `<div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
     <div class="space-y-4">
@@ -4981,6 +5063,30 @@
     }
     window.updateBlockTipo=updateBlockTipo;
 
+    function updateBlockLote(blockId, lote) {
+        var b = (window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if (b) b.tipoLote = lote;
+        saveData(); mostrarIndicadorSalvo();
+    }
+    window.updateBlockLote = updateBlockLote;
+
+    function mascaraHorario(el) {
+        var digits = el.value.replace(/\D/g, '').slice(0, 4);
+        el.value = digits.length > 2 ? digits.slice(0, 2) + ':' + digits.slice(2) : digits;
+    }
+    window.mascaraHorario = mascaraHorario;
+
+    function atualizarHorarioBloco(blockId, timeIdx, field, value) {
+        var m = value.match(/^(\d{1,2}):(\d{2})$/);
+        var v = '';
+        if (m) {
+            var h = parseInt(m[1]), min = parseInt(m[2]);
+            if (h <= 23 && min <= 59) v = String(h).padStart(2, '0') + ':' + String(min).padStart(2, '0');
+        }
+        updateBlockTime(blockId, timeIdx, field, v);
+    }
+    window.atualizarHorarioBloco = atualizarHorarioBloco;
+
     function calcTotalProductivity() {
         var totalMin=0, totalSacas=0;
         (window.tempTimeBlocks||[]).forEach(function(b){
@@ -4999,7 +5105,14 @@
         var sEndEl  =document.getElementById('shift-end');
         var sStart  =sStartEl&&sStartEl.value;
         var sEnd    =sEndEl  &&sEndEl.value;
-        if(sStart&&sEnd) shiftMin=calcMinutos(sStart,sEnd);
+        if(sStart&&sEnd){
+            shiftMin=calcMinutos(sStart,sEnd);
+            var sIntIniEl=document.getElementById('shift-intervalo-inicio');
+            var sIntFimEl=document.getElementById('shift-intervalo-fim');
+            var sIntIni=sIntIniEl&&sIntIniEl.value;
+            var sIntFim=sIntFimEl&&sIntFimEl.value;
+            if(sIntIni&&sIntFim){ shiftMin-=calcMinutos(sIntIni,sIntFim); if(shiftMin<0) shiftMin=0; }
+        }
         var divDisp=document.getElementById('div-horas-disponiveis'), resDisp=document.getElementById('res-horas-disponiveis');
         if(shiftMin>0){
             if(divDisp) divDisp.classList.remove('hidden');
@@ -5440,7 +5553,8 @@
             var bMin=calcMinutosBlock(b); totalMin+=bMin;
             var dAct=getDisplayActivity(b);
             var scStr=b.bags&&!isNoBagsActivity(b.activity)?'<span class="font-bold text-emerald-600 dark:text-emerald-400">📦 '+String(parseInt(b.bags.replace(/\D/g,'')||'0')).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' sc</span>':'';
-            var tipoStr=(b.tipoProducao&&b.tipoProducao.length)?'<span>🏭 '+b.tipoProducao.join(' / ')+'</span>':'';
+            var _loteLabel=b.tipoLote?(b.tipoLote==='Macro'?'Macro Lote':'Micro Lote'):(b.tipoProducao&&b.tipoProducao.length?b.tipoProducao.join(' / '):'');
+            var tipoStr=_loteLabel?'<span>🏭 '+_loteLabel+'</span>':'';
             var allTimes=getBlockAllTimes(b).filter(function(t){return t.start||t.end;});
             var timesHtml=allTimes.map(function(t){var d=calcMinutos(t.start||'',t.end||'');return '<span>🕐 '+(t.start||'--:--')+' → '+(t.end||'--:--')+(d>0?' ('+Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m)':'')+'</span>';}).join('');
             html+='<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">'+
@@ -5543,8 +5657,8 @@
                     '<option value="" disabled'+(b.activity?'':' selected')+'>Selecione a atividade...</option>'+opts+
                 '</select>'+
                 '<div class="grid grid-cols-2 gap-3">'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><input type="time" value="'+escapeHTML(b.start||'')+'" oninput="updateEditProdBlock('+i+',\'start\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><input type="time" value="'+escapeHTML(b.end||'')+'" oninput="updateEditProdBlock('+i+',\'end\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.start||'')+'" oninput="mascaraHorario(this);updateEditProdBlock('+i+',\'start\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.end||'')+'" oninput="mascaraHorario(this);updateEditProdBlock('+i+',\'end\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
                 '</div>'+
                 '<div class="grid grid-cols-2 gap-3">'+
                     '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
@@ -5690,7 +5804,8 @@
             if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
             var bMin=calcMinutosBlock(b); totalMin+=bMin;
             var dAct=getDisplayActivity(b);
-            var tipoStr=(b.tipoProducao&&b.tipoProducao.length)?' ['+b.tipoProducao.join('/')+']':'';
+            var _loteEx=b.tipoLote?(b.tipoLote==='Macro'?'Macro Lote':'Micro Lote'):(b.tipoProducao&&b.tipoProducao.length?b.tipoProducao.join('/'):'' );
+            var tipoStr=_loteEx?' ['+_loteEx+']':'';
             var ref=b.ref?' | Guia: '+b.ref:'';
             var obs=b.obs?' — '+b.obs:'';
             var sc=(b.bags&&!isNoBagsActivity(b.activity))?' | *'+b.bags+' sc*':'';
