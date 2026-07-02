@@ -1013,7 +1013,7 @@
 
         <!-- ACTION BAR -->
         <div id="action-bar" class="hidden bg-red-50/90 dark:bg-red-900/20 backdrop-blur-md border-b border-red-100 dark:border-red-900/50 px-5 py-2.5 justify-between items-center z-10 transition-all duration-300 shrink-0 print-hide">
-            <span class="text-xs font-semibold text-red-800 dark:text-red-300" id="action-bar-title">Gerenciar Dados</span>
+            <span class="text-xs font-semibold text-red-800 dark:text-red-300" id="action-bar-title"></span>
             <button id="btn-zerar-dados" onclick="openModalReset()" class="hidden text-xs font-bold text-white bg-red-600 hover:bg-red-700 items-center gap-1.5 active:scale-95 transition-all px-3 py-1.5 rounded-lg shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 Zerar Tela
@@ -1268,9 +1268,8 @@
 
             <div id="view-atividades" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8 pb-32">
                 <div class="w-full max-w-3xl mx-auto space-y-6">
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4 text-center">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Atividades do Dia</h2>
-                        <p class="text-sm text-gray-500 mt-1">Preencha e salve antes de iniciar os trabalhos</p>
                     </div>
 
                     <!-- Formulário de nova atividade -->
@@ -1278,7 +1277,10 @@
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-5">Nova Atividade</h3>
                         <div class="space-y-6">
                             <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Serviço a realizar</label>
+                                <div class="flex items-center justify-between mb-2 ml-1">
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Serviço a realizar</label>
+                                    <button id="btn-gerenciar-servicos" onclick="abrirGerenciarServicos()" class="hidden text-[10px] font-bold text-blue-500 dark:text-blue-400 flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>Gerenciar</button>
+                                </div>
                                 <button onclick="abrirModalAtividades('planejamento')" class="w-full text-left bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 outline-none focus:ring-2 focus:ring-blue-500 transition-all flex justify-between items-center gap-2 group">
                                     <span id="lbl-atv-servico" class="truncate pointer-events-none text-gray-400 dark:text-gray-500 font-semibold text-sm md:text-base">Selecionar atividades...</span>
                                     <div class="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 transition-colors">
@@ -1321,7 +1323,7 @@
                     <!-- Lista de atividades salvas do dia -->
                     <div>
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Atividades Registradas</h3>
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Histórico de Atividades</h3>
                             <span id="atv-data-badge" class="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"></span>
                         </div>
                         <div id="atv-lista-registros" class="space-y-3">
@@ -1855,6 +1857,25 @@
             </div>
             <div id="lista-historico" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-6 custom-scrollbar"></div>
             <button onclick="fecharModalHistorico()" class="w-full py-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-bold rounded-xl active:scale-[0.98] transition-colors text-sm uppercase tracking-wider">Fechar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: GERENCIAR SERVIÇOS (ADM) -->
+    <div id="modal-gerenciar-servicos" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-gerenciar-servicos-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-5 shrink-0">
+                <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-widest text-sm">Gerenciar Serviços</h3>
+                <button onclick="fecharGerenciarServicos()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95 transition-all">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="lista-gerenciar-servicos" class="flex-1 overflow-y-auto space-y-2 mb-5 pr-1"></div>
+            <div class="shrink-0 flex gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <input id="input-novo-servico" type="text" placeholder="Nome do novo serviço..." class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                <button onclick="adicionarServicoAtv()" class="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-3 rounded-xl text-sm transition-all active:scale-95 flex items-center gap-1.5">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Adicionar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2437,26 +2458,30 @@
             var projecaoStr = r.projecao ? '⏰ ' + r.projecao : '';
             var ajudaStr   = r.ajuda === 'Sim' ? '🤝 +' + (r.ajudaQtd||'?') + ' ajudantes' : '';
             var editBadge  = r.editado ? '<span class="text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-bold px-1.5 py-0.5 rounded">editado</span>' : '';
-            return '<button onclick="abrirModalAtvDetalhe(' + r.id + ')" class="w-full text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-2xl p-4 shadow-sm transition-all active:scale-[0.98] group">' +
-                '<div class="flex items-start justify-between gap-3">' +
-                    '<div class="flex items-start gap-3 flex-1 min-w-0">' +
-                        '<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm shrink-0 mt-0.5">' + (i+1) + '</div>' +
-                        '<div class="flex-1 min-w-0">' +
-                            '<div class="flex items-center gap-2 flex-wrap mb-1">' +
-                                '<span class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(r.servico) + '</span>' +
-                                editBadge +
-                            '</div>' +
-                            '<div class="flex items-center gap-3 flex-wrap text-[11px] text-gray-500">' +
-                                (sacasStr ? '<span class="text-emerald-600 dark:text-emerald-400 font-bold">⚖️ ' + sacasStr + '</span>' : '') +
-                                (projecaoStr ? '<span>' + projecaoStr + '</span>' : '') +
-                                (ajudaStr ? '<span>' + ajudaStr + '</span>' : '') +
-                                '<span class="text-gray-400">🕐 ' + escapeHTML(r.hora) + '</span>' +
+            var deleteBtn  = isAdmin ? '<button onclick="event.stopPropagation();admExcluirAtv('+r.id+')" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all active:scale-90"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>' : '';
+            return '<div class="flex items-center gap-2">' +
+                '<button onclick="abrirModalAtvDetalhe(' + r.id + ')" class="flex-1 text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-2xl p-4 shadow-sm transition-all active:scale-[0.98] group">' +
+                    '<div class="flex items-start justify-between gap-3">' +
+                        '<div class="flex items-start gap-3 flex-1 min-w-0">' +
+                            '<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm shrink-0 mt-0.5">' + (i+1) + '</div>' +
+                            '<div class="flex-1 min-w-0">' +
+                                '<div class="flex items-center gap-2 flex-wrap mb-1">' +
+                                    '<span class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(r.servico) + '</span>' +
+                                    editBadge +
+                                '</div>' +
+                                '<div class="flex items-center gap-3 flex-wrap text-[11px] text-gray-500">' +
+                                    (sacasStr ? '<span class="text-emerald-600 dark:text-emerald-400 font-bold">⚖️ ' + sacasStr + '</span>' : '') +
+                                    (projecaoStr ? '<span>' + projecaoStr + '</span>' : '') +
+                                    (ajudaStr ? '<span>' + ajudaStr + '</span>' : '') +
+                                    '<span class="text-gray-400">🕐 ' + escapeHTML(r.hora) + '</span>' +
+                                '</div>' +
                             '</div>' +
                         '</div>' +
+                        '<svg class="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>' +
                     '</div>' +
-                    '<svg class="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>' +
-                '</div>' +
-            '</button>';
+                '</button>' +
+                deleteBtn +
+            '</div>';
         }).join('');
     }
 
@@ -2684,6 +2709,19 @@
             btn.addEventListener('click', function(){ admEditarAtv(btn.dataset.setor, parseInt(btn.dataset.id), btn.dataset.data); });
         });
     }
+
+    function admExcluirAtv(id) {
+        if (!isAdmin) return;
+        var regs = _getRegistrosAtv();
+        var idx = regs.findIndex(function(x){ return x.id === id; });
+        if (idx === -1) return;
+        if (!window.confirm('Excluir este registro de atividade?')) return;
+        regs.splice(idx, 1);
+        _salvarRegistrosAtv();
+        renderListaRegistrosAtv();
+        mostrarToast('Registro excluído.');
+    }
+    window.admExcluirAtv = admExcluirAtv;
 
     function admBloquearAtv(setor, id, data) {
         var dataAlvo = data || workingDate;
@@ -3996,15 +4034,113 @@
         });
     }
 
+    function getEffectiveActivities(setor) {
+        var custom = appData.config && appData.config.activitiesMap && appData.config.activitiesMap[setor];
+        return custom ? custom.slice() : (ACTIVITIES_MAP[setor] || []).slice();
+    }
+    function getEffectivePlanejamento(setor) {
+        var custom = appData.config && appData.config.planejamentoMap && appData.config.planejamentoMap[setor];
+        return custom ? custom.slice() : (PLANEJAMENTO_MAP[setor] || []).slice();
+    }
+
     function configurarContextoSetor(cleanSetor) {
         if (cleanSetor.includes('Recebimento'))                                      currentRefLabel = 'Guia/Lote';
         else if (cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) currentRefLabel = 'Guia';
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = 'Guia/Contrato';
         else if (cleanSetor.includes('Qualidade'))                                   currentRefLabel = 'Lote/Amostra';
         else currentRefLabel = 'Referência';
-        currentActivities             = ACTIVITIES_MAP[cleanSetor]   || [];
-        currentPlanejamentoActivities = PLANEJAMENTO_MAP[cleanSetor] || [];
+        currentActivities             = getEffectiveActivities(cleanSetor);
+        currentPlanejamentoActivities = getEffectivePlanejamento(cleanSetor);
+        if (isAdmin) {
+            var btn = document.getElementById('btn-gerenciar-servicos');
+            if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); }
+        }
     }
+
+    function abrirGerenciarServicos() {
+        renderListaGerenciarServicos();
+        var modal = document.getElementById('modal-gerenciar-servicos');
+        var content = document.getElementById('modal-gerenciar-servicos-content');
+        modal.classList.remove('hidden');
+        setTimeout(function(){ modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+    }
+    window.abrirGerenciarServicos = abrirGerenciarServicos;
+
+    function fecharGerenciarServicos() {
+        var modal = document.getElementById('modal-gerenciar-servicos');
+        var content = document.getElementById('modal-gerenciar-servicos-content');
+        modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+        setTimeout(function(){ modal.classList.add('hidden'); }, 300);
+    }
+    window.fecharGerenciarServicos = fecharGerenciarServicos;
+
+    function renderListaGerenciarServicos() {
+        var clean = limparEmoji(currentSector);
+        var lista = getEffectivePlanejamento(clean);
+        var container = document.getElementById('lista-gerenciar-servicos');
+        if (!container) return;
+        if (!lista.length) {
+            container.innerHTML = '<p class="text-center text-sm text-gray-400 py-4">Nenhum serviço cadastrado.</p>';
+            return;
+        }
+        container.innerHTML = lista.map(function(s, idx) {
+            return '<div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5">' +
+                '<span class="flex-1 text-sm font-bold text-gray-800 dark:text-gray-200 truncate" id="gs-span-'+idx+'">'+escapeHTML(s)+'</span>' +
+                '<button onclick="editarServicoAtv('+idx+')" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all active:scale-90"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.172-8.172z"/></svg></button>' +
+                '<button onclick="removerServicoAtv('+idx+')" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all active:scale-90"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>' +
+            '</div>';
+        }).join('');
+    }
+
+    function _salvarCustomServicos(lista) {
+        var clean = limparEmoji(currentSector);
+        if (!appData.config) appData.config = {};
+        if (!appData.config.planejamentoMap) appData.config.planejamentoMap = {};
+        appData.config.planejamentoMap[clean] = lista;
+        currentPlanejamentoActivities = lista.slice();
+        _cachearLocal();
+        salvarNoFirestore();
+    }
+
+    function adicionarServicoAtv() {
+        var input = document.getElementById('input-novo-servico');
+        var nome = input ? input.value.trim() : '';
+        if (!nome) return mostrarToast('Digite o nome do serviço.', true);
+        var clean = limparEmoji(currentSector);
+        var lista = getEffectivePlanejamento(clean);
+        if (lista.indexOf(nome) !== -1) return mostrarToast('Serviço já existe.', true);
+        lista.push(nome);
+        _salvarCustomServicos(lista);
+        if (input) input.value = '';
+        renderListaGerenciarServicos();
+        mostrarToast('Serviço adicionado!');
+    }
+    window.adicionarServicoAtv = adicionarServicoAtv;
+
+    function editarServicoAtv(idx) {
+        var clean = limparEmoji(currentSector);
+        var lista = getEffectivePlanejamento(clean);
+        var atual = lista[idx];
+        if (atual === undefined) return;
+        var novo = window.prompt('Editar serviço:', atual);
+        if (!novo || !novo.trim() || novo.trim() === atual) return;
+        lista[idx] = novo.trim();
+        _salvarCustomServicos(lista);
+        renderListaGerenciarServicos();
+        mostrarToast('Serviço atualizado!');
+    }
+    window.editarServicoAtv = editarServicoAtv;
+
+    function removerServicoAtv(idx) {
+        var clean = limparEmoji(currentSector);
+        var lista = getEffectivePlanejamento(clean);
+        if (!window.confirm('Remover "' + lista[idx] + '"?')) return;
+        lista.splice(idx, 1);
+        _salvarCustomServicos(lista);
+        renderListaGerenciarServicos();
+        mostrarToast('Serviço removido.');
+    }
+    window.removerServicoAtv = removerServicoAtv;
 
     function configurarBotoesSubmenu(cleanSetor) {
         var hide = function(id, cond){ var el=document.getElementById(id); if(!el) return; el.classList.toggle('hidden',cond); if(!cond) el.classList.add('flex'); };
@@ -4054,7 +4190,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); } });
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
