@@ -1019,9 +1019,9 @@
         </div>
 
         <!-- MAIN -->
-        <main class="flex-1 relative overflow-x-hidden overflow-y-auto flex flex-col transition-colors duration-300 print-hide">
+        <main class="flex-1 relative overflow-x-hidden overflow-y-auto flex flex-col transition-colors duration-300 print-hide" style="overscroll-behavior:none">
 
-            <div id="view-menu" class="view-active w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+            <div id="view-menu" class="view-active w-full flex flex-col p-4 md:p-8">
                 <div class="mb-6 mt-2 text-center flex flex-col items-center justify-center shrink-0">
                     <p id="welcome-message" class="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-[0.2em] uppercase mb-1 hidden">Visão do Gestor</p>
                     <h1 id="user-name-display" class="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight heading-font hidden"></h1>
@@ -1150,7 +1150,7 @@
                 </div>
             </div>
 
-            <div id="view-submenu" class="view-hidden w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+            <div id="view-submenu" class="view-hidden w-full flex flex-col p-4 md:p-8">
                 <div class="w-full max-w-4xl lg:max-w-6xl mx-auto flex flex-col pb-6">
                     
                     <div id="submenu-quick-read" class="mb-8 bg-white dark:bg-gray-800 rounded-2xl p-6 lg:p-8 border border-gray-200 dark:border-gray-700 shadow-soft hidden">
@@ -4304,6 +4304,9 @@
         document.querySelectorAll('main > div').forEach(function(el){ el.classList.remove('view-active'); el.classList.add('view-hidden'); });
         var nextEl = document.getElementById(viewId);
         if (nextEl) { nextEl.classList.remove('view-hidden'); nextEl.classList.add('view-active'); }
+        // Sempre volta ao topo ao trocar de tela
+        var mainEl = document.querySelector('main');
+        if (mainEl) mainEl.scrollTop = 0;
         var cleanSetor = limparEmoji(currentSector);
         configurarContextoSetor(cleanSetor);
         if (viewId === 'view-submenu') configurarBotoesSubmenu(cleanSetor);
@@ -4337,6 +4340,8 @@
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
+        var mainEl = document.querySelector('main');
+        if (mainEl) mainEl.scrollTop = 0;
     });
 
 
