@@ -1545,9 +1545,14 @@
                             <div id="time-blocks-container" class="space-y-6 flex flex-col"></div>
                             <button onclick="addTimeBlock()" class="mt-6 w-full py-5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-3xl text-gray-600 dark:text-gray-300 font-bold text-sm uppercase tracking-wider active:scale-[0.98] flex justify-center items-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-gray-400">
                                 <div class="w-8 h-8 rounded-full bg-white dark:bg-gray-900 shadow-sm flex items-center justify-center">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg> 
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
                                 </div>
                                 Adicionar Guia / Período
+                            </button>
+
+                            <button onclick="compartilharRelatorio()" class="mt-4 w-full py-4 bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Salvar Produção
                             </button>
 
                             <div id="container-justificativa" class="hidden mt-6">
@@ -1571,7 +1576,7 @@
                             </div>
 
                             <!-- Histórico de Produção do Turno -->
-                            <div id="historico-producao-section" class="hidden mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <div id="historico-producao-section" class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
                                 <div class="flex items-center justify-between mb-4">
                                     <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Histórico de Produção</h3>
                                 </div>
@@ -1839,8 +1844,8 @@
     </div>
 
     <!-- MODAL: HISTÓRICO -->
-    <div id="modal-historico" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-historico-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-historico" onclick="fecharModalHistorico()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-historico-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center mb-6 shrink-0 border-b border-gray-100 dark:border-gray-700 pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xl">📅</div>
@@ -1856,8 +1861,8 @@
     </div>
 
     <!-- MODAL: GERENCIAR SERVIÇOS (ADM) -->
-    <div id="modal-gerenciar-servicos" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-gerenciar-servicos-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-gerenciar-servicos" onclick="fecharGerenciarServicos()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-gerenciar-servicos-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex items-center justify-between mb-5 shrink-0">
                 <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-widest text-sm">Gerenciar Serviços</h3>
                 <button onclick="fecharGerenciarServicos()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95 transition-all">
@@ -1875,8 +1880,8 @@
     </div>
 
     <!-- MODAL: ATIVIDADES -->
-    <div id="modal-atividades" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-atividades-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-atividades" onclick="fecharModalAtividades()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-atividades-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center mb-6 shrink-0 border-b border-gray-100 dark:border-gray-700 pb-4">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white heading-font uppercase tracking-widest">Selecionar Atividades</h3>
                 <button onclick="fecharModalAtividades()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95 transition-all">
@@ -1927,8 +1932,8 @@
 
     <!-- MODAL: DETALHE DE ATIVIDADE -->
     <!-- MODAL: EDITAR ATIVIDADE (popup com Salvar/Cancelar) -->
-    <div id="modal-editar-atv" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[135] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-editar-atv-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-editar-atv" onclick="fecharModalEditarAtv()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[135] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-editar-atv-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
                 <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Editar Atividade</h3>
                 <button onclick="fecharModalEditarAtv()" class="text-gray-400 hover:text-gray-800 dark:hover:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-full active:scale-95">
@@ -1973,8 +1978,8 @@
         </div>
     </div>
 
-    <div id="modal-atv-detalhe" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-atv-detalhe-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-atv-detalhe" onclick="fecharModalAtvDetalhe()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-atv-detalhe-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
                 <div>
                     <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Detalhe da Atividade</h3>
@@ -1999,8 +2004,8 @@
     </div>
 
     <!-- MODAL: DETALHE DE PRODUÇÃO -->
-    <div id="modal-prod-detalhe" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-prod-detalhe-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-prod-detalhe" onclick="fecharModalProdDetalhe()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[125] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-prod-detalhe-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
                 <div>
                     <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Produção do Dia</h3>
@@ -2022,8 +2027,8 @@
     </div>
 
     <!-- MODAL: EDITAR PRODUÇÃO -->
-    <div id="modal-editar-prod" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[126] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-editar-prod-content" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
+    <div id="modal-editar-prod" onclick="fecharModalEditarProd()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[126] hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div id="modal-editar-prod-content" onclick="event.stopPropagation()" class="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
                 <div>
                     <h3 class="text-base font-black text-gray-900 dark:text-white heading-font uppercase tracking-widest">Editar Produção</h3>
@@ -4595,8 +4600,7 @@
             if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&viewId!=='view-metas'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
             if(isAdmin&&['view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
         }
-        // Boletim: mostra botão "Salvar Produção" no rodapé sem mostrar a barra de ação vermelha
-        if(viewId==='view-productivity'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
+        // Boletim usa botão inline — footer não é exibido para esse view
         if (viewId==='view-metas') {
             _editMetaIdx = -1;
             document.getElementById('adm-meta-hora').value = '';
@@ -4629,7 +4633,7 @@
         if (!st||!st.timeBlocks||!st.timeBlocks.length) { qrContainer.classList.add('hidden'); return; }
         var totalMin=0, totalSacas=0;
         st.timeBlocks.forEach(function(b){
-            if(b.start&&b.end){ var mS=+b.start.split(':')[0]*60+(+b.start.split(':')[1]); var mE=+b.end.split(':')[0]*60+(+b.end.split(':')[1]); if(mE<=mS) mE+=1440; totalMin+=mE-mS; }
+            totalMin+=calcMinutosBlock(b);
             if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
         });
         if (totalMin>0||totalSacas>0) {
@@ -4740,54 +4744,83 @@
     }
     function getDisplayBags(b) { return isNoBagsActivity(b.activity)?'-':(escapeHTML(b.bags)||'-'); }
 
+    function getBlockAllTimes(b) {
+        return [{start:b.start||'',end:b.end||''}].concat(b.extraTimes||[]);
+    }
+    function calcMinutosBlock(b) {
+        var t=0; getBlockAllTimes(b).forEach(function(ti){ t+=calcMinutos(ti.start||'',ti.end||''); }); return t;
+    }
+
     function renderTimeBlocks() {
         var container=document.getElementById('time-blocks-container');
         if(!container) return;
+        var isReb=currentSector&&(currentSector.includes('Rebenefício')||currentSector.includes('TESTE'));
         container.innerHTML=(window.tempTimeBlocks||[]).map(function(b){
-            var hideBags=isNoBagsActivity(b.activity), showCustom=b.activity==='Outras'||b.activity==='Outros', showRepasse=b.activity&&b.activity.includes('Repasse');
-            var diff=calcMinutos(b.start,b.end), durStr=diff>0?Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m':'', mediaStr='';
-            if(durStr&&b.bags&&!hideBags){ var sc=parseInt(b.bags.replace(/\D/g,'')||'0'); mediaStr='Média: '+(sc/(diff/60)).toFixed(1).replace('.',',')+'  sc/h'; }
+            var hideBags=isNoBagsActivity(b.activity);
+            var showCustom=b.activity==='Outras'||b.activity==='Outros';
+            var showRepasse=b.activity&&b.activity.includes('Repasse');
             var opts=currentActivities.map(function(opt){ return '<option value="'+escapeHTML(opt)+'"'+(b.activity===opt?' selected':'')+'>'+escapeHTML(opt)+'</option>'; }).join('');
-            return `<div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 md:p-6 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
-                <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-50 dark:bg-red-900/30 text-red-500 p-2 rounded-full border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 active:scale-95 transition-all shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                    <div class="md:col-span-7 space-y-4">
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atividade Efetuada</label>
-                                ${(function(){ var opsB=getOPsParaBoletim(); return opsB.length ? '<button data-blockid="'+b.id+'" class="btn-selecionar-op-bloco flex items-center gap-1 text-[10px] font-black text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 px-2 py-1 rounded-lg hover:bg-cyan-100 transition-colors">&#128203; Usar OP</button>' : ''; })()}
-                            </div>
-                            <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"><option value="" disabled ${!b.activity?'selected':''}>Selecione...</option>${opts}</select>
-                            ${b.opRef ? '<div class="mt-1.5 flex items-center gap-2 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg px-3 py-1.5"><span class="text-[10px] font-black text-cyan-600 dark:text-cyan-400">&#128203; OP vinculada:</span><span class="text-[10px] font-black text-gray-800 dark:text-white">' + escapeHTML(b.opRef) + '</span>' + (b.opCliente ? '<span class="text-[10px] text-gray-500">👤 '+escapeHTML(b.opCliente)+'</span>' : '') + '<button data-blockid="'+b.id+'" class="btn-limpar-op-bloco ml-auto text-[10px] text-red-400 hover:text-red-600 font-bold">✕</button></div>' : ''}
-                        </div>
-                        ${showCustom?`<div><input type="text" style="text-transform:uppercase" value="${escapeHTML(b.activityDetail||'')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500 placeholder-blue-300 dark:placeholder-blue-700" placeholder="Qual atividade?"></div>`:''}
-                        ${showRepasse?`<div><input type="text" value="${escapeHTML(b.repasseJustificativa||'')}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-amber-900 dark:text-amber-100 focus:ring-2 focus:ring-amber-500 placeholder-amber-300 dark:placeholder-amber-700" placeholder="Motivo do repasse..."></div>`:''}
-                    </div>
-                    <div class="md:col-span-5 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 text-center">Intervalo de Tempo</label>
-                        <div class="flex items-center gap-2 justify-center">
-                            <input type="time" value="${b.start||''}" onchange="updateBlock(${b.id},'start',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">
-                            <span class="text-gray-400 text-xs font-bold px-1">até</span>
-                            <input type="time" value="${b.end||''}" onchange="updateBlock(${b.id},'end',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">
-                        </div>
-                        ${durStr?`<div class="mt-3 text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3 text-xs"><span class="font-bold text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-md">⏱️ ${durStr}</span>${mediaStr?`<span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md">${mediaStr}</span>`:''}</div>`:''}
-                    </div>
-                    <div class="md:col-span-12 grid grid-cols-1 sm:grid-cols-12 gap-5 mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
-                        <div class="sm:col-span-4">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
-                            <div class="flex gap-2">
-                                <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="${escapeHTML(currentRefLabel)}">
-                                ${getOPsParaBoletim().length ? '<button data-blockid="'+b.id+'" class="btn-importar-op shrink-0 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 rounded-xl px-3 py-2 text-xs font-bold hover:bg-cyan-100 transition-colors active:scale-95">&#128203; OP</button>' : ''}
-                            </div>
-                        </div>
-                        ${!hideBags?`<div class="sm:col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500 placeholder-emerald-300" placeholder="Qtd"></div>`:''}
-                        <div class="${hideBags?'sm:col-span-8':'sm:col-span-5'}">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
-                            <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Detalhes, lote, destino...">
-                        </div>
-                    </div>
+            var opBadge=b.opRef?'<div class="mt-1.5 flex items-center gap-2 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg px-3 py-1.5"><span class="text-[10px] font-black text-cyan-600 dark:text-cyan-400">&#128203; OP:</span><span class="text-[10px] font-black text-gray-800 dark:text-white">'+escapeHTML(b.opRef)+'</span>'+(b.opCliente?'<span class="text-[10px] text-gray-500">👤 '+escapeHTML(b.opCliente)+'</span>':'')+'<button data-blockid="'+b.id+'" class="btn-limpar-op-bloco ml-auto text-[10px] text-red-400 hover:text-red-600 font-bold">✕</button></div>':'';
+            var usarOpBtn=getOPsParaBoletim().length?'<button data-blockid="'+b.id+'" class="btn-selecionar-op-bloco flex items-center gap-1 text-[10px] font-black text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 px-2 py-1 rounded-lg hover:bg-cyan-100 transition-colors">&#128203; Usar OP</button>':'';
+            var allTimes=getBlockAllTimes(b);
+            var totalBlockMin=calcMinutosBlock(b);
+            var totalBlockSacas=(!hideBags&&b.bags)?parseInt(b.bags.replace(/\D/g,'')||'0'):0;
+            var mediaNum=totalBlockMin>0&&totalBlockSacas>0?totalBlockSacas/(totalBlockMin/60):0;
+            var timesHtml=allTimes.map(function(t,ti){
+                var d=calcMinutos(t.start||'',t.end||'');
+                var durStr=d>0?Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m':'';
+                var canRemove=allTimes.length>1;
+                return '<div class="flex items-center gap-1.5">'+
+                    '<input type="time" value="'+escapeHTML(t.start||'')+'" onchange="updateBlockTime('+b.id+','+ti+',\'start\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                    '<span class="text-gray-400 text-[10px] font-bold shrink-0">→</span>'+
+                    '<input type="time" value="'+escapeHTML(t.end||'')+'" onchange="updateBlockTime('+b.id+','+ti+',\'end\',this.value)" class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                    (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap">'+durStr+'</span>':'<div class="w-14 shrink-0"></div>')+
+                    (canRemove?'<button onclick="removeBlockTime('+b.id+','+ti+')" class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:text-red-600 active:scale-90 transition-all"><svg width="12" height="12" fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>':'<div class="w-7 shrink-0"></div>')+
+                '</div>';
+            }).join('');
+            var tipoHtml='';
+            if(isReb){
+                var checked=b.tipoProducao||[];
+                tipoHtml='<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Tipo de Produção</label><div class="flex flex-wrap gap-x-5 gap-y-2">'+['Produção','Aproveitamento','Repasse'].map(function(tipo){return '<label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox"'+(checked.includes(tipo)?' checked':'')+' onchange="updateBlockTipo('+b.id+',\''+tipo+'\',this.checked)" class="w-4 h-4 rounded accent-blue-600"><span class="text-sm font-bold text-gray-700 dark:text-gray-200">'+tipo+'</span></label>';}).join('')+'</div></div>';
+            }
+            return `<div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
+    <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-50 dark:bg-red-900/30 text-red-500 p-2 rounded-full border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 active:scale-95 transition-all shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>
+    <div class="space-y-4">
+        <div>
+            <div class="flex items-center justify-between mb-1.5"><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atividade Efetuada</label>${usarOpBtn}</div>
+            <select onchange="updateBlock(${b.id},'activity',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 outline-none text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"><option value="" disabled ${!b.activity?'selected':''}>Selecione a atividade...</option>${opts}</select>
+            ${showCustom?`<input type="text" style="text-transform:uppercase" value="${escapeHTML(b.activityDetail||'')}" oninput="updateBlock(${b.id},'activityDetail',this.value.toUpperCase())" class="mt-2 w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-blue-900 dark:text-blue-100 focus:ring-2 focus:ring-blue-500" placeholder="Qual atividade?">`:''}
+            ${showRepasse?`<input type="text" value="${escapeHTML(b.repasseJustificativa||'')}" oninput="updateBlock(${b.id},'repasseJustificativa',this.value)" class="mt-2 w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl py-3 px-4 font-bold outline-none text-sm text-amber-900 dark:text-amber-100 focus:ring-2 focus:ring-amber-500" placeholder="Motivo do repasse...">`:''}
+            ${opBadge}
+        </div>
+        ${tipoHtml}
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Intervalos de Tempo</label>
+                ${totalBlockMin>0?`<div class="flex items-center gap-1.5"><span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-lg">⏱️ ${Math.floor(totalBlockMin/60)}h ${String(totalBlockMin%60).padStart(2,'0')}m</span>${mediaNum>0?`<span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-lg">${mediaNum.toFixed(1).replace('.',',')} sc/h</span>`:''}</div>`:''}
+            </div>
+            <div class="space-y-2">${timesHtml}</div>
+            <button onclick="addBlockTime(${b.id})" class="mt-2 w-full py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Adicionar Horário
+            </button>
+        </div>
+        <div class="grid grid-cols-12 gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div class="${!hideBags?'col-span-5':'col-span-7'}">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
+                <div class="flex gap-2">
+                    <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 min-w-0 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Vírgula entre guias">
+                    ${getOPsParaBoletim().length?'<button data-blockid="'+b.id+'" class="btn-importar-op shrink-0 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 rounded-xl px-2 py-2 text-xs font-bold hover:bg-cyan-100 transition-colors active:scale-95">&#128203;</button>':''}
                 </div>
-            </div>`;
+            </div>
+            ${!hideBags?`<div class="col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-3 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500" placeholder="Qtd"></div>`:''}
+            <div class="col-span-4">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
+                <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500" placeholder="Clientes / vírgula">
+            </div>
+        </div>
+    </div>
+</div>`;
         }).join('');
         _bindBotoesOP();
     }
@@ -4818,7 +4851,7 @@
     }
 
     function addTimeBlock() {
-        window.tempTimeBlocks.push({id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''});
+        window.tempTimeBlocks.push({id:Date.now(),start:'',end:'',extraTimes:[],ref:'',bags:'',obs:'',activity:'',tipoProducao:[]});
         renderTimeBlocks();
     }
     function removeTimeBlock(id) {
@@ -4829,7 +4862,7 @@
         var b=window.tempTimeBlocks.find(function(x){ return x.id===id; });
         if(b) b[f]=v;
         saveData(); mostrarIndicadorSalvo();
-        if(f==='start'||f==='end'||f==='activity') renderTimeBlocks();
+        if(f==='activity') renderTimeBlocks();
         calcTotalProductivity();
     }
     function updateBlockMasked(id,f,e) {
@@ -4837,11 +4870,52 @@
         e.value=v!==''?parseInt(v,10).toLocaleString('pt-BR'):'';
         updateBlock(id,f,e.value);
     }
+    function addBlockTime(blockId) {
+        var b=(window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if(!b) return;
+        if(!b.extraTimes) b.extraTimes=[];
+        b.extraTimes.push({start:'',end:''});
+        saveData(); renderTimeBlocks(); calcTotalProductivity();
+    }
+    window.addBlockTime=addBlockTime;
+    function removeBlockTime(blockId,timeIdx) {
+        var b=(window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if(!b) return;
+        if(timeIdx===0){
+            if(b.extraTimes&&b.extraTimes.length){ var s=b.extraTimes.shift(); b.start=s.start; b.end=s.end; }
+            else { b.start=''; b.end=''; }
+        } else {
+            if(b.extraTimes) b.extraTimes.splice(timeIdx-1,1);
+        }
+        saveData(); renderTimeBlocks(); calcTotalProductivity();
+    }
+    window.removeBlockTime=removeBlockTime;
+    function updateBlockTime(blockId,timeIdx,field,value) {
+        var b=(window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if(!b) return;
+        if(timeIdx===0){ b[field]=value; }
+        else {
+            if(!b.extraTimes) b.extraTimes=[];
+            if(!b.extraTimes[timeIdx-1]) b.extraTimes[timeIdx-1]={start:'',end:''};
+            b.extraTimes[timeIdx-1][field]=value;
+        }
+        saveData(); renderTimeBlocks(); calcTotalProductivity();
+    }
+    window.updateBlockTime=updateBlockTime;
+    function updateBlockTipo(blockId,tipo,checked) {
+        var b=(window.tempTimeBlocks||[]).find(function(x){ return x.id===blockId; });
+        if(!b) return;
+        if(!b.tipoProducao) b.tipoProducao=[];
+        if(checked){ if(!b.tipoProducao.includes(tipo)) b.tipoProducao.push(tipo); }
+        else { b.tipoProducao=b.tipoProducao.filter(function(t){ return t!==tipo; }); }
+        saveData();
+    }
+    window.updateBlockTipo=updateBlockTipo;
 
     function calcTotalProductivity() {
         var totalMin=0, totalSacas=0;
         (window.tempTimeBlocks||[]).forEach(function(b){
-            totalMin+=calcMinutos(b.start,b.end);
+            totalMin+=calcMinutosBlock(b);
             if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
         });
         var pTot=document.getElementById('prod-total');
@@ -4963,7 +5037,7 @@
             if(!st||!st.timeBlocks) return;
             var totalMin=0, totalSacas=0;
             st.timeBlocks.forEach(function(b){
-                if(b.start&&b.end){ var mS=+b.start.split(':')[0]*60+(+b.start.split(':')[1]); var mE=+b.end.split(':')[0]*60+(+b.end.split(':')[1]); if(mE<=mS) mE+=1440; totalMin+=mE-mS; }
+                totalMin+=calcMinutosBlock(b);
                 if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
             });
             if(totalMin>0||totalSacas>0) items.push({date:date,sacs:totalSacas,min:totalMin});
@@ -4989,7 +5063,7 @@
     function isMetaOk(st, sectorName) {
         if(!sectorName.includes('Rebenefício')&&!sectorName.includes('TESTE')) return true;
         var totalMin=0, totalSacas=0;
-        (st.timeBlocks||[]).forEach(function(b){ totalMin+=calcMinutos(b.start,b.end); if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0'); });
+        (st.timeBlocks||[]).forEach(function(b){ totalMin+=calcMinutosBlock(b); if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0'); });
         var shiftMin=st.shiftStart&&st.shiftEnd?calcMinutos(st.shiftStart,st.shiftEnd):0;
         var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500;
         var tempo=(shiftMin>0&&totalMin>shiftMin)?shiftMin:(shiftMin>0&&totalMin===0)?shiftMin:totalMin;
@@ -5294,16 +5368,19 @@
         }
         blocks.forEach(function(b){
             if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
-            var diff=calcMinutos(b.start,b.end); totalMin+=diff;
+            var bMin=calcMinutosBlock(b); totalMin+=bMin;
             var dAct=getDisplayActivity(b);
             var scStr=b.bags&&!isNoBagsActivity(b.activity)?'<span class="font-bold text-emerald-600 dark:text-emerald-400">📦 '+String(parseInt(b.bags.replace(/\D/g,'')||'0')).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' sc</span>':'';
+            var tipoStr=(b.tipoProducao&&b.tipoProducao.length)?'<span>🏭 '+b.tipoProducao.join(' / ')+'</span>':'';
+            var allTimes=getBlockAllTimes(b).filter(function(t){return t.start||t.end;});
+            var timesHtml=allTimes.map(function(t){var d=calcMinutos(t.start||'',t.end||'');return '<span>🕐 '+(t.start||'--:--')+' → '+(t.end||'--:--')+(d>0?' ('+Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m)':'')+'</span>';}).join('');
             html+='<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">'+
                 '<p class="text-sm font-bold text-gray-900 dark:text-white mb-2">'+escapeHTML(dAct)+'</p>'+
                 '<div class="flex flex-wrap gap-3 text-xs text-gray-500">'+
-                (b.start?'<span>🕐 '+b.start+' → '+(b.end||'--:--')+(diff>0?' ('+Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m)':'')+'</span>':'')+
-                scStr+
+                timesHtml+scStr+
                 (b.ref?'<span>📋 '+escapeHTML(b.ref)+'</span>':'')+
                 (b.obs?'<span>📝 '+escapeHTML(b.obs)+'</span>':'')+
+                tipoStr+
                 '</div></div>';
         });
         if(totalSacas||totalMin){
@@ -5470,14 +5547,14 @@
             var day=appData[k]; if(!day||!day[currentSector]) return false;
             var st=day[currentSector];
             var blocks=(st.producaoSalva&&st.producaoSalva.timeBlocks)||st.timeBlocks||[];
-            return blocks.some(function(b){ return b.start||b.bags; });
+            return blocks.some(function(b){ return b.activity||b.bags||b.start||(b.extraTimes&&b.extraTimes.length); });
         });
-        if(!datas.length){ section.classList.add('hidden'); return; }
+        section.classList.remove('hidden');
+        if(!datas.length){ lista.innerHTML='<p class="text-center text-gray-400 text-sm py-6">Nenhum histórico de produção registrado.</p>'; return; }
         datas.sort(function(a,b){
             var toMs=function(d){ var p=d.split('/'); return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])).getTime(); };
             return toMs(b)-toMs(a);
         });
-        section.classList.remove('hidden');
         lista.innerHTML=datas.map(function(dataKey){
             var st=appData[dataKey][currentSector];
             var saved=st.producaoSalva||{};
@@ -5486,7 +5563,7 @@
             var totalSacas=0,totalMin=0;
             blocks.forEach(function(b){
                 if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
-                if(b.start&&b.end){ var mS=+b.start.split(':')[0]*60+(+b.start.split(':')[1]),mE=+b.end.split(':')[0]*60+(+b.end.split(':')[1]); if(mE<=mS) mE+=1440; totalMin+=mE-mS; }
+                totalMin+=calcMinutosBlock(b);
             });
             var sacasStr=String(totalSacas).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
             var horasStr=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
@@ -5533,7 +5610,7 @@
         var st=(appData[dataKey]&&appData[dataKey][currentSector])||{};
         var saved=st.producaoSalva||{};
         var cleanSetor=limparEmoji(currentSector);
-        var blocks=((saved.timeBlocks)||st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.activity; });
+        var blocks=((saved.timeBlocks)||st.timeBlocks||[]).filter(function(b){ return b.activity||b.bags||b.start||(b.extraTimes&&b.extraTimes.length); });
         if(!blocks.length) return mostrarToast('Sem dados de produção para esta data.', true);
         var shiftName=(saved.shiftName)||st.shiftName||'';
         var shiftStart=(saved.shiftStart)||st.shiftStart||'';
@@ -5542,9 +5619,15 @@
         var totalSacas=0,totalMin=0,linhasBlocks='';
         blocks.forEach(function(b){
             if(b.bags&&!isNoBagsActivity(b.activity)) totalSacas+=parseInt(b.bags.replace(/\D/g,'')||'0');
-            var diff=calcMinutos(b.start,b.end); totalMin+=diff;
-            var dAct=getDisplayActivity(b),ref=b.ref?' | Ref: '+b.ref:'',obs=b.obs?' — '+b.obs:'',sc=(b.bags&&!isNoBagsActivity(b.activity))?' | *'+b.bags+' sc*':'';
-            linhasBlocks+='  • '+dAct+': '+(b.start||'--:--')+' às '+(b.end||'--:--')+(diff>0?' ('+Math.floor(diff/60)+'h '+String(diff%60).padStart(2,'0')+'m)':'')+ref+sc+obs+'\n';
+            var bMin=calcMinutosBlock(b); totalMin+=bMin;
+            var dAct=getDisplayActivity(b);
+            var tipoStr=(b.tipoProducao&&b.tipoProducao.length)?' ['+b.tipoProducao.join('/')+']':'';
+            var ref=b.ref?' | Guia: '+b.ref:'';
+            var obs=b.obs?' — '+b.obs:'';
+            var sc=(b.bags&&!isNoBagsActivity(b.activity))?' | *'+b.bags+' sc*':'';
+            var allTimes=getBlockAllTimes(b).filter(function(t){return t.start||t.end;});
+            var timesStr=allTimes.map(function(t){var d=calcMinutos(t.start||'',t.end||'');return (t.start||'--:--')+' às '+(t.end||'--:--')+(d>0?' ('+Math.floor(d/60)+'h'+String(d%60).padStart(2,'0')+'m)':'');}).join('; ');
+            linhasBlocks+='  • '+dAct+tipoStr+': '+timesStr+(bMin>0&&allTimes.length>1?' | Total: '+Math.floor(bMin/60)+'h'+String(bMin%60).padStart(2,'0')+'m':'')+ref+sc+obs+'\n';
         });
         var horas=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
         var texto='*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: '+cleanSetor.toUpperCase()+'*\n📅 '+dataKey+'  |  👤 '+operadorNome+'\n';
