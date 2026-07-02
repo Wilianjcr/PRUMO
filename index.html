@@ -4995,7 +4995,7 @@
                 var durStr=d>0?Math.floor(d/60)+'h '+String(d%60).padStart(2,'0')+'m':'';
                 var canRemove=allTimes.length>1;
                 var wrapOpen=canRemove?'<div class="time-row-sw relative overflow-hidden rounded-xl" data-blockid="'+b.id+'" data-timeidx="'+ti+'"><div class="absolute inset-0 flex items-center justify-end pr-4 bg-red-500 rounded-xl pointer-events-none"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6h14z" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':'<div class="rounded-xl">';
-                var wrapInner='<div class="time-row-content flex items-end gap-1.5'+(canRemove?' bg-white dark:bg-gray-800':'')+'">';
+                var wrapInner='<div class="time-row-content relative z-10 flex items-end gap-1.5'+(canRemove?' bg-white dark:bg-gray-800':'')+'">';
                 var wrapClose='</div>'+(canRemove?'</div>':'');
                 return wrapOpen+wrapInner+
                     '<div class="flex flex-col flex-1 min-w-0">'+
