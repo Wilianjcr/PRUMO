@@ -1,5 +1,5 @@
 // Prumo — Service Worker v2.0
-const CACHE_NAME = 'prumo-v3.6';
+const CACHE_NAME = 'prumo-v4.2';
 const ASSETS = [
     './',
     './index.html',
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
             });
         })
     );
-    self.skipWaiting();
+    // Não usa skipWaiting para evitar recarga automática com dados em aberto
 });
 
 // Activate — clean old caches
@@ -34,7 +34,7 @@ self.addEventListener('activate', event => {
             )
         )
     );
-    self.clients.claim();
+    // clients.claim() omitido — novo SW ativa na próxima abertura natural do app
 });
 
 function isCDN(url) {

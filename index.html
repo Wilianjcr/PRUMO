@@ -47,8 +47,10 @@
                             if (newSW) {
                                 newSW.addEventListener('statechange', function() {
                                     if (newSW.state === 'activated' && navigator.serviceWorker.controller) {
-                                        console.log('[SW] Nova versão ativa — recarregando...');
-                                        window.location.reload();
+                                        console.log('[SW] Nova versão ativa — sem recarga automática.');
+                                        if (typeof mostrarToast === 'function') {
+                                            mostrarToast('Sistema atualizado! ✓');
+                                        }
                                     }
                                 });
                             }
@@ -968,8 +970,13 @@
         <!-- HEADER -->
         <header class="glass-panel border-b border-gray-200 dark:border-gray-800 shadow-sm z-20 sticky top-0 shrink-0 print-hide">
             <div class="px-5 py-3 md:py-4 flex items-center justify-between">
-                <div class="w-10 flex items-center justify-start">
-                    <button id="btn-voltar" onclick="goBack()" aria-label="Voltar" class="hidden p-2 -ml-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 rounded-full transition-all">
+                <div class="w-20 flex items-center justify-start gap-1">
+                    <button onclick="toggleSidebar()" aria-label="Abrir menu" class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all flex flex-col gap-1 items-center justify-center w-10 h-10">
+                        <span class="w-5 h-0.5 bg-current rounded-full"></span>
+                        <span class="w-5 h-0.5 bg-current rounded-full"></span>
+                        <span class="w-5 h-0.5 bg-current rounded-full"></span>
+                    </button>
+                    <button id="btn-voltar" onclick="goBack()" aria-label="Voltar" class="hidden p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 rounded-full transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
                     </button>
                 </div>
@@ -995,14 +1002,8 @@
                     <h1 id="header-brand" class="text-base md:text-lg font-black uppercase tracking-[0.15em] text-gray-900 dark:text-white heading-font">PRUMO</h1>
                 </button>
 
-                <div class="w-10 flex items-center justify-end relative">
-                    <span id="header-bags-badge" class="hidden absolute right-12 top-1/2 -translate-y-1/2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">0 SC</span>
-
-                    <button onclick="toggleSidebar()" aria-label="Abrir menu" class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 transition-all flex flex-col gap-1 items-center justify-center w-10 h-10">
-                        <span class="w-5 h-0.5 bg-current rounded-full"></span>
-                        <span class="w-5 h-0.5 bg-current rounded-full"></span>
-                        <span class="w-5 h-0.5 bg-current rounded-full"></span>
-                    </button>
+                <div class="w-20 flex items-center justify-end relative">
+                    <span id="header-bags-badge" class="hidden bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">0 SC</span>
                 </div>
             </div>
             <!-- Sector subtitle (visible only inside a sector) -->
@@ -1103,13 +1104,13 @@
                                 <div>
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dias da Semana</label>
                                     <div class="grid grid-cols-8 gap-1.5" id="adm-turno-dias">
-                                        <label class="dia-pill"><input type="checkbox" value="Dom" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">D</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Seg" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">S</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Ter" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">T</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Qua" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Q</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Qui" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Q</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Sex" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">S</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Sáb" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">S</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Dom" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Dom</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Seg" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Seg</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Ter" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Ter</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Qua" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Qua</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Qui" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Qui</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Sex" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Sex</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Sáb" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Sáb</span></label>
                                         <button type="button" onclick="toggleTodosDias()" class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all" title="Selecionar todos">✓</button>
                                     </div>
                                 </div>
@@ -1124,16 +1125,18 @@
                                         <label class="setor-pill"><input type="checkbox" value="📥 Recebimento" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-blue-300">📥 Rec.</span></label>
                                         <label class="setor-pill"><input type="checkbox" value="⏱️ Manutenção" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-rose-300">⏱️ Man.</span></label>
                                         <label class="setor-pill"><input type="checkbox" value="📊 Operações" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-cyan-300">📊 Op.</span></label>
-                                        <label class="setor-pill"><input type="checkbox" value="☕ Qualidade" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-amber-300">☕ Qual.</span></label>
                                         <button type="button" onclick="toggleTodosSetores()" class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all">Todos</button>
                                     </div>
                                 </div>
 
-                                <!-- Botão Adicionar -->
-                                <button onclick="adicionarTurno()" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 active:scale-[0.98] text-sm uppercase tracking-wider">
-                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                                    Adicionar Turno
-                                </button>
+                                <!-- Botão Adicionar / Salvar Edição -->
+                                <div class="flex gap-2">
+                                    <button id="btn-cancelar-edicao-turno" onclick="cancelarEdicaoTurno()" class="hidden py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-all text-sm uppercase tracking-wider active:scale-[0.98]">Cancelar</button>
+                                    <button id="btn-adicionar-turno" onclick="adicionarTurno()" class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 active:scale-[0.98] text-sm uppercase tracking-wider">
+                                        <svg id="btn-adicionar-turno-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                        <span id="btn-adicionar-turno-label">Adicionar Turno</span>
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Filtro por setor + Lista -->
@@ -1144,7 +1147,6 @@
                                     <button onclick="filtrarTurnosAdm('🚛 Expedição')" id="filtro-exp" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Exp.</button>
                                     <button onclick="filtrarTurnosAdm('📦 Embalagem')" id="filtro-emb" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Emb.</button>
                                     <button onclick="filtrarTurnosAdm('📥 Recebimento')" id="filtro-rec" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Rec.</button>
-                                    <button onclick="filtrarTurnosAdm('☕ Qualidade')" id="filtro-qual" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 transition-all">Qual.</button>
                                 </div>
                                 <div class="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar" id="adm-lista-turnos"></div>
                             </div>
@@ -1457,6 +1459,12 @@
                                     <span class="text-[10px] font-bold text-gray-400">sc/h</span>
                                 </div>
                             </div>
+                            <div class="w-px h-8 bg-gray-200 dark:bg-gray-700" id="shift-badge-sep" style="display:none"></div>
+                            <div id="shift-badge-wrap" style="display:none" class="text-left">
+                                <span class="text-[9px] text-amber-500 font-bold uppercase tracking-widest block mb-0.5">Turno</span>
+                                <span id="shift-badge-nome" class="text-xs font-black text-gray-900 dark:text-white leading-none"></span>
+                                <span id="shift-badge-horas" class="text-[9px] text-amber-600 dark:text-amber-400 font-semibold ml-1"></span>
+                            </div>
                         </div>
                     </div>
 
@@ -1503,39 +1511,9 @@
 
                     <div id="prod-tab-boletim-content">
 
-                    <div id="rebeneficio-shift-container" class="hidden mb-8 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-3xl p-6 transition-all">
-                        <div class="flex items-center justify-between mb-5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-amber-200 dark:bg-amber-800/50 flex items-center justify-center text-amber-700 dark:text-amber-400">
-                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-sm">Selecione seu Turno</h3>
-                                    <p id="shift-dia-semana" class="text-xs text-amber-700 dark:text-amber-400 font-semibold mt-0.5"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Cards de turno -->
-                        <div id="shift-cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
-                        <p id="shift-nenhum-msg" class="hidden text-center text-sm text-gray-400 py-4">Nenhum turno cadastrado para hoje neste setor.<br><span class="text-xs">Solicite ao gestor.</span></p>
-                        <!-- Resumo do turno selecionado -->
-                        <div id="shift-resumo" class="hidden mt-4 bg-white dark:bg-gray-800 rounded-2xl p-4 border border-amber-200 dark:border-amber-700/50 flex items-center justify-between gap-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 font-black text-lg">⏰</div>
-                                <div>
-                                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Turno Ativo</p>
-                                    <p id="shift-resumo-nome" class="font-black text-gray-900 dark:text-white text-base uppercase"></p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Horário</p>
-                                <p id="shift-resumo-horas" class="font-black text-amber-600 dark:text-amber-400 text-base"></p>
-                            </div>
-                            <input type="hidden" id="shift-selector" value="">
-                            <input type="hidden" id="shift-start" value="">
-                            <input type="hidden" id="shift-end" value="">
-                        </div>
-                    </div>
+                    <input type="hidden" id="shift-selector" value="">
+                    <input type="hidden" id="shift-start" value="">
+                    <input type="hidden" id="shift-end" value="">
 
                     <div class="flex-1 space-y-6 pb-6">
                         <div>
@@ -1543,13 +1521,6 @@
                                 <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font">Registro de produção</h3>
                             </div>
                             <div id="time-blocks-container" class="space-y-6 flex flex-col"></div>
-                            <button onclick="addTimeBlock()" class="mt-6 w-full py-5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-3xl text-gray-600 dark:text-gray-300 font-bold text-sm uppercase tracking-wider active:scale-[0.98] flex justify-center items-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-gray-400">
-                                <div class="w-8 h-8 rounded-full bg-white dark:bg-gray-900 shadow-sm flex items-center justify-center">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                                </div>
-                                Adicionar Guia / Período
-                            </button>
-
                             <button onclick="compartilharRelatorio()" class="mt-4 w-full py-4 bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 Salvar Produção
@@ -2150,7 +2121,6 @@
                         <option value="📦 Embalagem">📦 Embalagem</option>
                         <option value="📊 Operações">📊 Operações</option>
                         <option value="⏱️ Manutenção">⏱️ Manutenção</option>
-                        <option value="☕ Qualidade">☕ Qualidade</option>
                     </select>
                 </div>
                 <button onclick="realizarLogin()" class="w-full bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold py-4 rounded-xl active:scale-[0.98] shadow-md transition-all mt-6 text-sm uppercase tracking-widest heading-font">Entrar</button>
@@ -2254,12 +2224,6 @@
             { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
             { id: 'op-sacas',     label: 'Quantidade de Sacas',    type: 'number', placeholder: 'Ex: 150', icon: '⚖️' }
         ],
-        'Qualidade': [
-            { id: 'op-atividade', label: 'Atividade',              type: 'select', icon: '🔖' },
-            { id: 'op-ref',       label: 'Lote | Amostra',         type: 'text',   placeholder: 'Ex: AM-001', icon: '📋' },
-            { id: 'op-cliente',   label: 'Cliente / Fazenda',      type: 'text',   placeholder: 'Ex: Fazenda Boa Vista', icon: '👤' },
-            { id: 'op-sacas',     label: 'Qtd. de Amostras',       type: 'number', placeholder: 'Ex: 12', icon: '🧪' }
-        ]
     };
 
     function renderFormularioOP() {
@@ -2733,7 +2697,7 @@
         var ateEl = document.getElementById('filtro-periodo-ate');
         var deVal = deEl ? deEl.value : '';
         var ateVal = ateEl ? ateEl.value : '';
-        var setoresOP = ['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','☕ Qualidade'];
+        var setoresOP = ['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações'];
         var todos = [];
         Object.keys(appData).forEach(function(dataKey) {
             if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataKey)) return;
@@ -3516,7 +3480,6 @@
         { emoji: '📦', nome: '📦 Embalagem', label: 'Embalagem' },
         { emoji: '📊', nome: '📊 Operações', label: 'Operações' },
         { emoji: '⏱️', nome: '⏱️ Manutenção', label: 'Manutenção' },
-        { emoji: '☕', nome: '☕ Qualidade', label: 'Qualidade' }
     ];
 
     function _getSetoresOrder() {
@@ -3551,7 +3514,6 @@
             'Embalagem':   { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400', ring: 'focus:ring-purple-500' },
             'Operações':   { bg: 'bg-cyan-50 dark:bg-cyan-900/20', text: 'text-cyan-600 dark:text-cyan-400', ring: 'focus:ring-cyan-500' },
             'Manutenção':  { bg: 'bg-rose-50 dark:bg-rose-900/20', text: 'text-rose-600 dark:text-rose-400', ring: 'focus:ring-rose-500' },
-            'Qualidade':   { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-600 dark:text-amber-400', ring: 'focus:ring-amber-500' }
         };
         grid.innerHTML = setores.map(function(s){
             var c = colors[s.label] || { bg:'bg-gray-50 dark:bg-gray-700', text:'text-gray-600', ring:'focus:ring-gray-500' };
@@ -3831,6 +3793,7 @@
     }
 
     var _filtroSetorAtivo = 'todos';
+    var _editandoTurnoIdx = null;
     var DIAS_SEMANA = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
     function getDiaSemanaHoje() {
@@ -3896,10 +3859,11 @@
             '⏱️ Manutenção':   'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
             '📊 Operações':    'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
         };
+        var DIAS_FULL = {Dom:'Domingo',Seg:'Segunda',Ter:'Terça',Qua:'Quarta',Qui:'Quinta',Sex:'Sexta','Sáb':'Sábado'};
         container.innerHTML = filtrados.map(function(t){
             var idx = turnos.indexOf(t);
             var cor = COR_SETOR[t.setor] || 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700';
-            var dias = (t.dias && t.dias.length) ? t.dias.join(' · ') : 'Todos os dias';
+            var dias = (t.dias && t.dias.length) ? t.dias.map(function(d){ return DIAS_FULL[d]||d; }).join(' · ') : 'Todos os dias';
             return '<div class="flex items-center justify-between p-3.5 rounded-xl border '+cor+' shadow-sm gap-3">'+
                 '<div class="flex-1 min-w-0">'+
                     '<div class="flex items-center gap-2 flex-wrap">'+
@@ -3909,9 +3873,14 @@
                     '<span class="text-xs text-gray-500 font-semibold">⏰ '+escapeHTML(t.inicio)+' → '+escapeHTML(t.fim)+'</span>'+
                     '<span class="block text-[10px] text-gray-400 font-medium mt-0.5">📅 '+escapeHTML(dias)+'</span>'+
                 '</div>'+
-                '<button onclick="removerTurno('+idx+')" class="text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 p-2 rounded-lg active:scale-95 transition-colors shrink-0">'+
-                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>'+
-                '</button>'+
+                '<div class="flex gap-1.5 shrink-0">'+
+                    '<button onclick="editarTurno('+idx+')" class="text-purple-500 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 p-2 rounded-lg active:scale-95 transition-colors">'+
+                        '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>'+
+                    '</button>'+
+                    '<button onclick="removerTurno('+idx+')" class="text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 p-2 rounded-lg active:scale-95 transition-colors">'+
+                        '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>'+
+                    '</button>'+
+                '</div>'+
             '</div>';
         }).join('');
     }
@@ -3937,6 +3906,50 @@
         });
     }
 
+    function _limparFormTurno() {
+        var nomeEl = document.getElementById('adm-turno-nome');
+        if (nomeEl) nomeEl.value = '';
+        document.getElementById('adm-turno-inicio').value = '';
+        document.getElementById('adm-turno-fim').value = '';
+        document.querySelectorAll('#adm-turno-dias input').forEach(function(c){ c.checked = false; });
+        document.querySelectorAll('#adm-turno-setores input').forEach(function(c){ c.checked = false; });
+        var lbl = document.getElementById('btn-adicionar-turno-label');
+        var ico = document.getElementById('btn-adicionar-turno-icon');
+        var cancel = document.getElementById('btn-cancelar-edicao-turno');
+        if (lbl) lbl.textContent = 'Adicionar Turno';
+        if (ico) { ico.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>'; }
+        if (cancel) cancel.classList.add('hidden');
+        _editandoTurnoIdx = null;
+    }
+
+    function editarTurno(idx) {
+        var t = appData.config && appData.config.turnos && appData.config.turnos[idx];
+        if (!t) return;
+        _editandoTurnoIdx = idx;
+        var nomeEl = document.getElementById('adm-turno-nome');
+        if (nomeEl) nomeEl.value = t.nome || '';
+        document.getElementById('adm-turno-inicio').value = t.inicio || '';
+        document.getElementById('adm-turno-fim').value = t.fim || '';
+        document.querySelectorAll('#adm-turno-dias input').forEach(function(c){
+            c.checked = t.dias && t.dias.indexOf(c.value) !== -1;
+        });
+        document.querySelectorAll('#adm-turno-setores input').forEach(function(c){
+            c.checked = c.value === t.setor;
+        });
+        var lbl = document.getElementById('btn-adicionar-turno-label');
+        var ico = document.getElementById('btn-adicionar-turno-icon');
+        var cancel = document.getElementById('btn-cancelar-edicao-turno');
+        if (lbl) lbl.textContent = 'Salvar Edição';
+        if (ico) { ico.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>'; }
+        if (cancel) cancel.classList.remove('hidden');
+        var form = document.getElementById('adm-turno-nome');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    window.editarTurno = editarTurno;
+
+    function cancelarEdicaoTurno() { _limparFormTurno(); }
+    window.cancelarEdicaoTurno = cancelarEdicaoTurno;
+
     function adicionarTurno() {
         var nomeEl = document.getElementById('adm-turno-nome');
         var nome   = nomeEl ? nomeEl.value : '';
@@ -3944,99 +3957,89 @@
         var inicio = document.getElementById('adm-turno-inicio').value;
         var fim    = document.getElementById('adm-turno-fim').value;
         var dias   = Array.from(document.querySelectorAll('#adm-turno-dias input:checked')).map(function(c){ return c.value; });
-        if (!nome)          return mostrarToast('Selecione o nome do turno (1°, 2° ou 3°).', true);
+        if (!nome)           return mostrarToast('Selecione o nome do turno (1°, 2° ou 3°).', true);
         if (!setores.length) return mostrarToast('Selecione ao menos um setor.', true);
         if (!inicio || !fim) return mostrarToast('Informe o horário de início e fim.', true);
         if (!dias.length)    return mostrarToast('Selecione ao menos um dia da semana.', true);
         if (!appData.config) appData.config = {};
         if (!appData.config.turnos) appData.config.turnos = [];
-        // Cria um registro por setor selecionado
-        setores.forEach(function(setor) {
-            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias });
-        });
-        // Limpar formulário
-        if (nomeEl) nomeEl.value = '';
-        document.getElementById('adm-turno-inicio').value = '';
-        document.getElementById('adm-turno-fim').value = '';
-        document.querySelectorAll('#adm-turno-dias input').forEach(function(c){ c.checked = false; });
-        document.querySelectorAll('#adm-turno-setores input').forEach(function(c){ c.checked = false; });
-        salvarMetasAdm();
-        renderTurnosAdm();
-        renderShiftCards();
-        var msg = setores.length > 1 ? nome + ' adicionado para ' + setores.length + ' setores!' : nome + ' adicionado!';
-        mostrarToast(msg);
+
+        if (_editandoTurnoIdx !== null) {
+            // Modo edição — atualiza o turno existente
+            appData.config.turnos[_editandoTurnoIdx] = { nome: nome, setor: setores[0], inicio: inicio, fim: fim, dias: dias };
+            _limparFormTurno();
+            salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
+            mostrarToast('Turno atualizado!');
+        } else {
+            // Modo adição — cria um registro por setor selecionado
+            setores.forEach(function(setor) {
+                appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias });
+            });
+            _limparFormTurno();
+            salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
+            var msg = setores.length > 1 ? nome + ' adicionado para ' + setores.length + ' setores!' : nome + ' adicionado!';
+            mostrarToast(msg);
+        }
     }
 
     function removerTurno(index) {
         if (!appData.config || !appData.config.turnos) return;
+        if (_editandoTurnoIdx === index) _limparFormTurno();
         appData.config.turnos.splice(index, 1);
         salvarMetasAdm();
         renderTurnosAdm();
         renderShiftCards();
     }
 
-    /** Renderiza cards de turno para o colaborador no boletim */
+    /** Auto-seleciona o turno do colaborador com base na hora atual */
     function renderShiftCards() {
-        var container = document.getElementById('shift-cards-container');
-        var nenhum    = document.getElementById('shift-nenhum-msg');
-        var resumo    = document.getElementById('shift-resumo');
-        var diaLabel  = document.getElementById('shift-dia-semana');
-        if (!container) return;
-
-        var diaHoje = getDiaSemanaHoje();
-        if (diaLabel) diaLabel.textContent = diaHoje + ' — selecione seu turno';
-
         var turnos = (appData.config && appData.config.turnos) || [];
-        // Filtrar por setor do colaborador E dia da semana
         var setorAtual = currentSector;
+        var diaHoje = getDiaSemanaHoje();
         var turnosFiltrados = turnos.filter(function(t){
             var setorOk = t.setor === setorAtual;
             var diaOk   = !t.dias || !t.dias.length || t.dias.indexOf(diaHoje) !== -1;
             return setorOk && diaOk;
         });
 
-        var savedName = (appData[workingDate] && appData[workingDate][setorAtual] && appData[workingDate][setorAtual].shiftName) || '';
-
         if (!turnosFiltrados.length) {
-            container.innerHTML = '';
-            if (nenhum)  nenhum.classList.remove('hidden');
-            if (resumo)  resumo.classList.add('hidden');
+            // Nenhum turno cadastrado — esconde badge
+            var sep  = document.getElementById('shift-badge-sep');
+            var wrap = document.getElementById('shift-badge-wrap');
+            if (sep)  sep.style.display  = 'none';
+            if (wrap) wrap.style.display = 'none';
+            var hid = document.getElementById('shift-selector');
+            var hIni = document.getElementById('shift-start');
+            var hFim = document.getElementById('shift-end');
+            if (hid)  hid.value  = '';
+            if (hIni) hIni.value = '';
+            if (hFim) hFim.value = '';
             return;
         }
-        if (nenhum) nenhum.classList.add('hidden');
 
-        container.innerHTML = turnosFiltrados.map(function(t){
-            var isSelected = t.nome === savedName;
-            var dur = calcMinutos(t.inicio, t.fim);
-            var durStr = dur > 0 ? Math.floor(dur/60)+'h'+String(dur%60).padStart(2,'0')+'m' : '';
-            var selClass = isSelected ? ' selected' : '';
-            var html = '<div class="shift-card rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center' + selClass + '">';
-            html += '<div class="text-2xl mb-2">&#9203;</div>';
-            html += '<div class="font-black text-gray-900 dark:text-white uppercase text-sm tracking-wider">' + escapeHTML(t.nome) + '</div>';
-            html += '<div class="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">' + escapeHTML(t.inicio) + ' → ' + escapeHTML(t.fim) + '</div>';
-            if (durStr) html += '<div class="text-[10px] text-gray-400 font-medium mt-0.5">' + durStr + ' disponíveis</div>';
-            html += '</div>';
-            return html;
-        }).join('');
+        // Hora atual HH:MM
+        var agora = new Date();
+        var horaAtual = String(agora.getHours()).padStart(2,'0') + ':' + String(agora.getMinutes()).padStart(2,'0');
 
-        // Adicionar onclick via addEventListener (evita problema de aspas inline)
-        container.querySelectorAll('.shift-card').forEach(function(card, i) {
-            var t = turnosFiltrados[i];
-            card.addEventListener('click', function() {
-                selecionarTurnoCard(card, t.nome, t.inicio, t.fim);
-            });
-        });
+        // 1º: turno que encobre a hora atual
+        var turnoMatch = turnosFiltrados.find(function(t){ return t.inicio <= horaAtual && horaAtual <= t.fim; });
 
-        // Se já tinha turno salvo, mostrar resumo
-        if (savedName) {
-            var salvo = turnosFiltrados.find(function(t){ return t.nome === savedName; });
-            if (salvo) _atualizarResumoTurno(salvo.nome, salvo.inicio, salvo.fim);
+        // 2º: turno salvo anteriormente (troca de data/hora fora do turno)
+        if (!turnoMatch) {
+            var savedName = (appData[workingDate] && appData[workingDate][setorAtual] && appData[workingDate][setorAtual].shiftName) || '';
+            if (savedName) turnoMatch = turnosFiltrados.find(function(t){ return t.nome === savedName; });
         }
+
+        // 3º: único turno disponível
+        if (!turnoMatch && turnosFiltrados.length === 1) turnoMatch = turnosFiltrados[0];
+
+        // 4º: primeiro da lista
+        if (!turnoMatch) turnoMatch = turnosFiltrados[0];
+
+        _atualizarResumoTurno(turnoMatch.nome, turnoMatch.inicio, turnoMatch.fim);
     }
 
     function selecionarTurnoCard(el, nome, inicio, fim) {
-        document.querySelectorAll('.shift-card').forEach(function(c){ c.classList.remove('selected'); });
-        el.classList.add('selected');
         _atualizarResumoTurno(nome, inicio, fim);
         debouncedSave();
         calcTotalProductivity();
@@ -4050,12 +4053,15 @@
         if (hIni) hIni.value = inicio;
         if (hFim) hFim.value = fim;
 
-        var resumo = document.getElementById('shift-resumo');
-        var rNome  = document.getElementById('shift-resumo-nome');
-        var rHoras = document.getElementById('shift-resumo-horas');
-        if (resumo) resumo.classList.remove('hidden');
-        if (rNome)  rNome.textContent  = nome;
-        if (rHoras) rHoras.textContent = inicio + ' → ' + fim;
+        // Badge discreto no cabeçalho
+        var sep   = document.getElementById('shift-badge-sep');
+        var wrap  = document.getElementById('shift-badge-wrap');
+        var bNome = document.getElementById('shift-badge-nome');
+        var bHoras= document.getElementById('shift-badge-horas');
+        if (sep)   sep.style.display   = '';
+        if (wrap)  wrap.style.display  = '';
+        if (bNome)  bNome.textContent  = nome;
+        if (bHoras) bHoras.textContent = inicio + ' → ' + fim;
         calcTotalProductivity();
     }
 
@@ -4077,7 +4083,6 @@
         'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)'],
         'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Outros'],
         'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outros'],
-        'Qualidade':   ['Análise de Amostras (Fornecedor)','Análise de Amostras (Interna)','Análise de Amostras (Cliente)','Torra de Amostras','Cupping','Certificação','Outros']
     };
     var PLANEJAMENTO_MAP = {
         'Recebimento': ['Recebimento de café','Pilha simples (Liga)','Ensaque','Embarque (Mercado interno)','Conferência de Estoque','Guardar Café (Rebenefício)','Separar Lotes (Expedição)','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
@@ -4087,7 +4092,6 @@
         'Embalagem':   ['Aplicação de Stickers','Aplicação de VDP','Produção de Vácuo','Coleta (Mercado interno)','Conferência de Estoque','Recebimento e Conferência de Sacas','Limpeza do Setor','Realocação de setor','Disponível para Realocação','Outras'],
         'Manutenção':  ['Manutenção Preventiva','Manutenção Corretiva','Ajuste de Máquinas','Prevetiva no Recebimento','Prevetiva no Rebenefício','Prevetiva na Expedição','O.S do Sistema','Inventario no Almoxarifado','Limpeza do Setor','Outras'],
         'Operações':   ['Mapeamento de Processos','Auditoria','Treinamento','Análise de Falhas','5S / Organização','Outras'],
-        'Qualidade':   ['Análise de Amostras (Fornecedor)','Análise de Amostras (Interna)','Análise de Amostras (Cliente)','Torra de Amostras','Cupping','Certificação','Controle de Estoque','Emissão de Guias','Reunião','Treinamento / Curso','Limpeza do Setor','Outras']
     };
     // OP_ACTIVITIES_MAP: mesmas atividades do ACTIVITIES_MAP disponíveis nas OPs por setor
     // (já usa ACTIVITIES_MAP diretamente — mapeamento de correspondência para cruzamento)
@@ -4131,7 +4135,6 @@
         if (cleanSetor.includes('Recebimento'))                                      currentRefLabel = 'Guia/Lote';
         else if (cleanSetor.includes('Rebenefício') || cleanSetor.includes('TESTE')) currentRefLabel = 'Guia';
         else if (cleanSetor.includes('Expedição') || cleanSetor.includes('Embalagem')) currentRefLabel = 'Guia/Contrato';
-        else if (cleanSetor.includes('Qualidade'))                                   currentRefLabel = 'Lote/Amostra';
         else currentRefLabel = 'Referência';
         currentActivities             = getEffectiveActivities(cleanSetor);
         currentPlanejamentoActivities = getEffectivePlanejamento(cleanSetor);
@@ -4228,14 +4231,14 @@
 
     function configurarBotoesSubmenu(cleanSetor) {
         var hide = function(id, cond){ var el=document.getElementById(id); if(!el) return; el.classList.toggle('hidden',cond); if(!cond) el.classList.add('flex'); };
-        hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações'||cleanSetor==='Qualidade');
+        hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações');
         hide('btn-menu-metas', !isAdmin||!(cleanSetor==='Rebenefício'||cleanSetor==='TESTE'));
         hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
         hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
         hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
         hide('btn-menu-conv-mm',  cleanSetor!=='Operações');
         hide('btn-menu-conv-hz',  cleanSetor!=='Operações');
-        var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE','Qualidade'];
+        var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE'];
         hide('btn-menu-op', !setoresOP.some(function(s){ return cleanSetor.includes(s); }));
     }
 
@@ -4610,17 +4613,13 @@
             renderMetasHistorico();
         }
         if (viewId==='view-productivity') {
-            var shiftCont=document.getElementById('rebeneficio-shift-container');
-            var lblMedia =document.getElementById('lbl-media-hora');
+            var lblMedia=document.getElementById('lbl-media-hora');
             var isReb=currentSector.includes('Rebenefício')||currentSector.includes('TESTE');
             var tabBar=document.getElementById('prod-tab-bar');
             if(tabBar) tabBar.classList.toggle('hidden',!isReb||isAdmin);
             if(isReb&&!isAdmin) { atualizarMetasInfo(); switchProdTab('boletim'); }
-            var turnosDoSetor = ((appData.config && appData.config.turnos) || []).filter(function(t){ return t.setor === currentSector; });
-            var mostrarShift = turnosDoSetor.length > 0;
-            if(shiftCont){shiftCont.classList.toggle('hidden',!mostrarShift);shiftCont.classList.toggle('block',mostrarShift);}
-            if(mostrarShift) renderShiftCards();
             if(lblMedia) lblMedia.textContent=isReb?'Média/h (Turno)':'Média/h Total';
+            renderShiftCards();
         }
         if (viewId==='view-atividades') checkPlanejamentoBagsVisibility();
         var lblShare=document.getElementById('lbl-share-btn');
@@ -4784,7 +4783,6 @@
                 tipoHtml='<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Tipo de Produção</label><div class="flex flex-wrap gap-x-5 gap-y-2">'+['Produção','Aproveitamento','Repasse'].map(function(tipo){return '<label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox"'+(checked.includes(tipo)?' checked':'')+' onchange="updateBlockTipo('+b.id+',\''+tipo+'\',this.checked)" class="w-4 h-4 rounded accent-blue-600"><span class="text-sm font-bold text-gray-700 dark:text-gray-200">'+tipo+'</span></label>';}).join('')+'</div></div>';
             }
             return `<div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 p-5 rounded-3xl relative transition-all block-item group focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:ring-gray-700">
-    <button onclick="removeTimeBlock(${b.id})" class="absolute -top-3 -right-3 bg-red-50 dark:bg-red-900/30 text-red-500 p-2 rounded-full border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/50 active:scale-95 transition-all shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path stroke-linecap="round" stroke-linejoin="round" d="M2 2l8 8M2 10l8-8"/></svg></button>
     <div class="space-y-4">
         <div>
             <div class="flex items-center justify-between mb-1.5"><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atividade Efetuada</label>${usarOpBtn}</div>
@@ -4809,14 +4807,14 @@
             <div class="${!hideBags?'col-span-5':'col-span-7'}">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">${currentRefLabel.split('/')[0]}</label>
                 <div class="flex gap-2">
-                    <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 min-w-0 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Vírgula entre guias">
+                    <input type="text" value="${escapeHTML(b.ref||'')}" oninput="updateBlock(${b.id},'ref',this.value.toUpperCase())" style="text-transform:uppercase" class="flex-1 min-w-0 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="N° Guia">
                     ${getOPsParaBoletim().length?'<button data-blockid="'+b.id+'" class="btn-importar-op shrink-0 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 rounded-xl px-2 py-2 text-xs font-bold hover:bg-cyan-100 transition-colors active:scale-95">&#128203;</button>':''}
                 </div>
             </div>
             ${!hideBags?`<div class="col-span-3"><label class="block text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5 ml-1">Sacas</label><input type="text" inputmode="numeric" value="${escapeHTML(b.bags||'')}" oninput="updateBlockMasked(${b.id},'bags',this)" class="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 rounded-xl py-3 px-3 font-bold outline-none text-sm text-emerald-900 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500" placeholder="Qtd"></div>`:''}
             <div class="col-span-4">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Observações</label>
-                <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500" placeholder="Clientes / vírgula">
+                <input type="text" value="${escapeHTML(b.obs||'')}" oninput="updateBlock(${b.id},'obs',this.value.toUpperCase())" style="text-transform:uppercase" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-3 outline-none text-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500" placeholder="Clientes">
             </div>
         </div>
     </div>
@@ -5058,7 +5056,7 @@
         setTimeout(function(){ modal.classList.add('hidden'); },300);
     }
 
-    var SETORES_ORDEM=['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','☕ Qualidade','🧪 TESTE'];
+    var SETORES_ORDEM=['⚙️ Rebenefício','🚛 Expedição','📦 Embalagem','📥 Recebimento','⏱️ Manutenção','📊 Operações','🧪 TESTE'];
 
     function isMetaOk(st, sectorName) {
         if(!sectorName.includes('Rebenefício')&&!sectorName.includes('TESTE')) return true;
