@@ -561,6 +561,16 @@
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
+        /* ── Time Picker Scroll Wheel ── */
+        .tp-col { height: 210px; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
+        .tp-col::-webkit-scrollbar { display: none; }
+        .tp-item { height: 52px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; scroll-snap-align: center; color: #9ca3af; transition: color 0.15s, font-size 0.15s; user-select: none; }
+        html.dark .tp-item { color: #4b5563; }
+        .tp-item.tp-active { color: #111827; font-size: 32px; }
+        html.dark .tp-item.tp-active { color: #f9fafb; }
+        .tp-btn-time { display: flex; align-items: center; justify-content: center; width: 100%; border-radius: 8px; padding: 8px 4px; font-weight: 900; font-size: 14px; text-align: center; cursor: pointer; transition: all 0.15s; border: 1px solid; }
+        .tp-btn-time:active { transform: scale(0.95); }
+
         .view-hidden {
             opacity: 0; pointer-events: none; position: absolute;
             transform: translateX(10px); transition: opacity 0.25s ease, transform 0.25s ease;
@@ -1089,21 +1099,21 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Início</label>
-                                        <input type="time" id="adm-turno-inicio" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px]">
+                                        <input type="text" id="adm-turno-inicio" readonly onclick="abrirTimePicker('adm-turno-inicio','Início do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
                                     </div>
                                     <span class="flex items-center text-gray-300 dark:text-gray-600 font-bold text-lg pb-1">→</span>
                                     <div>
                                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Fim</label>
-                                        <input type="time" id="adm-turno-fim" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px]">
+                                        <input type="text" id="adm-turno-fim" readonly onclick="abrirTimePicker('adm-turno-fim','Fim do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
                                     </div>
                                 </div>
 
                                 <!-- Intervalo (Almoço / Janta) -->
                                 <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
                                     <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
-                                    <input type="time" id="adm-turno-intervalo-inicio" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]" placeholder="--:--">
+                                    <input type="text" id="adm-turno-intervalo-inicio" readonly onclick="abrirTimePicker('adm-turno-intervalo-inicio','Início do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
                                     <span class="text-amber-400 font-bold shrink-0">→</span>
-                                    <input type="time" id="adm-turno-intervalo-fim" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]" placeholder="--:--">
+                                    <input type="text" id="adm-turno-intervalo-fim" readonly onclick="abrirTimePicker('adm-turno-intervalo-fim','Fim do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
                                     <span class="text-[10px] text-amber-500 dark:text-amber-500 font-medium">(opcional — descontado das horas disponíveis)</span>
                                 </div>
 
@@ -1302,7 +1312,7 @@
                                 </div>
                                 <div class="w-full" id="container-atv-projecao">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Projeção de Entrega</label>
-                                    <input type="time" id="atv-projecao" onchange="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base text-center">
+                                    <input type="text" id="atv-projecao" readonly onclick="abrirTimePicker('atv-projecao','Projeção de Entrega')" placeholder="--:--" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base text-center cursor-pointer">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1922,7 +1932,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Projeção</label>
-                        <input type="time" id="edit-atv-projecao" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <input type="text" id="edit-atv-projecao" readonly onclick="abrirTimePicker('edit-atv-projecao','Projeção')" placeholder="--:--" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer text-center">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -2041,20 +2051,20 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Início</label>
-                        <input type="time" id="edit-turno-inicio" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px]">
+                        <input type="text" id="edit-turno-inicio" readonly onclick="abrirTimePicker('edit-turno-inicio','Início do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
                     </div>
                     <span class="flex items-center text-gray-300 dark:text-gray-600 font-bold text-lg pb-1">→</span>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Fim</label>
-                        <input type="time" id="edit-turno-fim" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px]">
+                        <input type="text" id="edit-turno-fim" readonly onclick="abrirTimePicker('edit-turno-fim','Fim do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
                     </div>
                 </div>
                 <!-- Intervalo (Almoço / Janta) -->
                 <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
                     <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
-                    <input type="time" id="edit-turno-intervalo-inicio" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]">
+                    <input type="text" id="edit-turno-intervalo-inicio" readonly onclick="abrirTimePicker('edit-turno-intervalo-inicio','Início do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
                     <span class="text-amber-400 font-bold shrink-0">→</span>
-                    <input type="time" id="edit-turno-intervalo-fim" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]">
+                    <input type="text" id="edit-turno-intervalo-fim" readonly onclick="abrirTimePicker('edit-turno-intervalo-fim','Fim do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
                     <span class="text-[10px] text-amber-500 font-medium">(opcional)</span>
                 </div>
                 <!-- Dias da Semana -->
@@ -4494,7 +4504,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-time-picker'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -4997,15 +5007,16 @@
                 var wrapOpen=canRemove?'<div class="time-row-sw relative overflow-hidden rounded-xl" data-blockid="'+b.id+'" data-timeidx="'+ti+'"><div class="absolute inset-0 flex items-center justify-end pr-4 bg-red-500 rounded-xl pointer-events-none"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6h14z" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':'<div class="rounded-xl">';
                 var wrapInner='<div class="time-row-content relative z-10 flex items-end gap-1.5'+(canRemove?' bg-white dark:bg-gray-800':'')+'">';
                 var wrapClose='</div>'+(canRemove?'</div>':'');
+                var sBtnCls='w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white';
                 return wrapOpen+wrapInner+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(t.start||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                        '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'start\')" class="'+sBtnCls+'">'+(t.start||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'+
                     '</div>'+
                     '<span class="text-gray-400 text-[10px] font-bold shrink-0 pb-2.5">→</span>'+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(t.end||'')+'" oninput="mascaraHorario(this)" onblur="atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm">'+
+                        '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'end\')" class="'+sBtnCls+'">'+(t.end||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'+
                     '</div>'+
                     (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-10 shrink-0"></div>')+
                 wrapClose;
@@ -5037,12 +5048,12 @@
                                 '<div class="flex items-end gap-1.5">'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(p.inicio||'')+'" oninput="mascaraHorario(this)" onblur="updateParadaField('+b.id+',\'inicio\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm focus:ring-2 focus:ring-red-400">'+
+                                        '<button type="button" onclick="_abrirTPParada('+b.id+',\'inicio\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.inicio||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'+
                                     '</div>'+
                                     '<span class="text-red-300 font-bold shrink-0 pb-2.5 text-sm">→</span>'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                                        '<input type="text" inputmode="numeric" maxlength="5" enterkeyhint="next" data-timeinput="1" placeholder="--:--" value="'+escapeHTML(p.fim||'')+'" oninput="mascaraHorario(this)" onblur="updateParadaField('+b.id+',\'fim\',this.value)" onkeydown="focarProximoHorario(event,this)" class="w-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-700 rounded-lg py-2 px-1 text-center font-bold text-gray-900 dark:text-white outline-none text-sm focus:ring-2 focus:ring-red-400">'+
+                                        '<button type="button" onclick="_abrirTPParada('+b.id+',\'fim\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.fim||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'+
                                     '</div>'+
                                     (pdStr?'<span class="shrink-0 text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-lg self-end mb-0.5">'+pdStr+'</span>':'<div class="w-14 shrink-0"></div>')+
                                 '</div>'+
@@ -5237,6 +5248,139 @@
         el.value = digits.length > 2 ? digits.slice(0, 2) + ':' + digits.slice(2) : digits;
     }
     window.mascaraHorario = mascaraHorario;
+
+    // ── Time Picker (scroll wheel, 24h) ──────────────────────────────────────
+    var _timePicker = (function() {
+        var _cb = null;
+        var ITEM_H = 52;
+        var PAD = 79; // (210 - 52) / 2
+
+        function _build(col, count) {
+            var h = '<div style="height:' + PAD + 'px;flex-shrink:0"></div>';
+            for (var i = 0; i < count; i++) {
+                h += '<div class="tp-item" data-v="' + i + '">' + String(i).padStart(2, '0') + '</div>';
+            }
+            h += '<div style="height:' + PAD + 'px;flex-shrink:0"></div>';
+            col.innerHTML = h;
+        }
+
+        function _scrollTo(col, val, anim) {
+            col.scrollTo({ top: val * ITEM_H, behavior: anim ? 'smooth' : 'instant' });
+        }
+
+        function _getValue(col, max) {
+            return Math.max(0, Math.min(max - 1, Math.round(col.scrollTop / ITEM_H)));
+        }
+
+        function _updateHighlight(col, max) {
+            var v = _getValue(col, max);
+            col.querySelectorAll('.tp-item').forEach(function(el) {
+                var ev = parseInt(el.dataset.v);
+                el.classList.toggle('tp-active', ev === v);
+            });
+        }
+
+        function _attachScroll(col, max) {
+            var t;
+            col.addEventListener('scroll', function() {
+                clearTimeout(t);
+                _updateHighlight(col, max);
+                t = setTimeout(function() { _updateHighlight(col, max); }, 80);
+            }, { passive: true });
+        }
+
+        function open(currentVal, callback, label) {
+            _cb = callback;
+            var parts = (currentVal || '').split(':');
+            var h = Math.max(0, Math.min(23, parseInt(parts[0]) || 0));
+            var m = Math.max(0, Math.min(59, parseInt(parts[1]) || 0));
+
+            var hCol = document.getElementById('tp-hours');
+            var mCol = document.getElementById('tp-minutes');
+            var lbl  = document.getElementById('tp-label');
+            if (lbl) lbl.textContent = label || 'Selecionar hora';
+            if (!hCol || !mCol) return;
+
+            _build(hCol, 24); _build(mCol, 60);
+            _attachScroll(hCol, 24); _attachScroll(mCol, 60);
+
+            var modal = document.getElementById('modal-time-picker');
+            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+
+            setTimeout(function() {
+                _scrollTo(hCol, h, false); _scrollTo(mCol, m, false);
+                _updateHighlight(hCol, 24); _updateHighlight(mCol, 60);
+            }, 30);
+        }
+
+        function confirm() {
+            var hCol = document.getElementById('tp-hours');
+            var mCol = document.getElementById('tp-minutes');
+            var h = String(_getValue(hCol, 24)).padStart(2, '0');
+            var m = String(_getValue(mCol, 60)).padStart(2, '0');
+            var val = h + ':' + m;
+            close();
+            if (_cb) { var fn = _cb; _cb = null; fn(val); }
+        }
+
+        function close() {
+            _cb = null;
+            var modal = document.getElementById('modal-time-picker');
+            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        }
+
+        return { open: open, confirm: confirm, close: close };
+    })();
+    window._timePicker = _timePicker;
+
+    // Open picker for a static input element by ID
+    function abrirTimePicker(inputId, label) {
+        var el = document.getElementById(inputId);
+        _timePicker.open(el ? (el.value || '') : '', function(val) {
+            var inp = document.getElementById(inputId);
+            if (!inp) return;
+            inp.value = val;
+            try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
+        }, label || 'Selecionar hora');
+    }
+    window.abrirTimePicker = abrirTimePicker;
+
+    // Open picker for a block time row (renderTimeBlocks)
+    function _abrirTPBloco(blockId, timeIdx, field) {
+        var b = (window.tempTimeBlocks || []).find(function(x) { return x.id === blockId; });
+        var allT = b ? getBlockAllTimes(b) : [];
+        var cur = (allT[timeIdx] && allT[timeIdx][field]) || '';
+        var label = field === 'start' ? 'Hora Início' : 'Hora Fim';
+        _timePicker.open(cur, function(val) {
+            atualizarHorarioBloco(blockId, timeIdx, field, val);
+        }, label);
+    }
+    window._abrirTPBloco = _abrirTPBloco;
+
+    // Open picker for parada time
+    function _abrirTPParada(blockId, field) {
+        var b = (window.tempTimeBlocks || []).find(function(x) { return x.id === blockId; });
+        var cur = (b && b.parada && b.parada[field]) || '';
+        var label = field === 'inicio' ? 'Início da Parada' : 'Fim da Parada';
+        _timePicker.open(cur, function(val) {
+            updateParadaField(blockId, field, val);
+        }, label);
+    }
+    window._abrirTPParada = _abrirTPParada;
+
+    // Open picker for edit-prod block time
+    function _abrirTPEditProd(blockIdx, field) {
+        var b = _editProdBlocks && _editProdBlocks[blockIdx];
+        var cur = (b && b[field]) || '';
+        var label = field === 'start' ? 'Início' : 'Fim';
+        _timePicker.open(cur, function(val) {
+            if (_editProdBlocks && _editProdBlocks[blockIdx]) _editProdBlocks[blockIdx][field] = val;
+            var btn = document.querySelector('[data-eptime="' + blockIdx + '-' + field + '"]');
+            if (btn) btn.textContent = val || '--:--';
+        }, label);
+    }
+    window._abrirTPEditProd = _abrirTPEditProd;
+    // ─────────────────────────────────────────────────────────────────────────
 
     function atualizarHorarioBloco(blockId, timeIdx, field, value) {
         var m = value.match(/^(\d{1,2}):(\d{2})$/);
@@ -5874,8 +6018,8 @@
                     '<option value="" disabled'+(b.activity?'':' selected')+'>Selecione a atividade...</option>'+opts+
                 '</select>'+
                 '<div class="grid grid-cols-2 gap-3">'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.start||'')+'" oninput="mascaraHorario(this);updateEditProdBlock('+i+',\'start\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><input type="text" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.end||'')+'" oninput="mascaraHorario(this);updateEditProdBlock('+i+',\'end\',this.value)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><button type="button" data-eptime="'+i+'-start" onclick="_abrirTPEditProd('+i+',\'start\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.start||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><button type="button" data-eptime="'+i+'-end" onclick="_abrirTPEditProd('+i+',\'end\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.end||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button></div>'+
                 '</div>'+
                 '<div class="grid grid-cols-2 gap-3">'+
                     '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
@@ -6051,6 +6195,35 @@
         executarCompartilhamento('Boletim '+dataKey+' '+cleanSetor,texto,cleanSetor);
     }
     </script>
+
+    <!-- MODAL: TIME PICKER SCROLL WHEEL -->
+    <div id="modal-time-picker" class="fixed inset-0 z-[400] hidden items-end justify-center" style="background:rgba(0,0,0,0.55)">
+        <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-t-3xl shadow-2xl">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+                <button onclick="_timePicker.close()" class="text-sm font-bold text-gray-400 dark:text-gray-500 px-1 py-1 active:opacity-60">Cancelar</button>
+                <span id="tp-label" class="text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Selecionar hora</span>
+                <button onclick="_timePicker.confirm()" class="text-sm font-black text-blue-600 dark:text-blue-400 px-1 py-1 active:opacity-60">OK</button>
+            </div>
+            <!-- Picker -->
+            <div class="relative flex items-center justify-center px-8 py-2 select-none">
+                <!-- Center highlight -->
+                <div class="absolute inset-x-8 pointer-events-none z-10" style="top:50%;transform:translateY(-50%);height:52px;border-radius:10px;background:rgba(0,0,0,0.05)">
+                    <div class="h-full rounded-[10px] border-t-2 border-b-2" style="border-color:rgba(156,163,175,0.4)"></div>
+                </div>
+                <html.dark class="hidden"></html.dark>
+                <div class="flex items-center gap-2">
+                    <div id="tp-hours" class="tp-col w-24"></div>
+                    <span class="text-4xl font-black text-gray-300 dark:text-gray-600 select-none mb-0.5" style="line-height:1">:</span>
+                    <div id="tp-minutes" class="tp-col w-24"></div>
+                </div>
+            </div>
+            <!-- Confirm button -->
+            <div class="px-5 pb-6 pt-2">
+                <button onclick="_timePicker.confirm()" class="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-black rounded-2xl text-sm uppercase tracking-widest active:scale-[0.98] transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: NOVA / EDITAR META -->
     <div id="modal-nova-meta" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6)">
