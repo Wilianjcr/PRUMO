@@ -1308,7 +1308,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="w-full" id="container-atv-sacas">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Volume (Sacas)</label>
-                                    <input type="number" id="atv-sacas" oninput="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 320">
+                                    <input type="number" id="atv-sacas" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 320">
                                 </div>
                                 <div class="w-full" id="container-atv-projecao">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Projeção de Entrega</label>
@@ -1318,14 +1318,14 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="w-full" id="container-atv-ajuda">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Apoio Necessário?</label>
-                                    <select id="atv-ajuda" onchange="toggleAjudaQtd(); debouncedSave();" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]">
+                                    <select id="atv-ajuda" onchange="toggleAjudaQtd();" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]">
                                         <option value="Não">Não</option>
                                         <option value="Sim">Sim, preciso de ajuda</option>
                                     </select>
                                 </div>
                                 <div class="w-full hidden" id="div-ajuda-qtd">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantos ajudantes?</label>
-                                    <input type="number" id="atv-ajuda-qtd" oninput="debouncedSave()" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl py-4 px-5 text-blue-900 dark:text-blue-100 font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 2">
+                                    <input type="number" id="atv-ajuda-qtd" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl py-4 px-5 text-blue-900 dark:text-blue-100 font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 2">
                                 </div>
                             </div>
                             <!-- Botão Salvar Atividade -->
@@ -1573,7 +1573,7 @@
                                     <span id="just-expand-icon" class="text-red-400 font-black text-2xl leading-none select-none">+</span>
                                 </button>
                                 <div id="just-expand-content" class="hidden mt-2 px-1">
-                                    <textarea id="justificativa-meta" maxlength="200" oninput="debouncedSave()" rows="3" class="w-full bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800/50 rounded-xl p-4 outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400 resize-none" placeholder="Descreva os motivos da quebra de produtividade..."></textarea>
+                                    <textarea id="justificativa-meta" maxlength="200" rows="3" class="w-full bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800/50 rounded-xl p-4 outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-400 resize-none" placeholder="Descreva os motivos da quebra de produtividade..."></textarea>
                                 </div>
                             </div>
 
@@ -1737,11 +1737,11 @@
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex-1 flex flex-col gap-6">
                         <div class="w-full">
                             <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
-                            <input type="text" id="os-equipamento" oninput="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Ex: Elevador 01, Balança...">
+                            <input type="text" id="os-equipamento" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Ex: Elevador 01, Balança...">
                         </div>
                         <div class="w-full flex-1 flex flex-col">
                             <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descrição do Problema</label>
-                            <textarea id="os-problema" oninput="debouncedSave()" class="w-full flex-1 min-h-[200px] bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all resize-none" placeholder="Descreva detalhadamente a falha, ruídos anormais, ou motivo da solicitação..."></textarea>
+                            <textarea id="os-problema" class="w-full flex-1 min-h-[200px] bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all resize-none" placeholder="Descreva detalhadamente a falha, ruídos anormais, ou motivo da solicitação..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1761,15 +1761,15 @@
                         <div id="tab-req-material" class="block space-y-6">
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Material / Insumo</label>
-                                <input type="text" id="req-mat-nome" oninput="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
+                                <input type="text" id="req-mat-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
                             </div>
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantidade</label>
-                                <input type="text" id="req-mat-qtd" oninput="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all" placeholder="Ex: 2 rolos, 10 caixas">
+                                <input type="text" id="req-mat-qtd" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all" placeholder="Ex: 2 rolos, 10 caixas">
                             </div>
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Justificativa</label>
-                                <textarea id="req-mat-just" rows="4" oninput="debouncedSave()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-4 px-5 text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all resize-none" placeholder="Motivo da solicitação..."></textarea>
+                                <textarea id="req-mat-just" rows="4" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-4 px-5 text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all resize-none" placeholder="Motivo da solicitação..."></textarea>
                             </div>
                         </div>
                         <div id="tab-req-compra" class="hidden space-y-6">
@@ -3090,9 +3090,7 @@
         });
     }
 
-    function _cachearLocal() {
-        try { localStorage.setItem('gestaoOpDatabase', JSON.stringify(appData)); } catch(e){}
-    }
+    function _cachearLocal() { /* desativado — dados persistidos apenas via Firestore */ }
 
     /** Escuta mudanças em tempo real — nuvem é fonte primária */
     function iniciarListenerFirestore() {
@@ -3424,9 +3422,8 @@
     // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
-    // Salvar dados ao fechar/minimizar a aba para evitar perda de dados
-    window.addEventListener('beforeunload', function() { saveData(); flushSyncFirestore(); });
-    document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') { saveData(); flushSyncFirestore(); } });
+    // Sincronizar Firestore ao minimizar/fechar (sem salvar dados parciais do formulário)
+    document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') { flushSyncFirestore(); } });
 
     window.onload = function () {
         // Fechar splash screen após animação
@@ -3488,31 +3485,10 @@
         atualizarStatusOnline();
     };
 
-    function limparDadosAntigos() {
-        var saved = localStorage.getItem('gestaoOpDatabase');
-        if (!saved) return;
-        try {
-            var data = JSON.parse(saved);
-            var limitDate = new Date(); limitDate.setDate(limitDate.getDate() - 30);
-            var toDelete = [];
-            Object.keys(data).forEach(function(dateStr){
-                if (dateStr === 'config') return;
-                var p = dateStr.split('/');
-                if (p.length === 3) {
-                    var d = new Date(p[2]+'-'+p[1]+'-'+p[0]+'T00:00:00');
-                    if (d < limitDate) toDelete.push(dateStr);
-                }
-            });
-            toDelete.forEach(function(k){ delete data[k]; });
-            if (toDelete.length) localStorage.setItem('gestaoOpDatabase', JSON.stringify(data));
-        } catch(e){}
-    }
+    function limparDadosAntigos() { /* localStorage de dados desativado — 100% Firestore */ }
 
     function carregarMemoriaGeral() {
-        try {
-            var saved = localStorage.getItem('gestaoOpDatabase');
-            appData = saved ? JSON.parse(saved) : {};
-        } catch(e){ appData = {}; }
+        appData = {};
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData.config) appData.config = { metaRebeneficioHora: 55, metaRebeneficioTurno: 500, turnos: [], metasHistorico: [] };
         if (!appData.config.turnos) appData.config.turnos = [];
@@ -4686,7 +4662,6 @@
                 }
             }
             checkPlanejamentoBagsVisibility();
-            debouncedSave();
         }
         fecharModalAtividades();
     }
@@ -5008,15 +4983,23 @@
                 var wrapInner='<div class="time-row-content relative z-10 flex items-end gap-1.5'+(canRemove?' bg-white dark:bg-gray-800':'')+'">';
                 var wrapClose='</div>'+(canRemove?'</div>':'');
                 var sBtnCls='w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white';
+                var sInpCls='w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 text-center';
+                var isMob=isMobile();
+                var startEl=isMob
+                    ? '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'start\')" class="'+sBtnCls+'">'+(t.start||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'
+                    : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.start||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" class="'+sInpCls+'">';
+                var endEl=isMob
+                    ? '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'end\')" class="'+sBtnCls+'">'+(t.end||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'
+                    : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.end||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" class="'+sInpCls+'">';
                 return wrapOpen+wrapInner+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                        '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'start\')" class="'+sBtnCls+'">'+(t.start||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'+
+                        startEl+
                     '</div>'+
                     '<span class="text-gray-400 text-[10px] font-bold shrink-0 pb-2.5">→</span>'+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                        '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'end\')" class="'+sBtnCls+'">'+(t.end||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'+
+                        endEl+
                     '</div>'+
                     (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-10 shrink-0"></div>')+
                 wrapClose;
@@ -5048,12 +5031,16 @@
                                 '<div class="flex items-end gap-1.5">'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                                        '<button type="button" onclick="_abrirTPParada('+b.id+',\'inicio\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.inicio||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'+
+                                        (isMobile()
+                                            ? '<button type="button" onclick="_abrirTPParada('+b.id+',\'inicio\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.inicio||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'
+                                            : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.inicio||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'inicio\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">')+
                                     '</div>'+
                                     '<span class="text-red-300 font-bold shrink-0 pb-2.5 text-sm">→</span>'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                                        '<button type="button" onclick="_abrirTPParada('+b.id+',\'fim\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.fim||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'+
+                                        (isMobile()
+                                            ? '<button type="button" onclick="_abrirTPParada('+b.id+',\'fim\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.fim||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'
+                                            : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.fim||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'fim\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">')+
                                     '</div>'+
                                     (pdStr?'<span class="shrink-0 text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-lg self-end mb-0.5">'+pdStr+'</span>':'<div class="w-14 shrink-0"></div>')+
                                 '</div>'+
@@ -5182,7 +5169,6 @@
         var b=window.tempTimeBlocks.find(function(x){ return x.id===id; });
         if(b) b[f]=v;
         _prodFormDirty = true;
-        saveData(); mostrarIndicadorSalvo();
         if(f==='activity') renderTimeBlocks();
         calcTotalProductivity();
     }
@@ -5222,7 +5208,7 @@
             b.extraTimes[timeIdx-1][field]=value;
         }
         _prodFormDirty = true;
-        saveData(); renderTimeBlocks(); calcTotalProductivity();
+        renderTimeBlocks(); calcTotalProductivity();
     }
     window.updateBlockTime=updateBlockTime;
     function updateBlockTipo(blockId,tipo,checked) {
@@ -5248,6 +5234,12 @@
         el.value = digits.length > 2 ? digits.slice(0, 2) + ':' + digits.slice(2) : digits;
     }
     window.mascaraHorario = mascaraHorario;
+
+    function isMobile() {
+        if (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches) return true;
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    window.isMobile = isMobile;
 
     // ── Time Picker (scroll wheel, 24h) ──────────────────────────────────────
     var _timePicker = (function() {
@@ -5336,6 +5328,22 @@
     // Open picker for a static input element by ID
     function abrirTimePicker(inputId, label) {
         var el = document.getElementById(inputId);
+        if (!isMobile()) {
+            // Desktop: remove readonly temporarily so the user can type with keyboard
+            if (!el) return;
+            el.removeAttribute('readonly');
+            el.focus();
+            el.select();
+            el.addEventListener('input', function() { mascaraHorario(el); }, { once: false });
+            el.addEventListener('blur', function onBlur() {
+                mascaraHorario(el);
+                el.setAttribute('readonly', '');
+                el.removeEventListener('blur', onBlur);
+                try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
+            }, { once: true });
+            return;
+        }
+        // Mobile: open scroll-wheel picker
         _timePicker.open(el ? (el.value || '') : '', function(val) {
             var inp = document.getElementById(inputId);
             if (!inp) return;
@@ -5347,8 +5355,10 @@
 
     // Open picker for a block time row (renderTimeBlocks)
     function _abrirTPBloco(blockId, timeIdx, field) {
+        _prodFormDirty = true; // Prevent Firestore snapshot from resetting tempTimeBlocks while picker is open
         var b = (window.tempTimeBlocks || []).find(function(x) { return x.id === blockId; });
-        var allT = b ? getBlockAllTimes(b) : [];
+        if (!b) return;
+        var allT = getBlockAllTimes(b);
         var cur = (allT[timeIdx] && allT[timeIdx][field]) || '';
         var label = field === 'start' ? 'Hora Início' : 'Hora Fim';
         _timePicker.open(cur, function(val) {
@@ -5359,8 +5369,10 @@
 
     // Open picker for parada time
     function _abrirTPParada(blockId, field) {
+        _prodFormDirty = true; // Prevent Firestore snapshot from resetting tempTimeBlocks while picker is open
         var b = (window.tempTimeBlocks || []).find(function(x) { return x.id === blockId; });
-        var cur = (b && b.parada && b.parada[field]) || '';
+        if (!b) return;
+        var cur = (b.parada && b.parada[field]) || '';
         var label = field === 'inicio' ? 'Início da Parada' : 'Fim da Parada';
         _timePicker.open(cur, function(val) {
             updateParadaField(blockId, field, val);
@@ -5427,11 +5439,10 @@
             if (m) { var h=parseInt(m[1]),mn=parseInt(m[2]); if(h<=23&&mn<=59) v=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0'); }
             b.parada[field] = v;
             _prodFormDirty = true;
-            saveData(); renderTimeBlocks(); calcTotalProductivity();
+            renderTimeBlocks(); calcTotalProductivity();
         } else {
             b.parada[field] = value;
             _prodFormDirty = true;
-            saveData(); mostrarIndicadorSalvo();
         }
     }
     window.updateParadaField = updateParadaField;
@@ -6018,8 +6029,14 @@
                     '<option value="" disabled'+(b.activity?'':' selected')+'>Selecione a atividade...</option>'+opts+
                 '</select>'+
                 '<div class="grid grid-cols-2 gap-3">'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><button type="button" data-eptime="'+i+'-start" onclick="_abrirTPEditProd('+i+',\'start\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.start||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button></div>'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><button type="button" data-eptime="'+i+'-end" onclick="_abrirTPEditProd('+i+',\'end\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.end||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label>'+(isMobile()
+                        ? '<button type="button" data-eptime="'+i+'-start" onclick="_abrirTPEditProd('+i+',\'start\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.start||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button>'
+                        : '<input type="text" data-eptime="'+i+'-start" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.start||'')+'" oninput="mascaraHorario(this);if(_editProdBlocks&&_editProdBlocks['+i+'])_editProdBlocks['+i+'].start=this.value" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center">'
+                    )+'</div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label>'+(isMobile()
+                        ? '<button type="button" data-eptime="'+i+'-end" onclick="_abrirTPEditProd('+i+',\'end\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.end||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button>'
+                        : '<input type="text" data-eptime="'+i+'-end" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.end||'')+'" oninput="mascaraHorario(this);if(_editProdBlocks&&_editProdBlocks['+i+'])_editProdBlocks['+i+'].end=this.value" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center">'
+                    )+'</div>'+
                 '</div>'+
                 '<div class="grid grid-cols-2 gap-3">'+
                     '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
