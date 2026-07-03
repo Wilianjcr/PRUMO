@@ -4982,24 +4982,16 @@
                 var wrapOpen=canRemove?'<div class="time-row-sw relative overflow-hidden rounded-xl" data-blockid="'+b.id+'" data-timeidx="'+ti+'"><div class="absolute inset-0 flex items-center justify-end pr-4 bg-red-500 rounded-xl pointer-events-none"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6h14z" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':'<div class="rounded-xl">';
                 var wrapInner='<div class="time-row-content relative z-10 flex items-end gap-1.5'+(canRemove?' bg-white dark:bg-gray-800':'')+'">';
                 var wrapClose='</div>'+(canRemove?'</div>':'');
-                var sBtnCls='w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white';
                 var sInpCls='w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 text-center';
-                var isMob=isMobile();
-                var startEl=isMob
-                    ? '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'start\')" class="'+sBtnCls+'">'+(t.start||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'
-                    : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.start||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" class="'+sInpCls+'">';
-                var endEl=isMob
-                    ? '<button type="button" onclick="_abrirTPBloco('+b.id+','+ti+',\'end\')" class="'+sBtnCls+'">'+(t.end||'<span class=\'text-gray-300 dark:text-gray-600\'>--:--</span>')+'</button>'
-                    : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.end||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" class="'+sInpCls+'">';
                 return wrapOpen+wrapInner+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                        startEl+
+                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.start||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" class="'+sInpCls+'">'+
                     '</div>'+
                     '<span class="text-gray-400 text-[10px] font-bold shrink-0 pb-2.5">→</span>'+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                        endEl+
+                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.end||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" class="'+sInpCls+'">'+
                     '</div>'+
                     (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-10 shrink-0"></div>')+
                 wrapClose;
@@ -5031,16 +5023,12 @@
                                 '<div class="flex items-end gap-1.5">'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                                        (isMobile()
-                                            ? '<button type="button" onclick="_abrirTPParada('+b.id+',\'inicio\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.inicio||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'
-                                            : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.inicio||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'inicio\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">')+
+                                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.inicio||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'inicio\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">'+
                                     '</div>'+
                                     '<span class="text-red-300 font-bold shrink-0 pb-2.5 text-sm">→</span>'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                                        (isMobile()
-                                            ? '<button type="button" onclick="_abrirTPParada('+b.id+',\'fim\')" class="w-full flex items-center justify-center rounded-lg py-2.5 px-1 font-black text-sm active:scale-95 transition-all cursor-pointer border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white">'+(p.fim||'<span class="text-red-200 dark:text-red-900">--:--</span>')+'</button>'
-                                            : '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.fim||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'fim\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">')+
+                                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.fim||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'fim\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">'+
                                     '</div>'+
                                     (pdStr?'<span class="shrink-0 text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-lg self-end mb-0.5">'+pdStr+'</span>':'<div class="w-14 shrink-0"></div>')+
                                 '</div>'+
@@ -5235,12 +5223,6 @@
     }
     window.mascaraHorario = mascaraHorario;
 
-    function isMobile() {
-        if (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches) return true;
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-    window.isMobile = isMobile;
-
     // ── Time Picker (scroll wheel, 24h) ──────────────────────────────────────
     var _timePicker = (function() {
         var _cb = null;
@@ -5328,71 +5310,23 @@
     // Open picker for a static input element by ID
     function abrirTimePicker(inputId, label) {
         var el = document.getElementById(inputId);
-        if (!isMobile()) {
-            // Desktop: remove readonly temporarily so the user can type with keyboard
-            if (!el) return;
-            el.removeAttribute('readonly');
-            el.focus();
-            el.select();
-            el.addEventListener('input', function() { mascaraHorario(el); }, { once: false });
-            el.addEventListener('blur', function onBlur() {
-                mascaraHorario(el);
-                el.setAttribute('readonly', '');
-                el.removeEventListener('blur', onBlur);
-                try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
-            }, { once: true });
-            return;
-        }
-        // Mobile: open scroll-wheel picker
-        _timePicker.open(el ? (el.value || '') : '', function(val) {
-            var inp = document.getElementById(inputId);
-            if (!inp) return;
-            inp.value = val;
-            try { inp.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
-        }, label || 'Selecionar hora');
+        if (!el) return;
+        // Remove readonly to allow keyboard input
+        el.removeAttribute('readonly');
+        el.focus();
+        el.select();
+        el.addEventListener('input', function() { mascaraHorario(el); }, { once: false });
+        el.addEventListener('blur', function onBlur() {
+            mascaraHorario(el);
+            el.setAttribute('readonly', '');
+            el.removeEventListener('blur', onBlur);
+            try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
+        }, { once: true });
     }
     window.abrirTimePicker = abrirTimePicker;
 
-    // Open picker for a block time row (renderTimeBlocks)
-    function _abrirTPBloco(blockId, timeIdx, field) {
-        _prodFormDirty = true; // Prevent Firestore snapshot from resetting tempTimeBlocks while picker is open
-        var b = (window.tempTimeBlocks || []).find(function(x) { return x.id === blockId; });
-        if (!b) return;
-        var allT = getBlockAllTimes(b);
-        var cur = (allT[timeIdx] && allT[timeIdx][field]) || '';
-        var label = field === 'start' ? 'Hora Início' : 'Hora Fim';
-        _timePicker.open(cur, function(val) {
-            atualizarHorarioBloco(blockId, timeIdx, field, val);
-        }, label);
-    }
-    window._abrirTPBloco = _abrirTPBloco;
-
-    // Open picker for parada time
-    function _abrirTPParada(blockId, field) {
-        _prodFormDirty = true; // Prevent Firestore snapshot from resetting tempTimeBlocks while picker is open
-        var b = (window.tempTimeBlocks || []).find(function(x) { return x.id === blockId; });
-        if (!b) return;
-        var cur = (b.parada && b.parada[field]) || '';
-        var label = field === 'inicio' ? 'Início da Parada' : 'Fim da Parada';
-        _timePicker.open(cur, function(val) {
-            updateParadaField(blockId, field, val);
-        }, label);
-    }
-    window._abrirTPParada = _abrirTPParada;
 
     // Open picker for edit-prod block time
-    function _abrirTPEditProd(blockIdx, field) {
-        var b = _editProdBlocks && _editProdBlocks[blockIdx];
-        var cur = (b && b[field]) || '';
-        var label = field === 'start' ? 'Início' : 'Fim';
-        _timePicker.open(cur, function(val) {
-            if (_editProdBlocks && _editProdBlocks[blockIdx]) _editProdBlocks[blockIdx][field] = val;
-            var btn = document.querySelector('[data-eptime="' + blockIdx + '-' + field + '"]');
-            if (btn) btn.textContent = val || '--:--';
-        }, label);
-    }
-    window._abrirTPEditProd = _abrirTPEditProd;
-    // ─────────────────────────────────────────────────────────────────────────
 
     function atualizarHorarioBloco(blockId, timeIdx, field, value) {
         var m = value.match(/^(\d{1,2}):(\d{2})$/);
@@ -6029,14 +5963,8 @@
                     '<option value="" disabled'+(b.activity?'':' selected')+'>Selecione a atividade...</option>'+opts+
                 '</select>'+
                 '<div class="grid grid-cols-2 gap-3">'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label>'+(isMobile()
-                        ? '<button type="button" data-eptime="'+i+'-start" onclick="_abrirTPEditProd('+i+',\'start\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.start||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button>'
-                        : '<input type="text" data-eptime="'+i+'-start" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.start||'')+'" oninput="mascaraHorario(this);if(_editProdBlocks&&_editProdBlocks['+i+'])_editProdBlocks['+i+'].start=this.value" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center">'
-                    )+'</div>'+
-                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label>'+(isMobile()
-                        ? '<button type="button" data-eptime="'+i+'-end" onclick="_abrirTPEditProd('+i+',\'end\')" class="w-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white cursor-pointer active:scale-95 transition-all">'+(b.end||'<span class="text-gray-300 dark:text-gray-600">--:--</span>')+'</button>'
-                        : '<input type="text" data-eptime="'+i+'-end" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.end||'')+'" oninput="mascaraHorario(this);if(_editProdBlocks&&_editProdBlocks['+i+'])_editProdBlocks['+i+'].end=this.value" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center">'
-                    )+'</div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Início</label><input type="text" data-eptime="'+i+'-start" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.start||'')+'" oninput="mascaraHorario(this);if(_editProdBlocks&&_editProdBlocks['+i+'])_editProdBlocks['+i+'].start=this.value" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
+                    '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fim</label><input type="text" data-eptime="'+i+'-end" inputmode="numeric" maxlength="5" placeholder="--:--" value="'+escapeHTML(b.end||'')+'" oninput="mascaraHorario(this);if(_editProdBlocks&&_editProdBlocks['+i+'])_editProdBlocks['+i+'].end=this.value" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-black outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"></div>'+
                 '</div>'+
                 '<div class="grid grid-cols-2 gap-3">'+
                     '<div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Referência</label><input type="text" value="'+escapeHTML(b.ref||'')+'" oninput="updateEditProdBlock('+i+',\'ref\',this.value.toUpperCase())" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 font-bold outline-none text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Lote/Guia/OP"></div>'+
