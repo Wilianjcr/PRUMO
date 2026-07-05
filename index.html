@@ -561,16 +561,6 @@
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* ── Time Picker Scroll Wheel ── */
-        .tp-col { height: 210px; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
-        .tp-col::-webkit-scrollbar { display: none; }
-        .tp-item { height: 52px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; scroll-snap-align: center; color: #9ca3af; transition: color 0.15s, font-size 0.15s; user-select: none; }
-        html.dark .tp-item { color: #4b5563; }
-        .tp-item.tp-active { color: #111827; font-size: 32px; }
-        html.dark .tp-item.tp-active { color: #f9fafb; }
-        .tp-btn-time { display: flex; align-items: center; justify-content: center; width: 100%; border-radius: 8px; padding: 8px 4px; font-weight: 900; font-size: 14px; text-align: center; cursor: pointer; transition: all 0.15s; border: 1px solid; }
-        .tp-btn-time:active { transform: scale(0.95); }
-
         .view-hidden {
             opacity: 0; pointer-events: none; position: absolute;
             transform: translateX(10px); transition: opacity 0.25s ease, transform 0.25s ease;
@@ -784,6 +774,27 @@
             border-color: #6366f1 !important;
             box-shadow: 0 0 0 3px #6366f1, 0 8px 24px -4px rgba(99,102,241,0.3) !important;
         }
+
+        /* ── Camada de polimento premium ── */
+        button { transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease; }
+        button:active { transform: scale(0.97); }
+        :focus-visible { outline: 2px solid var(--accent, #3b82f6); outline-offset: 2px; }
+        input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; }
+        ::selection { background: var(--accent-soft, rgba(59,130,246,0.25)); }
+        .submenu-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -8px rgba(0,0,0,0.18); }
+        .submenu-card:active { transform: scale(0.97); }
+        input, select, textarea { transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease; }
+
+        /* Tabelas ADM scannáveis: destaque de linha sob o cursor */
+        .adm-table tbody tr:hover td:not(.sector-header),
+        .adm-table tr:hover td:not(.sector-header) { background-color: rgba(59,130,246,0.06); }
+        html.dark .adm-table tbody tr:hover td:not(.sector-header),
+        html.dark .adm-table tr:hover td:not(.sector-header) { background-color: rgba(96,165,250,0.08); }
+
+        /* Acessibilidade: reduzir movimento global quando solicitado */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
 
@@ -791,7 +802,7 @@
 
     <datalist id="clientesList"></datalist>
     <div id="drag-hint" class="hidden"></div>
-    <div id="offline-indicator" role="status" aria-live="polite">⚡ Modo Offline — dados salvos localmente</div>
+    <div id="offline-indicator" role="status" aria-live="polite">⚡ Sem conexão — alterações serão sincronizadas ao reconectar</div>
     <div id="save-indicator" role="status" aria-live="polite" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Salvo</div>
     <div id="cloud-indicator" role="status" aria-live="polite" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Sincronizado</div>
 
@@ -2096,84 +2107,118 @@
     </div>
 
     <!-- SPLASH SCREEN -->
-    <div id="splash-screen" class="fixed inset-0 z-[999] flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #0d1520 100%);">
+    <div id="splash-screen" class="fixed inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden" style="background: radial-gradient(ellipse at 50% 35%, #101726 0%, #090c14 55%, #05070c 100%);">
         <style>
-            @keyframes barGrow { 0% { transform: scaleY(0); opacity:0; } 100% { transform: scaleY(1); opacity:1; } }
-            @keyframes lineTrace { 0% { stroke-dashoffset: 600; opacity:0; } 100% { stroke-dashoffset: 0; opacity:1; } }
-            @keyframes dotPop { 0% { transform: scale(0); opacity:0; } 60% { transform: scale(1.3); opacity:1; } 100% { transform: scale(1); opacity:1; } }
-            @keyframes prumoDrop { 0% { transform: translateY(-120px); opacity:0; } 50% { opacity:1; } 75% { transform: translateY(5px); } 85% { transform: translateY(-2px); } 100% { transform: translateY(0); opacity:1; } }
-            @keyframes titleFade { 0% { opacity:0; transform: translateY(20px); } 100% { opacity:1; transform: translateY(0); } }
-            @keyframes splashOut { 0% { opacity:1; } 100% { opacity:0; pointer-events:none; } }
-            /* Phase 1: Bars grow up */
-            #splash-bars rect:nth-child(1) { transform-origin: bottom; animation: barGrow 0.4s ease-out 0.2s both; }
-            #splash-bars rect:nth-child(2) { transform-origin: bottom; animation: barGrow 0.4s ease-out 0.3s both; }
-            #splash-bars rect:nth-child(3) { transform-origin: bottom; animation: barGrow 0.4s ease-out 0.4s both; }
-            #splash-bars rect:nth-child(4) { transform-origin: bottom; animation: barGrow 0.4s ease-out 0.5s both; }
-            #splash-bars rect:nth-child(5) { transform-origin: bottom; animation: barGrow 0.4s ease-out 0.6s both; }
-            /* Phase 2: Prumo descends */
-            #splash-prumo { animation: prumoDrop 0.8s cubic-bezier(0.22,1,0.36,1) 0.9s both; }
-            /* Phase 3: Line traces after prumo lands */
-            #splash-line { stroke-dasharray: 600; stroke-dashoffset: 600; animation: lineTrace 0.7s ease-out 1.7s both; }
-            #splash-dots circle:nth-child(1) { animation: dotPop 0.25s ease-out 2.0s both; }
-            #splash-dots circle:nth-child(2) { animation: dotPop 0.25s ease-out 2.1s both; }
-            #splash-dots circle:nth-child(3) { animation: dotPop 0.25s ease-out 2.2s both; }
-            #splash-dots circle:nth-child(4) { animation: dotPop 0.25s ease-out 2.3s both; }
-            #splash-dots circle:nth-child(5) { animation: dotPop 0.25s ease-out 2.4s both; }
-            /* Phase 4: Title */
-            #splash-title { animation: titleFade 0.5s ease-out 2.5s both; }
-            #splash-screen.fade-out { animation: splashOut 0.4s ease-in forwards; }
+            /* ── Fundo: malha técnica (blueprint) + brilho central ── */
+            #sp-grid { position:absolute; inset:-60%; opacity:0; pointer-events:none;
+                background-image: linear-gradient(rgba(96,165,250,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,0.055) 1px, transparent 1px);
+                background-size: 46px 46px;
+                animation: spGridIn 1.4s ease-out 0.05s both, spGridDrift 16s linear 0.05s infinite; }
+            #sp-glow { position:absolute; width:34rem; height:34rem; border-radius:50%; pointer-events:none;
+                background: radial-gradient(circle, rgba(59,130,246,0.16) 0%, rgba(59,130,246,0.05) 40%, transparent 70%);
+                animation: spGlow 3s ease-in-out infinite; }
+            @keyframes spGridIn { from { opacity:0; } to { opacity:1; } }
+            @keyframes spGridDrift { from { transform: translate(0,0); } to { transform: translate(46px,46px); } }
+            @keyframes spGlow { 0%,100% { transform: scale(1); opacity:0.7; } 50% { transform: scale(1.07); opacity:1; } }
+            /* ── Fase 1: fio do prumo desce (traçado laser) ── */
+            #sp-fio { stroke-dasharray: 120; stroke-dashoffset: 120; animation: spTrace 0.7s cubic-bezier(0.4,0,0.2,1) 0.25s both; }
+            @keyframes spTrace { from { stroke-dashoffset: 120; opacity:0.4; } to { stroke-dashoffset: 0; opacity:1; } }
+            /* ── Fase 2: prumo surge e oscila até o alinhamento perfeito ── */
+            #sp-bob { transform-origin: 160px 46px; opacity:0;
+                animation: spBobIn 0.45s ease-out 0.75s both, spSway 1.5s cubic-bezier(0.36,0.07,0.19,0.97) 0.95s both; }
+            @keyframes spBobIn { from { opacity:0; transform: translateY(-14px) scale(0.92); } to { opacity:1; transform: translateY(0) scale(1); } }
+            @keyframes spSway { 0% { rotate: 3deg; } 30% { rotate: -1.8deg; } 55% { rotate: 0.9deg; } 78% { rotate: -0.35deg; } 100% { rotate: 0deg; } }
+            /* ── Fase 3: anel de precisão giratório + marcações ── */
+            #sp-ring { transform-origin: 160px 150px; opacity:0;
+                animation: spFade 0.6s ease-out 1.3s both, spSpin 14s linear 1.3s infinite; }
+            @keyframes spFade { from { opacity:0; } to { opacity:1; } }
+            @keyframes spSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            #sp-ticks line { opacity:0; animation: spFade 0.4s ease-out both; }
+            #sp-ticks line:nth-child(1) { animation-delay: 1.55s; }
+            #sp-ticks line:nth-child(2) { animation-delay: 1.63s; }
+            #sp-ticks line:nth-child(3) { animation-delay: 1.71s; }
+            #sp-ticks line:nth-child(4) { animation-delay: 1.79s; }
+            /* ── Fase 4: linha de nível confirma o alinhamento ── */
+            #sp-nivel { stroke-dasharray: 220; stroke-dashoffset: 220; animation: spNivel 0.55s cubic-bezier(0.4,0,0.2,1) 1.9s both; }
+            @keyframes spNivel { from { stroke-dashoffset: 220; opacity:0; } to { stroke-dashoffset: 0; opacity:1; } }
+            #sp-caret { opacity:0; animation: spCaret 0.35s cubic-bezier(0.34,1.56,0.64,1) 2.25s both; }
+            @keyframes spCaret { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+            /* ── Fase 5: título nítido + barra de progresso ── */
+            #sp-title h1 { opacity:0; filter: blur(8px); letter-spacing: 0.6em;
+                animation: spTitle 0.7s cubic-bezier(0.22,1,0.36,1) 2.1s both; }
+            #sp-title p { opacity:0; animation: spSub 0.5s ease-out 2.45s both; }
+            @keyframes spTitle { from { opacity:0; filter: blur(8px); letter-spacing: 0.6em; } to { opacity:1; filter: blur(0); letter-spacing: 0.25em; } }
+            @keyframes spSub { from { opacity:0; transform: translateY(8px); } to { opacity:0.85; transform: translateY(0); } }
+            #sp-progress { position:relative; width:11rem; height:3px; border-radius:99px; overflow:hidden;
+                background: rgba(148,163,184,0.15); animation: spFade 0.5s ease-out 0.4s both; }
+            #sp-progress i { position:absolute; inset:0; width:40%; border-radius:99px;
+                background: linear-gradient(90deg, transparent, #60a5fa 40%, #93c5fd 60%, transparent);
+                animation: spSweep 1.3s cubic-bezier(0.4,0,0.2,1) 0.4s infinite; }
+            @keyframes spSweep { from { transform: translateX(-110%); } to { transform: translateX(380%); } }
+            #splash-screen.fade-out { animation: spOut 0.4s ease-in forwards; }
+            @keyframes spOut { from { opacity:1; } to { opacity:0; pointer-events:none; } }
+            /* Acessibilidade: sem movimento para quem prefere ── mostra tudo estático */
+            @media (prefers-reduced-motion: reduce) {
+                #splash-screen *, #splash-screen { animation: none !important; }
+                #sp-grid, #sp-bob, #sp-ring, #sp-ticks line, #sp-caret, #sp-title h1, #sp-title p, #sp-progress { opacity:1 !important; filter:none !important; }
+                #sp-fio, #sp-nivel { stroke-dashoffset: 0 !important; opacity:1 !important; }
+                #sp-title h1 { letter-spacing: 0.25em !important; }
+            }
         </style>
-        <svg viewBox="0 0 400 350" class="w-56 h-auto mb-6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div id="sp-grid"></div>
+        <div id="sp-glow"></div>
+        <svg viewBox="0 0 320 300" class="w-52 h-auto mb-8 relative" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-                <linearGradient id="splashHandle" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stop-color="#c4b8d0"/>
-                    <stop offset="50%" stop-color="#d5cce0"/>
-                    <stop offset="100%" stop-color="#a89bb5"/>
+                <linearGradient id="spMetal" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#64748b"/>
+                    <stop offset="45%" stop-color="#cbd5e1"/>
+                    <stop offset="55%" stop-color="#e2e8f0"/>
+                    <stop offset="100%" stop-color="#475569"/>
                 </linearGradient>
-                <linearGradient id="splashRing" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#9a8b7b"/>
-                    <stop offset="100%" stop-color="#6a5c52"/>
+                <linearGradient id="spCone" x1="0" y1="0" x2="0.4" y2="1">
+                    <stop offset="0%" stop-color="#94a3b8"/>
+                    <stop offset="50%" stop-color="#64748b"/>
+                    <stop offset="100%" stop-color="#334155"/>
                 </linearGradient>
-                <linearGradient id="splashCone" x1="0" y1="0" x2="0.3" y2="1">
-                    <stop offset="0%" stop-color="#9a8b7b"/>
-                    <stop offset="40%" stop-color="#7b6b5f"/>
-                    <stop offset="100%" stop-color="#5a4d44"/>
-                </linearGradient>
+                <filter id="spGlowF" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.2" result="b"/>
+                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
             </defs>
-            <!-- Bars -->
-            <g id="splash-bars">
-                <rect x="40" y="200" width="50" height="110" rx="8" fill="#546e7a"/>
-                <rect x="110" y="155" width="50" height="155" rx="8" fill="#29b6f6"/>
-                <rect x="180" y="120" width="50" height="190" rx="8" fill="#66bb6a"/>
-                <rect x="250" y="90" width="50" height="220" rx="8" fill="#ffa726"/>
-                <rect x="320" y="55" width="50" height="255" rx="8" fill="#ef5350"/>
+            <!-- Anel de precisão (gira lentamente) -->
+            <g id="sp-ring">
+                <circle cx="160" cy="150" r="96" stroke="rgba(96,165,250,0.28)" stroke-width="1.5" stroke-dasharray="3 9" fill="none"/>
+                <circle cx="160" cy="150" r="80" stroke="rgba(148,163,184,0.12)" stroke-width="1" fill="none"/>
             </g>
-            <!-- Prumo (descends over the chart) -->
-            <g id="splash-prumo">
-                <rect x="194" y="30" width="14" height="50" rx="7" fill="url(#splashHandle)"/>
-                <ellipse cx="201" cy="30" rx="7" ry="3" fill="#d5cce0"/>
-                <ellipse cx="201" cy="88" rx="20" ry="8" fill="url(#splashRing)"/>
-                <ellipse cx="201" cy="100" rx="32" ry="12" fill="url(#splashRing)"/>
-                <ellipse cx="201" cy="115" rx="48" ry="17" fill="url(#splashRing)"/>
-                <ellipse cx="201" cy="132" rx="65" ry="24" fill="url(#splashRing)" opacity="0.95"/>
-                <path d="M136 132 C136 132 155 137 201 137 C247 137 266 132 266 132 L201 220 Z" fill="url(#splashCone)"/>
-                <path d="M160 155 Q163 165 167 178" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <!-- Marcações cardeais -->
+            <g id="sp-ticks" stroke="rgba(147,197,253,0.55)" stroke-width="2" stroke-linecap="round">
+                <line x1="160" y1="42" x2="160" y2="52"/>
+                <line x1="268" y1="150" x2="258" y2="150"/>
+                <line x1="160" y1="258" x2="160" y2="248"/>
+                <line x1="52" y1="150" x2="62" y2="150"/>
             </g>
-            <!-- Trend line (appears after prumo) -->
-            <polyline id="splash-line" points="65,190 135,150 205,115 275,85 345,50" stroke="rgba(255,255,255,0.6)" stroke-width="3" stroke-linecap="round" fill="none"/>
-            <g id="splash-dots">
-                <circle cx="65" cy="190" r="6" fill="#546e7a"/>
-                <circle cx="135" cy="150" r="6" fill="#29b6f6"/>
-                <circle cx="205" cy="115" r="6" fill="#66bb6a"/>
-                <circle cx="275" cy="85" r="6" fill="#ffa726"/>
-                <circle cx="345" cy="50" r="6" fill="#ef5350"/>
+            <!-- Fio do prumo (laser trace) -->
+            <line id="sp-fio" x1="160" y1="14" x2="160" y2="118" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" filter="url(#spGlowF)"/>
+            <!-- Prumo metálico -->
+            <g id="sp-bob">
+                <ellipse cx="160" cy="118" rx="6" ry="2.5" fill="#cbd5e1"/>
+                <rect x="154" y="118" width="12" height="26" rx="6" fill="url(#spMetal)"/>
+                <ellipse cx="160" cy="150" rx="17" ry="7" fill="url(#spMetal)"/>
+                <ellipse cx="160" cy="161" rx="27" ry="10" fill="url(#spMetal)"/>
+                <ellipse cx="160" cy="174" rx="38" ry="13" fill="url(#spMetal)" opacity="0.96"/>
+                <path d="M122 174 C122 174 138 179 160 179 C182 179 198 174 198 174 L160 240 Z" fill="url(#spCone)"/>
+                <path d="M138 190 Q141 200 146 212" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <circle cx="160" cy="240" r="2.5" fill="#93c5fd" filter="url(#spGlowF)"/>
             </g>
-            <rect x="30" y="315" width="345" height="6" rx="3" fill="rgba(255,255,255,0.1)"/>
+            <!-- Linha de nível (confirmação do alinhamento) -->
+            <line id="sp-nivel" x1="55" y1="266" x2="265" y2="266" stroke="rgba(147,197,253,0.6)" stroke-width="2" stroke-linecap="round"/>
+            <path id="sp-caret" d="M160 258 L165 266 L155 266 Z" fill="#60a5fa"/>
         </svg>
-        <div id="splash-title">
-            <h1 class="text-3xl font-black text-white tracking-[0.25em] uppercase" style="font-family:'Outfit',sans-serif;">PRUMO</h1>
-            <p class="text-xs text-gray-400 text-center tracking-widest mt-1 uppercase">Gestão Operacional</p>
+        <div id="sp-title" class="relative text-center">
+            <h1 class="text-3xl font-black text-white uppercase" style="font-family:'Outfit',sans-serif;">PRUMO</h1>
+            <p class="text-[11px] text-gray-400 tracking-[0.3em] mt-1.5 uppercase">Gestão Operacional</p>
         </div>
+        <div id="sp-progress" class="mt-8"><i></i></div>
     </div>
 
     <!-- MODAL: LOGIN -->
@@ -3293,7 +3338,6 @@
     // Legacy compatibility aliases
     function _applySubmenuOrder() { _applyFavorites(); }
     function _initDragSubmenu() { _initFavoritesSystem(); }
-    function _clearLP() {}
 
     // ============================================================
     // UI Controls
@@ -4480,7 +4524,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-time-picker'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -4986,12 +5030,12 @@
                 return wrapOpen+wrapInner+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.start||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" class="'+sInpCls+'">'+
+                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.start||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'start\',this.value)" onblur="_onTimeInputBlur()" onkeydown="focarProximoHorario(event,this)" class="'+sInpCls+'">'+
                     '</div>'+
                     '<span class="text-gray-400 text-[10px] font-bold shrink-0 pb-2.5">→</span>'+
                     '<div class="flex flex-col flex-1 min-w-0">'+
                         '<span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.end||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" class="'+sInpCls+'">'+
+                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(t.end||'')+'" placeholder="--:--" oninput="mascaraHorario(this);atualizarHorarioBloco('+b.id+','+ti+',\'end\',this.value)" onblur="_onTimeInputBlur()" onkeydown="focarProximoHorario(event,this)" class="'+sInpCls+'">'+
                     '</div>'+
                     (durStr?'<span class="shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg whitespace-nowrap self-end mb-0.5">'+durStr+'</span>':'<div class="w-10 shrink-0"></div>')+
                 wrapClose;
@@ -5023,12 +5067,12 @@
                                 '<div class="flex items-end gap-1.5">'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Início</span>'+
-                                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.inicio||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'inicio\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">'+
+                                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.inicio||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'inicio\',this.value)" onblur="_onTimeInputBlur()" onkeydown="focarProximoHorario(event,this)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">'+
                                     '</div>'+
                                     '<span class="text-red-300 font-bold shrink-0 pb-2.5 text-sm">→</span>'+
                                     '<div class="flex flex-col flex-1 min-w-0">'+
                                         '<span class="text-[9px] text-red-400 font-bold uppercase tracking-wider mb-1 text-center">Hora Fim</span>'+
-                                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.fim||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'fim\',this.value)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">'+
+                                        '<input type="text" data-timeinput inputmode="numeric" maxlength="5" value="'+escapeHTML(p.fim||'')+'" placeholder="--:--" oninput="mascaraHorario(this);updateParadaField('+b.id+',\'fim\',this.value)" onblur="_onTimeInputBlur()" onkeydown="focarProximoHorario(event,this)" class="w-full rounded-lg py-2.5 px-1 font-black text-sm border bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-red-400 text-center">'+
                                     '</div>'+
                                     (pdStr?'<span class="shrink-0 text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-lg self-end mb-0.5">'+pdStr+'</span>':'<div class="w-14 shrink-0"></div>')+
                                 '</div>'+
@@ -5196,7 +5240,7 @@
             b.extraTimes[timeIdx-1][field]=value;
         }
         _prodFormDirty = true;
-        renderTimeBlocks(); calcTotalProductivity();
+        calcTotalProductivity();
     }
     window.updateBlockTime=updateBlockTime;
     function updateBlockTipo(blockId,tipo,checked) {
@@ -5223,91 +5267,7 @@
     }
     window.mascaraHorario = mascaraHorario;
 
-    // ── Time Picker (scroll wheel, 24h) ──────────────────────────────────────
-    var _timePicker = (function() {
-        var _cb = null;
-        var ITEM_H = 52;
-        var PAD = 79; // (210 - 52) / 2
-
-        function _build(col, count) {
-            var h = '<div style="height:' + PAD + 'px;flex-shrink:0"></div>';
-            for (var i = 0; i < count; i++) {
-                h += '<div class="tp-item" data-v="' + i + '">' + String(i).padStart(2, '0') + '</div>';
-            }
-            h += '<div style="height:' + PAD + 'px;flex-shrink:0"></div>';
-            col.innerHTML = h;
-        }
-
-        function _scrollTo(col, val, anim) {
-            col.scrollTo({ top: val * ITEM_H, behavior: anim ? 'smooth' : 'instant' });
-        }
-
-        function _getValue(col, max) {
-            return Math.max(0, Math.min(max - 1, Math.round(col.scrollTop / ITEM_H)));
-        }
-
-        function _updateHighlight(col, max) {
-            var v = _getValue(col, max);
-            col.querySelectorAll('.tp-item').forEach(function(el) {
-                var ev = parseInt(el.dataset.v);
-                el.classList.toggle('tp-active', ev === v);
-            });
-        }
-
-        function _attachScroll(col, max) {
-            var t;
-            col.addEventListener('scroll', function() {
-                clearTimeout(t);
-                _updateHighlight(col, max);
-                t = setTimeout(function() { _updateHighlight(col, max); }, 80);
-            }, { passive: true });
-        }
-
-        function open(currentVal, callback, label) {
-            _cb = callback;
-            var parts = (currentVal || '').split(':');
-            var h = Math.max(0, Math.min(23, parseInt(parts[0]) || 0));
-            var m = Math.max(0, Math.min(59, parseInt(parts[1]) || 0));
-
-            var hCol = document.getElementById('tp-hours');
-            var mCol = document.getElementById('tp-minutes');
-            var lbl  = document.getElementById('tp-label');
-            if (lbl) lbl.textContent = label || 'Selecionar hora';
-            if (!hCol || !mCol) return;
-
-            _build(hCol, 24); _build(mCol, 60);
-            _attachScroll(hCol, 24); _attachScroll(mCol, 60);
-
-            var modal = document.getElementById('modal-time-picker');
-            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-
-            setTimeout(function() {
-                _scrollTo(hCol, h, false); _scrollTo(mCol, m, false);
-                _updateHighlight(hCol, 24); _updateHighlight(mCol, 60);
-            }, 30);
-        }
-
-        function confirm() {
-            var hCol = document.getElementById('tp-hours');
-            var mCol = document.getElementById('tp-minutes');
-            var h = String(_getValue(hCol, 24)).padStart(2, '0');
-            var m = String(_getValue(mCol, 60)).padStart(2, '0');
-            var val = h + ':' + m;
-            close();
-            if (_cb) { var fn = _cb; _cb = null; fn(val); }
-        }
-
-        function close() {
-            _cb = null;
-            var modal = document.getElementById('modal-time-picker');
-            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-        }
-
-        return { open: open, confirm: confirm, close: close };
-    })();
-    window._timePicker = _timePicker;
-
-    // Open picker for a static input element by ID
+    // Ativa edição via teclado num campo de hora estático (readonly por padrão)
     function abrirTimePicker(inputId, label) {
         var el = document.getElementById(inputId);
         if (!el) return;
@@ -5325,9 +5285,6 @@
     }
     window.abrirTimePicker = abrirTimePicker;
 
-
-    // Open picker for edit-prod block time
-
     function atualizarHorarioBloco(blockId, timeIdx, field, value) {
         var m = value.match(/^(\d{1,2}):(\d{2})$/);
         var v = '';
@@ -5338,6 +5295,17 @@
         updateBlockTime(blockId, timeIdx, field, v);
     }
     window.atualizarHorarioBloco = atualizarHorarioBloco;
+
+    // Só re-renderiza o boletim quando o foco realmente sai da área de horários,
+    // evitando destruir o input (e o foco) a cada troca de campo (ex.: Enter → próximo campo)
+    function _onTimeInputBlur() {
+        setTimeout(function() {
+            var container = document.getElementById('time-blocks-container');
+            if (container && document.activeElement && container.contains(document.activeElement)) return;
+            renderTimeBlocks();
+        }, 50);
+    }
+    window._onTimeInputBlur = _onTimeInputBlur;
 
     function focarProximoHorario(event, el) {
         if (event.key !== 'Enter') return;
@@ -5373,7 +5341,7 @@
             if (m) { var h=parseInt(m[1]),mn=parseInt(m[2]); if(h<=23&&mn<=59) v=String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0'); }
             b.parada[field] = v;
             _prodFormDirty = true;
-            renderTimeBlocks(); calcTotalProductivity();
+            calcTotalProductivity();
         } else {
             b.parada[field] = value;
             _prodFormDirty = true;
@@ -6140,35 +6108,6 @@
         executarCompartilhamento('Boletim '+dataKey+' '+cleanSetor,texto,cleanSetor);
     }
     </script>
-
-    <!-- MODAL: TIME PICKER SCROLL WHEEL -->
-    <div id="modal-time-picker" class="fixed inset-0 z-[400] hidden items-end justify-center" style="background:rgba(0,0,0,0.55)">
-        <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-t-3xl shadow-2xl">
-            <!-- Header -->
-            <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <button onclick="_timePicker.close()" class="text-sm font-bold text-gray-400 dark:text-gray-500 px-1 py-1 active:opacity-60">Cancelar</button>
-                <span id="tp-label" class="text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Selecionar hora</span>
-                <button onclick="_timePicker.confirm()" class="text-sm font-black text-blue-600 dark:text-blue-400 px-1 py-1 active:opacity-60">OK</button>
-            </div>
-            <!-- Picker -->
-            <div class="relative flex items-center justify-center px-8 py-2 select-none">
-                <!-- Center highlight -->
-                <div class="absolute inset-x-8 pointer-events-none z-10" style="top:50%;transform:translateY(-50%);height:52px;border-radius:10px;background:rgba(0,0,0,0.05)">
-                    <div class="h-full rounded-[10px] border-t-2 border-b-2" style="border-color:rgba(156,163,175,0.4)"></div>
-                </div>
-                <html.dark class="hidden"></html.dark>
-                <div class="flex items-center gap-2">
-                    <div id="tp-hours" class="tp-col w-24"></div>
-                    <span class="text-4xl font-black text-gray-300 dark:text-gray-600 select-none mb-0.5" style="line-height:1">:</span>
-                    <div id="tp-minutes" class="tp-col w-24"></div>
-                </div>
-            </div>
-            <!-- Confirm button -->
-            <div class="px-5 pb-6 pt-2">
-                <button onclick="_timePicker.confirm()" class="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-black rounded-2xl text-sm uppercase tracking-widest active:scale-[0.98] transition-all">Confirmar</button>
-            </div>
-        </div>
-    </div>
 
     <!-- MODAL: NOVA / EDITAR META -->
     <div id="modal-nova-meta" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6)">
