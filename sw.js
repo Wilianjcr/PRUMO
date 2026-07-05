@@ -1,5 +1,5 @@
 // Prumo — Service Worker v2.0
-const CACHE_NAME = 'prumo-v4.19';
+const CACHE_NAME = 'prumo-v4.20';
 const ASSETS = [
     './',
     './index.html',
@@ -10,7 +10,9 @@ const CDN_HOSTS = [
     'cdn.tailwindcss.com',
     'fonts.googleapis.com',
     'fonts.gstatic.com',
-    'www.gstatic.com'
+    'www.gstatic.com',
+    'cdn.jsdelivr.net',
+    'cdnjs.cloudflare.com'
 ];
 
 // Install — cache essential assets

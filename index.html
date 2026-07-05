@@ -1642,20 +1642,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
-                                <input type="text" id="os-equipamento" list="manut-equip-list" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Ex: Elevador 01, Balança...">
-                                <datalist id="manut-equip-list"></datalist>
+                                <select id="os-equipamento" onchange="manutEquipChange(this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer">
+                                    <option value="" disabled selected>Selecione...</option>
+                                </select>
+                                <input type="text" id="os-equipamento-outro" class="hidden mt-2 w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-3 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Digite o nome do equipamento...">
                             </div>
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Tipo de Manutenção</label>
                                 <select id="os-tipo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer">
                                     <option value="" disabled selected>Selecione...</option>
-                                    <option value="Corretiva">Corretiva — conserta a quebra</option>
-                                    <option value="Preventiva">Preventiva — evita a quebra</option>
-                                    <option value="Preditiva">Preditiva — monitora condições</option>
-                                    <option value="Emergencial">Emergencial</option>
-                                    <option value="Manutenção de Processos">Manutenção de Processos</option>
-                                    <option value="Predial (Telhado, etc.)">Predial (Telhado, etc.)</option>
-                                    <option value="Instalação/Melhoria">Instalação / Melhoria</option>
                                 </select>
                             </div>
                         </div>
@@ -1688,6 +1683,13 @@
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Gestão de Manutenções</h2>
                     </div>
 
+                    <!-- Abas Painel / Cadastros -->
+                    <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-6 border border-gray-200 dark:border-gray-700">
+                        <button id="btn-manut-pane-painel" onclick="manutSwitchPane('painel')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">📊 Painel</button>
+                        <button id="btn-manut-pane-cadastros" onclick="manutSwitchPane('cadastros')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">🗂️ Cadastros</button>
+                    </div>
+
+                    <div id="manut-pane-painel">
                     <!-- Filtros -->
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 mb-6 flex flex-wrap items-end gap-3">
                         <div>
@@ -1714,7 +1716,7 @@
                             </select>
                         </div>
                         <button onclick="manutRenderAdm()" class="py-2 px-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">Aplicar</button>
-                        <button onclick="manutExportCSV()" class="py-2 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">Exportar CSV</button>
+                        <button onclick="manutExportPDF()" class="py-2 px-5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">📄 Relatório PDF</button>
                     </div>
 
                     <!-- KPIs -->
@@ -1733,28 +1735,37 @@
                         </div>
                     </div>
 
-                    <!-- Gráficos -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
-                            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                                <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">O.S por Tipo de Manutenção</h3>
-                                <div class="flex items-center gap-3 text-[10px] font-bold text-gray-500 dark:text-gray-400">
-                                    <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-emerald-500 dark:bg-emerald-400 inline-block"></i> Concluída</span>
-                                    <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-amber-500 dark:bg-amber-400 inline-block"></i> Em aberto</span>
-                                </div>
+                    <!-- Bloco 1: Análise por Tipo de Manutenção -->
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5 mb-6">
+                        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Análise por Tipo de Manutenção</h3>
+                            <div class="flex items-center gap-3 text-[10px] font-bold text-gray-500 dark:text-gray-400">
+                                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-emerald-500 dark:bg-emerald-400 inline-block"></i> Concluídas</span>
+                                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-amber-500 dark:bg-amber-400 inline-block"></i> Em aberto</span>
                             </div>
-                            <div id="manut-chart-tipo"></div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
-                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">O.S por Setor — Quantidade e Custo</h3>
-                            <div id="manut-chart-setor"></div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+                            <div id="manut-tabela-tipo" class="overflow-x-auto"></div>
+                            <div class="relative h-64"><canvas id="manut-canvas-tipo"></canvas></div>
                         </div>
                     </div>
 
-                    <!-- Resumo mensal -->
+                    <!-- Bloco 2: Sazonalidade Mensal -->
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5 mb-6">
-                        <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">O.S por Mês (Período Filtrado)</h3>
-                        <div id="manut-tabela-mes" class="overflow-x-auto"></div>
+                        <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Sazonalidade Mensal — O.S Abertas por Mês</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+                            <div id="manut-tabela-mes" class="overflow-x-auto"></div>
+                            <div class="relative h-64"><canvas id="manut-canvas-mes"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 3: Demonstrativo por Departamento -->
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5 mb-6">
+                        <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Demonstrativo por Departamento — Volume e Custo Acumulado</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+                            <div id="manut-tabela-depto" class="overflow-x-auto"></div>
+                            <div class="relative h-64"><canvas id="manut-canvas-depto"></canvas></div>
+                        </div>
                     </div>
 
                     <!-- Pipeline -->
@@ -1764,6 +1775,47 @@
                             <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Toque numa O.S para gerenciar</span>
                         </div>
                         <div id="manut-tabela" class="overflow-x-auto"></div>
+                    </div>
+                    </div><!-- /manut-pane-painel -->
+
+                    <!-- ── Pane: Cadastros (dados operacionais) ── -->
+                    <div id="manut-pane-cadastros" class="hidden space-y-6">
+                        <!-- Equipamentos -->
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
+                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">🏭 Máquinas e Equipamentos</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                                <input type="text" id="mcad-eq-nome" placeholder="Nome do equipamento" class="md:col-span-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
+                                <select id="mcad-eq-setor" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                                    <option value="" disabled selected>Setor...</option>
+                                    <option>Recebimento</option><option>Rebenefício</option><option>Expedição</option><option>Embalagem</option><option>Operações</option><option>Manutenção</option>
+                                </select>
+                                <input type="text" id="mcad-eq-depto" placeholder="Departamento" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
+                            </div>
+                            <button onclick="mcadAddEquip()" class="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all mb-4">+ Cadastrar Equipamento</button>
+                            <div id="mcad-eq-lista" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
+                        </div>
+                        <!-- Tipos de Manutenção -->
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
+                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">🔧 Tipos de Manutenção</h3>
+                            <div class="flex gap-3 mb-4">
+                                <input type="text" id="mcad-tipo-nome" placeholder="Ex: Elétrica, Mecânica..." class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
+                                <button onclick="mcadAddTipo()" class="py-2.5 px-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">+ Adicionar</button>
+                            </div>
+                            <div id="mcad-tipo-lista" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <!-- Técnicos -->
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
+                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">👷 Técnicos da Equipe e Terceiros Fixos</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <input type="text" id="mcad-tec-nome" placeholder="Nome do técnico" class="md:col-span-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
+                                <select id="mcad-tec-tipo" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                                    <option value="interno" selected>Equipe Interna</option>
+                                    <option value="terceiro">Terceiro Fixo</option>
+                                </select>
+                            </div>
+                            <button onclick="mcadAddTecnico()" class="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all mb-4">+ Cadastrar Técnico</button>
+                            <div id="mcad-tec-lista" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3761,6 +3813,228 @@
 
     function _manutRef() { return db.collection('operacoes').doc('manutencao'); }
 
+    // ── Cadastros operacionais do módulo (doc operacoes/manut_cadastros) ──
+    var _mcadData = { equipamentos: [], tipos: [], tecnicos: [] };
+    function _mcadRef() { return db.collection('operacoes').doc('manut_cadastros'); }
+    function _mcadNormalizar(d) {
+        d = d || {};
+        d.equipamentos = d.equipamentos || [];
+        d.tipos = (d.tipos && d.tipos.length) ? d.tipos : MANUT_TIPOS.slice();
+        d.tecnicos = d.tecnicos || [];
+        return d;
+    }
+    function mcadCarregar(cb) {
+        if (!db) { _mcadData = _mcadNormalizar(_mcadData); if (cb) cb(); return; }
+        _mcadRef().get().then(function(doc){
+            _mcadData = _mcadNormalizar(doc.exists ? doc.data() : _mcadData);
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[MCad] carregar:', e.message); _mcadData = _mcadNormalizar(_mcadData); if (cb) cb(); });
+    }
+    function _mcadTx(fn, cb) {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — tente novamente.', true); return; }
+        db.runTransaction(function(tx){
+            return tx.get(_mcadRef()).then(function(doc){
+                var d = _mcadNormalizar(doc.exists ? doc.data() : {});
+                fn(d);
+                tx.set(_mcadRef(), JSON.parse(JSON.stringify(d)));
+            });
+        }).then(function(){ mcadCarregar(function(){ mcadRenderAll(); _manutPopularFormUser(); if (cb) cb(); }); })
+          .catch(function(e){ console.warn('[MCad] tx:', e.message); mostrarToast('Erro ao salvar cadastro.', true); });
+    }
+
+    // CRUD: Equipamentos
+    function mcadAddEquip() {
+        var nome  = (document.getElementById('mcad-eq-nome').value || '').trim();
+        var setor = document.getElementById('mcad-eq-setor').value;
+        var depto = (document.getElementById('mcad-eq-depto').value || '').trim();
+        if (nome.length < 2) return mostrarToast('Informe o nome do equipamento.', true);
+        if (!setor) return mostrarToast('Selecione o setor do equipamento.', true);
+        if (!depto) return mostrarToast('Informe o departamento.', true);
+        _mcadTx(function(d){ d.equipamentos.push({ id: Date.now(), nome: nome, setor: setor, departamento: depto }); }, function(){
+            document.getElementById('mcad-eq-nome').value = '';
+            document.getElementById('mcad-eq-depto').value = '';
+            mostrarToast('Equipamento cadastrado ✓');
+        });
+    }
+    window.mcadAddEquip = mcadAddEquip;
+    function mcadEditEquip(id) {
+        var e = _mcadData.equipamentos.find(function(x){ return x.id === id; });
+        if (!e) return;
+        var nome  = (prompt('Nome do equipamento:', e.nome) || '').trim();
+        if (!nome) return;
+        var depto = (prompt('Departamento:', e.departamento || '') || '').trim();
+        if (!depto) return;
+        _mcadTx(function(d){ var x = d.equipamentos.find(function(y){ return y.id === id; }); if (x) { x.nome = nome; x.departamento = depto; } }, function(){ mostrarToast('Equipamento atualizado ✓'); });
+    }
+    window.mcadEditEquip = mcadEditEquip;
+    function mcadDelEquip(id) {
+        var e = _mcadData.equipamentos.find(function(x){ return x.id === id; });
+        if (!e || !confirm('Apagar o equipamento "' + e.nome + '"?')) return;
+        _mcadTx(function(d){ d.equipamentos = d.equipamentos.filter(function(x){ return x.id !== id; }); }, function(){ mostrarToast('Equipamento removido.'); });
+    }
+    window.mcadDelEquip = mcadDelEquip;
+
+    // CRUD: Tipos de Manutenção
+    function mcadAddTipo() {
+        var nome = (document.getElementById('mcad-tipo-nome').value || '').trim();
+        if (nome.length < 2) return mostrarToast('Informe o nome do tipo.', true);
+        if (_mcadData.tipos.indexOf(nome) !== -1) return mostrarToast('Este tipo já existe.', true);
+        _mcadTx(function(d){ if (d.tipos.indexOf(nome) === -1) d.tipos.push(nome); }, function(){
+            document.getElementById('mcad-tipo-nome').value = '';
+            mostrarToast('Tipo adicionado ✓');
+        });
+    }
+    window.mcadAddTipo = mcadAddTipo;
+    function mcadEditTipo(idx) {
+        var atual = _mcadData.tipos[idx];
+        if (atual === undefined) return;
+        var novo = (prompt('Editar tipo de manutenção:', atual) || '').trim();
+        if (!novo || novo === atual) return;
+        _mcadTx(function(d){ if (d.tipos[idx] !== undefined) d.tipos[idx] = novo; }, function(){ mostrarToast('Tipo atualizado ✓'); });
+    }
+    window.mcadEditTipo = mcadEditTipo;
+    function mcadDelTipo(idx) {
+        var t = _mcadData.tipos[idx];
+        if (t === undefined || !confirm('Apagar o tipo "' + t + '"?')) return;
+        _mcadTx(function(d){ d.tipos.splice(idx, 1); }, function(){ mostrarToast('Tipo removido.'); });
+    }
+    window.mcadDelTipo = mcadDelTipo;
+
+    // CRUD: Técnicos
+    function mcadAddTecnico() {
+        var nome = (document.getElementById('mcad-tec-nome').value || '').trim();
+        var tipo = document.getElementById('mcad-tec-tipo').value;
+        if (nome.length < 2) return mostrarToast('Informe o nome do técnico.', true);
+        _mcadTx(function(d){ d.tecnicos.push({ id: Date.now(), nome: nome, tipo: tipo }); }, function(){
+            document.getElementById('mcad-tec-nome').value = '';
+            mostrarToast('Técnico cadastrado ✓');
+        });
+    }
+    window.mcadAddTecnico = mcadAddTecnico;
+    function mcadEditTecnico(id) {
+        var t = _mcadData.tecnicos.find(function(x){ return x.id === id; });
+        if (!t) return;
+        var nome = (prompt('Nome do técnico:', t.nome) || '').trim();
+        if (!nome) return;
+        _mcadTx(function(d){ var x = d.tecnicos.find(function(y){ return y.id === id; }); if (x) x.nome = nome; }, function(){ mostrarToast('Técnico atualizado ✓'); });
+    }
+    window.mcadEditTecnico = mcadEditTecnico;
+    function mcadDelTecnico(id) {
+        var t = _mcadData.tecnicos.find(function(x){ return x.id === id; });
+        if (!t || !confirm('Apagar o técnico "' + t.nome + '"?')) return;
+        _mcadTx(function(d){ d.tecnicos = d.tecnicos.filter(function(x){ return x.id !== id; }); }, function(){ mostrarToast('Técnico removido.'); });
+    }
+    window.mcadDelTecnico = mcadDelTecnico;
+
+    function mcadRenderAll() {
+        var badge = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full';
+        var elE = document.getElementById('mcad-eq-lista');
+        if (elE) elE.innerHTML = _mcadData.equipamentos.length
+            ? _mcadData.equipamentos.slice().sort(function(a,b){ return (a.setor+a.nome) < (b.setor+b.nome) ? -1 : 1; }).map(function(e){
+                return '<div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl px-3 py-2.5">' +
+                    '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-900 dark:text-white truncate">'+escapeHTML(e.nome)+'</p>' +
+                    '<p class="text-[10px] text-gray-400 font-bold">'+escapeHTML(e.setor)+' · '+escapeHTML(e.departamento||'-')+'</p></div>' +
+                    '<button onclick="mcadEditEquip('+e.id+')" class="text-blue-500 text-xs font-bold px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20">Editar</button>' +
+                    '<button onclick="mcadDelEquip('+e.id+')" class="text-red-500 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">Apagar</button>' +
+                '</div>';
+            }).join('')
+            : '<p class="text-sm text-gray-400 text-center py-4">Nenhum equipamento cadastrado.</p>';
+        var elT = document.getElementById('mcad-tipo-lista');
+        if (elT) elT.innerHTML = _mcadData.tipos.map(function(t, i){
+            return '<span class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200">' +
+                escapeHTML(t) +
+                '<button onclick="mcadEditTipo('+i+')" class="text-blue-400 hover:text-blue-600 px-1" title="Editar">✎</button>' +
+                '<button onclick="mcadDelTipo('+i+')" class="text-red-400 hover:text-red-600 px-1" title="Apagar">✕</button>' +
+            '</span>';
+        }).join('');
+        var elTec = document.getElementById('mcad-tec-lista');
+        if (elTec) elTec.innerHTML = _mcadData.tecnicos.length
+            ? _mcadData.tecnicos.slice().sort(function(a,b){ return a.nome < b.nome ? -1 : 1; }).map(function(t){
+                var tag = t.tipo === 'terceiro'
+                    ? '<span class="'+badge+' bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Terceiro</span>'
+                    : '<span class="'+badge+' bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Interno</span>';
+                return '<div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl px-3 py-2.5">' +
+                    '<p class="flex-1 text-sm font-bold text-gray-900 dark:text-white truncate">'+escapeHTML(t.nome)+'</p>' + tag +
+                    '<button onclick="mcadEditTecnico('+t.id+')" class="text-blue-500 text-xs font-bold px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20">Editar</button>' +
+                    '<button onclick="mcadDelTecnico('+t.id+')" class="text-red-500 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">Apagar</button>' +
+                '</div>';
+            }).join('')
+            : '<p class="text-sm text-gray-400 text-center py-4">Nenhum técnico cadastrado.</p>';
+    }
+
+    function manutSwitchPane(p) {
+        var on  = 'flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all';
+        var off = 'flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all';
+        document.getElementById('manut-pane-painel').classList.toggle('hidden', p !== 'painel');
+        document.getElementById('manut-pane-cadastros').classList.toggle('hidden', p !== 'cadastros');
+        document.getElementById('btn-manut-pane-painel').className = p === 'painel' ? on : off;
+        document.getElementById('btn-manut-pane-cadastros').className = p === 'cadastros' ? on : off;
+        if (p === 'cadastros') mcadCarregar(function(){ mcadRenderAll(); });
+    }
+    window.manutSwitchPane = manutSwitchPane;
+
+    // ── Campos dinâmicos do formulário ──
+    function manutEquipChange(sel) {
+        var outro = document.getElementById('os-equipamento-outro');
+        if (outro) outro.classList.toggle('hidden', sel.value !== '__outro__');
+    }
+    window.manutEquipChange = manutEquipChange;
+    function manutRespChange(sel) {
+        var terc = document.getElementById('manut-m-resp-terceiro');
+        if (terc) terc.classList.toggle('hidden', sel.value !== '__terceiro__');
+    }
+    window.manutRespChange = manutRespChange;
+
+    function _manutPopularFormUser() {
+        var setor = limparEmoji(currentSector);
+        var selE = document.getElementById('os-equipamento');
+        if (selE) {
+            var eqs = _mcadData.equipamentos.filter(function(e){ return !setor || e.setor === setor; });
+            if (!eqs.length) eqs = _mcadData.equipamentos;
+            selE.innerHTML = '<option value="" disabled selected>Selecione...</option>' +
+                eqs.map(function(e){ return '<option value="'+escapeHTML(e.nome)+'" data-depto="'+escapeHTML(e.departamento||'')+'">'+escapeHTML(e.nome)+'</option>'; }).join('') +
+                '<option value="__outro__">Outro (digitar manualmente)</option>';
+        }
+        var selT = document.getElementById('os-tipo');
+        if (selT) {
+            selT.innerHTML = '<option value="" disabled selected>Selecione...</option>' +
+                _mcadData.tipos.map(function(t){ return '<option>'+escapeHTML(t)+'</option>'; }).join('');
+        }
+        var outro = document.getElementById('os-equipamento-outro');
+        if (outro) outro.classList.add('hidden');
+    }
+
+    // ── Bibliotecas sob demanda (cacheadas pelo SW após o 1º uso) ──
+    function _carregarChartJs(cb) {
+        if (window.Chart) return cb();
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js';
+        s.onload = cb;
+        s.onerror = function(){ console.warn('[Manut] Chart.js indisponível — tabelas seguem funcionando.'); };
+        document.head.appendChild(s);
+    }
+    function _carregarHtml2Pdf(cb) {
+        if (window.html2pdf) return cb();
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js';
+        s.onload = cb;
+        s.onerror = function(){ mostrarToast('Falha ao carregar o gerador de PDF. Verifique a internet.', true); };
+        document.head.appendChild(s);
+    }
+
+    /** Custo da O.S — novo campo único, com retrocompatibilidade (M.O + Peças) */
+    function _manutCusto(o) {
+        var c = Number(o.custo);
+        if (!isNaN(c) && c > 0) return c;
+        return (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
+    }
+    /** Departamento da O.S — gravado na abertura ou derivado do cadastro */
+    function _manutDepto(o) {
+        if (o.departamento) return o.departamento;
+        var eq = _mcadData.equipamentos.find(function(e){ return e.nome === o.equipamento; });
+        return (eq && eq.departamento) || 'Não informado';
+    }
+
     function manutCarregar(cb) {
         if (!db) { if (cb) cb(); return; }
         _manutRef().get().then(function(doc){
@@ -3821,16 +4095,24 @@
         var chipT = document.getElementById('manut-setor-chip');
         if (chipS) chipS.textContent = operadorNome || '—';
         if (chipT) chipT.textContent = limparEmoji(currentSector) || (isAdmin ? 'Administração' : '—');
+        mcadCarregar(function(){ _manutPopularFormUser(); });
         manutCarregar(function(){ manutRenderMinhas(); });
         manutListen();
     }
     window.manutInitUser = manutInitUser;
 
     function abrirOSManutencao() {
-        var eq   = (document.getElementById('os-equipamento').value || '').trim();
+        var selE = document.getElementById('os-equipamento');
+        var eq = selE ? selE.value : '';
+        var depto = '';
+        if (eq === '__outro__') {
+            eq = (document.getElementById('os-equipamento-outro').value || '').trim();
+        } else if (selE && selE.selectedIndex >= 0) {
+            depto = selE.options[selE.selectedIndex].getAttribute('data-depto') || '';
+        }
         var tipo = document.getElementById('os-tipo') ? document.getElementById('os-tipo').value : '';
         var desc = (document.getElementById('os-problema').value || '').trim();
-        if (eq.length < 2)  return mostrarToast('Informe o equipamento/máquina.', true);
+        if (!eq || eq.length < 2) return mostrarToast('Selecione ou digite o equipamento.', true);
         if (!tipo)          return mostrarToast('Selecione o tipo de manutenção.', true);
         if (desc.length < 5) return mostrarToast('Descreva a ocorrência com mais detalhes.', true);
         var agora = new Date();
@@ -3843,19 +4125,22 @@
                 aberturaHora: agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 solicitante: operadorNome || '?',
                 setor: limparEmoji(currentSector) || (isAdmin ? 'Administração' : '?'),
+                departamento: depto,
                 equipamento: eq,
                 tipo: tipo,
                 descricao: desc,
                 status: 'Pendente',
-                responsavel: '', causaRaiz: '', acao: '',
-                downtime: '', custoMO: 0, custoPecas: 0,
+                responsavel: '', acao: '',
+                custo: 0,
                 fechamento: '', fechamentoTs: null
             });
             return d.seq;
         }, function(num){
-            document.getElementById('os-equipamento').value = '';
+            if (selE) selE.selectedIndex = 0;
+            var outro = document.getElementById('os-equipamento-outro');
+            if (outro) { outro.value = ''; outro.classList.add('hidden'); }
             document.getElementById('os-problema').value = '';
-            if (document.getElementById('os-tipo')) document.getElementById('os-tipo').value = '';
+            if (document.getElementById('os-tipo')) document.getElementById('os-tipo').selectedIndex = 0;
             saveData(); // grava estado limpo do formulário do setor
             mostrarToast('O.S #' + num + ' aberta com sucesso! ✓');
             manutCarregar(function(){ manutRenderMinhas(); });
@@ -3866,12 +4151,6 @@
     function manutRenderMinhas() {
         var container = document.getElementById('manut-minhas-lista');
         if (!container) return;
-        var dl = document.getElementById('manut-equip-list');
-        if (dl) {
-            var eqs = {};
-            _manutData.lista.forEach(function(o){ if (o.equipamento) eqs[o.equipamento] = true; });
-            dl.innerHTML = Object.keys(eqs).sort().map(function(e){ return '<option value="'+escapeHTML(e)+'">'; }).join('');
-        }
         var minhas = _manutData.lista.filter(function(o){ return o.solicitante === operadorNome; })
             .sort(function(a,b){ return b.num - a.num; }).slice(0, 20);
         if (!minhas.length) {
@@ -3902,7 +4181,7 @@
         var hoje = new Date();
         if (de && !de.value)  de.value  = hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'-01';
         if (ate && !ate.value) ate.value = _manutISO(hoje.getTime());
-        manutCarregar(function(){ manutRenderAdm(); });
+        mcadCarregar(function(){ manutCarregar(function(){ manutRenderAdm(); }); });
         manutListen();
     }
     window.manutInitAdm = manutInitAdm;
@@ -3922,6 +4201,64 @@
         });
     }
 
+    var _manutCharts = {};
+    function _manutChart(id, cfg) {
+        if (!window.Chart) return;
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (_manutCharts[id]) { _manutCharts[id].destroy(); delete _manutCharts[id]; }
+        _manutCharts[id] = new Chart(el.getContext('2d'), cfg);
+    }
+    function _manutChartCores() {
+        var tema = document.documentElement.getAttribute('data-theme') || '';
+        var dark = document.documentElement.classList.contains('dark') || ['dark-modern','solarized-dark','liquid-glass','roxo','marrom'].indexOf(tema) !== -1;
+        return dark
+            ? { verde:'#34d399', ambar:'#fbbf24', azul:'#60a5fa', grade:'rgba(255,255,255,0.08)', texto:'#9ca3af' }
+            : { verde:'#059669', ambar:'#d97706', azul:'#3b82f6', grade:'rgba(0,0,0,0.06)',  texto:'#6b7280' };
+    }
+    function _manutChartOpts(cores, legenda) {
+        return {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: !!legenda, labels: { color: cores.texto, font: { size: 10, weight: 'bold' }, boxWidth: 12 } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: cores.texto, font: { size: 9 }, maxRotation: 45, minRotation: 0 } },
+                y: { beginAtZero: true, grid: { color: cores.grade }, ticks: { color: cores.texto, precision: 0, font: { size: 10 } } }
+            }
+        };
+    }
+
+    /** Agregações compartilhadas entre painel e relatório PDF */
+    function _manutAgregar(l) {
+        var tipos = (_mcadData.tipos && _mcadData.tipos.length ? _mcadData.tipos : MANUT_TIPOS).slice();
+        l.forEach(function(o){ if (o.tipo && tipos.indexOf(o.tipo) === -1) tipos.push(o.tipo); });
+        var porTipo = {};
+        tipos.forEach(function(t){ porTipo[t] = { c: 0, a: 0 }; });
+        l.forEach(function(o){
+            if (!porTipo[o.tipo]) porTipo[o.tipo] = { c: 0, a: 0 };
+            if (o.status === 'Concluída') porTipo[o.tipo].c++; else porTipo[o.tipo].a++;
+        });
+        var porMes = {};
+        l.forEach(function(o){
+            var d = new Date(o.ts || 0);
+            var k = String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+            if (!porMes[k]) porMes[k] = { q: 0, custo: 0 };
+            porMes[k].q++;
+            porMes[k].custo += _manutCusto(o);
+        });
+        var mesKeys = Object.keys(porMes).sort(function(a,b){ var pa=a.split('/'), pb=b.split('/'); return (pa[1]+pa[0]) < (pb[1]+pb[0]) ? -1 : 1; });
+        var porDepto = {};
+        l.forEach(function(o){
+            var dep = _manutDepto(o);
+            if (!porDepto[dep]) porDepto[dep] = { q: 0, custo: 0 };
+            porDepto[dep].q++;
+            porDepto[dep].custo += _manutCusto(o);
+        });
+        var depKeys = Object.keys(porDepto).sort(function(a,b){ return porDepto[b].q - porDepto[a].q; });
+        return { tipos: tipos, porTipo: porTipo, porMes: porMes, mesKeys: mesKeys, porDepto: porDepto, depKeys: depKeys };
+    }
+
     function manutRenderAdm() {
         var l = manutFiltrar();
         var conc = l.filter(function(o){ return o.status === 'Concluída'; });
@@ -3931,74 +4268,51 @@
         if (elC) elC.textContent = conc.length;
         if (elA) elA.textContent = abertas;
 
-        // Gráfico: O.S por tipo (empilhado concluída/aberta) — rótulos diretos, nunca só cor
-        var porTipo = {}; var maxTipo = 1;
-        MANUT_TIPOS.forEach(function(t){ porTipo[t] = { c: 0, a: 0 }; });
-        l.forEach(function(o){
-            if (!porTipo[o.tipo]) porTipo[o.tipo] = { c: 0, a: 0 };
-            if (o.status === 'Concluída') porTipo[o.tipo].c++; else porTipo[o.tipo].a++;
-        });
-        Object.keys(porTipo).forEach(function(t){ maxTipo = Math.max(maxTipo, porTipo[t].c + porTipo[t].a); });
-        var chT = document.getElementById('manut-chart-tipo');
-        if (chT) chT.innerHTML = Object.keys(porTipo).map(function(t){
-            var c = porTipo[t], tot = c.c + c.a;
-            return '<div class="flex items-center gap-2 mb-2.5">' +
-                '<span class="w-32 shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 text-right truncate" title="'+escapeHTML(t)+'">'+escapeHTML(t)+'</span>' +
-                '<div class="flex-1 flex items-center gap-0.5 h-3.5 min-w-0">' +
-                    (c.c ? '<div class="h-full rounded bg-emerald-500 dark:bg-emerald-400" style="width:'+(c.c/maxTipo*100)+'%" title="Concluídas: '+c.c+'"></div>' : '') +
-                    (c.a ? '<div class="h-full rounded bg-amber-500 dark:bg-amber-400" style="width:'+(c.a/maxTipo*100)+'%" title="Em aberto: '+c.a+'"></div>' : '') +
-                    '<span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 ml-1.5 shrink-0">'+(tot ? c.c+' ✓ · '+c.a+' ⏳' : '—')+'</span>' +
-                '</div></div>';
-        }).join('');
-
-        // Gráfico: O.S por setor (quantidade) + custo total
-        var porSetor = {}; var maxSetor = 1;
-        l.forEach(function(o){
-            var s = o.setor || '?';
-            if (!porSetor[s]) porSetor[s] = { q: 0, custo: 0 };
-            porSetor[s].q++;
-            porSetor[s].custo += (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
-        });
-        Object.keys(porSetor).forEach(function(s){ maxSetor = Math.max(maxSetor, porSetor[s].q); });
-        var chS = document.getElementById('manut-chart-setor');
-        if (chS) chS.innerHTML = Object.keys(porSetor).sort(function(a,b){ return porSetor[b].q - porSetor[a].q; }).map(function(s){
-            var d = porSetor[s];
-            return '<div class="flex items-center gap-2 mb-2.5">' +
-                '<span class="w-32 shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 text-right truncate" title="'+escapeHTML(s)+'">'+escapeHTML(s)+'</span>' +
-                '<div class="flex-1 h-3.5 min-w-0"><div class="h-full rounded bg-blue-500 dark:bg-blue-400" style="width:'+(d.q/maxSetor*100)+'%" title="'+d.q+' O.S"></div></div>' +
-                '<span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 w-32 text-right shrink-0">'+d.q+' O.S · '+_manutMoeda(d.custo)+'</span>' +
-            '</div>';
-        }).join('') || '<p class="text-sm text-gray-400 text-center py-6">Sem O.S no período.</p>';
-
-        // Resumo mensal
-        var porMes = {};
-        l.forEach(function(o){
-            var d = new Date(o.ts || 0);
-            var k = String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-            if (!porMes[k]) porMes[k] = { q: 0, custo: 0, down: 0 };
-            porMes[k].q++;
-            porMes[k].custo += (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
-            porMes[k].down  += _manutParseNum(o.downtime);
-        });
+        var ag = _manutAgregar(l);
         var tdCls = 'py-2 px-3 border-b border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300';
         var thCls = 'py-2 px-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-left border-b border-gray-200 dark:border-gray-600';
+
+        // Bloco 1 — Análise por Tipo (tabela + barras Concluídas vs Em Aberto)
+        var tT = document.getElementById('manut-tabela-tipo');
+        var totC = 0, totA = 0;
+        var linhasTipo = ag.tipos.map(function(t){
+            var c = ag.porTipo[t]; totC += c.c; totA += c.a;
+            return '<tr><td class="'+tdCls+' font-bold">'+escapeHTML(t)+'</td><td class="'+tdCls+' text-center">'+c.c+'</td><td class="'+tdCls+' text-center">'+c.a+'</td><td class="'+tdCls+' text-center font-bold">'+(c.c+c.a)+'</td></tr>';
+        }).join('');
+        if (tT) tT.innerHTML = '<table class="w-full text-sm"><tr><th class="'+thCls+'">Tipo</th><th class="'+thCls+' text-center">Concluídas</th><th class="'+thCls+' text-center">Em Aberto</th><th class="'+thCls+' text-center">Total</th></tr>' +
+            linhasTipo +
+            '<tr><td class="'+tdCls+' font-black">TOTAL</td><td class="'+tdCls+' text-center font-black">'+totC+'</td><td class="'+tdCls+' text-center font-black">'+totA+'</td><td class="'+tdCls+' text-center font-black">'+(totC+totA)+'</td></tr></table>';
+
+        // Bloco 2 — Sazonalidade mensal (tabela + barras)
         var tM = document.getElementById('manut-tabela-mes');
-        var mesKeys = Object.keys(porMes).sort(function(a,b){ var pa=a.split('/'), pb=b.split('/'); return (pa[1]+pa[0]) < (pb[1]+pb[0]) ? -1 : 1; });
-        if (tM) tM.innerHTML = mesKeys.length
-            ? '<table class="w-full text-sm"><tr><th class="'+thCls+'">Mês</th><th class="'+thCls+'">Qtd O.S</th><th class="'+thCls+'">Máquina Parada</th><th class="'+thCls+' text-right">Custo Total</th></tr>' +
-              mesKeys.map(function(k){ var m = porMes[k];
-                  return '<tr><td class="'+tdCls+' font-bold">'+k+'</td><td class="'+tdCls+'">'+m.q+'</td><td class="'+tdCls+'">'+m.down.toLocaleString('pt-BR')+' h</td><td class="'+tdCls+' text-right font-bold">'+_manutMoeda(m.custo)+'</td></tr>';
+        if (tM) tM.innerHTML = ag.mesKeys.length
+            ? '<table class="w-full text-sm"><tr><th class="'+thCls+'">Mês</th><th class="'+thCls+' text-center">Qtd O.S</th><th class="'+thCls+' text-right">Custo</th></tr>' +
+              ag.mesKeys.map(function(k){ var m = ag.porMes[k];
+                  return '<tr><td class="'+tdCls+' font-bold">'+k+'</td><td class="'+tdCls+' text-center">'+m.q+'</td><td class="'+tdCls+' text-right font-bold">'+_manutMoeda(m.custo)+'</td></tr>';
               }).join('') + '</table>'
             : '<p class="text-sm text-gray-400 text-center py-6">Sem O.S no período.</p>';
 
-        // Pipeline (tabela scannável — visão-tabela acessível dos gráficos acima)
+        // Bloco 3 — Demonstrativo por Departamento (tabela + barras)
+        var tD = document.getElementById('manut-tabela-depto');
+        var totQ = 0, totCusto = 0;
+        var linhasDep = ag.depKeys.map(function(k){
+            var d = ag.porDepto[k]; totQ += d.q; totCusto += d.custo;
+            return '<tr><td class="'+tdCls+' font-bold">'+escapeHTML(k)+'</td><td class="'+tdCls+' text-center">'+d.q+'</td><td class="'+tdCls+' text-right font-bold">'+_manutMoeda(d.custo)+'</td></tr>';
+        }).join('');
+        if (tD) tD.innerHTML = ag.depKeys.length
+            ? '<table class="w-full text-sm"><tr><th class="'+thCls+'">Departamento</th><th class="'+thCls+' text-center">Qtd O.S</th><th class="'+thCls+' text-right">Custo Acumulado</th></tr>' +
+              linhasDep +
+              '<tr><td class="'+tdCls+' font-black">TOTAL</td><td class="'+tdCls+' text-center font-black">'+totQ+'</td><td class="'+tdCls+' text-right font-black">'+_manutMoeda(totCusto)+'</td></tr></table>'
+            : '<p class="text-sm text-gray-400 text-center py-6">Sem O.S no período.</p>';
+
+        // Pipeline
         var tP = document.getElementById('manut-tabela');
         var ordenadas = l.slice().sort(function(a,b){ return b.num - a.num; });
         if (tP) tP.innerHTML = ordenadas.length
             ? '<table class="w-full text-xs md:text-sm min-w-[760px]"><tr>' +
               ['Nº','Abertura','Solicitante','Setor','Equipamento','Tipo','Ocorrência','Status','Responsável','Custo'].map(function(h){ return '<th class="'+thCls+'">'+h+'</th>'; }).join('') + '</tr>' +
               ordenadas.map(function(o){
-                  var custo = (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
+                  var custo = _manutCusto(o);
                   return '<tr onclick="manutAbrirModal('+o.num+')" class="cursor-pointer hover:bg-blue-50/60 dark:hover:bg-blue-900/10 transition-colors">' +
                       '<td class="'+tdCls+' font-black">'+o.num+'</td>' +
                       '<td class="'+tdCls+' whitespace-nowrap">'+escapeHTML(o.abertura||'')+'</td>' +
@@ -4013,6 +4327,41 @@
                   '</tr>';
               }).join('') + '</table>'
             : '<p class="text-sm text-gray-400 text-center py-8">Nenhuma O.S encontrada com os filtros atuais.</p>';
+
+        // Gráficos (Chart.js sob demanda; tabelas acima funcionam mesmo sem ele)
+        _carregarChartJs(function(){
+            if (!window.Chart) return;
+            var cores = _manutChartCores();
+            _manutChart('manut-canvas-tipo', {
+                type: 'bar',
+                data: {
+                    labels: ag.tipos,
+                    datasets: [
+                        { label: 'Concluídas', data: ag.tipos.map(function(t){ return ag.porTipo[t].c; }), backgroundColor: cores.verde, borderRadius: 4, maxBarThickness: 26 },
+                        { label: 'Em Aberto',  data: ag.tipos.map(function(t){ return ag.porTipo[t].a; }), backgroundColor: cores.ambar, borderRadius: 4, maxBarThickness: 26 }
+                    ]
+                },
+                options: _manutChartOpts(cores, true)
+            });
+            _manutChart('manut-canvas-mes', {
+                type: 'bar',
+                data: {
+                    labels: ag.mesKeys,
+                    datasets: [{ label: 'O.S abertas', data: ag.mesKeys.map(function(k){ return ag.porMes[k].q; }), backgroundColor: cores.azul, borderRadius: 4, maxBarThickness: 34 }]
+                },
+                options: _manutChartOpts(cores, false)
+            });
+            var optsDep = _manutChartOpts(cores, false);
+            optsDep.plugins.tooltip = { callbacks: { afterLabel: function(ctx){ return 'Custo: ' + _manutMoeda(ag.porDepto[ctx.label] ? ag.porDepto[ctx.label].custo : 0); } } };
+            _manutChart('manut-canvas-depto', {
+                type: 'bar',
+                data: {
+                    labels: ag.depKeys,
+                    datasets: [{ label: 'Qtd O.S', data: ag.depKeys.map(function(k){ return ag.porDepto[k].q; }), backgroundColor: cores.azul, borderRadius: 4, maxBarThickness: 34 }]
+                },
+                options: optsDep
+            });
+        });
     }
     window.manutRenderAdm = manutRenderAdm;
 
@@ -4027,12 +4376,27 @@
             '<div><b>Ocorrência:</b> ' + escapeHTML(o.descricao||'') + '</div>' +
             (o.fechamento ? '<div class="text-emerald-600 dark:text-emerald-400"><b>Fechada em:</b> ' + escapeHTML(o.fechamento) + '</div>' : '');
         document.getElementById('manut-m-status').value = o.status || 'Pendente';
-        document.getElementById('manut-m-resp').value = o.responsavel || '';
-        document.getElementById('manut-m-causa').value = o.causaRaiz || '';
+        // Técnico responsável: dropdown do cadastro + opção Terceiro com campo dinâmico
+        var selR = document.getElementById('manut-m-resp-sel');
+        var terc = document.getElementById('manut-m-resp-terceiro');
+        var nomes = _mcadData.tecnicos.map(function(t){ return t.nome; });
+        selR.innerHTML = '<option value="">Selecione...</option>' +
+            nomes.map(function(n){ return '<option value="'+escapeHTML(n)+'">'+escapeHTML(n)+'</option>'; }).join('') +
+            '<option value="__terceiro__">Terceiro (digitar nome)</option>';
+        var respBase = (o.responsavel || '').replace(/ \(Terceiro\)$/, '');
+        if (o.responsavel && nomes.indexOf(o.responsavel) !== -1) {
+            selR.value = o.responsavel;
+            terc.classList.add('hidden'); terc.value = '';
+        } else if (o.responsavel) {
+            selR.value = '__terceiro__';
+            terc.classList.remove('hidden'); terc.value = respBase;
+        } else {
+            selR.value = '';
+            terc.classList.add('hidden'); terc.value = '';
+        }
         document.getElementById('manut-m-acao').value = o.acao || '';
-        document.getElementById('manut-m-downtime').value = o.downtime || '';
-        document.getElementById('manut-m-custo-mo').value = o.custoMO ? String(o.custoMO).replace('.',',') : '';
-        document.getElementById('manut-m-custo-pecas').value = o.custoPecas ? String(o.custoPecas).replace('.',',') : '';
+        var custoAtual = _manutCusto(o);
+        document.getElementById('manut-m-custo').value = custoAtual ? String(custoAtual.toFixed(2)).replace('.',',') : '';
         var m = document.getElementById('modal-manut-os');
         m.classList.remove('hidden','opacity-0'); m.classList.add('flex');
     }
@@ -4048,14 +4412,21 @@
     function manutSalvarGestao(concluir) {
         if (_manutModalNum === null) return;
         var num = _manutModalNum;
+        var selR = document.getElementById('manut-m-resp-sel');
+        var resp = '';
+        if (selR.value === '__terceiro__') {
+            var tn = (document.getElementById('manut-m-resp-terceiro').value || '').trim();
+            if (tn) resp = tn + ' (Terceiro)';
+        } else {
+            resp = selR.value;
+        }
         var patch = {
             status:      concluir ? 'Concluída' : document.getElementById('manut-m-status').value,
-            responsavel: (document.getElementById('manut-m-resp').value || '').trim(),
-            causaRaiz:   (document.getElementById('manut-m-causa').value || '').trim(),
+            responsavel: resp,
             acao:        (document.getElementById('manut-m-acao').value || '').trim(),
-            downtime:    (document.getElementById('manut-m-downtime').value || '').trim(),
-            custoMO:     _manutParseNum(document.getElementById('manut-m-custo-mo').value),
-            custoPecas:  _manutParseNum(document.getElementById('manut-m-custo-pecas').value)
+            custo:       _manutParseNum(document.getElementById('manut-m-custo').value),
+            custoMO:     0, // legado zerado — campo único Custo passa a valer
+            custoPecas:  0
         };
         if (concluir && !patch.responsavel) return mostrarToast('Informe o técnico responsável para concluir.', true);
         if (concluir && !patch.acao) return mostrarToast('Descreva as ações realizadas para concluir.', true);
@@ -4095,21 +4466,76 @@
     }
     window.manutExcluirOS = manutExcluirOS;
 
-    function manutExportCSV() {
+    /** Relatório PDF corporativo (substitui a exportação CSV antiga) */
+    function manutExportPDF() {
         var l = manutFiltrar();
         if (!l.length) return mostrarToast('Sem O.S no período filtrado.', true);
-        var rows = [['Nº O.S','Data Abertura','Hora','Solicitante','Setor','Equipamento','Tipo Manutenção','Descrição Ocorrência','Causa Raiz','Ações Realizadas','Status','Técnico Responsável','Máquina Parada (h)','Custo M.O (R$)','Custo Peças (R$)','Custo Total (R$)','Fechamento']];
-        l.slice().sort(function(a,b){ return a.num - b.num; }).forEach(function(o){
-            rows.push([o.num, o.abertura||'', o.aberturaHora||'', o.solicitante||'', o.setor||'', o.equipamento||'', o.tipo||'', o.descricao||'', o.causaRaiz||'', o.acao||'', o.status||'', o.responsavel||'', o.downtime||'', (Number(o.custoMO)||0).toFixed(2).replace('.',','), (Number(o.custoPecas)||0).toFixed(2).replace('.',','), ((Number(o.custoMO)||0)+(Number(o.custoPecas)||0)).toFixed(2).replace('.',','), o.fechamento||'']);
+        mostrarToast('Gerando relatório PDF...');
+        _carregarHtml2Pdf(function(){
+            if (!window.html2pdf) return;
+            var de  = (document.getElementById('manut-de')  || {}).value || '';
+            var ate = (document.getElementById('manut-ate') || {}).value || '';
+            var fmtBR = function(iso){ if(!iso) return '—'; var p = iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+            var ag = _manutAgregar(l);
+            var conc = l.filter(function(o){ return o.status === 'Concluída'; }).length;
+            var custoTotal = l.reduce(function(s,o){ return s + _manutCusto(o); }, 0);
+
+            var th = 'style="background:#111827;color:#fff;padding:7px 9px;font-size:9px;text-transform:uppercase;letter-spacing:0.05em;text-align:left;"';
+            var td = 'style="padding:6px 9px;font-size:9.5px;color:#1f2937;border-bottom:1px solid #e5e7eb;"';
+            var h2 = 'style="font-size:12px;font-weight:800;color:#111827;text-transform:uppercase;letter-spacing:0.08em;margin:22px 0 8px;border-left:4px solid #ea580c;padding-left:8px;"';
+            var tbl = 'style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;"';
+
+            var tabTipo = '<table '+tbl+'><tr><th '+th+'>Tipo de Manutenção</th><th '+th+'>Concluídas</th><th '+th+'>Em Aberto</th><th '+th+'>Total</th></tr>' +
+                ag.tipos.map(function(t){ var c = ag.porTipo[t]; return '<tr><td '+td+'><b>'+escapeHTML(t)+'</b></td><td '+td+'>'+c.c+'</td><td '+td+'>'+c.a+'</td><td '+td+'><b>'+(c.c+c.a)+'</b></td></tr>'; }).join('') + '</table>';
+            var tabMes = '<table '+tbl+'><tr><th '+th+'>Mês</th><th '+th+'>Qtd O.S</th><th '+th+'>Custo</th></tr>' +
+                ag.mesKeys.map(function(k){ var m = ag.porMes[k]; return '<tr><td '+td+'><b>'+k+'</b></td><td '+td+'>'+m.q+'</td><td '+td+'>'+_manutMoeda(m.custo)+'</td></tr>'; }).join('') + '</table>';
+            var tabDep = '<table '+tbl+'><tr><th '+th+'>Departamento</th><th '+th+'>Qtd O.S</th><th '+th+'>Custo Acumulado</th></tr>' +
+                ag.depKeys.map(function(k){ var d = ag.porDepto[k]; return '<tr><td '+td+'><b>'+escapeHTML(k)+'</b></td><td '+td+'>'+d.q+'</td><td '+td+'>'+_manutMoeda(d.custo)+'</td></tr>'; }).join('') + '</table>';
+            var tabOS = '<table '+tbl+'><tr>' +
+                ['Nº','Abertura','Solicitante','Setor','Departamento','Equipamento','Tipo','Status','Responsável','Custo','Fechamento'].map(function(h){ return '<th '+th+'>'+h+'</th>'; }).join('') + '</tr>' +
+                l.slice().sort(function(a,b){ return a.num - b.num; }).map(function(o){
+                    var custo = _manutCusto(o);
+                    return '<tr><td '+td+'><b>'+o.num+'</b></td><td '+td+'>'+escapeHTML(o.abertura||'')+'</td><td '+td+'>'+escapeHTML(o.solicitante||'')+'</td><td '+td+'>'+escapeHTML(o.setor||'')+'</td><td '+td+'>'+escapeHTML(_manutDepto(o))+'</td><td '+td+'>'+escapeHTML(o.equipamento||'')+'</td><td '+td+'>'+escapeHTML(o.tipo||'')+'</td><td '+td+'>'+escapeHTML(o.status||'')+'</td><td '+td+'>'+escapeHTML(o.responsavel||'—')+'</td><td '+td+'>'+(custo?_manutMoeda(custo):'—')+'</td><td '+td+'>'+escapeHTML(o.fechamento||'—')+'</td></tr>';
+                }).join('') + '</table>';
+
+            var kpi = function(lbl, val, cor){ return '<div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;margin-bottom:4px;">'+lbl+'</div><div style="font-size:20px;font-weight:900;color:'+cor+';">'+val+'</div></div>'; };
+
+            var el = document.createElement('div');
+            el.style.cssText = 'position:fixed;left:-10000px;top:0;width:1050px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;padding:0;';
+            el.innerHTML =
+                '<div style="background:#111827;color:#fff;padding:26px 32px;">' +
+                    '<div style="font-size:22px;font-weight:900;letter-spacing:0.15em;">NO PRUMO</div>' +
+                    '<div style="font-size:13px;font-weight:700;color:#fbbf24;letter-spacing:0.08em;margin-top:2px;">RELATÓRIO DE MANUTENÇÃO INDUSTRIAL</div>' +
+                    '<div style="font-size:10px;color:#9ca3af;margin-top:8px;">Período: '+fmtBR(de)+' a '+fmtBR(ate)+' &nbsp;·&nbsp; Gerado por '+escapeHTML(operadorNome||'-')+' em '+new Date().toLocaleDateString('pt-BR')+' às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' &nbsp;·&nbsp; NO PRUMO V'+APP_VERSION+' BETA</div>' +
+                '</div>' +
+                '<div style="padding:24px 32px;">' +
+                    '<div style="display:flex;gap:12px;">'+kpi('Total de O.S', l.length, '#111827')+kpi('Concluídas', conc, '#059669')+kpi('Em Aberto', l.length-conc, '#d97706')+kpi('Custo Total', _manutMoeda(custoTotal), '#b45309')+'</div>' +
+                    '<h2 '+h2+'>Análise por Tipo de Manutenção</h2>' + tabTipo +
+                    '<h2 '+h2+'>Sazonalidade Mensal</h2>' + tabMes +
+                    '<h2 '+h2+'>Demonstrativo por Departamento</h2>' + tabDep +
+                    '<h2 '+h2+'>Detalhamento das Ordens de Serviço</h2>' + tabOS +
+                    '<div style="margin-top:26px;font-size:9px;color:#9ca3af;text-align:center;border-top:1px solid #e5e7eb;padding-top:10px;">Documento gerado automaticamente pelo sistema NO PRUMO — Gestão Operacional. Uso interno.</div>' +
+                '</div>';
+            document.body.appendChild(el);
+            var opt = {
+                margin: [6, 6, 8, 6],
+                filename: 'Prumo_Relatorio_Manutencao_' + (de||'inicio') + '_a_' + (ate||'fim') + '.pdf',
+                image: { type: 'jpeg', quality: 0.96 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+                pagebreak: { mode: ['css', 'legacy'] }
+            };
+            html2pdf().set(opt).from(el).save().then(function(){
+                document.body.removeChild(el);
+                mostrarToast('Relatório PDF gerado! 📄');
+            }).catch(function(e){
+                document.body.removeChild(el);
+                console.warn('[Manut] PDF:', e);
+                mostrarToast('Erro ao gerar o PDF.', true);
+            });
         });
-        var csv = rows.map(function(r){ return r.map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(';'); }).join('\r\n');
-        var blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8;' });
-        var url = URL.createObjectURL(blob), a = document.createElement('a');
-        a.href = url; a.download = 'Prumo_Manutencao_' + ((document.getElementById('manut-de')||{}).value||'') + '_a_' + ((document.getElementById('manut-ate')||{}).value||'') + '.csv';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        mostrarToast('Download do relatório de manutenção iniciado!');
     }
-    window.manutExportCSV = manutExportCSV;
+    window.manutExportPDF = manutExportPDF;
 
     // ============================================================
     // INICIALIZAÇÃO
@@ -6666,30 +7092,19 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Técnico Responsável</label>
-                        <input type="text" id="manut-m-resp" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Mecânico / Eletricista">
+                        <select id="manut-m-resp-sel" onchange="manutRespChange(this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                            <option value="">Selecione...</option>
+                        </select>
+                        <input type="text" id="manut-m-resp-terceiro" class="hidden mt-2 w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Nome do técnico terceirizado...">
                     </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Causa Raiz</label>
-                    <input type="text" id="manut-m-causa" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="O que originou o problema...">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ações Realizadas</label>
                     <textarea id="manut-m-acao" rows="3" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 resize-none" placeholder="O que foi executado para resolver..."></textarea>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Parada (h)</label>
-                        <input type="text" id="manut-m-downtime" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,0">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Mão de Obra R$</label>
-                        <input type="text" id="manut-m-custo-mo" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,00">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Peças R$</label>
-                        <input type="text" id="manut-m-custo-pecas" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,00">
-                    </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Custo R$</label>
+                    <input type="text" id="manut-m-custo" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,00">
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="manutSalvarGestao(false)" class="flex-1 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">Salvar Alterações</button>
