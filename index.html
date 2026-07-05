@@ -1052,7 +1052,7 @@
                 <div class="w-full max-w-3xl lg:max-w-5xl mx-auto flex flex-col pb-4">
                     
                     <div id="adm-panel" class="hidden flex-col gap-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <button onclick="abrirModalAtvAdm()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
                                 <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📋</div>
                                 <div class="text-left">
@@ -1065,6 +1065,13 @@
                                 <div class="text-left">
                                     <div class="text-sm uppercase tracking-wider heading-font">Relatórios</div>
                                     <div class="text-xs text-emerald-100 font-normal">PDF • XLSX</div>
+                                </div>
+                            </button>
+                            <button onclick="navigate('view-manut-adm')" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🛠️</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Manutenção</div>
+                                    <div class="text-xs text-orange-100 font-normal">Pipeline de O.S • Custos</div>
                                 </div>
                             </button>
                         </div>
@@ -1745,15 +1752,138 @@
                         <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500">🔧</div>
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Abertura de O.S</h2>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex-1 flex flex-col gap-6">
-                        <div class="w-full">
-                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
-                            <input type="text" id="os-equipamento" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Ex: Elevador 01, Balança...">
+                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex flex-col gap-5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Solicitante</span>
+                            <span id="manut-solic-chip" class="text-xs font-black text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">—</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-2">Setor</span>
+                            <span id="manut-setor-chip" class="text-xs font-black text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">—</span>
                         </div>
-                        <div class="w-full flex-1 flex flex-col">
-                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descrição do Problema</label>
-                            <textarea id="os-problema" class="w-full flex-1 min-h-[200px] bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all resize-none" placeholder="Descreva detalhadamente a falha, ruídos anormais, ou motivo da solicitação..."></textarea>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
+                                <input type="text" id="os-equipamento" list="manut-equip-list" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Ex: Elevador 01, Balança...">
+                                <datalist id="manut-equip-list"></datalist>
+                            </div>
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Tipo de Manutenção</label>
+                                <select id="os-tipo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer">
+                                    <option value="" disabled selected>Selecione...</option>
+                                    <option value="Corretiva">Corretiva — conserta a quebra</option>
+                                    <option value="Preventiva">Preventiva — evita a quebra</option>
+                                    <option value="Preditiva">Preditiva — monitora condições</option>
+                                    <option value="Emergencial">Emergencial</option>
+                                    <option value="Manutenção de Processos">Manutenção de Processos</option>
+                                    <option value="Predial (Telhado, etc.)">Predial (Telhado, etc.)</option>
+                                    <option value="Instalação/Melhoria">Instalação / Melhoria</option>
+                                </select>
+                            </div>
                         </div>
+                        <div class="w-full flex flex-col">
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descrição da Ocorrência</label>
+                            <textarea id="os-problema" class="w-full min-h-[140px] bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all resize-none" placeholder="Descreva detalhadamente a falha, ruídos anormais, ou motivo da solicitação..."></textarea>
+                        </div>
+                        <button onclick="abrirOSManutencao()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Abrir O.S
+                        </button>
+                    </div>
+                    <div class="mt-8 flex-1">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Minhas Ordens de Serviço</h3>
+                        </div>
+                        <div id="manut-minhas-lista" class="space-y-3 pb-32">
+                            <div class="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
+                                <p class="text-sm text-gray-400">Nenhuma O.S aberta por você ainda.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-manut-adm" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
+                <div class="w-full max-w-6xl mx-auto flex-1 flex flex-col pb-32">
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500">🛠️</div>
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Gestão de Manutenções</h2>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 mb-6 flex flex-wrap items-end gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">De</label>
+                            <input type="date" id="manut-de" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Até</label>
+                            <input type="date" id="manut-ate" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status</label>
+                            <select id="manut-f-status" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                                <option value="">Todos</option>
+                                <option>Pendente</option><option>Em Andamento</option><option>Aguardando Peça</option><option>Concluída</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tipo</label>
+                            <select id="manut-f-tipo" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                                <option value="">Todos</option>
+                                <option>Corretiva</option><option>Preventiva</option><option>Preditiva</option><option>Emergencial</option>
+                                <option>Manutenção de Processos</option><option>Predial (Telhado, etc.)</option><option>Instalação/Melhoria</option>
+                            </select>
+                        </div>
+                        <button onclick="manutRenderAdm()" class="py-2 px-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">Aplicar</button>
+                        <button onclick="manutExportCSV()" class="py-2 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">Exportar CSV</button>
+                    </div>
+
+                    <!-- KPIs -->
+                    <div class="grid grid-cols-3 gap-3 md:gap-4 mb-6">
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 md:p-5 text-center">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total de O.S</div>
+                            <div id="manut-kpi-total" class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white heading-font">0</div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 border border-emerald-200 dark:border-emerald-800/40 rounded-2xl shadow-soft p-4 md:p-5 text-center">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">✓ Concluídas</div>
+                            <div id="manut-kpi-conc" class="text-3xl md:text-4xl font-black text-emerald-600 dark:text-emerald-400 heading-font">0</div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-800/40 rounded-2xl shadow-soft p-4 md:p-5 text-center">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-1">⏳ Em Aberto</div>
+                            <div id="manut-kpi-aberto" class="text-3xl md:text-4xl font-black text-amber-600 dark:text-amber-400 heading-font">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
+                            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                                <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">O.S por Tipo de Manutenção</h3>
+                                <div class="flex items-center gap-3 text-[10px] font-bold text-gray-500 dark:text-gray-400">
+                                    <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-emerald-500 dark:bg-emerald-400 inline-block"></i> Concluída</span>
+                                    <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-amber-500 dark:bg-amber-400 inline-block"></i> Em aberto</span>
+                                </div>
+                            </div>
+                            <div id="manut-chart-tipo"></div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
+                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">O.S por Setor — Quantidade e Custo</h3>
+                            <div id="manut-chart-setor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Resumo mensal -->
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5 mb-6">
+                        <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">O.S por Mês (Período Filtrado)</h3>
+                        <div id="manut-tabela-mes" class="overflow-x-auto"></div>
+                    </div>
+
+                    <!-- Pipeline -->
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Pipeline de Ordens de Serviço</h3>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Toque numa O.S para gerenciar</span>
+                        </div>
+                        <div id="manut-tabela" class="overflow-x-auto"></div>
                     </div>
                 </div>
             </div>
@@ -3464,6 +3594,368 @@
     }
 
     // ============================================================
+    // MÓDULO: GESTÃO DE MANUTENÇÕES INDUSTRIAIS (O.S)
+    // Persistência: doc Firestore operacoes/manutencao { seq, lista }
+    // 100% online — sem localStorage (arquitetura do sistema)
+    // ============================================================
+    var _manutData = { seq: 0, lista: [] };
+    var _manutListener = null;
+    var _manutModalNum = null;
+    var MANUT_TIPOS = ['Corretiva','Preventiva','Preditiva','Emergencial','Manutenção de Processos','Predial (Telhado, etc.)','Instalação/Melhoria'];
+
+    function _manutRef() { return db.collection('operacoes').doc('manutencao'); }
+
+    function manutCarregar(cb) {
+        if (!db) { if (cb) cb(); return; }
+        _manutRef().get().then(function(doc){
+            if (doc.exists) { _manutData = doc.data() || { seq: 0, lista: [] }; _manutData.lista = _manutData.lista || []; }
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[Manut] carregar:', e.message); if (cb) cb(); });
+    }
+
+    function manutListen() {
+        if (!db || _manutListener) return;
+        _manutListener = _manutRef().onSnapshot(function(doc){
+            if (!doc.exists) return;
+            _manutData = doc.data() || { seq: 0, lista: [] };
+            _manutData.lista = _manutData.lista || [];
+            if (currentViewId === 'view-os') manutRenderMinhas();
+            if (currentViewId === 'view-manut-adm') manutRenderAdm();
+        }, function(e){ console.warn('[Manut] listener:', e.message); });
+    }
+
+    /** Atualização atômica: lê o doc, aplica fn(data) e grava na mesma transação */
+    function _manutTx(fn, cb, cbErr) {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — tente novamente quando a internet voltar.', true); if (cbErr) cbErr(); return; }
+        db.runTransaction(function(tx){
+            return tx.get(_manutRef()).then(function(doc){
+                var d = doc.exists ? (doc.data() || {}) : {};
+                d.seq = parseInt(d.seq) || 0;
+                d.lista = d.lista || [];
+                var result = fn(d);
+                tx.set(_manutRef(), JSON.parse(JSON.stringify(d)));
+                return result;
+            });
+        }).then(function(result){
+            if (cb) cb(result);
+        }).catch(function(e){
+            console.warn('[Manut] transação:', e.message);
+            mostrarToast('Erro ao salvar O.S. Verifique a conexão.', true);
+            if (cbErr) cbErr();
+        });
+    }
+
+    function _manutParseNum(s) { return parseFloat(String(s||'').replace(/\./g,'').replace(',','.')) || 0; }
+    function _manutMoeda(v) { return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function _manutISO(ts) { var d = new Date(ts); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+    function manutBadge(status) {
+        var map = {
+            'Pendente':        'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+            'Em Andamento':    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+            'Aguardando Peça': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+            'Concluída':       'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+        };
+        return '<span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-black whitespace-nowrap '+(map[status]||map['Pendente'])+'">'+escapeHTML(status||'Pendente')+'</span>';
+    }
+
+    // ── Visão do colaborador ──
+    function manutInitUser() {
+        var chipS = document.getElementById('manut-solic-chip');
+        var chipT = document.getElementById('manut-setor-chip');
+        if (chipS) chipS.textContent = operadorNome || '—';
+        if (chipT) chipT.textContent = limparEmoji(currentSector) || (isAdmin ? 'Administração' : '—');
+        manutCarregar(function(){ manutRenderMinhas(); });
+        manutListen();
+    }
+    window.manutInitUser = manutInitUser;
+
+    function abrirOSManutencao() {
+        var eq   = (document.getElementById('os-equipamento').value || '').trim();
+        var tipo = document.getElementById('os-tipo') ? document.getElementById('os-tipo').value : '';
+        var desc = (document.getElementById('os-problema').value || '').trim();
+        if (eq.length < 2)  return mostrarToast('Informe o equipamento/máquina.', true);
+        if (!tipo)          return mostrarToast('Selecione o tipo de manutenção.', true);
+        if (desc.length < 5) return mostrarToast('Descreva a ocorrência com mais detalhes.', true);
+        var agora = new Date();
+        _manutTx(function(d){
+            d.seq += 1;
+            d.lista.push({
+                num: d.seq,
+                ts: agora.getTime(),
+                abertura: agora.toLocaleDateString('pt-BR'),
+                aberturaHora: agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                solicitante: operadorNome || '?',
+                setor: limparEmoji(currentSector) || (isAdmin ? 'Administração' : '?'),
+                equipamento: eq,
+                tipo: tipo,
+                descricao: desc,
+                status: 'Pendente',
+                responsavel: '', causaRaiz: '', acao: '',
+                downtime: '', custoMO: 0, custoPecas: 0,
+                fechamento: '', fechamentoTs: null
+            });
+            return d.seq;
+        }, function(num){
+            document.getElementById('os-equipamento').value = '';
+            document.getElementById('os-problema').value = '';
+            if (document.getElementById('os-tipo')) document.getElementById('os-tipo').value = '';
+            saveData(); // grava estado limpo do formulário do setor
+            mostrarToast('O.S #' + num + ' aberta com sucesso! ✓');
+            manutCarregar(function(){ manutRenderMinhas(); });
+        });
+    }
+    window.abrirOSManutencao = abrirOSManutencao;
+
+    function manutRenderMinhas() {
+        var container = document.getElementById('manut-minhas-lista');
+        if (!container) return;
+        var dl = document.getElementById('manut-equip-list');
+        if (dl) {
+            var eqs = {};
+            _manutData.lista.forEach(function(o){ if (o.equipamento) eqs[o.equipamento] = true; });
+            dl.innerHTML = Object.keys(eqs).sort().map(function(e){ return '<option value="'+escapeHTML(e)+'">'; }).join('');
+        }
+        var minhas = _manutData.lista.filter(function(o){ return o.solicitante === operadorNome; })
+            .sort(function(a,b){ return b.num - a.num; }).slice(0, 20);
+        if (!minhas.length) {
+            container.innerHTML = '<div class="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl"><p class="text-sm text-gray-400">Nenhuma O.S aberta por você ainda.</p></div>';
+            return;
+        }
+        container.innerHTML = minhas.map(function(o){
+            var respStr = o.responsavel ? '<span>👷 ' + escapeHTML(o.responsavel) + '</span>' : '';
+            var fechStr = o.fechamento ? '<span class="text-emerald-600 dark:text-emerald-400">✓ ' + escapeHTML(o.fechamento) + '</span>' : '';
+            return '<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">' +
+                '<div class="flex items-center justify-between gap-3 mb-1.5">' +
+                    '<div class="flex items-center gap-2 min-w-0">' +
+                        '<span class="text-xs font-black text-gray-400 shrink-0">#' + o.num + '</span>' +
+                        '<span class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(o.equipamento) + '</span>' +
+                    '</div>' + manutBadge(o.status) +
+                '</div>' +
+                '<p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-1.5">' + escapeHTML(o.descricao) + '</p>' +
+                '<div class="flex items-center gap-3 flex-wrap text-[10px] text-gray-400 font-bold">' +
+                    '<span>' + escapeHTML(o.tipo) + '</span><span>🕐 ' + escapeHTML(o.abertura) + ' ' + escapeHTML(o.aberturaHora) + '</span>' + respStr + fechStr +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    // ── Visão do gestor ──
+    function manutInitAdm() {
+        var de = document.getElementById('manut-de'), ate = document.getElementById('manut-ate');
+        var hoje = new Date();
+        if (de && !de.value)  de.value  = hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'-01';
+        if (ate && !ate.value) ate.value = _manutISO(hoje.getTime());
+        manutCarregar(function(){ manutRenderAdm(); });
+        manutListen();
+    }
+    window.manutInitAdm = manutInitAdm;
+
+    function manutFiltrar() {
+        var de  = (document.getElementById('manut-de')  || {}).value || '';
+        var ate = (document.getElementById('manut-ate') || {}).value || '';
+        var fSt = (document.getElementById('manut-f-status') || {}).value || '';
+        var fTp = (document.getElementById('manut-f-tipo')   || {}).value || '';
+        return _manutData.lista.filter(function(o){
+            var iso = _manutISO(o.ts || 0);
+            if (de  && iso < de)  return false;
+            if (ate && iso > ate) return false;
+            if (fSt && (o.status || 'Pendente') !== fSt) return false;
+            if (fTp && o.tipo !== fTp) return false;
+            return true;
+        });
+    }
+
+    function manutRenderAdm() {
+        var l = manutFiltrar();
+        var conc = l.filter(function(o){ return o.status === 'Concluída'; });
+        var abertas = l.length - conc.length;
+        var elT = document.getElementById('manut-kpi-total'), elC = document.getElementById('manut-kpi-conc'), elA = document.getElementById('manut-kpi-aberto');
+        if (elT) elT.textContent = l.length;
+        if (elC) elC.textContent = conc.length;
+        if (elA) elA.textContent = abertas;
+
+        // Gráfico: O.S por tipo (empilhado concluída/aberta) — rótulos diretos, nunca só cor
+        var porTipo = {}; var maxTipo = 1;
+        MANUT_TIPOS.forEach(function(t){ porTipo[t] = { c: 0, a: 0 }; });
+        l.forEach(function(o){
+            if (!porTipo[o.tipo]) porTipo[o.tipo] = { c: 0, a: 0 };
+            if (o.status === 'Concluída') porTipo[o.tipo].c++; else porTipo[o.tipo].a++;
+        });
+        Object.keys(porTipo).forEach(function(t){ maxTipo = Math.max(maxTipo, porTipo[t].c + porTipo[t].a); });
+        var chT = document.getElementById('manut-chart-tipo');
+        if (chT) chT.innerHTML = Object.keys(porTipo).map(function(t){
+            var c = porTipo[t], tot = c.c + c.a;
+            return '<div class="flex items-center gap-2 mb-2.5">' +
+                '<span class="w-32 shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 text-right truncate" title="'+escapeHTML(t)+'">'+escapeHTML(t)+'</span>' +
+                '<div class="flex-1 flex items-center gap-0.5 h-3.5 min-w-0">' +
+                    (c.c ? '<div class="h-full rounded bg-emerald-500 dark:bg-emerald-400" style="width:'+(c.c/maxTipo*100)+'%" title="Concluídas: '+c.c+'"></div>' : '') +
+                    (c.a ? '<div class="h-full rounded bg-amber-500 dark:bg-amber-400" style="width:'+(c.a/maxTipo*100)+'%" title="Em aberto: '+c.a+'"></div>' : '') +
+                    '<span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 ml-1.5 shrink-0">'+(tot ? c.c+' ✓ · '+c.a+' ⏳' : '—')+'</span>' +
+                '</div></div>';
+        }).join('');
+
+        // Gráfico: O.S por setor (quantidade) + custo total
+        var porSetor = {}; var maxSetor = 1;
+        l.forEach(function(o){
+            var s = o.setor || '?';
+            if (!porSetor[s]) porSetor[s] = { q: 0, custo: 0 };
+            porSetor[s].q++;
+            porSetor[s].custo += (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
+        });
+        Object.keys(porSetor).forEach(function(s){ maxSetor = Math.max(maxSetor, porSetor[s].q); });
+        var chS = document.getElementById('manut-chart-setor');
+        if (chS) chS.innerHTML = Object.keys(porSetor).sort(function(a,b){ return porSetor[b].q - porSetor[a].q; }).map(function(s){
+            var d = porSetor[s];
+            return '<div class="flex items-center gap-2 mb-2.5">' +
+                '<span class="w-32 shrink-0 text-[10px] font-bold text-gray-500 dark:text-gray-400 text-right truncate" title="'+escapeHTML(s)+'">'+escapeHTML(s)+'</span>' +
+                '<div class="flex-1 h-3.5 min-w-0"><div class="h-full rounded bg-blue-500 dark:bg-blue-400" style="width:'+(d.q/maxSetor*100)+'%" title="'+d.q+' O.S"></div></div>' +
+                '<span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 w-32 text-right shrink-0">'+d.q+' O.S · '+_manutMoeda(d.custo)+'</span>' +
+            '</div>';
+        }).join('') || '<p class="text-sm text-gray-400 text-center py-6">Sem O.S no período.</p>';
+
+        // Resumo mensal
+        var porMes = {};
+        l.forEach(function(o){
+            var d = new Date(o.ts || 0);
+            var k = String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+            if (!porMes[k]) porMes[k] = { q: 0, custo: 0, down: 0 };
+            porMes[k].q++;
+            porMes[k].custo += (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
+            porMes[k].down  += _manutParseNum(o.downtime);
+        });
+        var tdCls = 'py-2 px-3 border-b border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300';
+        var thCls = 'py-2 px-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-left border-b border-gray-200 dark:border-gray-600';
+        var tM = document.getElementById('manut-tabela-mes');
+        var mesKeys = Object.keys(porMes).sort(function(a,b){ var pa=a.split('/'), pb=b.split('/'); return (pa[1]+pa[0]) < (pb[1]+pb[0]) ? -1 : 1; });
+        if (tM) tM.innerHTML = mesKeys.length
+            ? '<table class="w-full text-sm"><tr><th class="'+thCls+'">Mês</th><th class="'+thCls+'">Qtd O.S</th><th class="'+thCls+'">Máquina Parada</th><th class="'+thCls+' text-right">Custo Total</th></tr>' +
+              mesKeys.map(function(k){ var m = porMes[k];
+                  return '<tr><td class="'+tdCls+' font-bold">'+k+'</td><td class="'+tdCls+'">'+m.q+'</td><td class="'+tdCls+'">'+m.down.toLocaleString('pt-BR')+' h</td><td class="'+tdCls+' text-right font-bold">'+_manutMoeda(m.custo)+'</td></tr>';
+              }).join('') + '</table>'
+            : '<p class="text-sm text-gray-400 text-center py-6">Sem O.S no período.</p>';
+
+        // Pipeline (tabela scannável — visão-tabela acessível dos gráficos acima)
+        var tP = document.getElementById('manut-tabela');
+        var ordenadas = l.slice().sort(function(a,b){ return b.num - a.num; });
+        if (tP) tP.innerHTML = ordenadas.length
+            ? '<table class="w-full text-xs md:text-sm min-w-[760px]"><tr>' +
+              ['Nº','Abertura','Solicitante','Setor','Equipamento','Tipo','Ocorrência','Status','Responsável','Custo'].map(function(h){ return '<th class="'+thCls+'">'+h+'</th>'; }).join('') + '</tr>' +
+              ordenadas.map(function(o){
+                  var custo = (Number(o.custoMO)||0) + (Number(o.custoPecas)||0);
+                  return '<tr onclick="manutAbrirModal('+o.num+')" class="cursor-pointer hover:bg-blue-50/60 dark:hover:bg-blue-900/10 transition-colors">' +
+                      '<td class="'+tdCls+' font-black">'+o.num+'</td>' +
+                      '<td class="'+tdCls+' whitespace-nowrap">'+escapeHTML(o.abertura||'')+'</td>' +
+                      '<td class="'+tdCls+'">'+escapeHTML(o.solicitante||'')+'</td>' +
+                      '<td class="'+tdCls+'">'+escapeHTML(o.setor||'')+'</td>' +
+                      '<td class="'+tdCls+' font-bold">'+escapeHTML(o.equipamento||'')+'</td>' +
+                      '<td class="'+tdCls+'">'+escapeHTML(o.tipo||'')+'</td>' +
+                      '<td class="'+tdCls+' max-w-[220px] truncate" title="'+escapeHTML(o.descricao||'')+'">'+escapeHTML(o.descricao||'')+'</td>' +
+                      '<td class="'+tdCls+'">'+manutBadge(o.status)+'</td>' +
+                      '<td class="'+tdCls+'">'+escapeHTML(o.responsavel||'—')+'</td>' +
+                      '<td class="'+tdCls+' text-right font-bold whitespace-nowrap">'+(custo ? _manutMoeda(custo) : '—')+'</td>' +
+                  '</tr>';
+              }).join('') + '</table>'
+            : '<p class="text-sm text-gray-400 text-center py-8">Nenhuma O.S encontrada com os filtros atuais.</p>';
+    }
+    window.manutRenderAdm = manutRenderAdm;
+
+    function manutAbrirModal(num) {
+        var o = _manutData.lista.find(function(x){ return x.num === num; });
+        if (!o) return;
+        _manutModalNum = num;
+        document.getElementById('manut-modal-titulo').textContent = 'O.S #' + o.num + ' — ' + o.equipamento;
+        document.getElementById('manut-modal-sub').textContent = 'Aberta em ' + o.abertura + ' às ' + o.aberturaHora + ' por ' + o.solicitante + ' (' + o.setor + ')';
+        document.getElementById('manut-modal-info').innerHTML =
+            '<div><b>Tipo:</b> ' + escapeHTML(o.tipo||'') + '</div>' +
+            '<div><b>Ocorrência:</b> ' + escapeHTML(o.descricao||'') + '</div>' +
+            (o.fechamento ? '<div class="text-emerald-600 dark:text-emerald-400"><b>Fechada em:</b> ' + escapeHTML(o.fechamento) + '</div>' : '');
+        document.getElementById('manut-m-status').value = o.status || 'Pendente';
+        document.getElementById('manut-m-resp').value = o.responsavel || '';
+        document.getElementById('manut-m-causa').value = o.causaRaiz || '';
+        document.getElementById('manut-m-acao').value = o.acao || '';
+        document.getElementById('manut-m-downtime').value = o.downtime || '';
+        document.getElementById('manut-m-custo-mo').value = o.custoMO ? String(o.custoMO).replace('.',',') : '';
+        document.getElementById('manut-m-custo-pecas').value = o.custoPecas ? String(o.custoPecas).replace('.',',') : '';
+        var m = document.getElementById('modal-manut-os');
+        m.classList.remove('hidden','opacity-0'); m.classList.add('flex');
+    }
+    window.manutAbrirModal = manutAbrirModal;
+
+    function manutFecharModal() {
+        var m = document.getElementById('modal-manut-os');
+        m.classList.add('hidden'); m.classList.remove('flex');
+        _manutModalNum = null;
+    }
+    window.manutFecharModal = manutFecharModal;
+
+    function manutSalvarGestao(concluir) {
+        if (_manutModalNum === null) return;
+        var num = _manutModalNum;
+        var patch = {
+            status:      concluir ? 'Concluída' : document.getElementById('manut-m-status').value,
+            responsavel: (document.getElementById('manut-m-resp').value || '').trim(),
+            causaRaiz:   (document.getElementById('manut-m-causa').value || '').trim(),
+            acao:        (document.getElementById('manut-m-acao').value || '').trim(),
+            downtime:    (document.getElementById('manut-m-downtime').value || '').trim(),
+            custoMO:     _manutParseNum(document.getElementById('manut-m-custo-mo').value),
+            custoPecas:  _manutParseNum(document.getElementById('manut-m-custo-pecas').value)
+        };
+        if (concluir && !patch.responsavel) return mostrarToast('Informe o técnico responsável para concluir.', true);
+        if (concluir && !patch.acao) return mostrarToast('Descreva as ações realizadas para concluir.', true);
+        _manutTx(function(d){
+            var o = d.lista.find(function(x){ return x.num === num; });
+            if (!o) return null;
+            Object.keys(patch).forEach(function(k){ o[k] = patch[k]; });
+            if (patch.status === 'Concluída' && !o.fechamento) {
+                var agora = new Date();
+                o.fechamento = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                o.fechamentoTs = agora.getTime();
+            }
+            if (patch.status !== 'Concluída') { o.fechamento = ''; o.fechamentoTs = null; }
+            return o.num;
+        }, function(res){
+            if (res === null) return mostrarToast('O.S não encontrada.', true);
+            manutFecharModal();
+            mostrarToast(concluir ? 'O.S #' + num + ' concluída e fechada! ✓' : 'O.S #' + num + ' atualizada! ✓');
+            manutCarregar(function(){ manutRenderAdm(); });
+        });
+    }
+    window.manutSalvarGestao = manutSalvarGestao;
+
+    function manutExcluirOS() {
+        if (_manutModalNum === null) return;
+        if (!isAdmin) return mostrarToast('Apenas administradores podem excluir O.S.', true);
+        if (!confirm('Excluir definitivamente a O.S #' + _manutModalNum + '? Esta ação não pode ser desfeita.')) return;
+        var num = _manutModalNum;
+        _manutTx(function(d){
+            d.lista = d.lista.filter(function(x){ return x.num !== num; });
+            return num;
+        }, function(){
+            manutFecharModal();
+            mostrarToast('O.S #' + num + ' excluída.');
+            manutCarregar(function(){ manutRenderAdm(); });
+        });
+    }
+    window.manutExcluirOS = manutExcluirOS;
+
+    function manutExportCSV() {
+        var l = manutFiltrar();
+        if (!l.length) return mostrarToast('Sem O.S no período filtrado.', true);
+        var rows = [['Nº O.S','Data Abertura','Hora','Solicitante','Setor','Equipamento','Tipo Manutenção','Descrição Ocorrência','Causa Raiz','Ações Realizadas','Status','Técnico Responsável','Máquina Parada (h)','Custo M.O (R$)','Custo Peças (R$)','Custo Total (R$)','Fechamento']];
+        l.slice().sort(function(a,b){ return a.num - b.num; }).forEach(function(o){
+            rows.push([o.num, o.abertura||'', o.aberturaHora||'', o.solicitante||'', o.setor||'', o.equipamento||'', o.tipo||'', o.descricao||'', o.causaRaiz||'', o.acao||'', o.status||'', o.responsavel||'', o.downtime||'', (Number(o.custoMO)||0).toFixed(2).replace('.',','), (Number(o.custoPecas)||0).toFixed(2).replace('.',','), ((Number(o.custoMO)||0)+(Number(o.custoPecas)||0)).toFixed(2).replace('.',','), o.fechamento||'']);
+        });
+        var csv = rows.map(function(r){ return r.map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(';'); }).join('\r\n');
+        var blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = 'Prumo_Manutencao_' + ((document.getElementById('manut-de')||{}).value||'') + '_a_' + ((document.getElementById('manut-ate')||{}).value||'') + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        mostrarToast('Download do relatório de manutenção iniciado!');
+    }
+    window.manutExportCSV = manutExportCSV;
+
+    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     // Sincronizar Firestore ao minimizar/fechar (sem salvar dados parciais do formulário)
@@ -4504,6 +4996,8 @@
         if (viewId === 'view-op') { renderFormularioOP(); renderListaOPs(); }
         if (viewId === 'view-atividades') { renderListaRegistrosAtv(); }
         if (viewId === 'view-productivity') { renderHistoricoProducao(); }
+        if (viewId === 'view-os') { manutInitUser(); }
+        if (viewId === 'view-manut-adm') { manutInitAdm(); }
         atualizarDesktopSidebar();
     }
 
@@ -4524,7 +5018,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
+        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -4830,7 +5324,7 @@
         if(foot) foot.classList.add('hidden');
         if(zer)  zer.classList.add('hidden');
 
-        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-metas':'Metas','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Retenção','view-divisao-quebra':'Div. / Quebra','view-conv-mm':'Conv. MM','view-conv-hz':'Conv. Hz'};
+        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-metas':'Metas','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Retenção','view-divisao-quebra':'Div. / Quebra','view-conv-mm':'Conv. MM','view-conv-hz':'Conv. Hz','view-manut-adm':'Manutenção'};
         var crumbCls = 'text-[11px] font-bold uppercase tracking-[0.2em]';
         var crumbLink = 'cursor-pointer hover:underline underline-offset-2';
 
@@ -4842,6 +5336,8 @@
             var crumbHTML = '';
             if (viewId === 'view-submenu') {
                 crumbHTML = '<span class="'+crumbCls+'" style="color:var(--text-secondary,#6b7280)">'+escapeHTML(setorLabel)+'</span>';
+            } else if (!setorLabel) {
+                crumbHTML = '<span class="'+crumbCls+'" style="color:var(--text-secondary,#6b7280)">'+escapeHTML(VIEW_LABELS[viewId] || viewId)+'</span>';
             } else {
                 var viewLabel = VIEW_LABELS[viewId] || viewId;
                 crumbHTML = '<span onclick="navigate(\'view-submenu\',currentSector)" class="'+crumbCls+' '+crumbLink+'" style="color:var(--text-secondary,#6b7280)">'+escapeHTML(setorLabel)+'</span>'
@@ -6110,6 +6606,61 @@
     </script>
 
     <!-- MODAL: NOVA / EDITAR META -->
+    <!-- MODAL: GERENCIAR O.S DE MANUTENÇÃO -->
+    <div id="modal-manut-os" role="dialog" aria-modal="true" aria-label="Gerenciar O.S" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden justify-center items-center p-4">
+        <div class="w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800 rounded-t-3xl z-10">
+                <div>
+                    <h3 id="manut-modal-titulo" class="font-black text-lg text-gray-900 dark:text-white heading-font">O.S #—</h3>
+                    <p id="manut-modal-sub" class="text-[11px] text-gray-400 mt-0.5"></p>
+                </div>
+                <button onclick="manutFecharModal()" class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all active:scale-90">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div id="manut-modal-info" class="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 text-sm text-gray-700 dark:text-gray-300 space-y-1"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status</label>
+                        <select id="manut-m-status" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                            <option>Pendente</option><option>Em Andamento</option><option>Aguardando Peça</option><option>Concluída</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Técnico Responsável</label>
+                        <input type="text" id="manut-m-resp" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Mecânico / Eletricista">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Causa Raiz</label>
+                    <input type="text" id="manut-m-causa" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="O que originou o problema...">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ações Realizadas</label>
+                    <textarea id="manut-m-acao" rows="3" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 resize-none" placeholder="O que foi executado para resolver..."></textarea>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Parada (h)</label>
+                        <input type="text" id="manut-m-downtime" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,0">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Mão de Obra R$</label>
+                        <input type="text" id="manut-m-custo-mo" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,00">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Peças R$</label>
+                        <input type="text" id="manut-m-custo-pecas" inputmode="decimal" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 text-center" placeholder="0,00">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="manutSalvarGestao(false)" class="flex-1 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">Salvar Alterações</button>
+                    <button onclick="manutSalvarGestao(true)" class="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">✓ Concluir e Fechar</button>
+                </div>
+                <button onclick="manutExcluirOS()" class="w-full py-2.5 text-red-500 hover:text-red-700 font-bold text-[11px] uppercase tracking-widest transition-colors">Excluir O.S</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-nova-meta" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6)">
         <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="bg-amber-500 p-5 flex items-center justify-between">
