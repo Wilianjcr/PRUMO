@@ -397,13 +397,6 @@
         }
 
         /* Liquid Glass: action bar */
-        html[data-theme="liquid-glass"] #action-bar {
-            background: rgba(255,60,60,0.08) !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            border-color: rgba(255,60,60,0.15) !important;
-        }
-
         /* Liquid Glass: scrollbar */
         html[data-theme="liquid-glass"] ::-webkit-scrollbar-thumb {
             background: rgba(255,255,255,0.15) !important;
@@ -627,10 +620,10 @@
 
         @media print {
             body { background: white !important; color: black !important; }
-            #user-sidebar, header, #action-bar, footer,
+            #user-sidebar, header, footer,
             #view-menu, #view-submenu, #view-atividades, #view-productivity,
             #view-horimetro, #view-percentage, #view-divisao-quebra,
-            #view-conv-mm, #view-conv-hz, #view-os, #view-requisicao, #view-op,
+            #view-os, #view-requisicao, #view-op,
             .print-hide { display: none !important; }
             #modal-adm-email { display: block !important; position: static !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
             #modal-adm-email > div { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
@@ -696,19 +689,6 @@
 
         /* Rosa, Roxo, Marrom theme overrides: consolidated above in universal block */
 
-        /* ── Favorites system ── */
-        .fav-star {
-            position: absolute; top: 8px; right: 8px; z-index: 5;
-            width: 28px; height: 28px; border-radius: 50%;
-            background: rgba(245,158,11,0.12); color: #f59e0b;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; opacity: 1; transition: transform 0.15s ease, background 0.15s ease;
-            pointer-events: auto; cursor: pointer;
-        }
-        .fav-star:active { transform: scale(0.85); }
-        .submenu-card.is-favorite .fav-star {
-            background: rgba(245,158,11,0.3); color: #f59e0b;
-        }
         /* Compact favorites strip at top */
         #favorites-strip {
             display: none; align-items: center; gap: 8px; margin-bottom: 12px;
@@ -742,38 +722,13 @@
             #desktop-sidebar { display: none !important; }
         }
         #favorites-divider { display: none; }
-        /* Drag state for cards */
-        .submenu-card.card-dragging {
-            opacity: 0.7; transform: scale(0.92) !important;
-            box-shadow: 0 12px 40px -8px rgba(0,0,0,0.25) !important;
-            z-index: 50; transition: none !important;
-        }
-        .submenu-card.card-drag-over {
-            border-color: var(--accent, #3b82f6) !important;
-            transform: scale(1.02);
-        }
 
         /* ── ADM Sector Cards ── */
         .adm-setor-card {
             cursor: pointer; user-select: none; -webkit-user-select: none;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            touch-action: pan-y;
         }
         .adm-setor-card:active { transform: scale(0.97); }
-        .adm-setor-card.adm-dragging {
-            opacity: 0.5; transform: scale(0.92);
-            box-shadow: none !important;
-        }
-        .adm-setor-card.adm-drag-over {
-            transform: scale(1.04);
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
-        }
-        .adm-setor-card.adm-lp-active {
-            transform: scale(1.05);
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 3px #6366f1, 0 8px 24px -4px rgba(99,102,241,0.3) !important;
-        }
 
         /* ── Camada de polimento premium ── */
         button { transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease; }
@@ -811,10 +766,13 @@
     <!-- MODAL: Seletor de Tema -->
     <div id="modal-theme" role="dialog" aria-modal="true" aria-label="Selecionar Tema" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[200] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4" onclick="if(event.target===this) fecharSeletorTema()">
         <div id="modal-theme-content" class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md p-6 transform translate-y-4 transition-all duration-300" style="background-color: var(--bg-card, '')">
-            <div class="text-center mb-6">
+            <div class="text-center mb-4">
                 <h2 class="text-lg font-black uppercase tracking-widest heading-font" style="color: var(--text-primary, '')">Selecionar Tema</h2>
                 <p class="text-xs mt-1" style="color: var(--text-secondary, '')">Escolha a aparência do aplicativo</p>
             </div>
+            <button onclick="fecharSeletorTema();abrirFeedback()" class="w-full mb-4 py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-xs uppercase tracking-wider">
+                💬 Reportar Problemas / Sugerir Melhorias
+            </button>
             <div class="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1" id="theme-grid">
                 <!-- Dark Modern -->
                 <button onclick="aplicarTema('dark-modern')" class="theme-option group rounded-2xl border-2 p-1.5 transition-all hover:scale-[1.03] active:scale-[0.98] focus:outline-none" data-theme-key="dark-modern">
@@ -953,7 +911,7 @@
                     <span class="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-sm">🚪</span>
                     Sair
                 </button>
-                <p class="text-[9px] text-gray-400 font-medium uppercase tracking-widest text-center mt-2">Prumo OS v1.1 — Cloud</p>
+                <p data-app-version class="text-[9px] text-gray-400 font-medium uppercase tracking-widest text-center mt-2">NO PRUMO V1.2 BETA</p>
             </div>
         </aside>
 
@@ -985,7 +943,7 @@
                 </button>
             </div>
             <div class="p-4 text-center border-t border-gray-100 dark:border-gray-700">
-                 <p class="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Prumo OS v1.1 — Cloud</p>
+                 <p data-app-version class="text-[10px] text-gray-400 font-medium uppercase tracking-widest">NO PRUMO V1.2 BETA</p>
             </div>
         </div>
 
@@ -1030,15 +988,6 @@
                 <div id="header-title" class="flex items-center justify-center gap-1.5 flex-wrap"></div>
             </div>
         </header>
-
-        <!-- ACTION BAR -->
-        <div id="action-bar" class="hidden bg-red-50/90 dark:bg-red-900/20 backdrop-blur-md border-b border-red-100 dark:border-red-900/50 px-5 py-2.5 justify-between items-center z-10 transition-all duration-300 shrink-0 print-hide">
-            <span class="text-xs font-semibold text-red-800 dark:text-red-300" id="action-bar-title"></span>
-            <button id="btn-zerar-dados" onclick="openModalReset()" class="hidden text-xs font-bold text-white bg-red-600 hover:bg-red-700 items-center gap-1.5 active:scale-95 transition-all px-3 py-1.5 rounded-lg shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                Zerar Tela
-            </button>
-        </div>
 
         <!-- MAIN -->
         <main class="flex-1 relative overflow-hidden flex flex-col transition-colors duration-300 print-hide">
@@ -1085,7 +1034,6 @@
                                     </div>
                                     <h3 class="font-bold text-sm md:text-base text-gray-900 dark:text-white uppercase tracking-widest heading-font">Setores</h3>
                                 </div>
-                                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Segure para reordenar</span>
                             </div>
                             <div id="adm-setores-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
                         </div>
@@ -1190,7 +1138,12 @@
 
             <div id="view-submenu" class="view-hidden w-full flex flex-col p-4 md:p-8">
                 <div class="w-full max-w-4xl lg:max-w-6xl mx-auto flex flex-col pb-6">
-                    
+
+                    <div id="submenu-greeting" class="mb-6 text-center hidden">
+                        <p id="submenu-greeting-sub" class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-1"></p>
+                        <h2 id="submenu-greeting-nome" class="text-xl md:text-2xl font-black text-gray-900 dark:text-white heading-font"></h2>
+                    </div>
+
                     <div id="submenu-quick-read" class="mb-8 bg-white dark:bg-gray-800 rounded-2xl p-6 lg:p-8 border border-gray-200 dark:border-gray-700 shadow-soft hidden">
                         <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4 mb-4">
                             <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font">Resumo de Hoje</h3>
@@ -1244,7 +1197,7 @@
 
                         <button id="btn-menu-retencao" data-key="retencao" onclick="navigate('view-percentage',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-bold text-2xl md:text-3xl group-hover:scale-110 transition-transform mb-3 md:mb-4">%</div>
-                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Retenção</h3>
+                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Tolerância</h3>
                         </button>
 
                         <button id="btn-menu-horimetro" data-key="horimetro" onclick="navigate('view-horimetro',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-rose-500 relative overflow-hidden"><div class="lp-ring"></div>
@@ -1252,20 +1205,6 @@
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Horímetro</h3>
-                        </button>
-
-                        <button id="btn-menu-conv-mm" data-key="conv-mm" onclick="navigate('view-conv-mm',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500 relative overflow-hidden"><div class="lp-ring"></div>
-                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
-                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                            </div>
-                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. MM</h3>
-                        </button>
-
-                        <button id="btn-menu-conv-hz" data-key="conv-hz" onclick="navigate('view-conv-hz',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500 relative overflow-hidden"><div class="lp-ring"></div>
-                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
-                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                            </div>
-                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Conv. HZ</h3>
                         </button>
 
                         <button id="btn-menu-op" data-key="op" onclick="navigate('view-op',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 relative overflow-hidden"><div class="lp-ring"></div>
@@ -1289,13 +1228,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Pedidos</h3>
                         </button>
                     </div>
-
-                    <button onclick="abrirModalHistorico()" class="w-full mt-4 md:mt-6 bg-gray-100/50 dark:bg-gray-800/30 rounded-3xl p-4 md:p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:bg-gray-100 dark:hover:bg-gray-800 group focus:outline-none focus:ring-2 focus:ring-gray-400">
-                        <div class="flex items-center justify-center gap-3">
-                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            <h3 class="text-sm md:text-lg font-bold text-gray-600 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white uppercase tracking-widest heading-font transition-colors">Histórico (Últimos Dias)</h3>
-                        </div>
-                    </button>
 
                 </div>
             </div>
@@ -1358,7 +1290,10 @@
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Histórico de Atividades</h3>
-                            <span id="atv-data-badge" class="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"></span>
+                            <div class="flex items-center gap-2">
+                                <span id="atv-data-badge" class="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"></span>
+                                <button onclick="abrirModalHistorico()" class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors active:scale-95">📅 Dias anteriores</button>
+                            </div>
                         </div>
                         <div id="atv-lista-registros" class="space-y-3">
                             <div class="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
@@ -1373,7 +1308,6 @@
                 <div class="w-full max-w-4xl mx-auto">
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Divisão de Quebra</h2>
-                        <p class="text-sm text-center text-gray-500 mt-1">Cálculo proporcional de rendimento</p>
                     </div>
                     <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-soft border border-gray-200 dark:border-gray-700 transition-colors">
                         <div class="flex flex-col sm:flex-row items-center gap-4 bg-gray-900 dark:bg-black p-6 rounded-2xl mb-8 shadow-inner w-full border border-gray-800">
@@ -1409,6 +1343,10 @@
                         <button onclick="adicionarLinhaQuebra()" class="mt-6 w-full py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl text-gray-500 dark:text-gray-400 font-bold text-sm uppercase tracking-wider active:scale-[0.98] flex justify-center items-center gap-2 transition-all hover:border-gray-400 hover:text-gray-700 dark:hover:border-gray-500 dark:hover:text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg> Adicionar Romaneio
                         </button>
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                            <button onclick="quebraSalvarImagem()" class="py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-xs uppercase tracking-wider">📷 Salvar Imagem</button>
+                            <button onclick="quebraCompartilharImagem()" class="py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-xs uppercase tracking-wider">📤 Compartilhar</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1416,28 +1354,10 @@
             <div id="view-percentage" class="view-hidden w-full p-4 md:p-8">
                 <div class="w-full max-w-3xl mx-auto">
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Análise de Retenção</h2>
-                    </div>
-                    <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-8 border border-gray-200 dark:border-gray-700">
-                        <button id="btn-tab-retencao" onclick="switchTab('retencao')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">Analisar Amostra</button>
-                        <button id="btn-tab-tolerancia" onclick="switchTab('tolerancia')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">Calcular Meta</button>
+                        <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Cálculo de Tolerância</h2>
                     </div>
                     <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors">
-                        <div id="tab-retencao" class="block space-y-6">
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Peso da Amostra (Gramas)</label>
-                                <input type="number" id="peso-amostra" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-all" placeholder="Ex: 300" oninput="calcRetencao()">
-                            </div>
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Peso Retido na Peneira (Gramas)</label>
-                                <input type="number" id="peso-retido" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-all" placeholder="Ex: 45" oninput="calcRetencao()">
-                            </div>
-                            <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Retenção Encontrada</span>
-                                <span id="res-retencao" class="text-6xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">0,00%</span>
-                            </div>
-                        </div>
-                        <div id="tab-tolerancia" class="hidden space-y-6">
+                        <div id="tab-tolerancia" class="block space-y-6">
                             <div class="w-full">
                                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Peso da Amostra (Gramas)</label>
                                 <input type="number" id="tol-amostra" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-2xl font-bold py-4 px-5 outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-all" placeholder="Ex: 300" oninput="calcTolerancia()">
@@ -1659,46 +1579,6 @@
                                 <div class="flex items-baseline gap-1">
                                     <span id="res-horimetro" class="text-6xl font-black text-rose-600 dark:text-rose-500 tracking-tighter">0.00</span>
                                     <span class="text-xl font-bold text-rose-400">h</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-conv-mm" class="view-hidden w-full p-4 md:p-8">
-                <div class="w-full max-w-2xl mx-auto">
-                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Converter MM para CM</h2>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors text-center">
-                        <div class="space-y-8">
-                            <input type="number" id="conv-mm-input" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-4xl font-black outline-none text-gray-900 dark:text-white py-6 px-6 focus:ring-2 focus:ring-teal-500 text-center transition-all" placeholder="0 mm" oninput="calcConvMm()">
-                            <div class="pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Resultado</span>
-                                <div class="flex items-baseline gap-2">
-                                    <span id="res-conv-mm" class="text-7xl font-black text-teal-500 dark:text-teal-400 tracking-tighter">0</span>
-                                    <span class="text-2xl font-bold text-teal-300">cm</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-conv-hz" class="view-hidden w-full p-4 md:p-8">
-                <div class="w-full max-w-2xl mx-auto">
-                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Converter HZ para RPM</h2>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors text-center">
-                        <div class="space-y-8">
-                            <input type="number" id="conv-hz-input" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-4xl font-black outline-none text-gray-900 dark:text-white py-6 px-6 focus:ring-2 focus:ring-teal-500 text-center transition-all" placeholder="0 Hz" oninput="calcConvHz()">
-                            <div class="pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Resultado</span>
-                                <div class="flex items-baseline gap-2">
-                                    <span id="res-conv-hz" class="text-7xl font-black text-teal-500 dark:text-teal-400 tracking-tighter">0</span>
-                                    <span class="text-2xl font-bold text-teal-300">RPM</span>
                                 </div>
                             </div>
                         </div>
@@ -2381,18 +2261,44 @@
         </div>
     </div>
 
-    <!-- MODAL: ZERAR DADOS -->
-    <div id="modal-confirm" role="dialog" aria-modal="true" aria-label="Confirmação" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
-        <div id="modal-content" class="bg-white dark:bg-gray-800 rounded-3xl p-8 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100 dark:border-gray-700">
-            <div class="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 mb-6 mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+    <!-- MODAL: MENU DE ABA (reordenar / favoritar / reportar) -->
+    <div id="modal-tab-menu" role="dialog" aria-modal="true" aria-label="Opções da aba" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[160] hidden justify-center items-end sm:items-center p-4" onclick="if(event.target===this) fecharMenuAba()">
+        <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="tab-menu-titulo" class="font-black text-sm text-gray-900 dark:text-white heading-font uppercase tracking-widest">Aba</h3>
+                <button onclick="fecharMenuAba()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
             </div>
-            <h3 class="text-xl font-black text-center text-gray-900 dark:text-white mb-2 heading-font uppercase tracking-wide">Zerar a Tela?</h3>
-            <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-8">Todos os dados não salvos nesta seção serão apagados permanentemente.</p>
-            <div class="flex gap-3">
-                <button onclick="closeModalReset()" class="flex-1 py-3.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl active:scale-95 text-xs uppercase tracking-wider transition-colors">Cancelar</button>
-                <button onclick="executeReset()" class="flex-1 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl active:scale-[0.98] shadow-md text-xs uppercase tracking-wider transition-colors">Apagar Tudo</button>
+            <div class="space-y-2">
+                <button id="tab-menu-fav" onclick="tabMenuFavoritar()" class="w-full text-left px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-xl transition-colors flex items-center gap-3">⭐ Favoritar</button>
+                <button onclick="tabMenuOrdenar('uso')" class="w-full text-left px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors flex items-center gap-3">📊 Ordenar por mais usados</button>
+                <button onclick="tabMenuOrdenar('alfa')" class="w-full text-left px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors flex items-center gap-3">🔤 Ordem alfabética</button>
+                <button onclick="tabMenuReportar()" class="w-full text-left px-4 py-3.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-xl transition-colors flex items-center gap-3">🟢 Reportar problema (WhatsApp)</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FEEDBACK (colaborador) -->
+    <div id="modal-feedback" role="dialog" aria-modal="true" aria-label="Enviar feedback" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharFeedback()">
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="font-black text-lg text-gray-900 dark:text-white heading-font">💬 Sua opinião importa</h3>
+                <button onclick="fecharFeedback()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Descreva um problema encontrado ou sugira uma melhoria. O gestor receberá e acompanhará o andamento.</p>
+            <textarea id="feedback-msg" rows="5" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 resize-none" placeholder="Ex: Seria útil ter um atalho para..."></textarea>
+            <button onclick="enviarFeedback()" class="mt-4 w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">Enviar</button>
+            <div id="feedback-meus" class="mt-4 space-y-2 max-h-[30vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: FEEDBACK (gestão ADM) -->
+    <div id="modal-feedback-adm" role="dialog" aria-modal="true" aria-label="Gerenciar feedbacks" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharFeedback()">
+        <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4 shrink-0">
+                <h3 class="font-black text-lg text-gray-900 dark:text-white heading-font">💬 Feedbacks dos Colaboradores</h3>
+                <button onclick="fecharFeedback()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+            </div>
+            <div id="feedback-adm-lista" class="space-y-3 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -3328,10 +3234,7 @@
     // ============================================================
     // CARDS — Favorites + Drag & Drop Reorder (Kanban-style)
     // ============================================================
-    var _ds = { timer:null, dragging:null, sx:0, sy:0, moved:false };
-    var _HOLD_MS = 400;
-
-    // ── Favorites System ──
+    // ── Preferências de abas (favoritos, ordem e uso — preferência de UI local) ──
     function _getFavorites() {
         try { var s=localStorage.getItem('smFav_'+(limparEmoji(currentSector)||'x')); return s?JSON.parse(s):[]; } catch(e){ return []; }
     }
@@ -3344,14 +3247,20 @@
     function _saveCardOrder(order) {
         try { localStorage.setItem('smOrd_'+(limparEmoji(currentSector)||'x'), JSON.stringify(order)); } catch(e){}
     }
+    function _getUsoAbas() {
+        try { var s=localStorage.getItem('smUse_'+(limparEmoji(currentSector)||'x')); return s?JSON.parse(s):{}; } catch(e){ return {}; }
+    }
+    function _regUsoAba(key) {
+        try { var u=_getUsoAbas(); u[key]=(u[key]||0)+1; localStorage.setItem('smUse_'+(limparEmoji(currentSector)||'x'), JSON.stringify(u)); } catch(e){}
+    }
     function _toggleFavorite(key) {
         var favs = _getFavorites();
         var idx = favs.indexOf(key);
         if (idx !== -1) { favs.splice(idx, 1); } else { favs.push(key); }
         _saveFavorites(favs);
         _applyFavorites();
-        if (idx === -1) mostrarToast('⭐ Favorito!');
-        else mostrarToast('Removido');
+        if (idx === -1) mostrarToast('⭐ Adicionado aos favoritos!');
+        else mostrarToast('Removido dos favoritos');
     }
     function _applyFavorites() {
         var grid = document.getElementById('submenu-grid'); if (!grid) return;
@@ -3359,22 +3268,20 @@
         var order = _getCardOrder();
         var cards = Array.from(grid.querySelectorAll('.submenu-card'));
 
-        // Mark favorites visually + add star buttons
         cards.forEach(function(c) {
-            var isFav = favs.indexOf(c.dataset.key) !== -1;
-            c.classList.toggle('is-favorite', isFav);
-            var star = c.querySelector('.fav-star');
-            if (!star) {
-                star = document.createElement('div');
-                star.className = 'fav-star';
-                star.addEventListener('click', function(e) { e.stopPropagation(); e.preventDefault(); _toggleFavorite(c.dataset.key); });
-                star.addEventListener('touchend', function(e) { e.stopPropagation(); e.preventDefault(); _toggleFavorite(c.dataset.key); });
-                c.appendChild(star);
+            c.classList.toggle('is-favorite', favs.indexOf(c.dataset.key) !== -1);
+            // O ícone da aba abre o menu contextual (favoritar / ordenar / reportar)
+            var ic = c.querySelector('div.rounded-2xl');
+            if (ic && !ic._menuBound) {
+                ic._menuBound = true;
+                ic.title = 'Opções da aba';
+                ic.addEventListener('click', function(e) {
+                    e.stopPropagation(); e.preventDefault();
+                    abrirMenuAba(c.dataset.key, (c.querySelector('h3')||{}).textContent||'');
+                });
             }
-            star.innerHTML = isFav ? '★' : '☆';
         });
 
-        // Apply saved order if exists
         if (order.length > 0) {
             cards.sort(function(a, b) {
                 var ia = order.indexOf(a.dataset.key), ib = order.indexOf(b.dataset.key);
@@ -3385,17 +3292,14 @@
             cards.forEach(function(c) { grid.appendChild(c); });
         }
 
-        // Render compact favorites strip
         var strip = document.getElementById('favorites-strip');
         if (strip) {
             var favCards = cards.filter(function(c){ return favs.indexOf(c.dataset.key) !== -1; });
-            // Remove old icon buttons
             strip.querySelectorAll('.fav-icon-btn').forEach(function(b){ b.remove(); });
             favCards.forEach(function(c) {
                 var btn = document.createElement('button');
                 btn.className = 'fav-icon-btn';
                 btn.title = c.querySelector('h3') ? c.querySelector('h3').textContent : c.dataset.key;
-                // Get icon from card
                 var iconEl = c.querySelector('svg');
                 if (iconEl) btn.innerHTML = iconEl.outerHTML.replace(/width="28"/g,'width="18"').replace(/height="28"/g,'height="18"');
                 else btn.textContent = (c.querySelector('h3')||{}).textContent||'?';
@@ -3410,60 +3314,62 @@
         var grid=document.getElementById('submenu-grid');
         if(!grid||grid._fi) return;
         grid._fi=true;
-
-        // ─── TOUCH: Hold to start drag ───
-        grid.addEventListener('touchstart', function(e){
+        // Contabiliza uso das abas para a ordenação "mais usados" (bubble: o ícone faz stopPropagation)
+        grid.addEventListener('click', function(e){
             var card=e.target.closest('.submenu-card');
-            if (!card || e.target.closest('.fav-star')) return;
-            _ds.sx=e.touches[0].clientX; _ds.sy=e.touches[0].clientY; _ds.moved=false; _ds.dragging=null;
-            _ds.timer=setTimeout(function(){
-                if(_ds.moved) return;
-                if(navigator.vibrate) navigator.vibrate(25);
-                _ds.dragging=card;
-                card.classList.add('card-dragging');
-            }, _HOLD_MS);
-        }, {passive:true});
-
-        grid.addEventListener('touchmove', function(e){
-            var dx=e.touches[0].clientX-_ds.sx, dy=e.touches[0].clientY-_ds.sy;
-            if(Math.abs(dx)>6||Math.abs(dy)>6) _ds.moved=true;
-            if(!_ds.dragging) { if(_ds.moved) clearTimeout(_ds.timer); return; }
-            // Find card under finger
-            var elem = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-            var target = elem ? elem.closest('.submenu-card') : null;
-            grid.querySelectorAll('.submenu-card').forEach(function(c){ c.classList.remove('card-drag-over'); });
-            if(target && target !== _ds.dragging) target.classList.add('card-drag-over');
-        }, {passive:true});
-
-        grid.addEventListener('touchend', function(e){
-            clearTimeout(_ds.timer);
-            if(_ds.dragging) {
-                var src = _ds.dragging;
-                src.classList.remove('card-dragging');
-                // Find drop target
-                var overCard = grid.querySelector('.card-drag-over');
-                grid.querySelectorAll('.submenu-card').forEach(function(c){ c.classList.remove('card-drag-over'); });
-                if(overCard && overCard !== src) {
-                    // Reorder DOM
-                    var cards = Array.from(grid.querySelectorAll('.submenu-card'));
-                    var srcIdx = cards.indexOf(src), tgtIdx = cards.indexOf(overCard);
-                    if(srcIdx < tgtIdx) overCard.after(src);
-                    else grid.insertBefore(src, overCard);
-                    // Save order
-                    var newOrder = Array.from(grid.querySelectorAll('.submenu-card')).map(function(c){ return c.dataset.key; });
-                    _saveCardOrder(newOrder);
-                    mostrarToast('Ordem salva');
-                }
-                _ds.dragging = null;
-                return;
-            }
-        }, {passive:true});
-        grid.addEventListener('touchcancel', function(){
-            clearTimeout(_ds.timer);
-            if(_ds.dragging) { _ds.dragging.classList.remove('card-dragging'); _ds.dragging=null; }
-            grid.querySelectorAll('.submenu-card').forEach(function(c){ c.classList.remove('card-drag-over'); });
-        }, {passive:true});
+            if(card && card.dataset.key) _regUsoAba(card.dataset.key);
+        });
     }
+
+    // ── Menu contextual de aba ──
+    var _tabMenuAlvo = null;
+    function abrirMenuAba(key, titulo) {
+        _tabMenuAlvo = key;
+        document.getElementById('tab-menu-titulo').textContent = titulo || 'Aba';
+        var favBtn = document.getElementById('tab-menu-fav');
+        if (favBtn) favBtn.textContent = (_getFavorites().indexOf(key) !== -1 ? '💔 Remover dos favoritos' : '⭐ Favoritar');
+        var m = document.getElementById('modal-tab-menu');
+        m.classList.remove('hidden'); m.classList.add('flex');
+    }
+    window.abrirMenuAba = abrirMenuAba;
+    function fecharMenuAba() {
+        var m = document.getElementById('modal-tab-menu');
+        m.classList.add('hidden'); m.classList.remove('flex');
+        _tabMenuAlvo = null;
+    }
+    window.fecharMenuAba = fecharMenuAba;
+    function tabMenuFavoritar() {
+        if (_tabMenuAlvo) _toggleFavorite(_tabMenuAlvo);
+        fecharMenuAba();
+    }
+    window.tabMenuFavoritar = tabMenuFavoritar;
+    function tabMenuOrdenar(modo) {
+        var grid = document.getElementById('submenu-grid');
+        if (!grid) return fecharMenuAba();
+        var cards = Array.from(grid.querySelectorAll('.submenu-card'));
+        var uso = _getUsoAbas();
+        cards.sort(function(a, b) {
+            if (modo === 'uso') return (uso[b.dataset.key]||0) - (uso[a.dataset.key]||0);
+            var ta = ((a.querySelector('h3')||{}).textContent||'').toLowerCase();
+            var tb = ((b.querySelector('h3')||{}).textContent||'').toLowerCase();
+            return ta < tb ? -1 : ta > tb ? 1 : 0;
+        });
+        _saveCardOrder(cards.map(function(c){ return c.dataset.key; }));
+        _applyFavorites();
+        mostrarToast(modo === 'uso' ? 'Abas ordenadas por mais usados ✓' : 'Abas em ordem alfabética ✓');
+        fecharMenuAba();
+    }
+    window.tabMenuOrdenar = tabMenuOrdenar;
+    function tabMenuReportar() {
+        var titulo = document.getElementById('tab-menu-titulo').textContent;
+        var msg = 'Olá! Quero reportar um problema no No Prumo.\nAba: ' + titulo +
+                  '\nSetor: ' + (limparEmoji(currentSector)||'-') +
+                  '\nColaborador: ' + (operadorNome||'-') +
+                  '\n\nDescrição do problema: ';
+        window.open('https://wa.me/5514991328590?text=' + encodeURIComponent(msg), '_blank');
+        fecharMenuAba();
+    }
+    window.tabMenuReportar = tabMenuReportar;
 
     // Legacy compatibility aliases
     function _applySubmenuOrder() { _applyFavorites(); }
@@ -3592,6 +3498,256 @@
         ind.classList.add('visible');
         setTimeout(function(){ ind.classList.remove('visible'); }, 2000);
     }
+
+    // ============================================================
+    // VERSÃO DO APP — incrementar manualmente a cada rodada de
+    // atualização (1.2 → 1.3 → 1.4 ...). Aplicada em todo elemento
+    // com o atributo [data-app-version].
+    // ============================================================
+    var APP_VERSION = '1.2';
+    function aplicarVersaoUI() {
+        var t = 'NO PRUMO V' + APP_VERSION + ' BETA';
+        document.querySelectorAll('[data-app-version]').forEach(function(el){ el.textContent = t; });
+    }
+
+    // ============================================================
+    // MÓDULO: FEEDBACK / SUGESTÕES DE MELHORIA
+    // Persistência: doc Firestore operacoes/feedbacks { lista }
+    // ============================================================
+    var _fbData = { lista: [] };
+    var FB_STATUS = ['Pendente', 'Iniciado', 'Finalizado', 'Não Aprovado'];
+
+    function _fbRef() { return db.collection('operacoes').doc('feedbacks'); }
+
+    function fbCarregar(cb) {
+        if (!db) { if (cb) cb(); return; }
+        _fbRef().get().then(function(doc){
+            if (doc.exists) { _fbData = doc.data() || { lista: [] }; _fbData.lista = _fbData.lista || []; }
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[FB] carregar:', e.message); if (cb) cb(); });
+    }
+
+    function _fbTx(fn, cb) {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — tente novamente quando a internet voltar.', true); return; }
+        db.runTransaction(function(tx){
+            return tx.get(_fbRef()).then(function(doc){
+                var d = doc.exists ? (doc.data() || {}) : {};
+                d.lista = d.lista || [];
+                fn(d);
+                tx.set(_fbRef(), JSON.parse(JSON.stringify(d)));
+            });
+        }).then(function(){ if (cb) cb(); })
+          .catch(function(e){ console.warn('[FB] tx:', e.message); mostrarToast('Erro ao salvar. Verifique a conexão.', true); });
+    }
+
+    function abrirFeedback() {
+        if (isAdmin) {
+            fbCarregar(function(){
+                fbRenderAdm();
+                var m = document.getElementById('modal-feedback-adm');
+                m.classList.remove('hidden'); m.classList.add('flex');
+            });
+        } else {
+            var m = document.getElementById('modal-feedback');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            fbCarregar(function(){ fbRenderMeus(); });
+        }
+    }
+    window.abrirFeedback = abrirFeedback;
+
+    function fecharFeedback() {
+        ['modal-feedback','modal-feedback-adm'].forEach(function(id){
+            var m = document.getElementById(id);
+            if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+        });
+    }
+    window.fecharFeedback = fecharFeedback;
+
+    function enviarFeedback() {
+        var el = document.getElementById('feedback-msg');
+        var msg = (el.value || '').trim();
+        if (msg.length < 5) return mostrarToast('Descreva sua sugestão ou problema.', true);
+        _fbTx(function(d){
+            d.lista.push({
+                id: Date.now(),
+                data: new Date().toLocaleDateString('pt-BR'),
+                autor: operadorNome || '?',
+                setor: limparEmoji(currentSector) || '-',
+                msg: msg,
+                status: 'Pendente',
+                motivo: '',
+                visto: false
+            });
+        }, function(){
+            el.value = '';
+            mostrarToast('Enviado! O gestor irá analisar. 💜');
+            fbCarregar(function(){ fbRenderMeus(); });
+        });
+    }
+    window.enviarFeedback = enviarFeedback;
+
+    function fbBadge(status) {
+        var map = {
+            'Pendente':     'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+            'Iniciado':     'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+            'Finalizado':   'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+            'Não Aprovado': 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+        };
+        var label = status === 'Pendente' ? 'Pendente (Não Iniciado)' : status;
+        return '<span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-black whitespace-nowrap '+(map[status]||map['Pendente'])+'">'+escapeHTML(label)+'</span>';
+    }
+
+    function fbRenderMeus() {
+        var c = document.getElementById('feedback-meus');
+        if (!c) return;
+        var meus = _fbData.lista.filter(function(f){ return f.autor === operadorNome; })
+            .sort(function(a,b){ return b.id - a.id; }).slice(0, 10);
+        c.innerHTML = meus.length
+            ? '<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Meus envios</p>' + meus.map(function(f){
+                return '<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-300">' +
+                    '<div class="flex items-center justify-between gap-2 mb-1"><span class="font-bold text-gray-400 text-[10px]">'+escapeHTML(f.data)+'</span>'+fbBadge(f.status)+'</div>' +
+                    '<p>'+escapeHTML(f.msg)+'</p>' +
+                    (f.motivo ? '<p class="mt-1 text-[11px] text-gray-500"><b>Resposta do gestor:</b> '+escapeHTML(f.motivo)+'</p>' : '') +
+                '</div>';
+            }).join('')
+            : '';
+    }
+
+    function fbRenderAdm() {
+        var c = document.getElementById('feedback-adm-lista');
+        if (!c) return;
+        var lista = _fbData.lista.slice().sort(function(a,b){ return b.id - a.id; });
+        c.innerHTML = lista.length
+            ? lista.map(function(f){
+                var opts = FB_STATUS.map(function(s){ return '<option'+(f.status===s?' selected':'')+'>'+s+'</option>'; }).join('');
+                return '<div class="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4">' +
+                    '<div class="flex items-center justify-between gap-2 flex-wrap mb-2">' +
+                        '<span class="text-xs font-black text-gray-900 dark:text-white">'+escapeHTML(f.autor)+' <span class="font-medium text-gray-400">('+escapeHTML(f.setor)+' · '+escapeHTML(f.data)+')</span></span>' +
+                        fbBadge(f.status) +
+                    '</div>' +
+                    '<p class="text-sm text-gray-700 dark:text-gray-300 mb-3">'+escapeHTML(f.msg)+'</p>' +
+                    (f.motivo ? '<p class="text-xs text-gray-500 mb-2"><b>Motivo registrado:</b> '+escapeHTML(f.motivo)+'</p>' : '') +
+                    '<select onchange="fbMudarStatus('+f.id+',this)" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl py-2 px-3 text-xs font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-400 appearance-none cursor-pointer">'+opts+'</select>' +
+                '</div>';
+            }).join('')
+            : '<p class="text-sm text-gray-400 text-center py-10">Nenhum feedback recebido ainda.</p>';
+    }
+
+    function fbMudarStatus(id, sel) {
+        var novo = sel.value;
+        var motivo = '';
+        if (novo === 'Finalizado' || novo === 'Não Aprovado') {
+            motivo = (prompt('Registre o motivo (obrigatório) para "' + novo + '":') || '').trim();
+            if (!motivo) { mostrarToast('O motivo é obrigatório para ' + novo + '.', true); fbRenderAdm(); return; }
+        }
+        _fbTx(function(d){
+            var f = d.lista.find(function(x){ return x.id === id; });
+            if (!f) return;
+            f.status = novo;
+            f.motivo = motivo;
+            if (novo === 'Finalizado') f.visto = false;
+        }, function(){
+            mostrarToast('Status atualizado ✓');
+            fbCarregar(function(){ fbRenderAdm(); });
+        });
+    }
+    window.fbMudarStatus = fbMudarStatus;
+
+    /** Avisa o colaborador quando uma sugestão dele foi Finalizada */
+    function fbChecarNotificacoes() {
+        if (isAdmin || !operadorNome) return;
+        fbCarregar(function(){
+            var novos = _fbData.lista.filter(function(f){ return f.autor === operadorNome && f.status === 'Finalizado' && !f.visto; });
+            if (!novos.length) return;
+            var f0 = novos[0];
+            var resumo = f0.msg.length > 50 ? f0.msg.slice(0, 50) + '…' : f0.msg;
+            mostrarToast('🎉 Sua sugestão foi concluída: "' + resumo + '"');
+            var ids = novos.map(function(f){ return f.id; });
+            _fbTx(function(d){
+                d.lista.forEach(function(f){ if (ids.indexOf(f.id) !== -1) f.visto = true; });
+            });
+        });
+    }
+
+    // ============================================================
+    // DIVISÃO DE QUEBRA — imagem local (sem tocar no banco)
+    // ============================================================
+    function _quebraDesenharCanvas() {
+        var pesoTotal = document.getElementById('quebra-peso-total').value || '0';
+        var rows = Array.from(document.querySelectorAll('#quebra-rows tr')).map(function(tr){
+            return {
+                sacas:   tr.querySelector('.q-sacas').value || '',
+                teorico: tr.querySelector('.q-peso-teorico').textContent,
+                perc:    tr.querySelector('.q-perc').textContent,
+                real:    tr.querySelector('.q-peso-real').textContent
+            };
+        }).filter(function(r){ return parseFloat(r.sacas) > 0; });
+        if (!rows.length || !(parseFloat(pesoTotal) > 0)) { mostrarToast('Preencha o cálculo antes de gerar a imagem.', true); return null; }
+
+        var W = 720, rowH = 46, top = 190, H = top + rows.length * rowH + 130;
+        var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+        var ctx = cv.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, W, 92);
+        ctx.fillStyle = '#ffffff'; ctx.font = '900 26px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('DIVISÃO DE QUEBRA — PRUMO', W/2, 40);
+        ctx.font = '600 14px Arial'; ctx.fillStyle = '#9ca3af';
+        ctx.fillText(workingDate + '  ·  ' + (limparEmoji(currentSector)||'') + '  ·  ' + (operadorNome||''), W/2, 68);
+        ctx.fillStyle = '#111827'; ctx.font = '900 18px Arial';
+        ctx.fillText('Peso Total Balança: ' + parseFloat(pesoTotal).toLocaleString('pt-BR') + ' kg', W/2, 128);
+
+        var cols = [ {x:30,w:150,t:'Sacas Romaneio'}, {x:190,w:170,t:'Peso Teórico (kg)'}, {x:370,w:130,t:'Proporção'}, {x:510,w:180,t:'Peso Real (kg)'} ];
+        ctx.font = '800 13px Arial'; ctx.fillStyle = '#6b7280'; ctx.textAlign = 'left';
+        cols.forEach(function(c){ ctx.fillText(c.t.toUpperCase(), c.x, top - 16); });
+        ctx.strokeStyle = '#e5e7eb'; ctx.beginPath(); ctx.moveTo(30, top - 8); ctx.lineTo(W - 30, top - 8); ctx.stroke();
+
+        rows.forEach(function(r, i){
+            var y = top + i * rowH + 28;
+            if (i % 2 === 1) { ctx.fillStyle = '#f9fafb'; ctx.fillRect(30, top + i * rowH, W - 60, rowH); }
+            ctx.font = '700 16px Arial'; ctx.fillStyle = '#111827';
+            ctx.fillText(String(r.sacas), cols[0].x + 4, y);
+            ctx.fillText(r.teorico, cols[1].x + 4, y);
+            ctx.fillText(r.perc, cols[2].x + 4, y);
+            ctx.fillStyle = '#b45309'; ctx.font = '900 16px Arial';
+            ctx.fillText(r.real, cols[3].x + 4, y);
+        });
+
+        var yTot = top + rows.length * rowH + 40;
+        ctx.strokeStyle = '#d1d5db'; ctx.beginPath(); ctx.moveTo(30, yTot - 26); ctx.lineTo(W - 30, yTot - 26); ctx.stroke();
+        ctx.fillStyle = '#111827'; ctx.font = '900 16px Arial';
+        ctx.fillText('TOTAL: ' + document.getElementById('q-total-sacas').textContent + ' sacas', cols[0].x + 4, yTot);
+        ctx.fillText(document.getElementById('q-total-peso').textContent + ' kg', cols[1].x + 4, yTot);
+        ctx.fillText('100%', cols[2].x + 4, yTot);
+        ctx.fillStyle = '#b45309';
+        ctx.fillText(document.getElementById('q-total-real').textContent + ' kg', cols[3].x + 4, yTot);
+        ctx.fillStyle = '#9ca3af'; ctx.font = '600 11px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Gerado pelo NO PRUMO V' + APP_VERSION + ' BETA', W/2, H - 24);
+        return cv;
+    }
+    function _quebraBaixarBlob(blob) {
+        var url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = 'Prumo_Quebra_' + workingDate.replace(/\//g, '-') + '.png';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    function quebraSalvarImagem() {
+        var cv = _quebraDesenharCanvas(); if (!cv) return;
+        cv.toBlob(function(b){ _quebraBaixarBlob(b); mostrarToast('Imagem salva no dispositivo! 📷'); }, 'image/png');
+    }
+    window.quebraSalvarImagem = quebraSalvarImagem;
+    function quebraCompartilharImagem() {
+        var cv = _quebraDesenharCanvas(); if (!cv) return;
+        cv.toBlob(function(b){
+            var f = new File([b], 'Prumo_Quebra_' + workingDate.replace(/\//g, '-') + '.png', { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [f] })) {
+                navigator.share({ files: [f], title: 'Divisão de Quebra — Prumo' }).catch(function(){});
+            } else {
+                _quebraBaixarBlob(b);
+                mostrarToast('Imagem baixada — anexe no WhatsApp para enviar.');
+            }
+        }, 'image/png');
+    }
+    window.quebraCompartilharImagem = quebraCompartilharImagem;
 
     // ============================================================
     // MÓDULO: GESTÃO DE MANUTENÇÕES INDUSTRIAIS (O.S)
@@ -3962,6 +4118,7 @@
     document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') { flushSyncFirestore(); } });
 
     window.onload = function () {
+        aplicarVersaoUI();
         // Fechar splash screen após animação
         var splash = document.getElementById('splash-screen');
         if (splash) {
@@ -3998,6 +4155,7 @@
                     }
                 }
                 if (operadorNome) iniciarListenerFirestore();
+                fbChecarNotificacoes();
             });
         });
 
@@ -4056,24 +4214,29 @@
     }
 
     function exibirBoasVindas() {
-        var els = {
-            nameDisplay: document.getElementById('user-name-display'),
-            welcomeMsg:  document.getElementById('welcome-message'),
-            adm:         document.getElementById('adm-panel')
-        };
-        if (els.nameDisplay) { els.nameDisplay.textContent = operadorNome; els.nameDisplay.classList.remove('hidden'); }
-        if (els.welcomeMsg)  els.welcomeMsg.classList.remove('hidden');
+        var h = new Date().getHours();
+        var saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+        var nameDisplay = document.getElementById('user-name-display');
+        var welcomeMsg  = document.getElementById('welcome-message');
+        var adm         = document.getElementById('adm-panel');
+        if (welcomeMsg) { welcomeMsg.textContent = (isAdmin ? 'Visão do Gestor · ' : '') + saud + '!'; welcomeMsg.classList.remove('hidden'); }
+        if (nameDisplay) { nameDisplay.textContent = 'Olá, ' + operadorNome + '! Bem-vindo de volta. 👋'; nameDisplay.classList.remove('hidden'); }
+        var gWrap = document.getElementById('submenu-greeting');
+        if (gWrap && operadorNome) {
+            gWrap.classList.remove('hidden');
+            var gSub = document.getElementById('submenu-greeting-sub'), gNome = document.getElementById('submenu-greeting-nome');
+            if (gSub)  gSub.textContent  = saud + '! Que bom ter você aqui.';
+            if (gNome) gNome.textContent = 'Olá, ' + operadorNome + '! Bem-vindo de volta. 👋';
+        }
         atualizarDesktopSidebar();
         if (isAdmin) {
-            if (els.adm) { els.adm.classList.remove('hidden'); els.adm.classList.add('flex'); }
-            if (els.dp && currentViewId === 'view-menu') { els.dp.classList.remove('hidden'); els.dp.classList.add('flex'); }
+            if (adm) { adm.classList.remove('hidden'); adm.classList.add('flex'); }
             renderTurnosAdm();
             renderSetoresAdm();
-            _initAdmSetoresDrag();
         } else {
-            if (els.adm) { els.adm.classList.add('hidden'); els.adm.classList.remove('flex'); }
-            if (els.dp)  { els.dp.classList.add('hidden');  els.dp.classList.remove('flex'); }
+            if (adm) { adm.classList.add('hidden'); adm.classList.remove('flex'); }
         }
+        fbChecarNotificacoes();
     }
 
     // ── Admin Sector Grid ──
@@ -4126,63 +4289,6 @@
                 '<span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider heading-font">'+escapeHTML(s.label)+'</span>' +
             '</button>';
         }).join('');
-        _initAdmSetoresDrag();
-    }
-
-    var _admDrag = { timer:null, raf:null, active:false, el:null, over:null, sx:0, sy:0, moved:false };
-    function _initAdmSetoresDrag() {
-        var grid = document.getElementById('adm-setores-grid');
-        if (!grid || grid._admDi) return;
-        grid._admDi = true;
-
-        function cards(){ return Array.from(grid.querySelectorAll('.adm-setor-card')); }
-
-        grid.addEventListener('touchstart', function(e){
-            var card = e.target.closest('.adm-setor-card'); if(!card) return;
-            _admDrag.sx=e.touches[0].clientX; _admDrag.sy=e.touches[0].clientY; _admDrag.moved=false;
-            _admDrag.timer = setTimeout(function(){
-                if(_admDrag.moved) return;
-                if(navigator.vibrate) navigator.vibrate([40,15,40]);
-                _admDrag.active=true; _admDrag.el=card;
-                card.classList.add('adm-lp-active');
-                mostrarToast('🔀 Arraste para reordenar setores');
-            }, 500);
-        }, {passive:true});
-
-        grid.addEventListener('touchmove', function(e){
-            var dx=e.touches[0].clientX-_admDrag.sx, dy=e.touches[0].clientY-_admDrag.sy;
-            if(Math.abs(dx)>8||Math.abs(dy)>8) _admDrag.moved=true;
-            if(!_admDrag.active||!_admDrag.el) return;
-            e.preventDefault();
-            _admDrag.el.style.pointerEvents='none';
-            var target=document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-            _admDrag.el.style.pointerEvents='';
-            var over=target?target.closest('.adm-setor-card'):null;
-            cards().forEach(function(c){ c.classList.remove('adm-drag-over'); });
-            if(over&&over!==_admDrag.el){
-                over.classList.add('adm-drag-over');
-                _admDrag.over=over;
-                var all=cards(), fi=all.indexOf(_admDrag.el), ti=all.indexOf(over);
-                if(fi!==ti){
-                    if(fi<ti) grid.insertBefore(_admDrag.el, over.nextSibling);
-                    else       grid.insertBefore(_admDrag.el, over);
-                }
-            }
-        }, {passive:false});
-
-        function onEnd(){
-            clearTimeout(_admDrag.timer);
-            if(_admDrag.active){
-                var newOrder=cards().map(function(c){ return c.dataset.setorKey; });
-                _saveSetoresOrder(newOrder);
-                cards().forEach(function(c){ c.classList.remove('adm-dragging','adm-drag-over','adm-lp-active'); });
-                if(_admDrag.over) mostrarToast('Ordem dos setores salva! ✓');
-            }
-            cards().forEach(function(c){ c.classList.remove('adm-lp-active','adm-drag-over'); });
-            _admDrag.active=false; _admDrag.el=null; _admDrag.over=null;
-        }
-        grid.addEventListener('touchend', onEnd, {passive:true});
-        grid.addEventListener('touchcancel', onEnd, {passive:true});
     }
 
     function realizarLogin() {
@@ -4698,8 +4804,13 @@
 
     function removerTurno(index) {
         if (!appData.config || !appData.config.turnos) return;
+        var t = appData.config.turnos[index];
+        if (!t) return;
+        var desc = (t.nome||'Turno') + (t.inicio&&t.fim ? ' ('+t.inicio+' – '+t.fim+')' : '');
+        if (!confirm('Apagar permanentemente o registro "' + desc + '"?\n\nEsta ação não pode ser desfeita.')) return;
         appData.config.turnos.splice(index, 1);
         salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
+        mostrarToast('Turno removido.');
     }
 
     /** Seleciona/exibe turno — mostra pills quando há 2+ turnos para o setor */
@@ -4970,8 +5081,6 @@
         hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
         hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
         hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
-        hide('btn-menu-conv-mm',  cleanSetor!=='Operações');
-        hide('btn-menu-conv-hz',  cleanSetor!=='Operações');
         var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE'];
         hide('btn-menu-op', !setoresOP.some(function(s){ return cleanSetor.includes(s); }));
     }
@@ -5018,7 +5127,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-confirm','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
+        ['modal-atividades','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os','modal-tab-menu','modal-feedback','modal-feedback-adm'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -5232,7 +5341,7 @@
     }
 
     function getEmptySectorState() {
-        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:'',opRef:'',opCliente:''}], horInicial:'',horFinal:'', pesoAmostra:'',pesoRetido:'',tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
+        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:'',opRef:'',opCliente:''}], horInicial:'',horFinal:'', tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
     }
 
     function loadDataParaTela() {
@@ -5259,7 +5368,7 @@
             renderHistoricoProducao();
         }
         if (currentViewId === 'view-horimetro') { document.getElementById('hor-inicial').value=st.horInicial||''; document.getElementById('hor-final').value=st.horFinal||''; calcHorimetro(); }
-        if (currentViewId === 'view-percentage') { document.getElementById('peso-amostra').value=st.pesoAmostra||''; document.getElementById('peso-retido').value=st.pesoRetido||''; document.getElementById('tol-amostra').value=st.tolAmostra||''; document.getElementById('tol-perc').value=st.tolPerc||''; calcRetencao(); calcTolerancia(); }
+        if (currentViewId === 'view-percentage') { document.getElementById('tol-amostra').value=st.tolAmostra||''; document.getElementById('tol-perc').value=st.tolPerc||''; calcTolerancia(); }
         if (currentViewId === 'view-atividades') {
             var servicoVal = st.atvServico || '';
             document.getElementById('atv-servico').value = servicoVal;
@@ -5286,7 +5395,7 @@
     }
 
     function saveData() {
-        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-conv-mm','view-conv-hz','view-op'].includes(currentViewId)) return;
+        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-op'].includes(currentViewId)) return;
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         var st = appData[workingDate][currentSector];
@@ -5300,7 +5409,7 @@
             st.shiftIntervalEnd   = document.getElementById('shift-intervalo-fim')    ? document.getElementById('shift-intervalo-fim').value    ||'' : '';
         }
         if (currentViewId === 'view-horimetro')  { st.horInicial=document.getElementById('hor-inicial').value; st.horFinal=document.getElementById('hor-final').value; }
-        if (currentViewId === 'view-percentage') { st.pesoAmostra=document.getElementById('peso-amostra').value; st.pesoRetido=document.getElementById('peso-retido').value; st.tolAmostra=document.getElementById('tol-amostra').value; st.tolPerc=document.getElementById('tol-perc').value; }
+        if (currentViewId === 'view-percentage') { st.tolAmostra=document.getElementById('tol-amostra').value; st.tolPerc=document.getElementById('tol-perc').value; }
         if (currentViewId === 'view-atividades') {
             st.atvServico  = document.getElementById('atv-servico').value;
             var s=document.getElementById('atv-sacas'); if(s) st.atvSacas=s.value;
@@ -5315,16 +5424,12 @@
     }
 
     function atualizarUI(viewId) {
-        var act  = document.getElementById('action-bar');
         var foot = document.getElementById('footer-actions');
-        var zer  = document.getElementById('btn-zerar-dados');
         var tit  = document.getElementById('header-title');
         var subtitle = document.getElementById('header-sector-subtitle');
-        if(act)  act.classList.add('hidden');
         if(foot) foot.classList.add('hidden');
-        if(zer)  zer.classList.add('hidden');
 
-        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-metas':'Metas','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Retenção','view-divisao-quebra':'Div. / Quebra','view-conv-mm':'Conv. MM','view-conv-hz':'Conv. Hz','view-manut-adm':'Manutenção'};
+        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-metas':'Metas','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção'};
         var crumbCls = 'text-[11px] font-bold uppercase tracking-[0.2em]';
         var crumbLink = 'cursor-pointer hover:underline underline-offset-2';
 
@@ -5351,12 +5456,7 @@
                 setTimeout(function(){ _applySubmenuOrder(); _initDragSubmenu(); }, 50);
             }
         }
-        var actionViews = ['view-divisao-quebra','view-os','view-requisicao','view-op'];
-        if (actionViews.includes(viewId)) {
-            if(isAdmin&&act){act.classList.remove('hidden');act.classList.add('flex');}
-            if(viewId!=='view-divisao-quebra'&&viewId!=='view-op'&&viewId!=='view-atividades'&&viewId!=='view-metas'&&foot){foot.classList.remove('hidden');foot.classList.add('block');}
-            if(isAdmin&&['view-divisao-quebra','view-os','view-requisicao','view-op'].includes(viewId)&&zer){zer.classList.remove('hidden');zer.classList.add('flex');}
-        }
+        if (['view-os','view-requisicao'].includes(viewId) && foot) { foot.classList.remove('hidden'); foot.classList.add('block'); }
         // Boletim usa botão inline — footer não é exibido para esse view
         if (viewId==='view-metas') {
             _editMetaIdx = -1;
@@ -5438,19 +5538,6 @@
         salvarNoFirestore();
     }
 
-    function switchTab(t) {
-        document.getElementById('tab-retencao').classList.toggle('hidden', t!=='retencao');
-        document.getElementById('tab-tolerancia').classList.toggle('hidden', t!=='tolerancia');
-        var btnRet=document.getElementById('btn-tab-retencao'), btnTol=document.getElementById('btn-tab-tolerancia');
-        if(t==='retencao'){ btnRet.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all"; btnTol.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all"; }
-        else { btnTol.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all"; btnRet.className="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all"; }
-    }
-
-    function calcRetencao() {
-        var a=parseFloat(document.getElementById('peso-amostra').value), r=parseFloat(document.getElementById('peso-retido').value);
-        document.getElementById('res-retencao').textContent = (!isNaN(a)&&!isNaN(r)&&a>0)?((r/a)*100).toFixed(2).replace('.',',')+'%':'0,00%';
-        debouncedSave();
-    }
     function calcTolerancia() {
         var a=parseFloat(document.getElementById('tol-amostra').value), p=parseFloat(document.getElementById('tol-perc').value);
         document.getElementById('res-tolerancia').textContent = (!isNaN(a)&&!isNaN(p)&&a>0)?((a*p)/100).toFixed(2).replace('.',','):'0,00';
@@ -5471,8 +5558,6 @@
         debouncedSave();
     }
 
-    function calcConvMm() { var v=parseFloat(document.getElementById('conv-mm-input').value); document.getElementById('res-conv-mm').textContent=!isNaN(v)?(v/10).toLocaleString('pt-BR'):'0'; }
-    function calcConvHz() { var v=parseFloat(document.getElementById('conv-hz-input').value); document.getElementById('res-conv-hz').textContent=!isNaN(v)?(v*60).toLocaleString('pt-BR'):'0'; }
 
     function calcMinutos(start, end) {
         if (!start||!end) return 0;
@@ -5924,51 +6009,6 @@
         }).join('');
     }
 
-    function openModalReset()  { var m=document.getElementById('modal-confirm'); m.classList.remove('hidden','opacity-0'); setTimeout(function(){ m.classList.add('opacity-100'); },10); }
-    function closeModalReset() { var m=document.getElementById('modal-confirm'); m.classList.remove('opacity-100'); setTimeout(function(){ m.classList.add('hidden','opacity-0'); },300); }
-
-    function executeReset() {
-        closeModalReset();
-        if (currentViewId==='view-op') {
-            if (appData[workingDate] && appData[workingDate]['_ops']) {
-                appData[workingDate]['_ops'][currentSector] = [];
-                salvarOPs();
-            }
-            renderListaOPs();
-            mostrarToast('OPs do dia limpas.');
-            return;
-        }
-        if (currentViewId==='view-productivity') {
-            _prodFormDirty = false;
-            window.tempTimeBlocks=[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:''}];
-            document.getElementById('justificativa-meta').value='';
-            var hSel=document.getElementById('shift-selector'); if(hSel) hSel.value='';
-            var hIni=document.getElementById('shift-start');    if(hIni) hIni.value='';
-            var hFim=document.getElementById('shift-end');      if(hFim) hFim.value='';
-            document.querySelectorAll('.shift-card').forEach(function(c){ c.classList.remove('selected'); });
-            var sr=document.getElementById('shift-resumo'); if(sr) sr.classList.add('hidden');
-            renderTimeBlocks(); calcTotalProductivity();
-        } else if (currentViewId==='view-divisao-quebra') {
-            document.getElementById('quebra-peso-total').value=''; renderizarLinhasQuebra(['','']); saveDataQuebra();
-        } else if (currentViewId==='view-os') {
-            document.getElementById('os-equipamento').value=''; document.getElementById('os-problema').value='';
-        } else if (currentViewId==='view-requisicao') {
-            ['req-mat-nome','req-mat-qtd','req-mat-just','req-comp-nome','req-comp-qtd','req-comp-just'].forEach(function(id){ document.getElementById(id).value=''; });
-            document.getElementById('req-comp-cat').value='EPIs';
-            if(appData[workingDate]&&appData[workingDate][currentSector]) appData[workingDate][currentSector].reqComprasItens=[];
-            renderReqComprasItens();
-        } else {
-            document.getElementById('atv-servico').value='';
-            var lbl=document.getElementById('lbl-atv-servico');
-            if(lbl){ lbl.textContent='Selecionar atividades...'; lbl.className='truncate pointer-events-none text-gray-400 dark:text-gray-500 font-semibold text-sm md:text-base'; }
-            var s=document.getElementById('atv-sacas'); if(s) s.value='';
-            document.getElementById('atv-ajuda').value='Não'; document.getElementById('atv-ajuda-qtd').value=''; document.getElementById('atv-projecao').value='';
-            toggleAjudaQtd(); checkPlanejamentoBagsVisibility();
-        }
-        if(currentViewId!=='view-divisao-quebra') saveData();
-        mostrarToast('Tela limpa com sucesso.');
-    }
-
     function abrirModalHistorico() {
         var container=document.getElementById('lista-historico');
         document.getElementById('historico-setor').textContent=limparEmoji(currentSector);
@@ -6018,7 +6058,7 @@
     function _renderSetorLinhas(setor, st) {
         var linhas='', blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.ref; });
         var cleanSetor=limparEmoji(setor);
-        if(!blocks.length&&!st.atvServico&&!(cleanSetor==='Manutenção'&&st.horInicial)&&!((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra)) return '';
+        if(!blocks.length&&!st.atvServico&&!(cleanSetor==='Manutenção'&&st.horInicial)) return '';
         linhas+='<tr><td colspan="4" class="sector-header">SETOR: '+cleanSetor.toUpperCase()+'</td></tr>';
         if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName&&st.shiftStart&&st.shiftEnd)
             linhas+='<tr style="background-color:#fffbeb;"><td colspan="4" style="color:#b45309;font-size:11px;font-weight:bold;text-align:center;padding:8px;">⏱️ Turno: '+escapeHTML(st.shiftName)+' ('+escapeHTML(st.shiftStart)+' às '+escapeHTML(st.shiftEnd)+')</td></tr>';
@@ -6038,7 +6078,6 @@
             if((totalM>0||shiftMin>0)&&(totalS<metaT||media<metaH)) linhas+='<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#b91c1c;font-size:12px;padding:10px;"><b>⚠️ Justificativa de Meta:</b> '+escapeHTML(st.justificativa)+'</td></tr>';
         }
         if(st.atvServico){ var ajuda=st.atvAjuda==='Sim'?' | +'+(escapeHTML(st.atvAjudaQtd)||'?')+' pessoas':''; linhas+='<tr style="background-color:#f8fafc;"><td style="font-style:italic;color:#475569;font-size:11px;">(Planejamento do Dia)</td><td style="text-align:right;color:#475569;font-weight:bold;">'+(escapeHTML(st.atvSacas)||'-')+'</td><td style="color:#475569;text-align:center">-</td><td style="color:#475569;">'+escapeHTML(st.atvServico)+ajuda+(st.atvProjecao?' | Entrega: '+escapeHTML(st.atvProjecao):'')+' </td></tr>'; }
-        if((cleanSetor==='Rebenefício'||cleanSetor==='TESTE')&&st.pesoAmostra&&st.pesoRetido){ var p=parseFloat(st.pesoAmostra),r=parseFloat(st.pesoRetido); if(p>0) linhas+='<tr style="background-color:#f0fdf4;"><td colspan="4" style="color:#15803d;font-size:12px;padding:10px;text-align:center"><b>🔍 Retenção de Peneira:</b> '+((r/p)*100).toFixed(2).replace('.',',')+'% <span style="font-weight:normal;opacity:0.8">(Amostra: '+p+'g | Retido: '+r+'g)</span></td></tr>'; }
         if(cleanSetor==='Manutenção'&&st.horInicial&&st.horFinal){ var ini=parseFloat(st.horInicial.replace(/\./g,'').replace(',','.')), fim=parseFloat(st.horFinal.replace(/\./g,'').replace(',','.')); if(!isNaN(ini)&&!isNaN(fim)&&fim>=ini){ var df=fim-ini; linhas+='<tr style="background-color:#eff6ff;"><td colspan="4" style="color:#1d4ed8;font-size:12px;padding:10px;text-align:center"><b>⏱️ Horímetro Registrado:</b> '+Math.floor(df)+'.'+String(Math.round((df-Math.floor(df))*60)).padStart(2,'0')+'h</td></tr>'; } }
         return linhas;
     }
