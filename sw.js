@@ -1,5 +1,5 @@
 // Prumo — Service Worker v2.0
-const CACHE_NAME = 'prumo-v4.20';
+const CACHE_NAME = 'prumo-v4.24';
 const ASSETS = [
     './',
     './index.html',

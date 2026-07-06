@@ -689,23 +689,6 @@
 
         /* Rosa, Roxo, Marrom theme overrides: consolidated above in universal block */
 
-        /* Compact favorites strip at top */
-        #favorites-strip {
-            display: none; align-items: center; gap: 8px; margin-bottom: 12px;
-            padding: 8px 12px; overflow-x: auto; flex-wrap: nowrap;
-            border-radius: 12px; background: var(--bg-card-alt, #f9fafb);
-            border: 1px solid var(--border-color, #e5e7eb);
-        }
-        #favorites-strip.visible { display: flex; }
-        #favorites-strip .fav-icon-btn {
-            width: 40px; height: 40px; min-width: 40px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb);
-            cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;
-            font-size: 11px; font-weight: 700; color: var(--text-secondary, #6b7280);
-        }
-        #favorites-strip .fav-icon-btn:active { transform: scale(0.92); }
-        #favorites-strip .fav-icon-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
         /* ── Desktop Layout ── */
         @media (min-width: 1024px) {
@@ -746,6 +729,33 @@
         html.dark .adm-table tbody tr:hover td:not(.sector-header),
         html.dark .adm-table tr:hover td:not(.sector-header) { background-color: rgba(96,165,250,0.08); }
 
+        /* ── Editor Visual (ADM) ── */
+        body.ed-on .ed-el { outline: 1.5px dashed rgba(139,92,246,0.55); outline-offset: 2px; cursor: text; border-radius: 4px; }
+        body.ed-on .ed-el:hover, body.ed-on .ed-el:focus { outline-color: #8b5cf6; background: rgba(139,92,246,0.07); }
+        body.ed-on .ed-ph { outline: 1.5px dotted rgba(245,158,11,0.6); outline-offset: 2px; cursor: pointer; }
+        #ed-fab {
+            position: fixed; bottom: 20px; left: 20px; z-index: 290;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: #8b5cf6; color: #fff; font-size: 20px;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 8px 24px -4px rgba(139,92,246,0.5); cursor: pointer;
+        }
+        #ed-fab.ed-fab-visivel { display: flex; }
+        #ed-fab.ed-fab-on { background: #dc2626; box-shadow: 0 8px 24px -4px rgba(220,38,38,0.5); }
+        #ed-toolbar {
+            position: fixed; z-index: 300; display: none;
+            background: #1f2937; border: 1px solid #4b5563; border-radius: 12px;
+            padding: 6px; gap: 4px; align-items: center;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+        }
+        #ed-toolbar.ed-tb-aberta { display: flex; flex-wrap: wrap; max-width: 320px; }
+        #ed-toolbar button, #ed-toolbar select, #ed-toolbar input[type="color"] {
+            background: #374151; color: #f9fafb; border: none; border-radius: 8px;
+            height: 32px; min-width: 32px; font-size: 13px; font-weight: 800; cursor: pointer; padding: 0 6px;
+        }
+        #ed-toolbar button.ed-tb-ativo { background: #8b5cf6; }
+        #ed-toolbar input[type="color"] { padding: 2px; width: 40px; }
+
         /* Acessibilidade: reduzir movimento global quando solicitado */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -760,6 +770,23 @@
     <div id="offline-indicator" role="status" aria-live="polite">⚡ Sem conexão — alterações serão sincronizadas ao reconectar</div>
     <div id="save-indicator" role="status" aria-live="polite" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Salvo</div>
     <div id="cloud-indicator" role="status" aria-live="polite" class="flex items-center gap-1.5"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Sincronizado</div>
+
+    <!-- EDITOR VISUAL (ADM): botão flutuante + menu de estilização -->
+    <button id="ed-fab" onclick="edToggle()" title="Modo Editor (ADM)">✏️</button>
+    <div id="ed-toolbar">
+        <button id="ed-tb-b" onclick="edEstilo('bold')" title="Negrito"><b>B</b></button>
+        <button id="ed-tb-i" onclick="edEstilo('italic')" title="Itálico"><i>I</i></button>
+        <button id="ed-tb-u" onclick="edEstilo('underline')" title="Sublinhado"><u>U</u></button>
+        <input type="color" id="ed-tb-cor" onchange="edEstilo('color', this.value)" title="Cor da fonte">
+        <select id="ed-tb-tam" onchange="edEstilo('fontSize', this.value)" title="Tamanho">
+            <option value="">Tam.</option><option>10px</option><option>12px</option><option>14px</option><option>16px</option><option>18px</option><option>22px</option><option>28px</option>
+        </select>
+        <select id="ed-tb-fonte" onchange="edEstilo('fontFamily', this.value)" title="Fonte">
+            <option value="">Fonte</option><option value="'Inter',sans-serif">Inter</option><option value="'Outfit',sans-serif">Outfit</option><option value="Arial,sans-serif">Arial</option><option value="Georgia,serif">Georgia</option><option value="monospace">Mono</option>
+        </select>
+        <button onclick="edRestaurar()" title="Remover personalização deste elemento">↺</button>
+        <button onclick="edFecharToolbar()" title="Fechar">✕</button>
+    </div>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/50 z-[90] backdrop-blur-sm opacity-0 transition-opacity duration-300 print-hide"></div>
 
@@ -901,6 +928,10 @@
                     <span class="w-7 h-7 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm">🎨</span>
                     Tema
                 </button>
+                <button onclick="abrirReporteBug()" class="w-full text-left px-4 py-3 text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl flex items-center gap-3 transition-colors">
+                    <span class="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center text-sm">🐞</span>
+                    Reportar Bug
+                </button>
                 <button id="btn-install-desktop" onclick="installPWA()" class="hidden w-full text-left px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl items-center gap-3 transition-colors">
                     <span class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-sm">📱</span>
                     Instalar App
@@ -930,6 +961,10 @@
                 <button onclick="abrirSeletorTema()" class="w-full text-left px-5 py-4 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl flex items-center gap-4 transition-colors">
                     <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-lg">🎨</div>
                     Selecionar Tema
+                </button>
+                <button onclick="toggleSidebar();abrirReporteBug()" class="w-full text-left px-5 py-4 text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-2xl flex items-center gap-4 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center text-lg">🐞</div>
+                    Reportar Bug
                 </button>
                 <button id="btn-install-sidebar" onclick="installPWA()" class="hidden w-full text-left px-5 py-4 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-2xl items-center gap-4 transition-colors">
                     <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-lg">📱</div>
@@ -1023,6 +1058,20 @@
                                     <div class="text-xs text-orange-100 font-normal">Pipeline de O.S • Custos</div>
                                 </div>
                             </button>
+                            <button onclick="navigate('view-planejamento')" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🗓️</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Planejamento</div>
+                                    <div class="text-xs text-purple-100 font-normal">Turnos • Metas por Turno</div>
+                                </div>
+                            </button>
+                            <button onclick="tplAbrir()" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-violet-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">✉️</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Modelos de Mensagem</div>
+                                    <div class="text-xs text-violet-100 font-normal">Tags • WhatsApp</div>
+                                </div>
+                            </button>
                         </div>
 
                         <!-- ── Setores (ADM) ── -->
@@ -1038,99 +1087,6 @@
                             <div id="adm-setores-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
                         </div>
 
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft overflow-hidden">
-                            <!-- Header -->
-                            <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-sm md:text-base text-gray-900 dark:text-white uppercase tracking-widest heading-font">Gestão de Turnos</h3>
-                                    <p class="text-[10px] text-gray-400 mt-0.5">Configure turnos, horários e dias de trabalho</p>
-                                </div>
-                            </div>
-
-                            <!-- Formulário novo turno -->
-                            <div class="p-5 space-y-4 border-b border-gray-100 dark:border-gray-700">
-                                <!-- Linha 1: Turno + Horários (tudo em uma linha) -->
-                                <div class="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Turno</label>
-                                        <select id="adm-turno-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 appearance-none cursor-pointer">
-                                            <option value="" disabled selected>Selecione...</option>
-                                            <option value="1° Turno">1° Turno</option>
-                                            <option value="2° Turno">2° Turno</option>
-                                            <option value="3° Turno">3° Turno</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Início</label>
-                                        <input type="text" id="adm-turno-inicio" readonly onclick="abrirTimePicker('adm-turno-inicio','Início do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
-                                    </div>
-                                    <span class="flex items-center text-gray-300 dark:text-gray-600 font-bold text-lg pb-1">→</span>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Fim</label>
-                                        <input type="text" id="adm-turno-fim" readonly onclick="abrirTimePicker('adm-turno-fim','Fim do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
-                                    </div>
-                                </div>
-
-                                <!-- Intervalo (Almoço / Janta) -->
-                                <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
-                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
-                                    <input type="text" id="adm-turno-intervalo-inicio" readonly onclick="abrirTimePicker('adm-turno-intervalo-inicio','Início do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
-                                    <span class="text-amber-400 font-bold shrink-0">→</span>
-                                    <input type="text" id="adm-turno-intervalo-fim" readonly onclick="abrirTimePicker('adm-turno-intervalo-fim','Fim do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
-                                    <span class="text-[10px] text-amber-500 dark:text-amber-500 font-medium">(opcional — descontado das horas disponíveis)</span>
-                                </div>
-
-                                <!-- Linha 2: Dias da Semana (horizontal compacto) -->
-                                <div>
-                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dias da Semana</label>
-                                    <div class="grid grid-cols-8 gap-1.5" id="adm-turno-dias">
-                                        <label class="dia-pill"><input type="checkbox" value="Dom" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Dom</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Seg" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Seg</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Ter" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Ter</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Qua" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Qua</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Qui" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Qui</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Sex" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Sex</span></label>
-                                        <label class="dia-pill"><input type="checkbox" value="Sáb" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Sáb</span></label>
-                                        <button type="button" onclick="toggleTodosDias()" class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all" title="Selecionar todos">✓</button>
-                                    </div>
-                                </div>
-
-                                <!-- Linha 3: Setores (chips coloridos) -->
-                                <div>
-                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Setores</label>
-                                    <div class="flex flex-wrap gap-1.5" id="adm-turno-setores">
-                                        <label class="setor-pill"><input type="checkbox" value="⚙️ Rebenefício" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-emerald-300">⚙️ Reb.</span></label>
-                                        <label class="setor-pill"><input type="checkbox" value="🚛 Expedição" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-orange-300">🚛 Exp.</span></label>
-                                        <label class="setor-pill"><input type="checkbox" value="📦 Embalagem" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-purple-300">📦 Emb.</span></label>
-                                        <label class="setor-pill"><input type="checkbox" value="📥 Recebimento" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-blue-300">📥 Rec.</span></label>
-                                        <label class="setor-pill"><input type="checkbox" value="⏱️ Manutenção" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-rose-300">⏱️ Man.</span></label>
-                                        <label class="setor-pill"><input type="checkbox" value="📊 Operações" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-cyan-300">📊 Op.</span></label>
-                                        <button type="button" onclick="toggleTodosSetores()" class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all">Todos</button>
-                                    </div>
-                                </div>
-
-                                <!-- Botão Adicionar -->
-                                <button onclick="adicionarTurno()" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 active:scale-[0.98] text-sm uppercase tracking-wider">
-                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                                    Adicionar Turno
-                                </button>
-                            </div>
-
-                            <!-- Filtro por setor + Lista -->
-                            <div class="p-5">
-                                <div class="flex gap-1.5 mb-4 flex-wrap" id="adm-filtro-setor">
-                                    <button onclick="filtrarTurnosAdm('todos')" id="filtro-todos" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white dark:bg-white text-gray-900 shadow-sm transition-all">Todos</button>
-                                    <button onclick="filtrarTurnosAdm('⚙️ Rebenefício')" id="filtro-reb" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Rebenefício</button>
-                                    <button onclick="filtrarTurnosAdm('🚛 Expedição')" id="filtro-exp" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Expedição</button>
-                                    <button onclick="filtrarTurnosAdm('📦 Embalagem')" id="filtro-emb" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Embalagem</button>
-                                    <button onclick="filtrarTurnosAdm('📥 Recebimento')" id="filtro-rec" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Recebimento</button>
-                                </div>
-                                <div class="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar" id="adm-lista-turnos"></div>
-                            </div>
-                        </div>
                     </div>
 
                 </div>
@@ -1164,8 +1120,6 @@
                         </div>
                     </div>
 
-                    <div id="favorites-strip"><span class="text-[9px] font-bold uppercase tracking-widest shrink-0" style="color: var(--text-muted, #9ca3af)">⭐</span></div>
-                    <div id="favorites-divider"></div>
                     <div id="submenu-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 justify-center place-content-start">
                         <button data-key="atividades" onclick="navigate('view-atividades',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-blue-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
@@ -1179,13 +1133,6 @@
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Boletim</h3>
-                        </button>
-
-                        <button id="btn-menu-metas" data-key="metas" onclick="navigate('view-metas',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500 relative overflow-hidden"><div class="lp-ring"></div>
-                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
-                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            </div>
-                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Metas</h3>
                         </button>
 
                         <button id="btn-menu-quebra" data-key="quebra" onclick="navigate('view-divisao-quebra',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-amber-500 relative overflow-hidden"><div class="lp-ring"></div>
@@ -1227,6 +1174,13 @@
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Pedidos</h3>
                         </button>
+
+                        <button data-key="cronograma" onclick="navigate('view-cronograma',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-violet-500 relative overflow-hidden"><div class="lp-ring"></div>
+                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-violet-50 dark:bg-violet-900/20 text-violet-500 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
+                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Cronograma</h3>
+                        </button>
                     </div>
 
                 </div>
@@ -1238,8 +1192,15 @@
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Atividades do Dia</h2>
                     </div>
 
-                    <!-- Formulário de nova atividade -->
-                    <div id="atv-form-container" class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 transition-colors">
+                    <!-- Botão (+) — formulário abre em pop-up -->
+                    <button onclick="abrirModalNovaAtv()" class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Nova Atividade
+                    </button>
+
+                    <!-- MODAL: NOVA ATIVIDADE -->
+                    <div id="modal-nova-atv" role="dialog" aria-modal="true" aria-label="Nova atividade" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[105] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharModalNovaAtv()">
+                    <div id="atv-form-container" class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 transition-colors">
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-5">Nova Atividade</h3>
                         <div class="space-y-6">
                             <div class="w-full">
@@ -1258,7 +1219,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="w-full" id="container-atv-sacas">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Volume (Sacas)</label>
-                                    <input type="number" id="atv-sacas" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 320">
+                                    <input type="text" inputmode="numeric" oninput="mascaraMilhar(this)" id="atv-sacas" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 320">
                                 </div>
                                 <div class="w-full" id="container-atv-projecao">
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Projeção de Entrega</label>
@@ -1278,13 +1239,17 @@
                                     <input type="number" id="atv-ajuda-qtd" class="w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl py-4 px-5 text-blue-900 dark:text-blue-100 font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm md:text-base" placeholder="Ex: 2">
                                 </div>
                             </div>
-                            <!-- Botão Salvar Atividade -->
-                            <button onclick="salvarRegistroAtividade()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
-                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                Salvar Atividade
-                            </button>
+                            <!-- Botões Salvar / Cancelar -->
+                            <div class="flex gap-3">
+                                <button onclick="fecharModalNovaAtv()" class="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-2xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">Cancelar</button>
+                                <button onclick="salvarRegistroAtividade()" class="flex-[2] py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                    Salvar Atividade
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    </div><!-- /modal-nova-atv -->
 
                     <!-- Lista de atividades salvas do dia -->
                     <div>
@@ -1535,8 +1500,122 @@
                 </div>
             </div>
 
-            <div id="view-metas" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
-                <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
+            <div id="view-planejamento" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
+                <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col pb-32">
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-500">🗓️</div>
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Planejamento Operacional</h2>
+                    </div>
+                    <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-6 border border-gray-200 dark:border-gray-700">
+                        <button id="btn-plan-turnos" onclick="planSwitchPane('turnos')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">1️⃣ Gestão de Turnos</button>
+                        <button id="btn-plan-metas" onclick="planSwitchPane('metas')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">2️⃣ Metas por Turno</button>
+                    </div>
+                    <div id="plan-pane-turnos">
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft overflow-hidden">
+                            <!-- Header -->
+                            <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-sm md:text-base text-gray-900 dark:text-white uppercase tracking-widest heading-font">Gestão de Turnos</h3>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Configure turnos, horários e dias de trabalho</p>
+                                </div>
+                            </div>
+
+                            <!-- Formulário novo turno -->
+                            <div class="p-5 space-y-4 border-b border-gray-100 dark:border-gray-700">
+                                <!-- Linha 1: Turno + Horários (tudo em uma linha) -->
+                                <div class="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Turno</label>
+                                        <select id="adm-turno-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 appearance-none cursor-pointer">
+                                            <option value="" disabled selected>Selecione...</option>
+                                            <option value="1° Turno">1° Turno</option>
+                                            <option value="2° Turno">2° Turno</option>
+                                            <option value="3° Turno">3° Turno</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Início</label>
+                                        <input type="text" id="adm-turno-inicio" readonly onclick="abrirTimePicker('adm-turno-inicio','Início do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
+                                    </div>
+                                    <span class="flex items-center text-gray-300 dark:text-gray-600 font-bold text-lg pb-1">→</span>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Fim</label>
+                                        <input type="text" id="adm-turno-fim" readonly onclick="abrirTimePicker('adm-turno-fim','Fim do Turno')" placeholder="--:--" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-center w-[105px] cursor-pointer">
+                                    </div>
+                                </div>
+
+                                <!-- Intervalo (Almoço / Janta) -->
+                                <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
+                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
+                                    <input type="text" id="adm-turno-intervalo-inicio" readonly onclick="abrirTimePicker('adm-turno-intervalo-inicio','Início do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
+                                    <span class="text-amber-400 font-bold shrink-0">→</span>
+                                    <input type="text" id="adm-turno-intervalo-fim" readonly onclick="abrirTimePicker('adm-turno-intervalo-fim','Fim do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
+                                    <span class="text-[10px] text-amber-500 dark:text-amber-500 font-medium">(opcional — descontado das horas disponíveis)</span>
+                                </div>
+
+                                <!-- Linha 2: Dias da Semana (horizontal compacto) -->
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dias da Semana</label>
+                                    <div class="grid grid-cols-8 gap-1.5" id="adm-turno-dias">
+                                        <label class="dia-pill"><input type="checkbox" value="Dom" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Dom</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Seg" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Seg</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Ter" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Ter</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Qua" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Qua</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Qui" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Qui</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Sex" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Sex</span></label>
+                                        <label class="dia-pill"><input type="checkbox" value="Sáb" class="hidden"><span class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-pointer select-none transition-all hover:border-purple-300">Sáb</span></label>
+                                        <button type="button" onclick="toggleTodosDias()" class="flex items-center justify-center py-2 rounded-lg text-[10px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all" title="Selecionar todos">✓</button>
+                                    </div>
+                                </div>
+
+                                <!-- Linha 3: Setores (chips coloridos) -->
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Setores</label>
+                                    <div class="flex flex-wrap gap-1.5" id="adm-turno-setores">
+                                        <label class="setor-pill"><input type="checkbox" value="⚙️ Rebenefício" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-emerald-300">⚙️ Reb.</span></label>
+                                        <label class="setor-pill"><input type="checkbox" value="🚛 Expedição" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-orange-300">🚛 Exp.</span></label>
+                                        <label class="setor-pill"><input type="checkbox" value="📦 Embalagem" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-purple-300">📦 Emb.</span></label>
+                                        <label class="setor-pill"><input type="checkbox" value="📥 Recebimento" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-blue-300">📥 Rec.</span></label>
+                                        <label class="setor-pill"><input type="checkbox" value="⏱️ Manutenção" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-rose-300">⏱️ Man.</span></label>
+                                        <label class="setor-pill"><input type="checkbox" value="📊 Operações" class="hidden"><span class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-pointer select-none transition-all hover:border-cyan-300">📊 Op.</span></label>
+                                        <button type="button" onclick="toggleTodosSetores()" class="px-3 py-1.5 rounded-full text-[11px] font-bold border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 cursor-pointer hover:border-purple-400 hover:text-purple-500 transition-all">Todos</button>
+                                    </div>
+                                </div>
+
+                                <!-- Colaboradores do turno -->
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">👥 Colaboradores (opcional — separados por vírgula)</label>
+                                    <input type="text" id="adm-turno-colabs" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: João, Maria, Pedro">
+                                </div>
+
+                                <!-- Prévia da carga horária líquida -->
+                                <div id="adm-turno-liquida" class="hidden bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800/40 rounded-xl px-4 py-2.5 text-xs font-bold text-purple-700 dark:text-purple-300 text-center"></div>
+
+                                <!-- Botão Adicionar -->
+                                <button onclick="adicionarTurno()" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 active:scale-[0.98] text-sm uppercase tracking-wider">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    Adicionar Turno
+                                </button>
+                            </div>
+
+                            <!-- Filtro por setor + Lista -->
+                            <div class="p-5">
+                                <div class="flex gap-1.5 mb-4 flex-wrap" id="adm-filtro-setor">
+                                    <button onclick="filtrarTurnosAdm('todos')" id="filtro-todos" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white dark:bg-white text-gray-900 shadow-sm transition-all">Todos</button>
+                                    <button onclick="filtrarTurnosAdm('⚙️ Rebenefício')" id="filtro-reb" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Rebenefício</button>
+                                    <button onclick="filtrarTurnosAdm('🚛 Expedição')" id="filtro-exp" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Expedição</button>
+                                    <button onclick="filtrarTurnosAdm('📦 Embalagem')" id="filtro-emb" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Embalagem</button>
+                                    <button onclick="filtrarTurnosAdm('📥 Recebimento')" id="filtro-rec" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">Recebimento</button>
+                                </div>
+                                <div class="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar" id="adm-lista-turnos"></div>
+                            </div>
+                    </div>
+                    </div><!-- /plan-pane-turnos -->
+                    <div id="plan-pane-metas" class="hidden">
+                    <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
                     <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h2>
                         <p class="text-sm text-gray-500 mt-1">Defina e confirme as metas por setor e turno</p>
@@ -1555,6 +1634,9 @@
                             <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-widest heading-font text-xs">Histórico de Metas</h3>
                         </div>
                         <div id="metas-historico-lista" class="space-y-3"></div>
+                    </div>
+                </div>
+
                     </div>
                 </div>
             </div>
@@ -1599,16 +1681,27 @@
                         <span id="op-badge-count" class="hidden bg-cyan-500 text-white text-xs font-black px-3 py-1 rounded-full">0 OPs</span>
                     </div>
 
-                    <!-- Formulário nova OP -->
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-soft p-6 mb-6">
-                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Nova OP</h3>
-                        <div class="space-y-4" id="op-form-fields">
-                            <!-- campos injetados por JS conforme setor -->
+                    <!-- Botão (+) — formulário abre em pop-up -->
+                    <button onclick="abrirModalOP()" class="mb-6 w-full py-5 bg-cyan-600 hover:bg-cyan-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Nova OP
+                    </button>
+
+                    <!-- MODAL: NOVA OP -->
+                    <div id="modal-op-form" role="dialog" aria-modal="true" aria-label="Nova OP" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[115] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharModalOP()">
+                        <div class="w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-h-[90vh] overflow-y-auto">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">➕ Nova OP</h3>
+                                <button onclick="fecharModalOP()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+                            </div>
+                            <div class="space-y-4" id="op-form-fields">
+                                <!-- campos injetados por JS conforme setor -->
+                            </div>
+                            <button onclick="adicionarOP()" class="mt-5 w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                Registrar OP
+                            </button>
                         </div>
-                        <button onclick="adicionarOP()" class="mt-5 w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider">
-                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            Registrar OP
-                        </button>
                     </div>
 
                     <!-- Lista de OPs do dia -->
@@ -1817,6 +1910,32 @@
                             <div id="mcad-tec-lista" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div id="view-cronograma" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
+                <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col pb-32">
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-500">📆</div>
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Cronograma de OPs</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-soft p-5 md:p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <button onclick="cronoNav(-1)" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-black active:scale-90 transition-all">‹</button>
+                            <h3 id="crono-label" class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">—</h3>
+                            <button onclick="cronoNav(1)" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-black active:scale-90 transition-all">›</button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 mb-1 text-center">
+                            <span class="text-[10px] font-black text-gray-400 uppercase">Dom</span><span class="text-[10px] font-black text-gray-400 uppercase">Seg</span><span class="text-[10px] font-black text-gray-400 uppercase">Ter</span><span class="text-[10px] font-black text-gray-400 uppercase">Qua</span><span class="text-[10px] font-black text-gray-400 uppercase">Qui</span><span class="text-[10px] font-black text-gray-400 uppercase">Sex</span><span class="text-[10px] font-black text-gray-400 uppercase">Sáb</span>
+                        </div>
+                        <div id="crono-grid" class="grid grid-cols-7 gap-1"></div>
+                        <div class="flex items-center justify-center gap-4 mt-4 text-[10px] font-bold text-gray-500 dark:text-gray-400 flex-wrap">
+                            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"></i> Pendente</span>
+                            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></i> Em Processo</span>
+                            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></i> Concluído</span>
+                        </div>
+                    </div>
+                    <div id="crono-dia-lista" class="mt-5 space-y-2"></div>
                 </div>
             </div>
 
@@ -2313,19 +2432,18 @@
         </div>
     </div>
 
-    <!-- MODAL: MENU DE ABA (reordenar / favoritar / reportar) -->
-    <div id="modal-tab-menu" role="dialog" aria-modal="true" aria-label="Opções da aba" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[160] hidden justify-center items-end sm:items-center p-4" onclick="if(event.target===this) fecharMenuAba()">
-        <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-5">
-            <div class="flex items-center justify-between mb-4">
-                <h3 id="tab-menu-titulo" class="font-black text-sm text-gray-900 dark:text-white heading-font uppercase tracking-widest">Aba</h3>
-                <button onclick="fecharMenuAba()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+    <!-- MODAL: REPORTAR BUG -->
+    <div id="modal-bug" role="dialog" aria-modal="true" aria-label="Reportar bug" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharReporteBug()">
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="font-black text-lg text-gray-900 dark:text-white heading-font">🐞 Reportar Bug</h3>
+                <button onclick="fecharReporteBug()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
             </div>
-            <div class="space-y-2">
-                <button id="tab-menu-fav" onclick="tabMenuFavoritar()" class="w-full text-left px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-xl transition-colors flex items-center gap-3">⭐ Favoritar</button>
-                <button onclick="tabMenuOrdenar('uso')" class="w-full text-left px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors flex items-center gap-3">📊 Ordenar por mais usados</button>
-                <button onclick="tabMenuOrdenar('alfa')" class="w-full text-left px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors flex items-center gap-3">🔤 Ordem alfabética</button>
-                <button onclick="tabMenuReportar()" class="w-full text-left px-4 py-3.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-xl transition-colors flex items-center gap-3">🟢 Reportar problema (WhatsApp)</button>
-            </div>
+            <p class="text-xs text-gray-400 mb-4">Descreva o problema encontrado. Após salvar, você pode enviar direto para a gestão via WhatsApp e acompanhar o status aqui.</p>
+            <textarea id="bug-msg" rows="4" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500 resize-none" placeholder="Ex: Ao clicar em salvar no boletim, a tela..."></textarea>
+            <button onclick="enviarBug()" class="mt-3 w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">Salvar Reporte</button>
+            <button id="bug-btn-whats" onclick="bugEnviarWhats()" class="hidden mt-2 w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">🟢 Enviar via WhatsApp para a gestão</button>
+            <div id="bug-meus" class="mt-4 space-y-2"></div>
         </div>
     </div>
 
@@ -2482,6 +2600,20 @@
             }
         });
 
+        // Expedição: Data Geral + verificação de Fumigação (datas obrigatórias se marcada)
+        if (clean.includes('Expedição')) {
+            html += '<div><label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">📅 Data Geral</label>' +
+                '<input type="date" id="op-data-geral" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-4 px-5 text-base font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 transition-all"></div>' +
+                '<label class="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-4 py-3.5 cursor-pointer">' +
+                    '<input type="checkbox" id="op-fumigacao" onchange="document.getElementById(\'op-fumig-wrap\').classList.toggle(\'hidden\', !this.checked)" class="w-5 h-5 accent-amber-600 cursor-pointer">' +
+                    '<span class="text-sm font-bold text-amber-700 dark:text-amber-400">🧪 Fumigação?</span>' +
+                '</label>' +
+                '<div id="op-fumig-wrap" class="hidden grid grid-cols-2 gap-3">' +
+                    '<div><label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Data de Início *</label><input type="date" id="op-fumig-inicio" class="w-full bg-gray-50 dark:bg-gray-900 border border-amber-300 dark:border-amber-700 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500"></div>' +
+                    '<div><label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Data de Fim *</label><input type="date" id="op-fumig-fim" class="w-full bg-gray-50 dark:bg-gray-900 border border-amber-300 dark:border-amber-700 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500"></div>' +
+                '</div>';
+        }
+
         container.innerHTML = html;
 
         var lbl = document.getElementById('op-data-label');
@@ -2522,8 +2654,24 @@
 
         if (!valido) return mostrarToast('Preencha todos os campos, incluindo atividade e referência.', true);
 
+        // Expedição: Data Geral + Fumigação (datas obrigatórias quando marcada)
+        var elDataGeral = document.getElementById('op-data-geral');
+        if (elDataGeral && elDataGeral.value) op.dataGeral = elDataGeral.value;
+        var elFum = document.getElementById('op-fumigacao');
+        if (elFum && elFum.checked) {
+            var fIni = (document.getElementById('op-fumig-inicio')||{}).value || '';
+            var fFim = (document.getElementById('op-fumig-fim')||{}).value || '';
+            if (!fIni || !fFim) return mostrarToast('Fumigação marcada: informe Data de Início e Data de Fim.', true);
+            if (fFim < fIni) return mostrarToast('A Data de Fim da fumigação deve ser após o Início.', true);
+            op.fumigacao = true; op.fumigInicio = fIni; op.fumigFim = fFim;
+        }
+
+        // Toda nova OP entra como Pendente
+        op.status = 'pendente';
+
         getOPs().push(op);
         salvarOPs();
+        fecharModalOP();
 
         // Limpar todos os campos
         campos.forEach(function(c) {
@@ -2537,16 +2685,35 @@
         mostrarToast('OP registrada com sucesso!');
     }
 
-    function finalizarOPManual(opId) {
+    /** Normaliza status legado para o novo padrão Pendente/Em Processo/Concluído */
+    function opStatusNorm(s) {
+        if (s === 'aguardando' || !s) return 'pendente';
+        if (s === 'andamento') return 'processo';
+        if (s === 'finalizada') return 'concluido';
+        return s;
+    }
+
+    function opMudarStatus(opId, sel) {
         var ops = getOPs();
         var op = ops.find(function(o){ return o.id === opId; });
         if (!op) return;
-        op.status  = 'finalizada';
-        op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        var novo = sel.value;
+        if (novo === 'processo') {
+            // Em Processo exige Data de Início e Data de Fim
+            var ini = (prompt('Data de Início da execução (dd/mm/aaaa):', op.execInicio || workingDate) || '').trim();
+            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(ini)) { mostrarToast('Data de Início obrigatória (dd/mm/aaaa).', true); renderListaOPs(); return; }
+            var fim = (prompt('Data de Fim prevista (dd/mm/aaaa):', op.execFim || workingDate) || '').trim();
+            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(fim)) { mostrarToast('Data de Fim obrigatória (dd/mm/aaaa).', true); renderListaOPs(); return; }
+            op.execInicio = ini; op.execFim = fim;
+        }
+        if (novo === 'concluido' && !op.horaFim) op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        if (novo !== 'concluido') op.horaFim = '';
+        op.status = novo;
         salvarOPs();
         renderListaOPs();
-        mostrarToast('OP ' + (op['op-lote']||op['op-guia']||'') + ' finalizada! ✅');
+        mostrarToast('OP ' + (op['op-lote']||op['op-guia']||'') + ' → ' + (novo==='pendente'?'Pendente':novo==='processo'?'Em Processo':'Concluído') + ' ✓');
     }
+    window.opMudarStatus = opMudarStatus;
 
     function removerOP(id) {
         var ops = getOPs();
@@ -2568,18 +2735,18 @@
         var _getLabelRef = function(op) { return 'Ref.'; };
 
         var STATUS_CONFIG = {
-            'aguardando': { icon: '📋', label: 'Aguardando',   border: 'border-gray-200 dark:border-gray-700',         num: 'bg-gray-100 dark:bg-gray-700 text-gray-500' },
-            'andamento':  { icon: '🔄', label: 'Em andamento', border: 'border-blue-300 dark:border-blue-700',          num: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600' },
-            'finalizada': { icon: '✅', label: 'Finalizada',   border: 'border-emerald-300 dark:border-emerald-700',    num: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600' }
+            'pendente':  { icon: '📋', label: 'Pendente',    border: 'border-gray-200 dark:border-gray-700',       num: 'bg-gray-100 dark:bg-gray-700 text-gray-500' },
+            'processo':  { icon: '🔄', label: 'Em Processo', border: 'border-blue-300 dark:border-blue-700',        num: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600' },
+            'concluido': { icon: '✅', label: 'Concluído',   border: 'border-emerald-300 dark:border-emerald-700',  num: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600' }
         };
 
         container.innerHTML = ops.map(function(op, i) {
             var refVal    = op['op-ref'] || op['op-lote'] || op['op-guia'] || '-';
             var sacas     = op['op-sacas'] || '-';
             var atividade = op['op-atividade'] || '';
-            var status    = op.status || 'aguardando';
-            var cfg       = STATUS_CONFIG[status] || STATUS_CONFIG['aguardando'];
-            var isFinalizada = status === 'finalizada';
+            var status    = opStatusNorm(op.status);
+            var cfg       = STATUS_CONFIG[status] || STATUS_CONFIG['pendente'];
+            var isFinalizada = status === 'concluido';
 
             return '<div class="bg-white dark:bg-gray-800 rounded-2xl border-2 ' + cfg.border + ' p-4 shadow-sm transition-all">' +
                 '<div class="flex items-start justify-between gap-3">' +
@@ -2588,7 +2755,9 @@
                         '<div class="flex-1 min-w-0">' +
                             '<div class="flex items-center gap-2 flex-wrap mb-1.5">' +
                                 (atividade ? '<span class="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">' + escapeHTML(atividade) + '</span>' : '') +
-                                '<span class="text-[10px] font-black px-2 py-0.5 rounded-md ' + (status==='finalizada'?'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400':status==='andamento'?'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400':'bg-gray-100 dark:bg-gray-700 text-gray-500') + '">' + cfg.icon + ' ' + cfg.label + '</span>' +
+                                '<span class="text-[10px] font-black px-2 py-0.5 rounded-md ' + (status==='concluido'?'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400':status==='processo'?'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400':'bg-gray-100 dark:bg-gray-700 text-gray-500') + '">' + cfg.icon + ' ' + cfg.label + '</span>' +
+                                (op.fumigacao ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">🧪 Fumigação ' + escapeHTML((op.fumigInicio||'').split('-').reverse().join('/')) + ' → ' + escapeHTML((op.fumigFim||'').split('-').reverse().join('/')) + '</span>' : '') +
+                                (op.execInicio ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">📅 ' + escapeHTML(op.execInicio) + ' → ' + escapeHTML(op.execFim||'') + '</span>' : '') +
                             '</div>' +
                             '<div class="flex items-center gap-2 flex-wrap">' +
                                 '<span class="text-[10px] font-black text-gray-400 uppercase">' + _getLabelRef(op) + ':</span>' +
@@ -2602,8 +2771,12 @@
                             '</div>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="flex flex-col gap-1 shrink-0">' +
-                        (!isFinalizada ? '<button onclick="finalizarOPManual(' + op.id + ')" class="text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 p-2 rounded-xl active:scale-95 transition-colors" title="Finalizar OP">✓</button>' : '') +
+                    '<div class="flex flex-col gap-1.5 shrink-0 items-end">' +
+                        '<select onchange="opMudarStatus(' + op.id + ',this)" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg py-1.5 px-2 text-[11px] font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-400 appearance-none cursor-pointer">' +
+                            '<option value="pendente"'  + (status==='pendente' ?' selected':'') + '>📋 Pendente</option>' +
+                            '<option value="processo"'  + (status==='processo' ?' selected':'') + '>🔄 Em Processo</option>' +
+                            '<option value="concluido"' + (status==='concluido'?' selected':'') + '>✅ Concluído</option>' +
+                        '</select>' +
                         '<button onclick="removerOP(' + op.id + ')" class="text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 p-2 rounded-xl active:scale-95 transition-colors">' +
                             '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg>' +
                         '</button>' +
@@ -2679,6 +2852,7 @@
         toggleAjudaQtd(); checkPlanejamentoBagsVisibility();
         saveData();
         renderListaRegistrosAtv();
+        fecharModalNovaAtv();
         mostrarToast('Atividade registrada! ✓');
     }
 
@@ -2869,13 +3043,17 @@
         var ajudaStr = r.ajuda === 'Sim' ? 'Sim — ' + (r.ajudaQtd||'?') + ' ajudante(s)' : 'Não';
         var sacasFormatado = r.sacas ? String(parseInt(String(r.sacas).replace(/\D/g,''))||0).replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '';
         var nl = '\n';
-        var texto = '📋 *INFORME DE PLANEJAMENTO*' + nl + nl +
+        var texto = msgTemplate('atividade', {
+            OPERADOR: r.operador, SETOR: cleanSetor, DATA: r.data,
+            ATIVIDADE: r.servico, SACAS: sacasFormatado || '0',
+            PROJECAO: r.projecao || '-', APOIO: ajudaStr
+        }) || ('📋 *INFORME DE PLANEJAMENTO*' + nl + nl +
             '📅 ' + r.data + ' 👤 ' + r.operador + nl +
             '🏢 Setor: ' + cleanSetor + nl + nl +
             '*Serviços do Dia:*' + nl + nl + r.servico +
             (sacasFormatado ? nl + nl + '📦 *Volume Previsto:* ' + sacasFormatado + ' sc' : '') +
             (r.projecao ? nl + '⏰ *Conclusão Estimada:* ' + r.projecao : '') +
-            nl + '🤝 *Apoio Extra:* ' + ajudaStr;
+            nl + '🤝 *Apoio Extra:* ' + ajudaStr);
         fecharModalAtvDetalhe();
         executarCompartilhamento('Planejamento ' + cleanSetor, texto, cleanSetor);
     }
@@ -3024,12 +3202,12 @@
         lista.innerHTML = ops.map(function(op) {
             var rawOp = getOPs().find(function(o){ return o.id === op.id; }) || {};
             var cliente = rawOp['op-cliente'] || '';
-            var status  = rawOp.status || 'aguardando';
-            var stIcon  = status === 'andamento' ? '🔄' : status === 'finalizada' ? '✅' : '📋';
+            var status  = opStatusNorm(rawOp.status);
+            var stIcon  = status === 'processo' ? '🔄 Em Processo' : status === 'concluido' ? '✅ Concluído' : '📋 Pendente';
             var btnHtml = '<button onclick="selecionarOP(' + op.id + ')" class="w-full text-left bg-gray-50 dark:bg-gray-900/50 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 border border-gray-200 dark:border-gray-700 hover:border-cyan-300 dark:hover:border-cyan-700 rounded-2xl p-4 transition-all active:scale-[0.98]">';
             if (op.atividade) {
                 btnHtml += '<span class="inline-block bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wide mb-2 mr-1">' + escapeHTML(op.atividade) + '</span>';
-                btnHtml += '<span class="inline-block text-[10px] font-bold text-gray-400 mb-2">' + stIcon + ' ' + status + '</span>';
+                btnHtml += '<span class="inline-block text-[10px] font-bold text-gray-400 mb-2">' + stIcon + '</span>';
             }
             btnHtml += '<div class="flex items-center justify-between gap-3">' +
                 '<div>' +
@@ -3065,19 +3243,25 @@
         var atividade = op['op-atividade'] || '';
         var cliente   = op['op-cliente'] || '';
         var b = (window.tempTimeBlocks || []).find(function(x){ return x.id === _opSeletorBlockId; });
+        var saldoInfo = '';
         if (b) {
             b.ref      = ref.toUpperCase();
             b.opRef    = ref.toUpperCase();
             b.opCliente = cliente;
             if (atividade) b.activity = atividade;
-            if (sacas && !isNoBagsActivity(atividade || b.activity)) b.bags = sacas;
-            // Preencher observações com o cliente automaticamente
+            // Puxada parcial: traz o SALDO restante da OP (total − já lançado hoje)
+            if (sacas && !isNoBagsActivity(atividade || b.activity)) {
+                var total = parseInt(String(sacas).replace(/\D/g,'')) || 0;
+                var saldo = opSaldoRestante(ref.toUpperCase(), total);
+                b.bags = saldo > 0 ? String(saldo) : '';
+                saldoInfo = ' | Saldo: ' + saldo.toLocaleString('pt-BR') + ' de ' + total.toLocaleString('pt-BR') + ' sc';
+            }
             if (cliente && !b.obs) b.obs = cliente;
             saveData(); mostrarIndicadorSalvo();
             renderTimeBlocks(); calcTotalProductivity();
         }
         fecharSeletorOP();
-        mostrarToast('OP importada: ' + (atividade ? atividade + ' — ' : '') + ref + (cliente ? ' | ' + cliente : ''));
+        mostrarToast('OP importada: ' + (atividade ? atividade + ' — ' : '') + ref + saldoInfo);
     }
 
     // ============================================================
@@ -3260,7 +3444,7 @@
                 appData.config = nuvemCfg;
                 _cachearLocal();
                 if (currentViewId === 'view-productivity') calcTotalProductivity();
-                if (currentViewId === 'view-metas') renderMetasHistorico();
+                if (currentViewId === 'view-planejamento') renderMetasHistorico();
                 atualizarMetasInfo();
             }, function(e){ console.warn('[Firebase] config listener:', e.message); });
     }
@@ -3286,146 +3470,21 @@
     // ============================================================
     // CARDS — Favorites + Drag & Drop Reorder (Kanban-style)
     // ============================================================
-    // ── Preferências de abas (favoritos, ordem e uso — preferência de UI local) ──
-    function _getFavorites() {
-        try { var s=localStorage.getItem('smFav_'+(limparEmoji(currentSector)||'x')); return s?JSON.parse(s):[]; } catch(e){ return []; }
-    }
-    function _saveFavorites(favs) {
-        try { localStorage.setItem('smFav_'+(limparEmoji(currentSector)||'x'), JSON.stringify(favs)); } catch(e){}
-    }
-    function _getCardOrder() {
-        try { var s=localStorage.getItem('smOrd_'+(limparEmoji(currentSector)||'x')); return s?JSON.parse(s):[]; } catch(e){ return []; }
-    }
-    function _saveCardOrder(order) {
-        try { localStorage.setItem('smOrd_'+(limparEmoji(currentSector)||'x'), JSON.stringify(order)); } catch(e){}
-    }
-    function _getUsoAbas() {
-        try { var s=localStorage.getItem('smUse_'+(limparEmoji(currentSector)||'x')); return s?JSON.parse(s):{}; } catch(e){ return {}; }
-    }
-    function _regUsoAba(key) {
-        try { var u=_getUsoAbas(); u[key]=(u[key]||0)+1; localStorage.setItem('smUse_'+(limparEmoji(currentSector)||'x'), JSON.stringify(u)); } catch(e){}
-    }
-    function _toggleFavorite(key) {
-        var favs = _getFavorites();
-        var idx = favs.indexOf(key);
-        if (idx !== -1) { favs.splice(idx, 1); } else { favs.push(key); }
-        _saveFavorites(favs);
-        _applyFavorites();
-        if (idx === -1) mostrarToast('⭐ Adicionado aos favoritos!');
-        else mostrarToast('Removido dos favoritos');
-    }
-    function _applyFavorites() {
+    // ── Ordenação automática das abas: sempre em ordem alfabética ──
+    function _ordenarAbas() {
         var grid = document.getElementById('submenu-grid'); if (!grid) return;
-        var favs = _getFavorites();
-        var order = _getCardOrder();
         var cards = Array.from(grid.querySelectorAll('.submenu-card'));
-
-        cards.forEach(function(c) {
-            c.classList.toggle('is-favorite', favs.indexOf(c.dataset.key) !== -1);
-            // O ícone da aba abre o menu contextual (favoritar / ordenar / reportar)
-            var ic = c.querySelector('div.rounded-2xl');
-            if (ic && !ic._menuBound) {
-                ic._menuBound = true;
-                ic.title = 'Opções da aba';
-                ic.addEventListener('click', function(e) {
-                    e.stopPropagation(); e.preventDefault();
-                    abrirMenuAba(c.dataset.key, (c.querySelector('h3')||{}).textContent||'');
-                });
-            }
-        });
-
-        if (order.length > 0) {
-            cards.sort(function(a, b) {
-                var ia = order.indexOf(a.dataset.key), ib = order.indexOf(b.dataset.key);
-                if (ia === -1) ia = 999;
-                if (ib === -1) ib = 999;
-                return ia - ib;
-            });
-            cards.forEach(function(c) { grid.appendChild(c); });
-        }
-
-        var strip = document.getElementById('favorites-strip');
-        if (strip) {
-            var favCards = cards.filter(function(c){ return favs.indexOf(c.dataset.key) !== -1; });
-            strip.querySelectorAll('.fav-icon-btn').forEach(function(b){ b.remove(); });
-            favCards.forEach(function(c) {
-                var btn = document.createElement('button');
-                btn.className = 'fav-icon-btn';
-                btn.title = c.querySelector('h3') ? c.querySelector('h3').textContent : c.dataset.key;
-                var iconEl = c.querySelector('svg');
-                if (iconEl) btn.innerHTML = iconEl.outerHTML.replace(/width="28"/g,'width="18"').replace(/height="28"/g,'height="18"');
-                else btn.textContent = (c.querySelector('h3')||{}).textContent||'?';
-                btn.onclick = function() { c.click(); };
-                strip.appendChild(btn);
-            });
-            strip.classList.toggle('visible', favCards.length > 0);
-        }
-    }
-
-    function _initFavoritesSystem() {
-        var grid=document.getElementById('submenu-grid');
-        if(!grid||grid._fi) return;
-        grid._fi=true;
-        // Contabiliza uso das abas para a ordenação "mais usados" (bubble: o ícone faz stopPropagation)
-        grid.addEventListener('click', function(e){
-            var card=e.target.closest('.submenu-card');
-            if(card && card.dataset.key) _regUsoAba(card.dataset.key);
-        });
-    }
-
-    // ── Menu contextual de aba ──
-    var _tabMenuAlvo = null;
-    function abrirMenuAba(key, titulo) {
-        _tabMenuAlvo = key;
-        document.getElementById('tab-menu-titulo').textContent = titulo || 'Aba';
-        var favBtn = document.getElementById('tab-menu-fav');
-        if (favBtn) favBtn.textContent = (_getFavorites().indexOf(key) !== -1 ? '💔 Remover dos favoritos' : '⭐ Favoritar');
-        var m = document.getElementById('modal-tab-menu');
-        m.classList.remove('hidden'); m.classList.add('flex');
-    }
-    window.abrirMenuAba = abrirMenuAba;
-    function fecharMenuAba() {
-        var m = document.getElementById('modal-tab-menu');
-        m.classList.add('hidden'); m.classList.remove('flex');
-        _tabMenuAlvo = null;
-    }
-    window.fecharMenuAba = fecharMenuAba;
-    function tabMenuFavoritar() {
-        if (_tabMenuAlvo) _toggleFavorite(_tabMenuAlvo);
-        fecharMenuAba();
-    }
-    window.tabMenuFavoritar = tabMenuFavoritar;
-    function tabMenuOrdenar(modo) {
-        var grid = document.getElementById('submenu-grid');
-        if (!grid) return fecharMenuAba();
-        var cards = Array.from(grid.querySelectorAll('.submenu-card'));
-        var uso = _getUsoAbas();
         cards.sort(function(a, b) {
-            if (modo === 'uso') return (uso[b.dataset.key]||0) - (uso[a.dataset.key]||0);
-            var ta = ((a.querySelector('h3')||{}).textContent||'').toLowerCase();
-            var tb = ((b.querySelector('h3')||{}).textContent||'').toLowerCase();
-            return ta < tb ? -1 : ta > tb ? 1 : 0;
+            var ta = ((a.querySelector('h3')||{}).textContent||'');
+            var tb = ((b.querySelector('h3')||{}).textContent||'');
+            return ta.localeCompare(tb, 'pt-BR');
         });
-        _saveCardOrder(cards.map(function(c){ return c.dataset.key; }));
-        _applyFavorites();
-        mostrarToast(modo === 'uso' ? 'Abas ordenadas por mais usados ✓' : 'Abas em ordem alfabética ✓');
-        fecharMenuAba();
+        cards.forEach(function(c) { grid.appendChild(c); });
     }
-    window.tabMenuOrdenar = tabMenuOrdenar;
-    function tabMenuReportar() {
-        var titulo = document.getElementById('tab-menu-titulo').textContent;
-        var msg = 'Olá! Quero reportar um problema no No Prumo.\nAba: ' + titulo +
-                  '\nSetor: ' + (limparEmoji(currentSector)||'-') +
-                  '\nColaborador: ' + (operadorNome||'-') +
-                  '\n\nDescrição do problema: ';
-        window.open('https://wa.me/5514991328590?text=' + encodeURIComponent(msg), '_blank');
-        fecharMenuAba();
-    }
-    window.tabMenuReportar = tabMenuReportar;
 
     // Legacy compatibility aliases
-    function _applySubmenuOrder() { _applyFavorites(); }
-    function _initDragSubmenu() { _initFavoritesSystem(); }
+    function _applySubmenuOrder() { _ordenarAbas(); }
+    function _initDragSubmenu() {}
 
     // ============================================================
     // UI Controls
@@ -3552,6 +3611,489 @@
     }
 
     // ============================================================
+    // AJUSTES OPERACIONAIS: máscara de milhar, pop-ups (+), bugs,
+    // saldo de OP e cronograma
+    // ============================================================
+    /** Máscara global de milhar (1000 → 1.000) para inputs numéricos de texto */
+    function mascaraMilhar(el) {
+        var d = String(el.value || '').replace(/\D/g, '');
+        el.value = d ? parseInt(d, 10).toLocaleString('pt-BR') : '';
+    }
+    window.mascaraMilhar = mascaraMilhar;
+    window.fmtMilhar = function(n) { return (parseInt(String(n).replace(/\D/g,''),10)||0).toLocaleString('pt-BR'); };
+
+    /** Saldo restante de uma OP considerando o que já foi lançado hoje no setor */
+    function opSaldoRestante(refUpper, total) {
+        var lancado = 0;
+        var conta = function(blocks){ (blocks||[]).forEach(function(x){
+            if ((x.opRef||'').toUpperCase() === refUpper && x.bags) lancado += parseInt(String(x.bags).replace(/\D/g,''))||0;
+        }); };
+        conta(window.tempTimeBlocks);
+        var st = appData[workingDate] && appData[workingDate][currentSector];
+        if (st && st.producaoSalva) conta(st.producaoSalva.timeBlocks);
+        return Math.max(0, (parseInt(String(total).replace(/\D/g,''))||0) - lancado);
+    }
+
+    // ── Pop-ups (+): Nova Atividade e Nova OP ──
+    function abrirModalNovaAtv() {
+        var m = document.getElementById('modal-nova-atv');
+        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+    }
+    window.abrirModalNovaAtv = abrirModalNovaAtv;
+    function fecharModalNovaAtv() {
+        var m = document.getElementById('modal-nova-atv');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.fecharModalNovaAtv = fecharModalNovaAtv;
+    function abrirModalOP() {
+        renderFormularioOP();
+        var m = document.getElementById('modal-op-form');
+        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+    }
+    window.abrirModalOP = abrirModalOP;
+    function fecharModalOP() {
+        var m = document.getElementById('modal-op-form');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.fecharModalOP = fecharModalOP;
+
+    // ── Reporte de Bugs (persistido junto aos feedbacks, tipo:'bug') ──
+    var _bugUltimaMsg = '';
+    function abrirReporteBug() {
+        var m = document.getElementById('modal-bug');
+        if (!m) return;
+        m.classList.remove('hidden'); m.classList.add('flex');
+        var bw = document.getElementById('bug-btn-whats');
+        if (bw) bw.classList.toggle('hidden', !_bugUltimaMsg);
+        fbCarregar(function(){ bugRenderMeus(); });
+    }
+    window.abrirReporteBug = abrirReporteBug;
+    function fecharReporteBug() {
+        var m = document.getElementById('modal-bug');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.fecharReporteBug = fecharReporteBug;
+    function enviarBug() {
+        var el = document.getElementById('bug-msg');
+        var msg = (el.value || '').trim();
+        if (msg.length < 5) return mostrarToast('Descreva o problema encontrado.', true);
+        _fbTx(function(d){
+            d.lista.push({
+                id: Date.now(), tipo: 'bug',
+                data: new Date().toLocaleDateString('pt-BR'),
+                autor: operadorNome || '?', setor: limparEmoji(currentSector) || '-',
+                msg: msg, status: 'Pendente', motivo: '', visto: false
+            });
+        }, function(){
+            _bugUltimaMsg = msg;
+            el.value = '';
+            var bw = document.getElementById('bug-btn-whats');
+            if (bw) bw.classList.remove('hidden');
+            mostrarToast('Bug salvo! Você pode enviá-lo via WhatsApp. 🐞');
+            fbCarregar(function(){ bugRenderMeus(); });
+        });
+    }
+    window.enviarBug = enviarBug;
+    function bugEnviarWhats() {
+        var desc = _bugUltimaMsg || document.getElementById('bug-msg').value || '';
+        var txt = msgTemplate('bug', {
+            OPERADOR: operadorNome || '-', SETOR: limparEmoji(currentSector) || '-',
+            DATA: new Date().toLocaleString('pt-BR'), DESCRICAO: desc
+        }) || ('🐞 Reporte de Bug — No Prumo\nColaborador: ' + (operadorNome||'-') +
+              '\nSetor: ' + (limparEmoji(currentSector)||'-') +
+              '\nData: ' + new Date().toLocaleString('pt-BR') +
+              '\n\nDescrição: ' + desc);
+        window.open('https://wa.me/5514991328590?text=' + encodeURIComponent(txt), '_blank');
+    }
+    window.bugEnviarWhats = bugEnviarWhats;
+    function bugRenderMeus() {
+        var c = document.getElementById('bug-meus');
+        if (!c) return;
+        var meus = _fbData.lista.filter(function(f){ return f.tipo === 'bug' && f.autor === operadorNome; })
+            .sort(function(a,b){ return b.id - a.id; }).slice(0, 10);
+        c.innerHTML = meus.length
+            ? '<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Meus reportes</p>' + meus.map(function(f){
+                var st = f.status === 'Finalizado'
+                    ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">✔ Resolvido</span>'
+                    : f.status === 'Não Aprovado'
+                        ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">Não aprovado</span>'
+                        : '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">🔎 Em análise</span>';
+                return '<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-300">' +
+                    '<div class="flex items-center justify-between gap-2 mb-1"><span class="font-bold text-gray-400 text-[10px]">'+escapeHTML(f.data)+'</span>'+st+'</div>' +
+                    '<p>'+escapeHTML(f.msg)+'</p>' +
+                    (f.motivo ? '<p class="mt-1 text-[11px] text-gray-500"><b>Resposta:</b> '+escapeHTML(f.motivo)+'</p>' : '') +
+                '</div>';
+            }).join('')
+            : '';
+    }
+
+    // ── Cronograma: calendário mensal das OPs (leve, sem biblioteca) ──
+    var _cronoMes = null, _cronoMapa = {};
+    function cronoInit() {
+        var h = new Date();
+        if (!_cronoMes) _cronoMes = { y: h.getFullYear(), m: h.getMonth() };
+        cronoCarregarMes();
+    }
+    window.cronoInit = cronoInit;
+    function cronoNav(dir) {
+        _cronoMes.m += dir;
+        if (_cronoMes.m < 0)  { _cronoMes.m = 11; _cronoMes.y--; }
+        if (_cronoMes.m > 11) { _cronoMes.m = 0;  _cronoMes.y++; }
+        cronoCarregarMes();
+    }
+    window.cronoNav = cronoNav;
+    function cronoCarregarMes() {
+        var MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        var lbl = document.getElementById('crono-label');
+        if (lbl) lbl.textContent = MESES[_cronoMes.m] + ' ' + _cronoMes.y;
+        var grid = document.getElementById('crono-grid');
+        if (grid) grid.innerHTML = '<div class="col-span-7 text-center py-8 text-xs text-gray-400">Carregando OPs do mês...</div>';
+        var y = _cronoMes.y, m = _cronoMes.m, dias = new Date(y, m + 1, 0).getDate();
+        if (!db) { cronoRender({}); return; }
+        var gets = [];
+        for (var d = 1; d <= dias; d++) {
+            gets.push(db.collection('operacoes').doc(String(d).padStart(2,'0') + '-' + String(m+1).padStart(2,'0') + '-' + y).get());
+        }
+        Promise.all(gets).then(function(docs){
+            var mapa = {};
+            var add = function(dia, setor, op){ (mapa[dia] = mapa[dia] || []).push({ setor: limparEmoji(setor), op: op }); };
+            docs.forEach(function(doc, i){
+                if (!doc.exists) return;
+                var ops = (doc.data() || {})['_ops'] || {};
+                Object.keys(ops).forEach(function(setor){
+                    (ops[setor] || []).forEach(function(op){
+                        add(i + 1, setor, op);
+                        // Plota também o intervalo de execução (Em Processo) dentro do mês
+                        if (op.execInicio && op.execFim) {
+                            var pi = op.execInicio.split('/'), pf = op.execFim.split('/');
+                            if (pi.length === 3 && pf.length === 3) {
+                                var di = new Date(pi[2], pi[1]-1, pi[0]), df = new Date(pf[2], pf[1]-1, pf[0]);
+                                for (var dd = new Date(di); dd <= df; dd.setDate(dd.getDate()+1)) {
+                                    if (dd.getFullYear() === y && dd.getMonth() === m && dd.getDate() !== i + 1) add(dd.getDate(), setor, op);
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+            _cronoMapa = mapa;
+            cronoRender(mapa);
+        }).catch(function(e){ console.warn('[Crono]', e.message); cronoRender({}); });
+    }
+    function cronoRender(mapa) {
+        var grid = document.getElementById('crono-grid');
+        if (!grid) return;
+        var y = _cronoMes.y, m = _cronoMes.m;
+        var dias = new Date(y, m + 1, 0).getDate();
+        var primeiro = new Date(y, m, 1).getDay();
+        var hoje = new Date();
+        var html = '';
+        for (var b = 0; b < primeiro; b++) html += '<div></div>';
+        for (var d = 1; d <= dias; d++) {
+            var ops = mapa[d] || [];
+            var isHoje = d === hoje.getDate() && m === hoje.getMonth() && y === hoje.getFullYear();
+            var dots = ops.slice(0, 4).map(function(x){
+                var s = opStatusNorm(x.op.status);
+                var cor = s === 'concluido' ? 'bg-emerald-500' : s === 'processo' ? 'bg-blue-500' : 'bg-gray-400';
+                return '<i class="w-1.5 h-1.5 rounded-full inline-block ' + cor + '"></i>';
+            }).join('');
+            html += '<button onclick="cronoDia(' + d + ')" class="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 text-sm font-bold transition-all active:scale-95 ' +
+                (isHoje ? 'ring-2 ring-violet-500 text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20' : ops.length ? 'bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white hover:bg-violet-50 dark:hover:bg-violet-900/20' : 'text-gray-400 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900/30') + '">' +
+                d + (dots ? '<span class="flex gap-0.5">' + dots + '</span>' : '') +
+            '</button>';
+        }
+        grid.innerHTML = html;
+        var lista = document.getElementById('crono-dia-lista');
+        if (lista) lista.innerHTML = '<p class="text-xs text-gray-400 text-center py-3">Toque num dia para ver as OPs.</p>';
+    }
+    function cronoDia(d) {
+        var lista = document.getElementById('crono-dia-lista');
+        if (!lista) return;
+        var ops = _cronoMapa[d] || [];
+        var dataStr = String(d).padStart(2,'0') + '/' + String(_cronoMes.m+1).padStart(2,'0') + '/' + _cronoMes.y;
+        lista.innerHTML = ops.length
+            ? '<h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">OPs de ' + dataStr + '</h4>' + ops.map(function(x){
+                var s = opStatusNorm(x.op.status);
+                var badge = s === 'concluido'
+                    ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">✅ Concluído</span>'
+                    : s === 'processo'
+                        ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">🔄 Em Processo</span>'
+                        : '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">📋 Pendente</span>';
+                var ref = x.op['op-ref'] || x.op['op-lote'] || x.op['op-guia'] || '-';
+                var extra = [];
+                if (x.op.execInicio) extra.push('📅 ' + x.op.execInicio + ' → ' + (x.op.execFim||''));
+                if (x.op.fumigacao) extra.push('🧪 Fumigação');
+                return '<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3 flex-wrap">' +
+                    '<div class="min-w-0"><p class="text-sm font-black text-gray-900 dark:text-white truncate">' + escapeHTML(x.op['op-atividade']||'OP') + ' — ' + escapeHTML(ref) + '</p>' +
+                    '<p class="text-[11px] text-gray-500 dark:text-gray-400 font-bold">' + escapeHTML(x.setor) + (x.op['op-sacas'] ? ' · ⚖️ ' + escapeHTML(x.op['op-sacas']) + ' sc' : '') + (extra.length ? ' · ' + extra.join(' · ') : '') + '</p></div>' +
+                    badge +
+                '</div>';
+            }).join('')
+            : '<p class="text-xs text-gray-400 text-center py-3">Sem OPs em ' + dataStr + '.</p>';
+    }
+    window.cronoDia = cronoDia;
+
+    // ============================================================
+    // EDITOR VISUAL (ADM) — motor global de edição de textos e estilos
+    // Funciona em todas as views; persistência: doc operacoes/ui_custom
+    // { overrides: { "<seletor>": { texto, color, bold, italic,
+    //   underline, fontSize, fontFamily, placeholder } } }
+    // Carregado e aplicado para TODOS os usuários; edição só para ADM.
+    // ============================================================
+    var _edAtivo = false, _edOverrides = {}, _edAlvo = null, _edSaveTimer = null;
+
+    function _edRef() { return db.collection('operacoes').doc('ui_custom'); }
+    function edCarregar(cb) {
+        if (!db) { if (cb) cb(); return; }
+        _edRef().get().then(function(doc){
+            if (doc.exists) _edOverrides = (doc.data() || {}).overrides || {};
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[Editor] carregar:', e.message); if (cb) cb(); });
+    }
+    function edSalvar() {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — a personalização não foi salva.', true); return; }
+        clearTimeout(_edSaveTimer);
+        _edSaveTimer = setTimeout(function(){
+            _edRef().set({ overrides: JSON.parse(JSON.stringify(_edOverrides)) })
+                .then(function(){ mostrarIndicadorNuvem(); })
+                .catch(function(e){ console.warn('[Editor] salvar:', e.message); });
+        }, 800);
+    }
+
+    /** Identificador único e estável: caminho CSS até o ancestral com id */
+    function _edPath(el) {
+        var parts = [], node = el;
+        while (node && node.nodeType === 1 && node !== document.body) {
+            if (node.id) { parts.unshift('#' + node.id); break; }
+            var p = node.parentElement;
+            if (!p) break;
+            var idx = Array.prototype.indexOf.call(p.children, node) + 1;
+            parts.unshift(node.tagName.toLowerCase() + ':nth-child(' + idx + ')');
+            node = p;
+        }
+        return parts.join(' > ');
+    }
+
+    function _edEditaveis() {
+        var sel = 'main h1, main h2, main h3, main h4, main label, main span, main p, main th, main button, header h1, header span, footer button, footer span';
+        return Array.prototype.filter.call(document.querySelectorAll(sel), function(el){
+            if (el.closest('#ed-toolbar') || el.id === 'ed-fab') return false;
+            if (!el.textContent.trim()) return false;
+            return el.children.length === 0; // apenas folhas de texto puras
+        });
+    }
+
+    function edToggle() {
+        if (!isAdmin) return;
+        _edAtivo = !_edAtivo;
+        document.body.classList.toggle('ed-on', _edAtivo);
+        var fab = document.getElementById('ed-fab');
+        if (fab) { fab.classList.toggle('ed-fab-on', _edAtivo); fab.textContent = _edAtivo ? '✕' : '✏️'; }
+        if (_edAtivo) { edMarcar(); mostrarToast('✏️ Modo Editor ATIVO — clique em qualquer texto para editar.'); }
+        else { edDesmarcar(); edFecharToolbar(); mostrarToast('Modo Editor desligado — textos travados. ✓'); }
+    }
+    window.edToggle = edToggle;
+
+    function edMarcar() {
+        _edEditaveis().forEach(function(el){
+            el.setAttribute('contenteditable', 'true');
+            el.classList.add('ed-el');
+        });
+        document.querySelectorAll('main input[placeholder], main textarea[placeholder]').forEach(function(el){ el.classList.add('ed-ph'); });
+    }
+    function edDesmarcar() {
+        document.querySelectorAll('.ed-el').forEach(function(el){ el.removeAttribute('contenteditable'); el.classList.remove('ed-el'); });
+        document.querySelectorAll('.ed-ph').forEach(function(el){ el.classList.remove('ed-ph'); });
+    }
+
+    function _edGravar(el, patch) {
+        var key = _edPath(el);
+        if (!key) return;
+        _edOverrides[key] = Object.assign(_edOverrides[key] || {}, patch);
+        edSalvar();
+    }
+
+    // Delegação em fase de captura: no modo editor, clique em texto edita
+    // (e pausa a ação original do elemento); fora dele, o app segue normal.
+    document.addEventListener('click', function(e){
+        if (!_edAtivo) return;
+        if (e.target.closest('#ed-toolbar') || e.target.closest('#ed-fab')) return;
+        var ph = e.target.closest('.ed-ph');
+        if (ph) {
+            e.preventDefault(); e.stopPropagation();
+            var novo = prompt('Novo texto do placeholder:', ph.getAttribute('placeholder') || '');
+            if (novo !== null) { ph.setAttribute('placeholder', novo); _edGravar(ph, { placeholder: novo }); }
+            return;
+        }
+        var el = e.target.closest('.ed-el');
+        if (el) { e.preventDefault(); e.stopPropagation(); _edAlvo = el; el.focus(); edAbrirToolbar(el); return; }
+        edFecharToolbar();
+    }, true);
+    document.addEventListener('input', function(e){
+        if (!_edAtivo || !e.target.closest) return;
+        var el = e.target.closest('.ed-el');
+        if (el) _edGravar(el, { texto: el.textContent });
+    }, true);
+
+    function edAbrirToolbar(el) {
+        var tb = document.getElementById('ed-toolbar');
+        if (!tb) return;
+        var o = _edOverrides[_edPath(el)] || {};
+        var cs = getComputedStyle(el);
+        document.getElementById('ed-tb-b').classList.toggle('ed-tb-ativo', o.bold !== undefined ? !!o.bold : parseInt(cs.fontWeight, 10) >= 600);
+        document.getElementById('ed-tb-i').classList.toggle('ed-tb-ativo', o.italic !== undefined ? !!o.italic : cs.fontStyle === 'italic');
+        document.getElementById('ed-tb-u').classList.toggle('ed-tb-ativo', o.underline !== undefined ? !!o.underline : cs.textDecorationLine.indexOf('underline') !== -1);
+        tb.classList.add('ed-tb-aberta');
+        var r = el.getBoundingClientRect(), th = tb.offsetHeight || 44;
+        var top = r.top - th - 8;
+        if (top < 8) top = r.bottom + 8;
+        tb.style.top = Math.min(top, window.innerHeight - th - 8) + 'px';
+        tb.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 330)) + 'px';
+    }
+    function edFecharToolbar() {
+        var tb = document.getElementById('ed-toolbar');
+        if (tb) tb.classList.remove('ed-tb-aberta');
+        _edAlvo = null;
+    }
+    window.edFecharToolbar = edFecharToolbar;
+
+    function edEstilo(prop, valor) {
+        if (!_edAlvo) return;
+        var el = _edAlvo, o = _edOverrides[_edPath(el)] || {}, patch = {};
+        if (prop === 'bold')      { patch.bold = !(o.bold !== undefined ? o.bold : parseInt(getComputedStyle(el).fontWeight, 10) >= 600); el.style.fontWeight = patch.bold ? '800' : '400'; }
+        if (prop === 'italic')    { patch.italic = !(o.italic !== undefined ? o.italic : getComputedStyle(el).fontStyle === 'italic'); el.style.fontStyle = patch.italic ? 'italic' : 'normal'; }
+        if (prop === 'underline') { patch.underline = !(o.underline !== undefined ? o.underline : getComputedStyle(el).textDecorationLine.indexOf('underline') !== -1); el.style.textDecoration = patch.underline ? 'underline' : 'none'; }
+        if (prop === 'color'      && valor) { patch.color = valor; el.style.color = valor; }
+        if (prop === 'fontSize'   && valor) { patch.fontSize = valor; el.style.fontSize = valor; }
+        if (prop === 'fontFamily' && valor) { patch.fontFamily = valor; el.style.fontFamily = valor; }
+        _edGravar(el, patch);
+        edAbrirToolbar(el);
+    }
+    window.edEstilo = edEstilo;
+
+    function edRestaurar() {
+        if (!_edAlvo) return;
+        var key = _edPath(_edAlvo);
+        delete _edOverrides[key];
+        _edAlvo.style.cssText = '';
+        edSalvar();
+        edFecharToolbar();
+        mostrarToast('Personalização removida — recarregue a página para restaurar o texto original.');
+    }
+    window.edRestaurar = edRestaurar;
+
+    /** Aplica as personalizações salvas (para TODOS os usuários) */
+    function edAplicarTudo() {
+        Object.keys(_edOverrides).forEach(function(key){
+            var el;
+            try { el = document.querySelector(key); } catch(e){ return; }
+            if (!el) return;
+            var o = _edOverrides[key];
+            if (o.placeholder !== undefined) el.setAttribute('placeholder', o.placeholder);
+            if (o.texto !== undefined && el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA' && el.children.length === 0) el.textContent = o.texto;
+            if (o.color)                 el.style.color = o.color;
+            if (o.bold !== undefined)    el.style.fontWeight = o.bold ? '800' : '400';
+            if (o.italic !== undefined)  el.style.fontStyle = o.italic ? 'italic' : 'normal';
+            if (o.underline !== undefined) el.style.textDecoration = o.underline ? 'underline' : 'none';
+            if (o.fontSize)              el.style.fontSize = o.fontSize;
+            if (o.fontFamily)            el.style.fontFamily = o.fontFamily;
+        });
+    }
+
+    // ============================================================
+    // MODELOS DE MENSAGEM (ADM) — carcaça editável com tags coringas
+    // Persistência: appData.config.msgTemplates (Firestore operacoes/config,
+    // sincronizado a todos os dispositivos). Sem template salvo → texto padrão.
+    // ============================================================
+    var TPL_AREAS = {
+        atividade: { nome: '📋 Compartilhar Atividade', tags: ['OPERADOR','SETOR','DATA','ATIVIDADE','SACAS','PROJECAO','APOIO'] },
+        boletim:   { nome: '⚡ Boletim Diário',          tags: ['OPERADOR','SETOR','DATA','TURNO','HORAS','TOTAL_SACAS','DETALHES','JUSTIFICATIVA'] },
+        quebra:    { nome: '⚖️ Divisão de Quebra',       tags: ['OPERADOR','SETOR','DATA','PESO_TOTAL','TOTAL_SACAS','TABELA'] },
+        pedidos:   { nome: '🛒 Pedidos',                 tags: ['OPERADOR','SETOR','DATA','DADOS_ADICIONAIS'] },
+        bug:       { nome: '🐞 Reporte de Bugs',         tags: ['OPERADOR','SETOR','DATA','DESCRICAO'] }
+    };
+    var _tplAreaAtual = 'atividade';
+
+    /** Renderiza o template salvo substituindo {{TAG}} pelos dados; null se não houver template */
+    function msgTemplate(key, dados) {
+        var t = appData.config && appData.config.msgTemplates && appData.config.msgTemplates[key];
+        if (!t || !String(t).trim()) return null;
+        return String(t).replace(/\{\{(\w+)\}\}/g, function(m, tag) {
+            return (dados[tag] !== undefined && dados[tag] !== null) ? String(dados[tag]) : m;
+        });
+    }
+
+    function tplAbrir() {
+        var m = document.getElementById('modal-templates');
+        if (!m) return;
+        m.classList.remove('hidden'); m.classList.add('flex');
+        tplSelecionar(_tplAreaAtual);
+    }
+    window.tplAbrir = tplAbrir;
+    function tplFechar() {
+        var m = document.getElementById('modal-templates');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.tplFechar = tplFechar;
+    function tplSelecionar(key) {
+        _tplAreaAtual = key;
+        var sel = document.getElementById('tpl-area-sel');
+        if (sel && sel.value !== key) sel.value = key;
+        var ta = document.getElementById('tpl-texto');
+        var salvo = appData.config && appData.config.msgTemplates && appData.config.msgTemplates[key];
+        if (ta) ta.value = salvo || '';
+        var chips = document.getElementById('tpl-tags');
+        if (chips) chips.innerHTML = (TPL_AREAS[key] ? TPL_AREAS[key].tags : []).map(function(t){
+            return '<button onclick="tplInserirTag(\''+t+'\')" class="px-2.5 py-1.5 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 text-[11px] font-black hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors active:scale-95">{{'+t+'}}</button>';
+        }).join('');
+    }
+    window.tplSelecionar = tplSelecionar;
+    function tplInserirTag(tag) {
+        var ta = document.getElementById('tpl-texto');
+        if (!ta) return;
+        var ins = '{{' + tag + '}}';
+        var ini = ta.selectionStart || 0, fim = ta.selectionEnd || 0;
+        ta.value = ta.value.slice(0, ini) + ins + ta.value.slice(fim);
+        ta.focus();
+        ta.selectionStart = ta.selectionEnd = ini + ins.length;
+    }
+    window.tplInserirTag = tplInserirTag;
+    function tplSalvar() {
+        if (!isAdmin) return mostrarToast('Apenas administradores editam modelos.', true);
+        var ta = document.getElementById('tpl-texto');
+        if (!appData.config) appData.config = {};
+        if (!appData.config.msgTemplates) appData.config.msgTemplates = {};
+        appData.config.msgTemplates[_tplAreaAtual] = ta ? ta.value : '';
+        salvarMetasAdm();
+        mostrarToast('Modelo "' + (TPL_AREAS[_tplAreaAtual]||{}).nome + '" salvo! ✓');
+    }
+    window.tplSalvar = tplSalvar;
+    function tplRestaurarPadrao() {
+        if (!confirm('Voltar ao texto padrão do sistema para esta área?')) return;
+        var ta = document.getElementById('tpl-texto');
+        if (ta) ta.value = '';
+        tplSalvar();
+    }
+    window.tplRestaurarPadrao = tplRestaurarPadrao;
+
+    /** Dados da Divisão de Quebra para o template da mensagem */
+    function _quebraDadosMsg() {
+        var linhas = [];
+        document.querySelectorAll('#quebra-rows tr').forEach(function(tr){
+            var s = tr.querySelector('.q-sacas').value || '';
+            if (parseFloat(s) > 0) linhas.push(s + ' sc → ' + tr.querySelector('.q-peso-real').textContent + ' kg (' + tr.querySelector('.q-perc').textContent + ')');
+        });
+        return {
+            OPERADOR: operadorNome || '-',
+            SETOR: limparEmoji(currentSector) || '-',
+            DATA: workingDate,
+            PESO_TOTAL: (document.getElementById('quebra-peso-total')||{}).value || '0',
+            TOTAL_SACAS: (document.getElementById('q-total-sacas')||{}).textContent || '0',
+            TABELA: linhas.join('\n')
+        };
+    }
+
+    // ============================================================
     // VERSÃO DO APP — incrementar manualmente a cada rodada de
     // atualização (1.2 → 1.3 → 1.4 ...). Aplicada em todo elemento
     // com o atributo [data-app-version].
@@ -3674,7 +4216,7 @@
                 var opts = FB_STATUS.map(function(s){ return '<option'+(f.status===s?' selected':'')+'>'+s+'</option>'; }).join('');
                 return '<div class="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4">' +
                     '<div class="flex items-center justify-between gap-2 flex-wrap mb-2">' +
-                        '<span class="text-xs font-black text-gray-900 dark:text-white">'+escapeHTML(f.autor)+' <span class="font-medium text-gray-400">('+escapeHTML(f.setor)+' · '+escapeHTML(f.data)+')</span></span>' +
+                        '<span class="text-xs font-black text-gray-900 dark:text-white">'+(f.tipo==='bug'?'🐞 ':'💬 ')+escapeHTML(f.autor)+' <span class="font-medium text-gray-400">('+escapeHTML(f.setor)+' · '+escapeHTML(f.data)+')</span></span>' +
                         fbBadge(f.status) +
                     '</div>' +
                     '<p class="text-sm text-gray-700 dark:text-gray-300 mb-3">'+escapeHTML(f.msg)+'</p>' +
@@ -3791,11 +4333,15 @@
         var cv = _quebraDesenharCanvas(); if (!cv) return;
         cv.toBlob(function(b){
             var f = new File([b], 'Prumo_Quebra_' + workingDate.replace(/\//g, '-') + '.png', { type: 'image/png' });
+            var tplQ = msgTemplate('quebra', _quebraDadosMsg());
             if (navigator.canShare && navigator.canShare({ files: [f] })) {
-                navigator.share({ files: [f], title: 'Divisão de Quebra — Prumo' }).catch(function(){});
+                var payload = { files: [f], title: 'Divisão de Quebra — Prumo' };
+                if (tplQ) payload.text = tplQ;
+                navigator.share(payload).catch(function(){});
             } else {
                 _quebraBaixarBlob(b);
-                mostrarToast('Imagem baixada — anexe no WhatsApp para enviar.');
+                if (tplQ) { try { navigator.clipboard.writeText(tplQ); mostrarToast('Imagem baixada e mensagem copiada — cole no WhatsApp.'); } catch(e){ mostrarToast('Imagem baixada — anexe no WhatsApp.'); } }
+                else mostrarToast('Imagem baixada — anexe no WhatsApp para enviar.');
             }
         }, 'image/png');
     }
@@ -4570,6 +5116,12 @@
         // Inicializar listeners visuais das pills
         iniciarListenersPills();
 
+        // Prévia ao vivo da carga líquida no formulário de turnos
+        ['adm-turno-inicio','adm-turno-fim','adm-turno-intervalo-inicio','adm-turno-intervalo-fim'].forEach(function(id){
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('change', admTurnoPreview);
+        });
+
         // Carrega o SDK do Firebase dinamicamente e depois sincroniza
         carregarSDKFirebase(function () {
             carregarDoFirestore(function (mudou) {
@@ -4582,6 +5134,7 @@
                 }
                 if (operadorNome) iniciarListenerFirestore();
                 fbChecarNotificacoes();
+                edCarregar(function(){ edAplicarTudo(); });
             });
         });
 
@@ -4645,16 +5198,19 @@
         var nameDisplay = document.getElementById('user-name-display');
         var welcomeMsg  = document.getElementById('welcome-message');
         var adm         = document.getElementById('adm-panel');
-        if (welcomeMsg) { welcomeMsg.textContent = (isAdmin ? 'Visão do Gestor · ' : '') + saud + '!'; welcomeMsg.classList.remove('hidden'); }
-        if (nameDisplay) { nameDisplay.textContent = 'Olá, ' + operadorNome + '! Bem-vindo de volta. 👋'; nameDisplay.classList.remove('hidden'); }
+        // Saudação limpa e profissional — uma linha discreta
+        if (welcomeMsg) { welcomeMsg.textContent = saud + ', ' + operadorNome + (isAdmin ? ' · Visão do Gestor' : '') + '.'; welcomeMsg.classList.remove('hidden'); }
+        if (nameDisplay) { nameDisplay.textContent = ''; nameDisplay.classList.add('hidden'); }
         var gWrap = document.getElementById('submenu-greeting');
         if (gWrap && operadorNome) {
             gWrap.classList.remove('hidden');
             var gSub = document.getElementById('submenu-greeting-sub'), gNome = document.getElementById('submenu-greeting-nome');
-            if (gSub)  gSub.textContent  = saud + '! Que bom ter você aqui.';
-            if (gNome) gNome.textContent = 'Olá, ' + operadorNome + '! Bem-vindo de volta. 👋';
+            if (gSub)  gSub.textContent  = saud + ', ' + operadorNome + '.';
+            if (gNome) gNome.textContent = '';
         }
         atualizarDesktopSidebar();
+        var edFab = document.getElementById('ed-fab');
+        if (edFab) edFab.classList.toggle('ed-fab-visivel', isAdmin);
         if (isAdmin) {
             if (adm) { adm.classList.remove('hidden'); adm.classList.add('flex'); }
             renderTurnosAdm();
@@ -4699,7 +5255,7 @@
     function renderSetoresAdm() {
         var grid = document.getElementById('adm-setores-grid');
         if (!grid) return;
-        var setores = _getSetoresOrdered();
+        var setores = _getSetoresOrdered().slice().sort(function(a,b){ return a.label.localeCompare(b.label, 'pt-BR'); });
         var colors = {
             'Recebimento': { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400', ring: 'focus:ring-blue-500' },
             'Rebenefício': { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400', ring: 'focus:ring-emerald-500' },
@@ -4843,6 +5399,8 @@
             ? turnos.find(function(t) { return t.setor === setorVal && t.nome === turnoNomeVal; })
             : turnos.find(function(t) { return t.setor === setorVal; });
         if (!turnoObj || !turnoObj.inicio || !turnoObj.fim) return 0;
+        // Base oficial: Horas Disponíveis salvas na Gestão de Turnos
+        if (turnoObj.horasDisponiveisMin !== undefined && turnoObj.horasDisponiveisMin > 0) return turnoObj.horasDisponiveisMin;
         var dur = calcMinutos(turnoObj.inicio, turnoObj.fim);
         if (turnoObj.intervaloInicio && turnoObj.intervaloFim) dur -= calcMinutos(turnoObj.intervaloInicio, turnoObj.intervaloFim);
         return dur > 0 ? dur : 0;
@@ -4880,7 +5438,8 @@
         var calcEl = document.getElementById('modal-meta-hora-calc');
         if (sacasTurno > 0) {
             if (infoEl) infoEl.classList.remove('hidden');
-            if (calcEl) calcEl.textContent = horaCalc > 0 ? horaCalc.toFixed(1).replace('.', ',') : '—';
+            if (calcEl) calcEl.textContent = (horaCalc > 0 ? horaCalc.toFixed(1).replace('.', ',') : '—') +
+                (durMin > 0 ? ' (base: ' + Math.floor(durMin/60) + 'h' + String(durMin%60).padStart(2,'0') + ' disponíveis do turno)' : '');
         } else {
             if (infoEl) infoEl.classList.add('hidden');
         }
@@ -5103,6 +5662,8 @@
                     '</div>'+
                     '<span class="text-xs text-gray-500 font-semibold">⏰ '+escapeHTML(t.inicio)+' → '+escapeHTML(t.fim)+'</span>'+
                     ((t.intervaloInicio&&t.intervaloFim)?'<span class="text-[10px] text-amber-500 font-semibold ml-2">☕ '+escapeHTML(t.intervaloInicio)+' → '+escapeHTML(t.intervaloFim)+'</span>':'')+
+                    (function(){ var hd = t.horasDisponiveisMin !== undefined ? t.horasDisponiveisMin : Math.max(0, calcMinutos(t.inicio,t.fim) - (t.intervaloMin||0)); return '<span class="text-[10px] font-black text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-1.5 py-0.5 rounded ml-2">⚡ '+Math.floor(hd/60)+'h'+String(hd%60).padStart(2,'0')+' líquidas</span>'; })()+
+                    ((t.colaboradores&&t.colaboradores.length)?'<span class="block text-[10px] text-gray-500 font-medium mt-0.5">👥 '+escapeHTML(t.colaboradores.join(', '))+'</span>':'')+
                     '<span class="block text-[10px] text-gray-400 font-medium mt-0.5">📅 '+escapeHTML(dias)+'</span>'+
                 '</div>'+
                 '<div class="flex gap-1.5 shrink-0">'+
@@ -5192,11 +5753,63 @@
         t.dias   = dias;
         t.intervaloInicio = (document.getElementById('edit-turno-intervalo-inicio')||{}).value||'';
         t.intervaloFim    = (document.getElementById('edit-turno-intervalo-fim')||{}).value||'';
+        // FIX: recalcular carga líquida ao editar (antes ficava desatualizada)
+        t.intervaloMin = (t.intervaloInicio && t.intervaloFim) ? calcMinutos(t.intervaloInicio, t.intervaloFim) : 0;
+        var brutoEd = calcMinutos(t.inicio, t.fim);
+        if (t.intervaloMin >= brutoEd) return mostrarToast('O intervalo é maior ou igual à duração do turno.', true);
+        t.horasDisponiveisMin = brutoEd - t.intervaloMin;
         fecharModalEditarTurno();
         salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
         mostrarToast('Turno atualizado!');
     }
     window.salvarEdicaoTurno = salvarEdicaoTurno;
+
+    // ── Planejamento Operacional: abas Turnos (passo 1) → Metas (passo 2) ──
+    function planSwitchPane(p) {
+        var on  = 'flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all';
+        var off = 'flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all';
+        document.getElementById('plan-pane-turnos').classList.toggle('hidden', p !== 'turnos');
+        document.getElementById('plan-pane-metas').classList.toggle('hidden', p !== 'metas');
+        document.getElementById('btn-plan-turnos').className = p === 'turnos' ? on : off;
+        document.getElementById('btn-plan-metas').className = p === 'metas' ? on : off;
+        if (p === 'metas') {
+            var turnos = (appData.config && appData.config.turnos) || [];
+            if (!turnos.length) mostrarToast('Passo 1 primeiro: cadastre ao menos um turno para basear as metas.', true);
+            _editMetaIdx = -1;
+            renderMetasHistorico();
+            atualizarMetasInfo();
+        } else {
+            renderTurnosAdm();
+        }
+    }
+    window.planSwitchPane = planSwitchPane;
+
+    /** Prévia ao vivo da carga horária líquida no formulário de turno */
+    function admTurnoPreview() {
+        var el = document.getElementById('adm-turno-liquida');
+        if (!el) return;
+        var ini = (document.getElementById('adm-turno-inicio')||{}).value||'';
+        var fim = (document.getElementById('adm-turno-fim')||{}).value||'';
+        if (!ini || !fim) { el.classList.add('hidden'); return; }
+        var bruto = calcMinutos(ini, fim);
+        var iIni = (document.getElementById('adm-turno-intervalo-inicio')||{}).value||'';
+        var iFim = (document.getElementById('adm-turno-intervalo-fim')||{}).value||'';
+        var intv = (iIni && iFim) ? calcMinutos(iIni, iFim) : 0;
+        var liq = bruto - intv;
+        if (liq <= 0) { el.classList.remove('hidden'); el.textContent = '⚠️ Intervalo maior que o turno — corrija os horários.'; return; }
+        el.classList.remove('hidden');
+        el.textContent = '⚡ Horas Disponíveis (líquidas): ' + Math.floor(liq/60) + 'h' + String(liq%60).padStart(2,'0') +
+            (intv > 0 ? '  ·  bruto ' + Math.floor(bruto/60) + 'h' + String(bruto%60).padStart(2,'0') + ' − intervalo ' + Math.floor(intv/60) + 'h' + String(intv%60).padStart(2,'0') : '');
+    }
+    window.admTurnoPreview = admTurnoPreview;
+
+    /** Persiste appData.config (metas, turnos, modelos de mensagem) no Firestore.
+     *  FIX: era chamada em 4 pontos mas nunca havia sido definida — o erro era
+     *  engolido pelo window.onerror e abortava o restante das funções de turno. */
+    function salvarMetasAdm() {
+        _cachearLocal();
+        salvarNoFirestore();
+    }
 
     function adicionarTurno() {
         var nomeEl = document.getElementById('adm-turno-nome');
@@ -5213,9 +5826,33 @@
         if (!dias.length)    return mostrarToast('Selecione ao menos um dia da semana.', true);
         if (!appData.config) appData.config = {};
         if (!appData.config.turnos) appData.config.turnos = [];
-        setores.forEach(function(setor) {
-            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias, intervaloInicio: intervaloInicio, intervaloFim: intervaloFim });
+        // FIX duplicidade: impede dois turnos com o mesmo nome no mesmo setor
+        var dup = appData.config.turnos.find(function(t){ return t.nome === nome && setores.indexOf(t.setor) !== -1; });
+        if (dup) return mostrarToast('Já existe "' + nome + '" para ' + limparEmoji(dup.setor) + '. Edite ou remova o existente.', true);
+        var intervaloMin = (intervaloInicio && intervaloFim) ? calcMinutos(intervaloInicio, intervaloFim) : 0;
+        var brutoMin = calcMinutos(inicio, fim);
+        // FIX cálculo: intervalo não pode consumir o turno inteiro
+        if (intervaloMin >= brutoMin) return mostrarToast('O intervalo é maior ou igual à duração do turno. Verifique os horários.', true);
+        var horasDisponiveisMin = brutoMin - intervaloMin;
+        // Colaboradores: dedupe (sem repetição no turno) + checagem cruzada de duplicidade
+        var colabs = ((document.getElementById('adm-turno-colabs')||{}).value||'').split(',')
+            .map(function(s){ return s.trim(); }).filter(function(s){ return s; })
+            .filter(function(s, i, a){ return a.findIndex(function(x){ return x.toLowerCase() === s.toLowerCase(); }) === i; });
+        var conflito = null;
+        appData.config.turnos.forEach(function(t){
+            if (conflito || setores.indexOf(t.setor) === -1) return;
+            var diasComuns = (t.dias||[]).some(function(d){ return dias.indexOf(d) !== -1; });
+            if (!diasComuns) return;
+            (t.colaboradores||[]).forEach(function(cN){
+                if (colabs.some(function(c){ return c.toLowerCase() === cN.toLowerCase(); })) conflito = { nome: cN, turno: t.nome, setor: t.setor };
+            });
         });
+        if (conflito) return mostrarToast('⚠️ ' + conflito.nome + ' já está no ' + conflito.turno + ' de ' + limparEmoji(conflito.setor) + ' em dias coincidentes.', true);
+        setores.forEach(function(setor) {
+            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias, intervaloInicio: intervaloInicio, intervaloFim: intervaloFim, intervaloMin: intervaloMin, horasDisponiveisMin: horasDisponiveisMin, colaboradores: colabs });
+        });
+        var colabsEl = document.getElementById('adm-turno-colabs'); if (colabsEl) colabsEl.value = '';
+        var prevEl = document.getElementById('adm-turno-liquida'); if (prevEl) prevEl.classList.add('hidden');
         if (nomeEl) nomeEl.value = '';
         document.getElementById('adm-turno-inicio').value = '';
         document.getElementById('adm-turno-fim').value = '';
@@ -5503,7 +6140,6 @@
     function configurarBotoesSubmenu(cleanSetor) {
         var hide = function(id, cond){ var el=document.getElementById(id); if(!el) return; el.classList.toggle('hidden',cond); if(!cond) el.classList.add('flex'); };
         hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações');
-        hide('btn-menu-metas', !isAdmin||!(cleanSetor==='Rebenefício'||cleanSetor==='TESTE'));
         hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
         hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
         hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
@@ -5533,7 +6169,11 @@
         if (viewId === 'view-productivity') { renderHistoricoProducao(); }
         if (viewId === 'view-os') { manutInitUser(); }
         if (viewId === 'view-manut-adm') { manutInitAdm(); }
+        if (viewId === 'view-cronograma') { cronoInit(); }
         atualizarDesktopSidebar();
+        // Editor Visual: aplica personalizações na view recém-exibida
+        edAplicarTudo();
+        if (_edAtivo) { edFecharToolbar(); setTimeout(edMarcar, 60); }
     }
 
     function navigate(viewId, sectorName, replace) {
@@ -5553,7 +6193,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os','modal-tab-menu','modal-feedback','modal-feedback-adm'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
+        ['modal-atividades','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os','modal-feedback','modal-feedback-adm','modal-bug','modal-nova-atv','modal-op-form','modal-templates'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -5587,8 +6227,7 @@
         currentPlanejamentoActivities.forEach(function(atv) {
             ops.forEach(function(op) {
                 var atvOp  = op['op-atividade'] || '';
-                var status = op.status || 'aguardando';
-                if (status === 'finalizada') return;
+                if (opStatusNorm(op.status) === 'concluido') return;
                 if (!atvOp) return;
                 if (_atividadesCorrespondem(atv, atvOp)) {
                     if (!mapa[atv]) mapa[atv] = [];
@@ -5772,6 +6411,10 @@
 
     function loadDataParaTela() {
         if (currentViewId === 'view-divisao-quebra') {
+            // FIX Recebimento: snapshot do próprio save re-renderizava a tabela e
+            // destruía o input "Sacas Romaneio" durante a digitação (travamento)
+            var qFoco = document.activeElement, qTab = document.getElementById('quebra-rows');
+            if (qFoco && (qFoco.id === 'quebra-peso-total' || (qTab && qTab.contains(qFoco)))) return;
             var qState = appData[workingDate] && appData[workingDate]['quebra_state'];
             document.getElementById('quebra-peso-total').value = qState ? (qState.totalBalanca||'') : '';
             renderizarLinhasQuebra(qState ? qState.sacas : ['','']);
@@ -5821,7 +6464,7 @@
     }
 
     function saveData() {
-        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-op'].includes(currentViewId)) return;
+        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-op','view-cronograma','view-planejamento'].includes(currentViewId)) return;
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         var st = appData[workingDate][currentSector];
@@ -5855,7 +6498,7 @@
         var subtitle = document.getElementById('header-sector-subtitle');
         if(foot) foot.classList.add('hidden');
 
-        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-metas':'Metas','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção'};
+        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-planejamento':'Planejamento','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção','view-cronograma':'Cronograma'};
         var crumbCls = 'text-[11px] font-bold uppercase tracking-[0.2em]';
         var crumbLink = 'cursor-pointer hover:underline underline-offset-2';
 
@@ -5884,9 +6527,11 @@
         }
         if (['view-os','view-requisicao'].includes(viewId) && foot) { foot.classList.remove('hidden'); foot.classList.add('block'); }
         // Boletim usa botão inline — footer não é exibido para esse view
-        if (viewId==='view-metas') {
+        if (viewId==='view-planejamento') {
             _editMetaIdx = -1;
+            renderTurnosAdm();
             renderMetasHistorico();
+            atualizarMetasInfo();
         }
         if (viewId==='view-productivity') {
             var lblMedia=document.getElementById('lbl-media-hora');
@@ -6285,6 +6930,14 @@
         el.addEventListener('input', function() { mascaraHorario(el); }, { once: false });
         el.addEventListener('blur', function onBlur() {
             mascaraHorario(el);
+            // Validação estrita: aceita apenas horários até 23:59
+            var m = el.value.match(/^(\d{1,2}):(\d{2})$/);
+            if (el.value && (!m || parseInt(m[1], 10) > 23 || parseInt(m[2], 10) > 59)) {
+                el.value = '';
+                mostrarToast('Horário inválido — informe um horário até 23:59.', true);
+            } else if (m) {
+                el.value = String(parseInt(m[1], 10)).padStart(2, '0') + ':' + m[2];
+            }
             el.setAttribute('readonly', '');
             el.removeEventListener('blur', onBlur);
             try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){}
@@ -6617,7 +7270,7 @@
 
     function abrirSeletorOPBoletim(callback) {
         var ops = getOPs ? getOPs() : [];
-        var opsAndamento = ops.filter(function(o){ return (o.status||'aguardando') !== 'finalizada'; });
+        var opsAndamento = ops.filter(function(o){ return opStatusNorm(o.status) !== 'concluido'; });
         if (!opsAndamento.length) { callback(null); return; }
         // Mostrar modal de seleção
         _compartilharPendente = callback;
@@ -6659,11 +7312,11 @@
             var ops = getOPs ? getOPs() : [];
             var op = ops.find(function(o){ return o.id === opId; });
             if (op) {
-                op.status = 'finalizada';
+                op.status = 'concluido';
                 op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
                 salvarOPs();
                 renderListaOPs();
-                mostrarToast('OP ' + (op['op-lote']||op['op-guia']||'') + ' finalizada! ✓');
+                mostrarToast('OP ' + (op['op-lote']||op['op-guia']||'') + ' concluída! ✓');
             }
         }
         if (_compartilharPendente) { _compartilharPendente(opId); _compartilharPendente = null; }
@@ -6699,21 +7352,24 @@
             var servicoText=document.getElementById('atv-servico').value||'', sacas=document.getElementById('atv-sacas').value||'0', ajuda=document.getElementById('atv-ajuda').value, ajudaQtd=parseInt(document.getElementById('atv-ajuda-qtd').value)||0, projecao=document.getElementById('atv-projecao').value||'';
             if(!servicoText) return mostrarToast('Selecione os serviços que fará no dia!', true);
             var sacasFormatado=String(parseInt(String(sacas).replace(/\D/g,''))||0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+            var tplAtv = msgTemplate('atividade', { OPERADOR: operadorNome, SETOR: cleanSetor, DATA: workingDate, ATIVIDADE: servicoText, SACAS: sacasFormatado, PROJECAO: (projecao&&projecao!=='--:--')?projecao:'-', APOIO: ajuda==='Sim'?'Sim ('+ajudaQtd+' pessoa'+(ajudaQtd>1?'s':'')+')':'Não' });
+            if (tplAtv) { executarCompartilhamento('Planejamento '+cleanSetor, tplAtv, cleanSetor); return; }
             var texto='📋 *INFORME DE PLANEJAMENTO*\n\n📅 '+workingDate+' 👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n*Serviços do Dia:*\n\n'+servicoText;
             if(!currentSector.includes('Manutenção')&&!currentSector.includes('Operações')){ var cs=servicoText?servicoText.split(', '):[]; var reqB=!cs.length||cs.some(function(a){ return !isNoBagsActivity(a.startsWith('Outras:')?'Outras':a); }); if(reqB){ texto+='\n\n📦 *Volume Previsto:* '+sacasFormatado+' sc'; if(projecao&&projecao!=='--:--') texto+='\n⏰ *Conclusão Estimada:* '+projecao; texto+='\n🤝 *Apoio Extra:* '+(ajuda==='Sim'?'Sim ('+ajudaQtd+' pessoa'+(ajudaQtd>1?'s':'')+')'  :'Não Necessita'); } else if(projecao&&projecao!=='--:--') texto+='\n\n⏰ *Conclusão Estimada:* '+projecao; } else if(projecao&&projecao!=='--:--') texto+='\n\n⏰ *Conclusão Estimada:* '+projecao;
             executarCompartilhamento('Planejamento '+cleanSetor,texto,cleanSetor); return;
         }
         if(currentViewId==='view-os'){ var equip=document.getElementById('os-equipamento').value.trim(), prob=document.getElementById('os-problema').value.trim(); if(!equip||!prob) return mostrarToast('Informe a máquina e a descrição da falha.', true); var texto='🔧 *SOLICITAÇÃO DE MANUTENÇÃO (O.S)*\n\n📅 *DATA:* '+workingDate+'\n👤 *COLABORADOR:* '+operadorNome+'\n🏢 *SETOR:* '+cleanSetor+'\n⚙️ *EQUIPAMENTO:* '+equip+'\n\n⚠️ *DESCRIÇÃO DA FALHA:*\n'+prob; executarCompartilhamento('OS - '+equip,texto,cleanSetor); return; }
         if(currentViewId==='view-requisicao'){
-            var texto='';
-            if(abaReqAtual==='material'){ var mat=document.getElementById('req-mat-nome').value.trim(), qtd=document.getElementById('req-mat-qtd').value.trim(), just=document.getElementById('req-mat-just').value.trim(); if(!mat||!qtd) return mostrarToast('Insira o nome do insumo e a quantidade.', true); texto='📦 *REQUISIÇÃO INTERNA DE ESTOQUE*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 '+cleanSetor+'\n\n🔹 *Material:* '+mat+'\n🔢 *Quantidade:* '+qtd+(just?'\n📝 *Para:* '+just:''); }
-            else { var itens=st.reqComprasItens||[]; if(!itens.length) return mostrarToast('A sua lista de compras está vazia!', true); texto='🛒 *SOLICITAÇÃO DE COMPRAS EXTERNAS*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n'; itens.forEach(function(item,idx){ texto+='*'+(idx+1)+'. '+item.comp+'*\n   - Quantidade: '+item.qtd+'\n   - Categoria: '+item.cat+'\n   - Motivo: '+item.just+'\n\n'; }); }
-            executarCompartilhamento('Requisição',texto,cleanSetor); return;
+            var texto='', corpoPed='';
+            if(abaReqAtual==='material'){ var mat=document.getElementById('req-mat-nome').value.trim(), qtd=document.getElementById('req-mat-qtd').value.trim(), just=document.getElementById('req-mat-just').value.trim(); if(!mat||!qtd) return mostrarToast('Insira o nome do insumo e a quantidade.', true); corpoPed='Material: '+mat+'\nQuantidade: '+qtd+(just?'\nPara: '+just:''); texto='📦 *REQUISIÇÃO INTERNA DE ESTOQUE*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 '+cleanSetor+'\n\n🔹 *Material:* '+mat+'\n🔢 *Quantidade:* '+qtd+(just?'\n📝 *Para:* '+just:''); }
+            else { var itens=st.reqComprasItens||[]; if(!itens.length) return mostrarToast('A sua lista de compras está vazia!', true); corpoPed=itens.map(function(item,idx){ return (idx+1)+'. '+item.comp+' — Qtd: '+item.qtd+' | Categoria: '+item.cat+' | Motivo: '+item.just; }).join('\n'); texto='🛒 *SOLICITAÇÃO DE COMPRAS EXTERNAS*\n\n📅 '+workingDate+'\n👤 '+operadorNome+'\n🏢 Setor: '+cleanSetor+'\n\n'; itens.forEach(function(item,idx){ texto+='*'+(idx+1)+'. '+item.comp+'*\n   - Quantidade: '+item.qtd+'\n   - Categoria: '+item.cat+'\n   - Motivo: '+item.just+'\n\n'; }); }
+            var tplPed = msgTemplate('pedidos', { OPERADOR: operadorNome, SETOR: cleanSetor, DATA: workingDate, DADOS_ADICIONAIS: corpoPed });
+            executarCompartilhamento('Requisição', tplPed || texto, cleanSetor); return;
         }
         var blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.activity; });
         if(!blocks.length) return mostrarToast('Nenhum dado lançado para o boletim.', true);
         // Se há OPs não finalizadas, abrir seletor antes de compartilhar
-        var opsDisponiveis = (getOPs ? getOPs() : []).filter(function(o){ return (o.status||'aguardando') !== 'finalizada'; });
+        var opsDisponiveis = (getOPs ? getOPs() : []).filter(function(o){ return opStatusNorm(o.status) !== 'concluido'; });
         if (opsDisponiveis.length) {
             abrirSeletorOPBoletim(function(){ _executarCompartilhamentoBoletim(st, cleanSetor, blocks); });
             return;
@@ -6734,6 +7390,13 @@
             }
         });
         var horas=Math.floor(totalMin/60)+'h '+String(totalMin%60).padStart(2,'0')+'m';
+        var tplBol = msgTemplate('boletim', {
+            OPERADOR: operadorNome, SETOR: cleanSetor.toUpperCase(), DATA: workingDate,
+            TURNO: (st.shiftName&&st.shiftStart&&st.shiftEnd) ? st.shiftName+' ('+st.shiftStart+' às '+st.shiftEnd+')' : '-',
+            HORAS: horas, TOTAL_SACAS: totalSacas.toLocaleString('pt-BR'),
+            DETALHES: linhasBlocks.trim(), JUSTIFICATIVA: st.justificativa || ''
+        });
+        if (tplBol) { executarCompartilhamento('Boletim '+cleanSetor, tplBol, cleanSetor); return; }
         var texto='*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: '+cleanSetor.toUpperCase()+'*\n📅 '+workingDate+'  |  👤 '+operadorNome+'\n';
         var shiftMin=0, tempoConsid=totalMin;
         if(st.shiftName&&st.shiftStart&&st.shiftEnd){
@@ -7111,6 +7774,32 @@
                     <button onclick="manutSalvarGestao(true)" class="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">✓ Concluir e Fechar</button>
                 </div>
                 <button onclick="manutExcluirOS()" class="w-full py-2.5 text-red-500 hover:text-red-700 font-bold text-[11px] uppercase tracking-widest transition-colors">Excluir O.S</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: MODELOS DE MENSAGEM (ADM) -->
+    <div id="modal-templates" role="dialog" aria-modal="true" aria-label="Modelos de mensagem" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] hidden justify-center items-center p-4" onclick="if(event.target===this) tplFechar()">
+        <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="font-black text-lg text-gray-900 dark:text-white heading-font">✉️ Modelos de Mensagem</h3>
+                <button onclick="tplFechar()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Escreva o texto exatamente como deve ser enviado (quebras de linha, MAIÚSCULAS e espaçamentos são respeitados). Clique numa tag para inseri-la — o sistema troca pelos dados do operador na hora do envio. Vazio = texto padrão do sistema.</p>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Área da mensagem</label>
+            <select id="tpl-area-sel" onchange="tplSelecionar(this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 appearance-none cursor-pointer mb-3">
+                <option value="atividade">📋 Compartilhar Atividade</option>
+                <option value="boletim">⚡ Boletim Diário</option>
+                <option value="quebra">⚖️ Divisão de Quebra (Recebimento)</option>
+                <option value="pedidos">🛒 Pedidos</option>
+                <option value="bug">🐞 Reporte de Bugs</option>
+            </select>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Tags coringas — clique para inserir</label>
+            <div id="tpl-tags" class="flex flex-wrap gap-1.5 mb-3"></div>
+            <textarea id="tpl-texto" rows="9" spellcheck="false" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 resize-y font-mono" placeholder="*ALERTA DE ATIVIDADE CONCLUÍDA*&#10;Setor responsável: {{SETOR}}&#10;O colaborador {{OPERADOR}} finalizou o processo de: {{ATIVIDADE}}."></textarea>
+            <div class="flex gap-3 mt-4">
+                <button onclick="tplRestaurarPadrao()" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">Voltar ao Padrão</button>
+                <button onclick="tplSalvar()" class="flex-[2] py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">Salvar Modelo</button>
             </div>
         </div>
     </div>
