@@ -622,7 +622,7 @@
             body { background: white !important; color: black !important; }
             #user-sidebar, header, footer,
             #view-menu, #view-submenu, #view-atividades, #view-productivity,
-            #view-horimetro, #view-percentage, #view-divisao-quebra,
+            #view-percentage, #view-divisao-quebra,
             #view-os, #view-requisicao, #view-op,
             .print-hide { display: none !important; }
             #modal-adm-email { display: block !important; position: static !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
@@ -755,6 +755,21 @@
         }
         #ed-toolbar button.ed-tb-ativo { background: #8b5cf6; }
         #ed-toolbar input[type="color"] { padding: 2px; width: 40px; }
+        /* Blocos móveis/redimensionáveis + guias magnéticas (estilo Canva) */
+        body.ed-on .ed-bloco { outline: 1.5px dashed rgba(99,102,241,0.5); outline-offset: 3px; position: relative; }
+        .ed-handle-mover, .ed-handle-resize {
+            display: none; position: absolute; z-index: 60;
+            width: 26px; height: 26px; border-radius: 8px;
+            background: #6366f1; color: #fff; font-size: 13px; font-weight: 900;
+            align-items: center; justify-content: center; border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.35); cursor: grab; touch-action: none;
+        }
+        .ed-handle-mover { top: -12px; left: -12px; }
+        .ed-handle-resize { bottom: -12px; right: -12px; cursor: nwse-resize; }
+        body.ed-on .ed-bloco > .ed-handle-mover, body.ed-on .ed-bloco > .ed-handle-resize { display: flex; }
+        #ed-guia-v, #ed-guia-h { position: fixed; z-index: 295; background: #ec4899; display: none; pointer-events: none; }
+        #ed-guia-v { width: 1.5px; top: 0; bottom: 0; }
+        #ed-guia-h { height: 1.5px; left: 0; right: 0; }
 
         /* Acessibilidade: reduzir movimento global quando solicitado */
         @media (prefers-reduced-motion: reduce) {
@@ -784,8 +799,28 @@
         <select id="ed-tb-fonte" onchange="edEstilo('fontFamily', this.value)" title="Fonte">
             <option value="">Fonte</option><option value="'Inter',sans-serif">Inter</option><option value="'Outfit',sans-serif">Outfit</option><option value="Arial,sans-serif">Arial</option><option value="Georgia,serif">Georgia</option><option value="monospace">Mono</option>
         </select>
+        <button onclick="edEstilo('align','left')" title="Alinhar à esquerda">⯇</button>
+        <button onclick="edEstilo('align','center')" title="Centralizar">≡</button>
+        <button onclick="edEstilo('align','right')" title="Alinhar à direita">⯈</button>
+        <button onclick="edAbrirEmoji()" title="Trocar/inserir emoji">😀</button>
+        <button onclick="edUploadIcone()" title="Trocar ícone por imagem (upload)">🖼</button>
         <button onclick="edRestaurar()" title="Remover personalização deste elemento">↺</button>
         <button onclick="edFecharToolbar()" title="Fechar">✕</button>
+    </div>
+    <div id="ed-guia-v"></div>
+    <div id="ed-guia-h"></div>
+    <input type="file" id="ed-icone-input" accept="image/*" class="hidden" onchange="edIconeSelecionado(this)">
+
+    <!-- MODAL: SELETOR DE EMOJIS (editor) -->
+    <div id="modal-emoji" role="dialog" aria-modal="true" aria-label="Emojis" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[310] hidden justify-center items-center p-4" onclick="if(event.target===this) edFecharEmoji()">
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-5 max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between mb-3 shrink-0">
+                <h3 class="font-black text-sm text-gray-900 dark:text-white heading-font uppercase tracking-widest">😀 Escolher Emoji</h3>
+                <button onclick="edFecharEmoji()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90">✕</button>
+            </div>
+            <input type="text" id="emoji-busca" oninput="edEmojiRender()" placeholder="🔎 Pesquisar por nome (ex.: caminhão, café...)" class="shrink-0 w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-4 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-400 mb-3">
+            <div id="emoji-grid" class="grid grid-cols-8 gap-1 overflow-y-auto flex-1"></div>
+        </div>
     </div>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/50 z-[90] backdrop-blur-sm opacity-0 transition-opacity duration-300 print-hide"></div>
@@ -1014,7 +1049,11 @@
                     <h1 id="header-brand" class="text-base md:text-lg font-black uppercase tracking-[0.15em] text-gray-900 dark:text-white heading-font">PRUMO</h1>
                 </button>
 
-                <div class="w-20 flex items-center justify-end relative">
+                <div class="w-20 flex items-center justify-end gap-1 relative">
+                    <button id="btn-sino" onclick="abrirSino()" class="hidden relative w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 items-center justify-center text-gray-500 dark:text-gray-400 active:scale-90 transition-all" title="Notificações de O.S">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        <span id="sino-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center">0</span>
+                    </button>
                     <span id="header-bags-badge" class="hidden bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">0 SC</span>
                 </div>
             </div>
@@ -1037,11 +1076,18 @@
                     
                     <div id="adm-panel" class="hidden flex-col gap-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <button onclick="abrirModalAtvAdm()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
-                                <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📋</div>
+                            <button onclick="abrirAuditoria()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🕵️</div>
                                 <div class="text-left">
                                     <div class="text-sm uppercase tracking-wider heading-font">Registro de Atividades</div>
-                                    <div class="text-xs text-blue-100 font-normal">Consultar e editar</div>
+                                    <div class="text-xs text-blue-100 font-normal">Log de auditoria em tempo real</div>
+                                </div>
+                            </button>
+                            <button onclick="abrirModalAtvAdm()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-sky-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📋</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Lançamentos</div>
+                                    <div class="text-xs text-sky-100 font-normal">Consultar e editar atividades</div>
                                 </div>
                             </button>
                             <button onclick="gerarResumoGeral()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
@@ -1063,6 +1109,14 @@
                                 <div class="text-left">
                                     <div class="text-sm uppercase tracking-wider heading-font">Planejamento</div>
                                     <div class="text-xs text-purple-100 font-normal">Turnos • Metas por Turno</div>
+                                </div>
+                            </button>
+                            <button onclick="navigate('view-almox')" class="relative bg-teal-600 hover:bg-teal-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <span id="almox-alerta-badge" class="hidden absolute top-2 right-2 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center">0</span>
+                                <div class="w-12 h-12 rounded-xl bg-teal-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🏬</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Almoxarifado</div>
+                                    <div class="text-xs text-teal-100 font-normal">Inventário • Estoque mínimo</div>
                                 </div>
                             </button>
                             <button onclick="tplAbrir()" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
@@ -1147,13 +1201,6 @@
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Tolerância</h3>
                         </button>
 
-                        <button id="btn-menu-horimetro" data-key="horimetro" onclick="navigate('view-horimetro',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-rose-500 relative overflow-hidden"><div class="lp-ring"></div>
-                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
-                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            </div>
-                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Horímetro</h3>
-                        </button>
-
                         <button id="btn-menu-op" data-key="op" onclick="navigate('view-op',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 relative overflow-hidden"><div class="lp-ring"></div>
                             <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-cyan-50 dark:bg-cyan-900/20 text-cyan-500 dark:text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform mb-3 md:mb-4">
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -1173,6 +1220,11 @@
                                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </div>
                             <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Pedidos</h3>
+                        </button>
+
+                        <button id="btn-menu-almox" data-key="almox" onclick="navigate('view-almox',currentSector)" class="submenu-card hidden w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-teal-500 relative overflow-hidden"><div class="lp-ring"></div>
+                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-500 dark:text-teal-400 flex items-center justify-center text-2xl md:text-3xl group-hover:scale-110 transition-transform mb-3 md:mb-4">🏬</div>
+                            <h3 class="text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest heading-font leading-tight">Almoxarifado</h3>
                         </button>
 
                         <button data-key="cronograma" onclick="navigate('view-cronograma',currentSector)" class="submenu-card w-full bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-soft border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center active:scale-[0.98] transition-all hover:-translate-y-1 hover:shadow-md group aspect-square text-center focus:outline-none focus:ring-2 focus:ring-violet-500 relative overflow-hidden"><div class="lp-ring"></div>
@@ -1506,11 +1558,7 @@
                         <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-500">🗓️</div>
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Planejamento Operacional</h2>
                     </div>
-                    <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-6 border border-gray-200 dark:border-gray-700">
-                        <button id="btn-plan-turnos" onclick="planSwitchPane('turnos')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">1️⃣ Gestão de Turnos</button>
-                        <button id="btn-plan-metas" onclick="planSwitchPane('metas')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">2️⃣ Metas por Turno</button>
-                    </div>
-                    <div id="plan-pane-turnos">
+                    <div id="plan-pane-turnos" class="mb-8">
                         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft overflow-hidden">
                             <!-- Header -->
                             <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
@@ -1550,10 +1598,8 @@
                                 <!-- Intervalo (Almoço / Janta) -->
                                 <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
                                     <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
-                                    <input type="text" id="adm-turno-intervalo-inicio" readonly onclick="abrirTimePicker('adm-turno-intervalo-inicio','Início do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
-                                    <span class="text-amber-400 font-bold shrink-0">→</span>
-                                    <input type="text" id="adm-turno-intervalo-fim" readonly onclick="abrirTimePicker('adm-turno-intervalo-fim','Fim do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
-                                    <span class="text-[10px] text-amber-500 dark:text-amber-500 font-medium">(opcional — descontado das horas disponíveis)</span>
+                                    <input type="text" id="adm-turno-intervalo-dur" inputmode="numeric" maxlength="5" oninput="mascaraHorario(this)" onchange="admTurnoPreview()" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]">
+                                    <span class="text-[10px] text-amber-500 dark:text-amber-500 font-medium">Tempo TOTAL de pausa (ex.: 01:08 = 1h e 8min) — descontado das horas disponíveis</span>
                                 </div>
 
                                 <!-- Linha 2: Dias da Semana (horizontal compacto) -->
@@ -1614,7 +1660,7 @@
                             </div>
                     </div>
                     </div><!-- /plan-pane-turnos -->
-                    <div id="plan-pane-metas" class="hidden">
+                    <div id="plan-pane-metas">
                     <div class="w-full max-w-3xl mx-auto flex flex-col flex-1">
                     <div class="mb-6 md:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Metas de Produção</h2>
@@ -1641,36 +1687,6 @@
                 </div>
             </div>
 
-            <div id="view-horimetro" class="view-hidden w-full p-4 md:p-8">
-                <div class="w-full max-w-3xl mx-auto">
-                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h2 class="text-2xl font-black text-center text-gray-900 dark:text-white uppercase tracking-widest heading-font">Horímetro</h2>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-10 relative transition-colors">
-                        <div class="space-y-8">
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 ml-1">Horímetro Inicial</label>
-                                <input type="text" inputmode="decimal" id="hor-inicial" oninput="maskHorimetro(this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-3xl font-black py-5 px-6 outline-none focus:ring-2 focus:ring-rose-500 text-gray-900 dark:text-white transition-all tracking-wider" placeholder="0.000,0">
-                            </div>
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 ml-1">Horímetro Final</label>
-                                <input type="text" inputmode="decimal" id="hor-final" oninput="maskHorimetro(this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-3xl font-black py-5 px-6 outline-none focus:ring-2 focus:ring-rose-500 text-gray-900 dark:text-white transition-all tracking-wider" placeholder="0.000,0">
-                            </div>
-                            <div class="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-rose-50 dark:bg-rose-900/10 rounded-2xl py-6">
-                                <span class="text-xs font-bold text-rose-500 dark:text-rose-400 uppercase tracking-widest mb-2">Tempo Real Trabalhado</span>
-                                <div class="flex items-baseline gap-1">
-                                    <span id="res-horimetro" class="text-6xl font-black text-rose-600 dark:text-rose-500 tracking-tighter">0.00</span>
-                                    <span class="text-xl font-bold text-rose-400">h</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ══════════════════════════════════════════ -->
-            <!-- VIEW: ORDEM DE PRODUÇÃO                   -->
-            <!-- ══════════════════════════════════════════ -->
             <div id="view-op" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
                 <div class="w-full max-w-3xl mx-auto flex-1 flex flex-col">
                     <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-between">
@@ -1721,41 +1737,30 @@
 
             <div id="view-os" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
                 <div class="w-full max-w-3xl mx-auto flex-1 flex flex-col">
-                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500">🔧</div>
-                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Abertura de O.S</h2>
+                        <h2 id="os-view-titulo" class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Abertura de O.S</h2>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex flex-col gap-5">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Solicitante</span>
-                            <span id="manut-solic-chip" class="text-xs font-black text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">—</span>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-2">Setor</span>
-                            <span id="manut-setor-chip" class="text-xs font-black text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">—</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Equipamento / Máquina</label>
-                                <select id="os-equipamento" onchange="manutEquipChange(this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer">
-                                    <option value="" disabled selected>Selecione...</option>
-                                </select>
-                                <input type="text" id="os-equipamento-outro" class="hidden mt-2 w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-3 px-5 focus:ring-2 focus:ring-orange-500 transition-all" placeholder="Digite o nome do equipamento...">
+
+                    <!-- Fila da Manutenção: contador + ações rápidas (só perfil Manutenção) -->
+                    <div id="manut-fila-wrap" class="hidden mb-6">
+                        <div class="bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-800/40 rounded-2xl shadow-soft p-4 md:p-5 mb-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">O.S em aberto</p>
+                                <p id="manut-fila-contador" class="text-4xl font-black text-amber-600 dark:text-amber-400 heading-font">0</p>
                             </div>
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Tipo de Manutenção</label>
-                                <select id="os-tipo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer">
-                                    <option value="" disabled selected>Selecione...</option>
-                                </select>
-                            </div>
+                            <div class="text-4xl">🛠️</div>
                         </div>
-                        <div class="w-full flex flex-col">
-                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descrição da Ocorrência</label>
-                            <textarea id="os-problema" class="w-full min-h-[140px] bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all resize-none" placeholder="Descreva detalhadamente a falha, ruídos anormais, ou motivo da solicitação..."></textarea>
-                        </div>
-                        <button onclick="abrirOSManutencao()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
-                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            Abrir O.S
-                        </button>
+                        <div id="manut-fila-lista" class="space-y-3"></div>
                     </div>
+
+                    <!-- Botão (+) — abertura em pop-up -->
+                    <button onclick="abrirModalOS()" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Abrir Nova O.S
+                    </button>
+
+
                     <div class="mt-8 flex-1">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Minhas Ordens de Serviço</h3>
@@ -1780,6 +1785,7 @@
                     <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-6 border border-gray-200 dark:border-gray-700">
                         <button id="btn-manut-pane-painel" onclick="manutSwitchPane('painel')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">📊 Painel</button>
                         <button id="btn-manut-pane-cadastros" onclick="manutSwitchPane('cadastros')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">🗂️ Cadastros</button>
+                        <button onclick="abrirModalOS()" class="shrink-0 py-3 px-4 text-sm font-bold uppercase tracking-wider rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all active:scale-[0.97]" title="Abrir O.S como ADM">➕ O.S</button>
                     </div>
 
                     <div id="manut-pane-painel">
@@ -1828,6 +1834,14 @@
                         </div>
                     </div>
 
+                    <!-- Seletor de estilo dos gráficos -->
+                    <div class="flex items-center justify-end gap-2 mb-3">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Estilo dos gráficos:</span>
+                        <button id="btn-gest-bar" onclick="manutSetChartEstilo('bar')" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-900 text-white dark:bg-white dark:text-gray-900 transition-all">📊 Barras</button>
+                        <button id="btn-gest-linha" onclick="manutSetChartEstilo('linha')" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all">📈 Linhas</button>
+                        <button id="btn-gest-rosca" onclick="manutSetChartEstilo('rosca')" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all">🍩 Rosca</button>
+                    </div>
+
                     <!-- Bloco 1: Análise por Tipo de Manutenção -->
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5 mb-6">
                         <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -1871,131 +1885,177 @@
                     </div>
                     </div><!-- /manut-pane-painel -->
 
-                    <!-- ── Pane: Cadastros (dados operacionais) ── -->
-                    <div id="manut-pane-cadastros" class="hidden space-y-6">
-                        <!-- Equipamentos -->
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
-                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">🏭 Máquinas e Equipamentos</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                                <input type="text" id="mcad-eq-nome" placeholder="Nome do equipamento" class="md:col-span-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
-                                <select id="mcad-eq-setor" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
-                                    <option value="" disabled selected>Setor...</option>
-                                    <option>Recebimento</option><option>Rebenefício</option><option>Expedição</option><option>Embalagem</option><option>Operações</option><option>Manutenção</option>
-                                </select>
-                                <input type="text" id="mcad-eq-depto" placeholder="Departamento" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
-                            </div>
-                            <button onclick="mcadAddEquip()" class="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all mb-4">+ Cadastrar Equipamento</button>
-                            <div id="mcad-eq-lista" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
+                    <!-- ── Pane: Cadastros — 3 sub-abas com (+) em pop-up ── -->
+                    <div id="manut-pane-cadastros" class="hidden">
+                        <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-5 border border-gray-200 dark:border-gray-700">
+                            <button id="btn-mcad-eq" onclick="mcadSwitchTab('eq')" class="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">🏭 Máquinas</button>
+                            <button id="btn-mcad-tipo" onclick="mcadSwitchTab('tipo')" class="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl transition-all">🔧 Tipos</button>
+                            <button id="btn-mcad-tec" onclick="mcadSwitchTab('tec')" class="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl transition-all">👷 Técnicos</button>
                         </div>
-                        <!-- Tipos de Manutenção -->
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
-                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">🔧 Tipos de Manutenção</h3>
-                            <div class="flex gap-3 mb-4">
-                                <input type="text" id="mcad-tipo-nome" placeholder="Ex: Elétrica, Mecânica..." class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
-                                <button onclick="mcadAddTipo()" class="py-2.5 px-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">+ Adicionar</button>
-                            </div>
+
+                        <div id="mcad-tab-eq">
+                            <button onclick="mcadAbrirModal('eq')" class="w-full py-4 mb-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2">➕ Cadastrar Equipamento</button>
+                            <div id="mcad-eq-lista" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+                        </div>
+                        <div id="mcad-tab-tipo" class="hidden">
+                            <button onclick="mcadAbrirModal('tipo')" class="w-full py-4 mb-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2">➕ Adicionar Tipo de Manutenção</button>
                             <div id="mcad-tipo-lista" class="flex flex-wrap gap-2"></div>
                         </div>
-                        <!-- Técnicos -->
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-5">
-                            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">👷 Técnicos da Equipe e Terceiros Fixos</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                                <input type="text" id="mcad-tec-nome" placeholder="Nome do técnico" class="md:col-span-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400">
-                                <select id="mcad-tec-tipo" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                        <div id="mcad-tab-tec" class="hidden">
+                            <button onclick="mcadAbrirModal('tec')" class="w-full py-4 mb-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2">➕ Cadastrar Técnico</button>
+                            <div id="mcad-tec-lista" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+                        </div>
+
+                        <!-- MODAL: EQUIPAMENTO (TAG primeiro, obrigatória) -->
+                        <div id="modal-mcad-eq" role="dialog" aria-modal="true" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden justify-center items-center p-4" onclick="if(event.target===this) mcadFecharModais()">
+                            <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-3 max-h-[90vh] overflow-y-auto">
+                                <div class="flex items-center justify-between"><h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">🏭 Novo Equipamento</h3><button onclick="mcadFecharModais()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90">✕</button></div>
+                                <div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">TAG * (identificação única)</label>
+                                <input type="text" id="mcad-eq-tag" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-black text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 uppercase tracking-wider" placeholder="Ex: MESD01"></div>
+                                <div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nome do Equipamento *</label>
+                                <input type="text" id="mcad-eq-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Ex: Mesa Densimétrica 01"></div>
+                                <div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Setor *</label>
+                                <select id="mcad-eq-setor" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
+                                    <option value="" disabled selected>Setor...</option>
+                                    <option>Recebimento</option><option>Rebenefício</option><option>Expedição</option><option>Embalagem</option><option>Operações</option><option>Manutenção</option>
+                                </select></div>
+                                <div><label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Departamento *</label>
+                                <input type="text" id="mcad-eq-depto" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Ex: Armazém"></div>
+                                <button onclick="mcadAddEquip()" class="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">Salvar Equipamento</button>
+                            </div>
+                        </div>
+
+                        <!-- MODAL: TIPO -->
+                        <div id="modal-mcad-tipo" role="dialog" aria-modal="true" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden justify-center items-center p-4" onclick="if(event.target===this) mcadFecharModais()">
+                            <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-3">
+                                <div class="flex items-center justify-between"><h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">🔧 Novo Tipo</h3><button onclick="mcadFecharModais()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90">✕</button></div>
+                                <input type="text" id="mcad-tipo-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Ex: Elétrica, Mecânica...">
+                                <button onclick="mcadAddTipo()" class="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">Salvar Tipo</button>
+                            </div>
+                        </div>
+
+                        <!-- MODAL: TÉCNICO -->
+                        <div id="modal-mcad-tec" role="dialog" aria-modal="true" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] hidden justify-center items-center p-4" onclick="if(event.target===this) mcadFecharModais()">
+                            <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-3">
+                                <div class="flex items-center justify-between"><h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">👷 Novo Técnico</h3><button onclick="mcadFecharModais()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90">✕</button></div>
+                                <input type="text" id="mcad-tec-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400" placeholder="Nome do técnico">
+                                <select id="mcad-tec-tipo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-400 appearance-none cursor-pointer">
                                     <option value="interno" selected>Equipe Interna</option>
                                     <option value="terceiro">Terceiro Fixo</option>
                                 </select>
+                                <button onclick="mcadAddTecnico()" class="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">Salvar Técnico</button>
                             </div>
-                            <button onclick="mcadAddTecnico()" class="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all mb-4">+ Cadastrar Técnico</button>
-                            <div id="mcad-tec-lista" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div id="view-cronograma" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
-                <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col pb-32">
-                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-500">📆</div>
-                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Cronograma de OPs</h2>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-soft p-5 md:p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <button onclick="cronoNav(-1)" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-black active:scale-90 transition-all">‹</button>
-                            <h3 id="crono-label" class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">—</h3>
-                            <button onclick="cronoNav(1)" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-black active:scale-90 transition-all">›</button>
-                        </div>
-                        <div class="grid grid-cols-7 gap-1 mb-1 text-center">
-                            <span class="text-[10px] font-black text-gray-400 uppercase">Dom</span><span class="text-[10px] font-black text-gray-400 uppercase">Seg</span><span class="text-[10px] font-black text-gray-400 uppercase">Ter</span><span class="text-[10px] font-black text-gray-400 uppercase">Qua</span><span class="text-[10px] font-black text-gray-400 uppercase">Qui</span><span class="text-[10px] font-black text-gray-400 uppercase">Sex</span><span class="text-[10px] font-black text-gray-400 uppercase">Sáb</span>
-                        </div>
-                        <div id="crono-grid" class="grid grid-cols-7 gap-1"></div>
-                        <div class="flex items-center justify-center gap-4 mt-4 text-[10px] font-bold text-gray-500 dark:text-gray-400 flex-wrap">
-                            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"></i> Pendente</span>
-                            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></i> Em Processo</span>
-                            <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></i> Concluído</span>
-                        </div>
-                    </div>
-                    <div id="crono-dia-lista" class="mt-5 space-y-2"></div>
-                </div>
-            </div>
-
             <div id="view-requisicao" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
-                <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col">
-                    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
+                <div class="w-full max-w-3xl mx-auto flex-1 flex flex-col pb-32">
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-fuchsia-100 dark:bg-fuchsia-900/30 flex items-center justify-center text-fuchsia-500">🛒</div>
-                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Requisições</h2>
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Pedidos</h2>
                     </div>
-                    <div class="flex bg-gray-100 dark:bg-gray-800 rounded-2xl p-1.5 mb-8 border border-gray-200 dark:border-gray-700">
-                        <button id="btn-tab-req-material" onclick="switchTabReq('material')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all">Estoque Interno</button>
-                        <button id="btn-tab-req-compra" onclick="switchTabReq('compra')" class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all">Compras Externas</button>
+
+                    <!-- Alternância nítida entre as duas modalidades -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <button id="btn-tab-req-material" onclick="switchTabReq('material')" class="py-4 px-3 rounded-2xl border-2 bg-blue-600 border-blue-600 text-white shadow-md text-left transition-all active:scale-[0.98]">
+                            <span class="block text-lg">📦</span>
+                            <span class="block text-sm font-black uppercase tracking-wider">Estoque Interno</span>
+                            <span class="block text-[10px] opacity-80 font-medium">Solicitar item do estoque da fábrica</span>
+                        </button>
+                        <button id="btn-tab-req-compra" onclick="switchTabReq('compra')" class="py-4 px-3 rounded-2xl border-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-left transition-all active:scale-[0.98]">
+                            <span class="block text-lg">🛒</span>
+                            <span class="block text-sm font-black uppercase tracking-wider">Compras Externas</span>
+                            <span class="block text-[10px] opacity-80 font-medium">Solicitar compra fora da empresa</span>
+                        </button>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 shadow-soft border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex-1">
-                        <div id="tab-req-material" class="block space-y-6">
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Material / Insumo</label>
-                                <input type="text" id="req-mat-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
+
+                    <div id="tab-req-material" class="block">
+                        <button onclick="abrirPedModal('material')" class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Solicitar Item do Estoque
+                        </button>
+                    </div>
+                    <div id="tab-req-compra" class="hidden">
+                        <button onclick="abrirPedModal('compra')" class="w-full py-5 bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Novo Pedido de Compra
+                        </button>
+                    </div>
+
+                    <!-- Histórico pessoal -->
+                    <div class="mt-8">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Meu Histórico — <span id="ped-hist-tipo-lbl">Estoque Interno</span></h3>
+                        <div id="ped-historico" class="space-y-3"></div>
+                    </div>
+
+                    <!-- MODAL: SOLICITAR DO ESTOQUE -->
+                    <div id="modal-ped-mat" role="dialog" aria-modal="true" aria-label="Solicitar do estoque" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[115] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharPedModal()">
+                        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">📦 Estoque Interno</h3>
+                                <button onclick="fecharPedModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
                             </div>
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantidade</label>
-                                <input type="text" id="req-mat-qtd" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-4 px-5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all" placeholder="Ex: 2 rolos, 10 caixas">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Material / Insumo</label>
+                                <input type="text" id="req-mat-nome" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: Bobina de Filme, Fita, Sacaria...">
                             </div>
-                            <div class="w-full">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Justificativa</label>
-                                <textarea id="req-mat-just" rows="4" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-4 px-5 text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 transition-all resize-none" placeholder="Motivo da solicitação..."></textarea>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Quantidade (somente números)</label>
+                                <input type="text" id="req-mat-qtd" inputmode="numeric" oninput="mascaraMilhar(this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: 10">
                             </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Justificativa</label>
+                                <textarea id="req-mat-just" rows="3" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-3.5 px-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Motivo da solicitação..."></textarea>
+                            </div>
+                            <button onclick="enviarPedido('material')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">Salvar Solicitação</button>
                         </div>
-                        <div id="tab-req-compra" class="hidden space-y-6">
-                            <div class="bg-gray-50 dark:bg-gray-900/50 p-5 md:p-6 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-600">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                                    <div class="w-full md:col-span-2">
-                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Item a Comprar</label>
-                                        <input type="text" id="req-comp-nome" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500" placeholder="Nome exato do material">
-                                    </div>
-                                    <div class="w-full">
-                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Quantidade</label>
-                                        <input type="text" id="req-comp-qtd" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500" placeholder="Ex: 5 un">
-                                    </div>
-                                    <div class="w-full">
-                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Categoria</label>
-                                        <select id="req-comp-cat" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500 appearance-none cursor-pointer">
-                                            <option value="EPIs">EPIs</option>
-                                            <option value="Ferramentas">Ferramentas</option>
-                                            <option value="Insumos (Embalagem)">Insumos</option>
-                                            <option value="Limpeza">Limpeza</option>
-                                            <option value="Escritório">Escritório</option>
-                                            <option value="Outros">Outros</option>
-                                        </select>
-                                    </div>
-                                    <div class="w-full md:col-span-2">
-                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Justificativa da Compra</label>
-                                        <input type="text" id="req-comp-just" class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-3.5 px-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-fuchsia-500" placeholder="Motivo da urgência...">
-                                    </div>
-                                </div>
-                                <button onclick="addReqCompraItem()" class="w-full py-4 bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white rounded-xl font-bold active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg> Adicionar à Lista
-                                </button>
+                    </div>
+
+                    <!-- MODAL: PEDIDO DE COMPRA EXTERNA -->
+                    <div id="modal-ped-comp" role="dialog" aria-modal="true" aria-label="Pedido de compra" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[115] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharPedModal()">
+                        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">🛒 Compra Externa</h3>
+                                <button onclick="fecharPedModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
                             </div>
-                            <div id="req-compras-list" class="space-y-4 mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                            <p class="text-[10px] text-gray-400 font-medium">💾 Rascunho salvo automaticamente — pode sair do app para copiar links que nada se perde. Some ao enviar ou limpar.</p>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Item a Comprar</label>
+                                <input type="text" id="req-comp-nome" oninput="pedSalvarRascunho()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500" placeholder="Nome exato do material">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">🔗 Links da web (máx. 3)</label>
+                                    <button onclick="pedAddLink('')" class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-black text-sm active:scale-90 transition-all">+</button>
+                                </div>
+                                <div id="ped-links" class="space-y-2"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Quantidade</label>
+                                    <input type="text" id="req-comp-qtd" inputmode="numeric" oninput="mascaraMilhar(this);pedSalvarRascunho()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500" placeholder="Ex: 5">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Categoria</label>
+                                    <select id="req-comp-cat" onchange="pedSalvarRascunho()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-bold outline-none py-3.5 px-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 appearance-none cursor-pointer">
+                                        <option value="EPIs">EPIs</option>
+                                        <option value="Ferramentas">Ferramentas</option>
+                                        <option value="Insumos (Embalagem)">Insumos</option>
+                                        <option value="Limpeza">Limpeza</option>
+                                        <option value="Escritório">Escritório</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Justificativa da Compra</label>
+                                <input type="text" id="req-comp-just" oninput="pedSalvarRascunho()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none py-3.5 px-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500" placeholder="Motivo da compra...">
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="pedLimparRascunho(true)" class="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-2xl text-xs uppercase tracking-wider active:scale-[0.98] transition-all">Limpar</button>
+                                <button onclick="enviarPedido('compra')" class="flex-[2] py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-2xl text-sm uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">Salvar Pedido</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2254,9 +2314,8 @@
                 <!-- Intervalo (Almoço / Janta) -->
                 <div class="flex flex-wrap items-center gap-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl px-3 py-2.5">
                     <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest shrink-0">☕ Intervalo</span>
-                    <input type="text" id="edit-turno-intervalo-inicio" readonly onclick="abrirTimePicker('edit-turno-intervalo-inicio','Início do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
-                    <span class="text-amber-400 font-bold shrink-0">→</span>
-                    <input type="text" id="edit-turno-intervalo-fim" readonly onclick="abrirTimePicker('edit-turno-intervalo-fim','Fim do Intervalo')" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px] cursor-pointer">
+                    <input type="text" id="edit-turno-intervalo-dur" inputmode="numeric" maxlength="5" oninput="mascaraHorario(this)" placeholder="--:--" class="bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-700 rounded-lg py-1.5 px-2 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-center w-[95px]">
+                    <span class="text-[10px] text-amber-500 font-medium">Tempo TOTAL de pausa (ex.: 01:08)</span>
                     <span class="text-[10px] text-amber-500 font-medium">(opcional)</span>
                 </div>
                 <!-- Dias da Semana -->
@@ -2429,6 +2488,63 @@
                 </div>
                 <button onclick="realizarLogin()" class="w-full bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold py-4 rounded-xl active:scale-[0.98] shadow-md transition-all mt-6 text-sm uppercase tracking-widest heading-font">Entrar</button>
             </div>
+        </div>
+    </div>
+
+                    <!-- MODAL: ABRIR O.S (solicitante e setor capturados automaticamente, ocultos) -->
+                    <div id="modal-os-form" role="dialog" aria-modal="true" aria-label="Abrir O.S" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[115] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharModalOS()">
+                    <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 rounded-3xl p-6 md:p-8 relative transition-colors flex flex-col gap-5">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">🔧 Nova O.S</h3>
+                            <button onclick="fecharModalOS()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-5">
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">TAG do Equipamento</label>
+                                <input type="text" id="os-tag" list="os-tags-list" oninput="osTagLookup(this)" autocomplete="off" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base font-black outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all uppercase tracking-wider" placeholder="Ex: MESD01">
+                                <datalist id="os-tags-list"></datalist>
+                                <p id="os-tag-resultado" class="text-[11px] font-bold mt-1.5 min-h-[16px] text-gray-400"></p>
+                                <input type="hidden" id="os-equipamento" value="">
+                            </div>
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Tipo de Manutenção</label>
+                                <select id="os-tipo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer">
+                                    <option value="" disabled selected>Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="w-full flex flex-col">
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 ml-1">Descrição da Ocorrência</label>
+                            <textarea id="os-problema" class="w-full min-h-[140px] bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium outline-none text-gray-900 dark:text-white py-4 px-5 focus:ring-2 focus:ring-orange-500 transition-all resize-none" placeholder="Descreva detalhadamente a falha, ruídos anormais, ou motivo da solicitação..."></textarea>
+                        </div>
+                        <button onclick="abrirOSManutencao()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider heading-font">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Abrir O.S
+                        </button>
+                    </div>
+                    </div><!-- /modal-os-form -->
+
+    <!-- MODAL: LOG DE AUDITORIA (ADM) -->
+    <div id="modal-auditoria" role="dialog" aria-modal="true" aria-label="Auditoria" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] hidden justify-center items-center p-4" onclick="if(event.target===this) fecharAuditoria()">
+        <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between mb-2 shrink-0">
+                <h3 class="font-black text-lg text-gray-900 dark:text-white heading-font">🕵️ Log de Auditoria</h3>
+                <button onclick="fecharAuditoria()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+            </div>
+            <p class="text-xs text-gray-400 mb-3 shrink-0">Trilha em tempo real: quem entrou, o que lançou e quando. Últimos 400 eventos.</p>
+            <input type="text" id="aud-filtro" oninput="audRender()" placeholder="🔎 Filtrar por usuário, ação ou setor..." class="shrink-0 w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-4 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-400 mb-3">
+            <div id="aud-lista" class="space-y-1.5 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: NOTIFICAÇÕES DE O.S (sininho) -->
+    <div id="modal-sino" role="dialog" aria-modal="true" aria-label="Notificações" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[160] hidden justify-center items-start pt-20 p-4" onclick="if(event.target===this) fecharSino()">
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-5 max-h-[75vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-black text-sm text-gray-900 dark:text-white heading-font uppercase tracking-widest">🔔 O.S em Aberto</h3>
+                <button onclick="fecharSino()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 active:scale-90 transition-all">✕</button>
+            </div>
+            <div id="sino-lista" class="space-y-2"></div>
         </div>
     </div>
 
@@ -2682,6 +2798,7 @@
         });
 
         renderListaOPs();
+        auditar('OP registrada', op['op-ref'] || op['op-lote'] || '');
         mostrarToast('OP registrada com sucesso!');
     }
 
@@ -2699,15 +2816,17 @@
         if (!op) return;
         var novo = sel.value;
         if (novo === 'processo') {
-            // Em Processo exige Data de Início e Data de Fim
-            var ini = (prompt('Data de Início da execução (dd/mm/aaaa):', op.execInicio || workingDate) || '').trim();
-            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(ini)) { mostrarToast('Data de Início obrigatória (dd/mm/aaaa).', true); renderListaOPs(); return; }
-            var fim = (prompt('Data de Fim prevista (dd/mm/aaaa):', op.execFim || workingDate) || '').trim();
-            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(fim)) { mostrarToast('Data de Fim obrigatória (dd/mm/aaaa).', true); renderListaOPs(); return; }
-            op.execInicio = ini; op.execFim = fim;
+            // Iniciar: Data de Início capturada AUTOMATICAMENTE; Data Final fica aberta
+            if (!op.execInicio) op.execInicio = new Date().toLocaleDateString('pt-BR');
+            var fimPrev = (prompt('Data prevista de término (dd/mm/aaaa) — opcional, deixe vazio para pular:', op.execFim || '') || '').trim();
+            if (fimPrev && !/^\d{2}\/\d{2}\/\d{4}$/.test(fimPrev)) { mostrarToast('Data prevista inválida (use dd/mm/aaaa).', true); renderListaOPs(); return; }
+            op.execFim = fimPrev;
         }
-        if (novo === 'concluido' && !op.horaFim) op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-        if (novo !== 'concluido') op.horaFim = '';
+        if (novo === 'concluido') {
+            if (!op.horaFim) op.horaFim = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            if (!op.execFim) op.execFim = new Date().toLocaleDateString('pt-BR');
+        }
+        if (novo === 'pendente') { op.horaFim = ''; }
         op.status = novo;
         salvarOPs();
         renderListaOPs();
@@ -2739,6 +2858,20 @@
             'processo':  { icon: '🔄', label: 'Em Processo', border: 'border-blue-300 dark:border-blue-700',        num: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600' },
             'concluido': { icon: '✅', label: 'Concluído',   border: 'border-emerald-300 dark:border-emerald-700',  num: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600' }
         };
+        // Alerta de atraso: prazo (fim previsto ou Data Geral) vencido sem conclusão
+        var _hojeISO = (function(){ var h = new Date(); return h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0'); })();
+        var _opVencida = function(op){
+            if (opStatusNorm(op.status) === 'concluido') return false;
+            var prazoISO = '';
+            if (op.execFim && /^\d{2}\/\d{2}\/\d{4}$/.test(op.execFim)) { var p = op.execFim.split('/'); prazoISO = p[2]+'-'+p[1]+'-'+p[0]; }
+            else if (op.dataGeral) prazoISO = op.dataGeral;
+            return prazoISO && prazoISO < _hojeISO;
+        };
+        var atrasadas = ops.filter(_opVencida);
+        if (atrasadas.length && !window._opAtrasoAvisado) {
+            window._opAtrasoAvisado = true;
+            mostrarToast('⚠️ ' + atrasadas.length + ' OP' + (atrasadas.length>1?'s':'') + ' com prazo vencido sem conclusão!', true);
+        }
 
         container.innerHTML = ops.map(function(op, i) {
             var refVal    = op['op-ref'] || op['op-lote'] || op['op-guia'] || '-';
@@ -2757,7 +2890,8 @@
                                 (atividade ? '<span class="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">' + escapeHTML(atividade) + '</span>' : '') +
                                 '<span class="text-[10px] font-black px-2 py-0.5 rounded-md ' + (status==='concluido'?'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400':status==='processo'?'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400':'bg-gray-100 dark:bg-gray-700 text-gray-500') + '">' + cfg.icon + ' ' + cfg.label + '</span>' +
                                 (op.fumigacao ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">🧪 Fumigação ' + escapeHTML((op.fumigInicio||'').split('-').reverse().join('/')) + ' → ' + escapeHTML((op.fumigFim||'').split('-').reverse().join('/')) + '</span>' : '') +
-                                (op.execInicio ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">📅 ' + escapeHTML(op.execInicio) + ' → ' + escapeHTML(op.execFim||'') + '</span>' : '') +
+                                (op.execInicio ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">📅 ' + escapeHTML(op.execInicio) + ' → ' + escapeHTML(op.execFim||'em aberto') + '</span>' : '') +
+                                (_opVencida(op) ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">⚠️ ATRASADA</span>' : '') +
                             '</div>' +
                             '<div class="flex items-center gap-2 flex-wrap">' +
                                 '<span class="text-[10px] font-black text-gray-400 uppercase">' + _getLabelRef(op) + ':</span>' +
@@ -2853,6 +2987,7 @@
         saveData();
         renderListaRegistrosAtv();
         fecharModalNovaAtv();
+        auditar('Atividade registrada', reg.servico);
         mostrarToast('Atividade registrada! ✓');
     }
 
@@ -3637,7 +3772,8 @@
     // ── Pop-ups (+): Nova Atividade e Nova OP ──
     function abrirModalNovaAtv() {
         var m = document.getElementById('modal-nova-atv');
-        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        // FIX tela branca: o popstate adicionava opacity-0 e o modal abria invisível
+        if (m) { m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex'); }
     }
     window.abrirModalNovaAtv = abrirModalNovaAtv;
     function fecharModalNovaAtv() {
@@ -3648,7 +3784,8 @@
     function abrirModalOP() {
         renderFormularioOP();
         var m = document.getElementById('modal-op-form');
-        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        // FIX travamento intermitente: remover opacity-0 deixada pelo popstate
+        if (m) { m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex'); }
     }
     window.abrirModalOP = abrirModalOP;
     function fecharModalOP() {
@@ -3662,7 +3799,7 @@
     function abrirReporteBug() {
         var m = document.getElementById('modal-bug');
         if (!m) return;
-        m.classList.remove('hidden'); m.classList.add('flex');
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
         var bw = document.getElementById('bug-btn-whats');
         if (bw) bw.classList.toggle('hidden', !_bugUltimaMsg);
         fbCarregar(function(){ bugRenderMeus(); });
@@ -3728,10 +3865,14 @@
     }
 
     // ── Cronograma: calendário mensal das OPs (leve, sem biblioteca) ──
-    var _cronoMes = null, _cronoMapa = {};
+    var _cronoMes = null, _cronoMapa = {}, _cronoModo = 'ops';
     function cronoInit() {
         var h = new Date();
         if (!_cronoMes) _cronoMes = { y: h.getFullYear(), m: h.getMonth() };
+        // Perfil Manutenção vê o calendário das Ordens de Serviço
+        _cronoModo = (limparEmoji(currentSector) === 'Manutenção') ? 'manut' : 'ops';
+        var tit = document.getElementById('crono-titulo');
+        if (tit) tit.textContent = _cronoModo === 'manut' ? 'Cronograma de Manutenção' : 'Cronograma de OPs';
         cronoCarregarMes();
     }
     window.cronoInit = cronoInit;
@@ -3750,6 +3891,27 @@
         if (grid) grid.innerHTML = '<div class="col-span-7 text-center py-8 text-xs text-gray-400">Carregando OPs do mês...</div>';
         var y = _cronoMes.y, m = _cronoMes.m, dias = new Date(y, m + 1, 0).getDate();
         if (!db) { cronoRender({}); return; }
+        // Modo Manutenção: plota as O.S do mês (abertura + status) no mesmo visual
+        if (_cronoModo === 'manut') {
+            manutCarregar(function(){
+                var mapa = {};
+                _manutData.lista.forEach(function(o){
+                    var d = new Date(o.ts || 0);
+                    if (d.getFullYear() !== y || d.getMonth() !== m) return;
+                    var pseudo = {
+                        status: o.status === 'Concluída' ? 'concluido' : (o.status === 'Em Andamento' ? 'processo' : 'pendente'),
+                        'op-atividade': o.equipamento || 'O.S',
+                        'op-ref': 'O.S #' + o.num,
+                        'op-sacas': '',
+                        execInicio: '', execFim: '', fumigacao: false
+                    };
+                    (mapa[d.getDate()] = mapa[d.getDate()] || []).push({ setor: o.setor || '', op: pseudo });
+                });
+                _cronoMapa = mapa;
+                cronoRender(mapa);
+            });
+            return;
+        }
         var gets = [];
         for (var d = 1; d <= dias; d++) {
             gets.push(db.collection('operacoes').doc(String(d).padStart(2,'0') + '-' + String(m+1).padStart(2,'0') + '-' + y).get());
@@ -3900,10 +4062,12 @@
             el.classList.add('ed-el');
         });
         document.querySelectorAll('main input[placeholder], main textarea[placeholder]').forEach(function(el){ el.classList.add('ed-ph'); });
+        _edMarcarBlocos();
     }
     function edDesmarcar() {
         document.querySelectorAll('.ed-el').forEach(function(el){ el.removeAttribute('contenteditable'); el.classList.remove('ed-el'); });
         document.querySelectorAll('.ed-ph').forEach(function(el){ el.classList.remove('ed-ph'); });
+        _edDesmarcarBlocos();
     }
 
     function _edGravar(el, patch) {
@@ -3926,7 +4090,18 @@
             return;
         }
         var el = e.target.closest('.ed-el');
-        if (el) { e.preventDefault(); e.stopPropagation(); _edAlvo = el; el.focus(); edAbrirToolbar(el); return; }
+        if (el) {
+            e.preventDefault(); e.stopPropagation();
+            _edAlvo = el;
+            // Elemento composto só de emoji → abre a biblioteca direto para troca rápida
+            var txt = el.textContent.trim();
+            if (txt.length <= 3 && /\p{Extended_Pictographic}/u.test(txt)) { edAbrirEmoji(); return; }
+            el.focus(); edAbrirToolbar(el);
+            return;
+        }
+        // Ícone de setor/card (contém svg ou emoji) → oferta de upload de imagem
+        var ic = e.target.closest('.submenu-card div.rounded-2xl, .adm-setor-card div.rounded-xl');
+        if (ic) { e.preventDefault(); e.stopPropagation(); _edAlvo = ic; _edIconeAlvo = ic; document.getElementById('ed-icone-input').click(); return; }
         edFecharToolbar();
     }, true);
     document.addEventListener('input', function(e){
@@ -3966,10 +4141,157 @@
         if (prop === 'color'      && valor) { patch.color = valor; el.style.color = valor; }
         if (prop === 'fontSize'   && valor) { patch.fontSize = valor; el.style.fontSize = valor; }
         if (prop === 'fontFamily' && valor) { patch.fontFamily = valor; el.style.fontFamily = valor; }
+        if (prop === 'align'      && valor) { patch.align = valor; el.style.textAlign = valor; }
         _edGravar(el, patch);
         edAbrirToolbar(el);
     }
     window.edEstilo = edEstilo;
+
+    // ── Emojis: biblioteca com busca por nome ──
+    var ED_EMOJIS = [
+        ['📥','recebimento entrada caixa'],['⚙️','engrenagem rebeneficio maquina'],['🚛','caminhao expedicao transporte'],['📦','embalagem pacote caixa'],['📊','grafico operacoes barras'],['⏱️','cronometro manutencao tempo'],['🛠️','ferramentas manutencao chave'],['🔧','chave inglesa manutencao'],['🏬','almoxarifado loja estoque'],['🏭','fabrica industria'],
+        ['📋','prancheta atividades lista'],['⚡','raio boletim energia'],['🎯','alvo metas meta'],['⚖️','balanca quebra peso'],['🛒','carrinho compras pedidos'],['📆','calendario cronograma data'],['🗓️','calendario planejamento'],['📅','calendario data'],['🕐','relogio hora'],['⏰','despertador alarme hora'],
+        ['✅','confirmado check verde'],['✔️','check confirmado'],['❌','erro xis vermelho'],['⚠️','alerta atencao aviso'],['🔔','sino notificacao alerta'],['🔕','sino mudo silencio'],['📌','alfinete fixar'],['📍','pino local'],['🔎','lupa pesquisar buscar'],['🔍','lupa busca'],
+        ['☕','cafe intervalo pausa'],['🌱','planta semente cafe verde'],['🫘','graos feijao cafe'],['🌾','trigo graos colheita'],['🚜','trator fazenda campo'],['🧪','fumigacao quimica teste tubo'],['🧯','extintor incendio seguranca'],['🦺','colete seguranca epi'],['⛑️','capacete seguranca epi'],['🧤','luvas epi protecao'],
+        ['👤','pessoa usuario perfil'],['👥','pessoas colaboradores equipe'],['👷','tecnico capacete operario'],['🧑‍🔧','mecanico tecnico'],['🤝','aperto de maos apoio ajuda'],['💪','forca braço trabalho'],['🙋','pessoa mao levantada ajuda'],['🚪','porta sair saida'],['🎨','paleta tema cores'],['🖼️','quadro imagem foto'],
+        ['📈','grafico subindo crescimento'],['📉','grafico caindo queda'],['💹','grafico dinheiro mercado'],['🍩','rosca grafico donut'],['💰','dinheiro saco custo'],['💵','dinheiro nota custo'],['🧾','recibo nota fiscal'],['📄','documento pagina pdf'],['📃','documento papel'],['🗂️','fichario cadastros pastas'],
+        ['📁','pasta arquivo'],['🗃️','arquivo caixa fichas'],['✉️','envelope mensagem carta'],['📧','email mensagem'],['💬','balao conversa mensagem feedback'],['📢','megafone anuncio aviso'],['📣','megafone alerta'],['🐞','joaninha bug inseto'],['🐛','lagarta bug'],['🔗','corrente link elo'],
+        ['➕','mais adicionar soma'],['➖','menos remover'],['✏️','lapis editar escrever'],['📝','memo editar anotar'],['🖊️','caneta assinar'],['🗑️','lixeira apagar excluir'],['♻️','reciclar renovar'],['🔄','atualizar girar processo'],['▶️','play iniciar comecar'],['⏸️','pausa parar'],
+        ['⏹️','stop parar quadrado'],['🔒','cadeado fechado seguranca'],['🔓','cadeado aberto'],['🔑','chave acesso senha'],['⭐','estrela favorito'],['🌟','estrela brilhante destaque'],['🏆','trofeu premio campeao'],['🥇','medalha ouro primeiro'],['🎉','festa confete comemoracao'],['🚀','foguete rapido lancamento'],
+        ['🔥','fogo quente destaque'],['❄️','floco de neve frio'],['💧','gota agua'],['🌡️','termometro temperatura'],['🔋','bateria energia'],['💡','lampada ideia luz'],['🕵️','detetive auditoria investigar'],['🛡️','escudo protecao seguranca'],['🚧','obras construcao barreira'],['🧹','vassoura limpeza limpar'],
+        ['🧺','cesta lavanderia'],['📏','regua medida'],['📐','esquadro medida angulo'],['✂️','tesoura cortar'],['🧲','ima magnetico'],['🪛','chave de fenda parafuso'],['🪚','serrote serra madeira'],['🔩','parafuso porca'],['⛓️','corrente elo'],['🪜','escada subir'],
+        ['🏠','casa home inicio'],['🏢','predio empresa escritorio'],['🚨','sirene emergencia alerta'],['🚦','semaforo transito status'],['🟢','bola verde ok status'],['🟡','bola amarela atencao status'],['🔴','bola vermelha erro status'],['🔵','bola azul info status'],['🟣','bola roxa status'],['⚪','bola branca status']
+    ];
+    function edAbrirEmoji() {
+        var m = document.getElementById('modal-emoji');
+        if (!m) return;
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
+        var b = document.getElementById('emoji-busca'); if (b) b.value = '';
+        edEmojiRender();
+    }
+    window.edAbrirEmoji = edAbrirEmoji;
+    function edFecharEmoji() {
+        var m = document.getElementById('modal-emoji');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.edFecharEmoji = edFecharEmoji;
+    function edEmojiRender() {
+        var g = document.getElementById('emoji-grid');
+        if (!g) return;
+        var f = ((document.getElementById('emoji-busca')||{}).value || '').toLowerCase();
+        g.innerHTML = ED_EMOJIS.filter(function(e){ return !f || e[1].indexOf(f) !== -1; })
+            .map(function(e){ return '<button onclick="edEmojiEscolher(\''+e[0]+'\')" title="'+escapeHTML(e[1])+'" class="text-2xl p-1.5 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 active:scale-90 transition-all">'+e[0]+'</button>'; }).join('') ||
+            '<p class="col-span-8 text-xs text-gray-400 text-center py-4">Nada encontrado.</p>';
+    }
+    window.edEmojiRender = edEmojiRender;
+    function edEmojiEscolher(emoji) {
+        if (_edAlvo) {
+            _edAlvo.textContent = emoji;
+            _edGravar(_edAlvo, { texto: emoji });
+            mostrarToast('Emoji aplicado ✓');
+        }
+        edFecharEmoji();
+    }
+    window.edEmojiEscolher = edEmojiEscolher;
+
+    // ── Upload de ícone (salvo em Firestore — sobrevive à limpeza de cache) ──
+    var _edIconeAlvo = null;
+    function edUploadIcone() {
+        var alvo = _edAlvo && (_edAlvo.closest('.submenu-card, .adm-setor-card') || _edAlvo);
+        var icone = alvo ? alvo.querySelector('div.rounded-2xl, div.rounded-xl') : null;
+        _edIconeAlvo = icone || _edAlvo;
+        if (!_edIconeAlvo) return mostrarToast('Selecione primeiro o elemento do ícone.', true);
+        document.getElementById('ed-icone-input').click();
+    }
+    window.edUploadIcone = edUploadIcone;
+    function edIconeSelecionado(input) {
+        var f = input.files && input.files[0];
+        input.value = '';
+        if (!f || !_edIconeAlvo) return;
+        var img = new Image();
+        img.onload = function() {
+            var cv = document.createElement('canvas');
+            var s = Math.min(96, img.width, img.height) || 96;
+            cv.width = s; cv.height = s;
+            cv.getContext('2d').drawImage(img, 0, 0, s, s);
+            var dataUrl = cv.toDataURL('image/png');
+            if (dataUrl.length > 60000) { mostrarToast('Imagem muito complexa — use um ícone mais simples.', true); return; }
+            _edIconeAlvo.innerHTML = '<img src="' + dataUrl + '" class="w-full h-full object-contain rounded-xl" alt="ícone">';
+            _edGravar(_edIconeAlvo, { icone: dataUrl });
+            mostrarToast('Ícone salvo permanentemente ✓');
+        };
+        img.onerror = function(){ mostrarToast('Não foi possível ler a imagem.', true); };
+        var reader = new FileReader();
+        reader.onload = function(e){ img.src = e.target.result; };
+        reader.readAsDataURL(f);
+    }
+    window.edIconeSelecionado = edIconeSelecionado;
+
+    // ── Blocos móveis e redimensionáveis com guias magnéticas ──
+    function _edMarcarBlocos() {
+        document.querySelectorAll('#submenu-grid .submenu-card, main .shadow-soft').forEach(function(b){
+            if (b.closest('#ed-toolbar') || b._edB) return;
+            b._edB = true;
+            b.classList.add('ed-bloco');
+            var h = document.createElement('button'); h.className = 'ed-handle-mover'; h.textContent = '✥';
+            var r = document.createElement('button'); r.className = 'ed-handle-resize'; r.textContent = '◢';
+            b.appendChild(h); b.appendChild(r);
+            h.addEventListener('pointerdown', function(ev){ _edDragStart(ev, b, 'move'); });
+            r.addEventListener('pointerdown', function(ev){ _edDragStart(ev, b, 'resize'); });
+        });
+    }
+    function _edDesmarcarBlocos() {
+        document.querySelectorAll('.ed-bloco').forEach(function(b){ b.classList.remove('ed-bloco'); });
+    }
+    var _edDrag = null;
+    function _edDragStart(ev, b, modo) {
+        ev.preventDefault(); ev.stopPropagation();
+        var o = _edOverrides[_edPath(b)] || {};
+        var rect = b.getBoundingClientRect();
+        _edDrag = { b: b, modo: modo, x0: ev.clientX, y0: ev.clientY,
+                    tx: o.tx || 0, ty: o.ty || 0, w0: rect.width, h0: rect.height,
+                    cx0: rect.left + rect.width / 2, cy0: rect.top + rect.height / 2 };
+        document.addEventListener('pointermove', _edDragMove);
+        document.addEventListener('pointerup', _edDragEnd);
+    }
+    function _edDragMove(ev) {
+        if (!_edDrag) return;
+        var dx = ev.clientX - _edDrag.x0, dy = ev.clientY - _edDrag.y0;
+        if (_edDrag.modo === 'move') {
+            // Guias magnéticas: alinha centros com os blocos vizinhos (snap 6px)
+            var cx = _edDrag.cx0 + dx, cy = _edDrag.cy0 + dy;
+            var gv = document.getElementById('ed-guia-v'), gh = document.getElementById('ed-guia-h');
+            var snapX = null, snapY = null;
+            document.querySelectorAll('.ed-bloco').forEach(function(s){
+                if (s === _edDrag.b) return;
+                var r = s.getBoundingClientRect();
+                var scx = r.left + r.width / 2, scy = r.top + r.height / 2;
+                if (snapX === null && Math.abs(scx - cx) < 6) snapX = scx;
+                if (snapY === null && Math.abs(scy - cy) < 6) snapY = scy;
+            });
+            if (snapX !== null) { dx += snapX - cx; gv.style.left = snapX + 'px'; gv.style.display = 'block'; } else gv.style.display = 'none';
+            if (snapY !== null) { dy += snapY - cy; gh.style.top = snapY + 'px'; gh.style.display = 'block'; } else gh.style.display = 'none';
+            _edDrag.nx = _edDrag.tx + dx; _edDrag.ny = _edDrag.ty + dy;
+            _edDrag.b.style.transform = 'translate(' + _edDrag.nx + 'px,' + _edDrag.ny + 'px)';
+        } else {
+            _edDrag.nw = Math.max(60, Math.round(_edDrag.w0 + dx));
+            _edDrag.nh = Math.max(40, Math.round(_edDrag.h0 + dy));
+            _edDrag.b.style.width = _edDrag.nw + 'px';
+            _edDrag.b.style.height = _edDrag.nh + 'px';
+        }
+    }
+    function _edDragEnd() {
+        if (!_edDrag) return;
+        var patch = {};
+        if (_edDrag.modo === 'move' && _edDrag.nx !== undefined) { patch.tx = Math.round(_edDrag.nx); patch.ty = Math.round(_edDrag.ny); }
+        if (_edDrag.modo === 'resize' && _edDrag.nw) { patch.w = _edDrag.nw; patch.h = _edDrag.nh; }
+        if (Object.keys(patch).length) _edGravar(_edDrag.b, patch);
+        document.getElementById('ed-guia-v').style.display = 'none';
+        document.getElementById('ed-guia-h').style.display = 'none';
+        document.removeEventListener('pointermove', _edDragMove);
+        document.removeEventListener('pointerup', _edDragEnd);
+        _edDrag = null;
+    }
 
     function edRestaurar() {
         if (!_edAlvo) return;
@@ -3997,6 +4319,11 @@
             if (o.underline !== undefined) el.style.textDecoration = o.underline ? 'underline' : 'none';
             if (o.fontSize)              el.style.fontSize = o.fontSize;
             if (o.fontFamily)            el.style.fontFamily = o.fontFamily;
+            if (o.align)                 el.style.textAlign = o.align;
+            if (o.tx !== undefined || o.ty !== undefined) el.style.transform = 'translate(' + (o.tx||0) + 'px,' + (o.ty||0) + 'px)';
+            if (o.w) el.style.width = o.w + 'px';
+            if (o.h) el.style.height = o.h + 'px';
+            if (o.icone) el.innerHTML = '<img src="' + o.icone + '" class="w-full h-full object-contain rounded-xl" alt="ícone">';
         });
     }
 
@@ -4014,6 +4341,15 @@
     };
     var _tplAreaAtual = 'atividade';
 
+    /** Modelos padrão do sistema — exibidos prontos para o ADM editar (as {{TAGS}} são as variáveis dinâmicas) */
+    var TPL_PADROES = {
+        atividade: '📋 *INFORME DE PLANEJAMENTO*\n\n📅 {{DATA}} 👤 {{OPERADOR}}\n🏢 Setor: {{SETOR}}\n\n*Serviços do Dia:*\n\n{{ATIVIDADE}}\n\n📦 *Volume Previsto:* {{SACAS}} sc\n⏰ *Conclusão Estimada:* {{PROJECAO}}\n🤝 *Apoio Extra:* {{APOIO}}',
+        boletim:   '*BOLETIM DE PRODUÇÃO — PRUMO*\n*SETOR: {{SETOR}}*\n📅 {{DATA}}  |  👤 {{OPERADOR}}\n⏱️ *Turno:* {{TURNO}}\n📌 *Horas Apontadas:* {{HORAS}}\n\n*Relatório de Atividades:*\n{{DETALHES}}\n\n📦 *Volume Diário:* {{TOTAL_SACAS}} sacas',
+        quebra:    '⚖️ *DIVISÃO DE QUEBRA — PRUMO*\n\n📅 {{DATA}} 👤 {{OPERADOR}}\n🏢 Setor: {{SETOR}}\n\n*Peso Total Balança:* {{PESO_TOTAL}} kg\n*Total de Sacas:* {{TOTAL_SACAS}}\n\n{{TABELA}}',
+        pedidos:   '🛒 *PEDIDO — PRUMO*\n\n📅 {{DATA}}\n👤 {{OPERADOR}}\n🏢 Setor: {{SETOR}}\n\n{{DADOS_ADICIONAIS}}',
+        bug:       '🐞 *Reporte de Bug — No Prumo*\nColaborador: {{OPERADOR}}\nSetor: {{SETOR}}\nData: {{DATA}}\n\nDescrição: {{DESCRICAO}}'
+    };
+
     /** Renderiza o template salvo substituindo {{TAG}} pelos dados; null se não houver template */
     function msgTemplate(key, dados) {
         var t = appData.config && appData.config.msgTemplates && appData.config.msgTemplates[key];
@@ -4026,7 +4362,7 @@
     function tplAbrir() {
         var m = document.getElementById('modal-templates');
         if (!m) return;
-        m.classList.remove('hidden'); m.classList.add('flex');
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
         tplSelecionar(_tplAreaAtual);
     }
     window.tplAbrir = tplAbrir;
@@ -4041,7 +4377,8 @@
         if (sel && sel.value !== key) sel.value = key;
         var ta = document.getElementById('tpl-texto');
         var salvo = appData.config && appData.config.msgTemplates && appData.config.msgTemplates[key];
-        if (ta) ta.value = salvo || '';
+        // Sempre exibe um modelo pronto: o salvo pelo ADM ou o padrão do sistema
+        if (ta) ta.value = salvo || TPL_PADROES[key] || '';
         var chips = document.getElementById('tpl-tags');
         if (chips) chips.innerHTML = (TPL_AREAS[key] ? TPL_AREAS[key].tags : []).map(function(t){
             return '<button onclick="tplInserirTag(\''+t+'\')" class="px-2.5 py-1.5 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 text-[11px] font-black hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors active:scale-95">{{'+t+'}}</button>';
@@ -4094,11 +4431,366 @@
     }
 
     // ============================================================
+    // AUDITORIA: log de eventos em tempo real (doc operacoes/auditoria)
+    // "Registro de Atividades" do ADM = trilha de auditoria; "Relatórios"
+    // = inteligência de dados consolidada. Papéis agora distintos.
+    // ============================================================
+    var _audBuffer = [], _audTimer = null;
+    function auditar(acao, detalhe) {
+        _audBuffer.push({ ts: Date.now(), data: new Date().toLocaleString('pt-BR'), usuario: operadorNome || '?', setor: limparEmoji(currentSector) || '-', acao: acao, detalhe: String(detalhe || '').slice(0, 120) });
+        clearTimeout(_audTimer);
+        _audTimer = setTimeout(_audFlush, 1500);
+    }
+    function _audFlush() {
+        if (!db || !navigator.onLine || !_audBuffer.length) return;
+        var lote = _audBuffer.splice(0);
+        db.runTransaction(function(tx){
+            var ref = db.collection('operacoes').doc('auditoria');
+            return tx.get(ref).then(function(doc){
+                var d = doc.exists ? (doc.data() || {}) : {};
+                d.lista = (d.lista || []).concat(lote).slice(-400);
+                tx.set(ref, JSON.parse(JSON.stringify(d)));
+            });
+        }).catch(function(e){ console.warn('[Auditoria]', e.message); });
+    }
+    function abrirAuditoria() {
+        var m = document.getElementById('modal-auditoria');
+        if (!m) return;
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
+        var lst = document.getElementById('aud-lista');
+        if (lst) lst.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Carregando trilha de auditoria...</p>';
+        if (!db) return;
+        db.collection('operacoes').doc('auditoria').get().then(function(doc){
+            window._audLista = ((doc.exists && doc.data().lista) || []).slice().reverse();
+            audRender();
+        }).catch(function(){ if (lst) lst.innerHTML = '<p class="text-sm text-red-400 text-center py-6">Falha ao carregar.</p>'; });
+    }
+    window.abrirAuditoria = abrirAuditoria;
+    function fecharAuditoria() {
+        var m = document.getElementById('modal-auditoria');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.fecharAuditoria = fecharAuditoria;
+    function audRender() {
+        var lst = document.getElementById('aud-lista');
+        if (!lst) return;
+        var f = ((document.getElementById('aud-filtro')||{}).value || '').toLowerCase();
+        var itens = (window._audLista || []).filter(function(a){
+            return !f || (a.usuario + ' ' + a.acao + ' ' + a.detalhe + ' ' + a.setor).toLowerCase().indexOf(f) !== -1;
+        }).slice(0, 150);
+        lst.innerHTML = itens.length
+            ? itens.map(function(a){
+                return '<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl px-3 py-2.5">' +
+                    '<div class="flex items-center justify-between gap-2"><span class="text-xs font-black text-gray-900 dark:text-white">' + escapeHTML(a.usuario) + ' <span class="font-medium text-gray-400">(' + escapeHTML(a.setor) + ')</span></span>' +
+                    '<span class="text-[10px] font-bold text-gray-400 whitespace-nowrap">' + escapeHTML(a.data) + '</span></div>' +
+                    '<p class="text-[11px] text-gray-600 dark:text-gray-300 mt-0.5"><b>' + escapeHTML(a.acao) + '</b>' + (a.detalhe ? ' — ' + escapeHTML(a.detalhe) : '') + '</p>' +
+                '</div>';
+            }).join('')
+            : '<p class="text-sm text-gray-400 text-center py-6">Nenhum evento registrado ainda.</p>';
+    }
+    window.audRender = audRender;
+
+    // ============================================================
+    // PEDIDOS: histórico pessoal (Firestore) + rascunho persistente
+    // ============================================================
+    var _pedData = { lista: [] };
+    function _pedRef() { return db.collection('operacoes').doc('pedidos'); }
+    function pedCarregar(cb) {
+        if (!db) { if (cb) cb(); return; }
+        _pedRef().get().then(function(doc){
+            if (doc.exists) { _pedData = doc.data() || { lista: [] }; _pedData.lista = _pedData.lista || []; }
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[Ped]', e.message); if (cb) cb(); });
+    }
+    function _pedTx(fn, cb) {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — tente novamente.', true); return; }
+        db.runTransaction(function(tx){
+            return tx.get(_pedRef()).then(function(doc){
+                var d = doc.exists ? (doc.data() || {}) : {};
+                d.lista = d.lista || [];
+                fn(d);
+                tx.set(_pedRef(), JSON.parse(JSON.stringify(d)));
+            });
+        }).then(function(){ if (cb) cb(); })
+          .catch(function(e){ console.warn('[Ped] tx:', e.message); mostrarToast('Erro ao salvar o pedido.', true); });
+    }
+    function pedInit() {
+        pedCarregar(function(){ pedRenderHist(); });
+        _pedLinksReset();
+        pedRestaurarRascunho();
+    }
+    window.pedInit = pedInit;
+    function abrirPedModal(tipo) {
+        var m = document.getElementById(tipo === 'material' ? 'modal-ped-mat' : 'modal-ped-comp');
+        if (!m) return;
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
+        if (tipo === 'compra') pedRestaurarRascunho();
+    }
+    window.abrirPedModal = abrirPedModal;
+    function fecharPedModal() {
+        ['modal-ped-mat','modal-ped-comp'].forEach(function(id){
+            var m = document.getElementById(id);
+            if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+        });
+    }
+    window.fecharPedModal = fecharPedModal;
+
+    // Links da web (máximo 3) no pedido de compra
+    function _pedLinksReset(links) {
+        var c = document.getElementById('ped-links');
+        if (!c) return;
+        c.innerHTML = '';
+        (links && links.length ? links : ['']).slice(0, 3).forEach(function(v){ pedAddLink(v, true); });
+    }
+    function pedAddLink(valor, silencioso) {
+        var c = document.getElementById('ped-links');
+        if (!c) return;
+        if (c.children.length >= 3) { if (!silencioso) mostrarToast('Máximo de 3 links por pedido.', true); return; }
+        var div = document.createElement('div');
+        div.innerHTML = '<input type="url" value="' + escapeHTML(valor || '') + '" oninput="pedSalvarRascunho()" placeholder="https://... (ex.: Mercado Livre)" class="ped-link w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-xs font-medium outline-none py-3 px-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">';
+        c.appendChild(div.firstChild);
+    }
+    window.pedAddLink = pedAddLink;
+    function _pedLinksValores() {
+        return Array.prototype.map.call(document.querySelectorAll('#ped-links .ped-link'), function(i){ return i.value.trim(); })
+            .filter(function(v){ return v; }).slice(0, 3);
+    }
+
+    // Rascunho persistente da compra (localStorage — estado temporário de formulário;
+    // some ao enviar ou limpar, sobrevive a fechar/recarregar o app)
+    function pedSalvarRascunho() {
+        try {
+            localStorage.setItem('pedRascunhoCompra', JSON.stringify({
+                nome: (document.getElementById('req-comp-nome')||{}).value || '',
+                qtd:  (document.getElementById('req-comp-qtd')||{}).value || '',
+                cat:  (document.getElementById('req-comp-cat')||{}).value || 'EPIs',
+                just: (document.getElementById('req-comp-just')||{}).value || '',
+                links: _pedLinksValores()
+            }));
+        } catch(e){}
+    }
+    window.pedSalvarRascunho = pedSalvarRascunho;
+    function pedRestaurarRascunho() {
+        try {
+            var r = JSON.parse(localStorage.getItem('pedRascunhoCompra') || 'null');
+            if (!r) return;
+            var n = document.getElementById('req-comp-nome'); if (n) n.value = r.nome || '';
+            var q = document.getElementById('req-comp-qtd');  if (q) q.value = r.qtd || '';
+            var ca = document.getElementById('req-comp-cat'); if (ca) ca.value = r.cat || 'EPIs';
+            var j = document.getElementById('req-comp-just'); if (j) j.value = r.just || '';
+            _pedLinksReset(r.links || []);
+        } catch(e){}
+    }
+    function pedLimparRascunho(limparCampos) {
+        try { localStorage.removeItem('pedRascunhoCompra'); } catch(e){}
+        if (limparCampos) {
+            ['req-comp-nome','req-comp-qtd','req-comp-just'].forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+            var ca = document.getElementById('req-comp-cat'); if (ca) ca.value = 'EPIs';
+            _pedLinksReset();
+            mostrarToast('Rascunho limpo.');
+        }
+    }
+    window.pedLimparRascunho = pedLimparRascunho;
+
+    function enviarPedido(tipo) {
+        var reg = {
+            id: Date.now(), ts: Date.now(),
+            data: new Date().toLocaleDateString('pt-BR'),
+            autor: operadorNome || '?', setor: limparEmoji(currentSector) || '-',
+            tipo: tipo
+        };
+        if (tipo === 'material') {
+            reg.nome = (document.getElementById('req-mat-nome').value || '').trim();
+            reg.qtd  = (document.getElementById('req-mat-qtd').value || '').trim();
+            reg.just = (document.getElementById('req-mat-just').value || '').trim();
+            if (!reg.nome || !reg.qtd) return mostrarToast('Informe o material e a quantidade.', true);
+        } else {
+            reg.nome  = (document.getElementById('req-comp-nome').value || '').trim();
+            reg.qtd   = (document.getElementById('req-comp-qtd').value || '').trim();
+            reg.cat   = document.getElementById('req-comp-cat').value;
+            reg.just  = (document.getElementById('req-comp-just').value || '').trim();
+            reg.links = _pedLinksValores();
+            if (!reg.nome || !reg.qtd || !reg.just) return mostrarToast('Preencha item, quantidade e justificativa.', true);
+        }
+        _pedTx(function(d){ d.lista.push(reg); }, function(){
+            if (tipo === 'material') {
+                ['req-mat-nome','req-mat-qtd','req-mat-just'].forEach(function(id){ document.getElementById(id).value = ''; });
+            } else {
+                pedLimparRascunho(true);
+            }
+            fecharPedModal();
+            auditar('Pedido salvo', (tipo === 'material' ? 'estoque: ' : 'compra: ') + reg.nome);
+            mostrarToast('Pedido salvo! Use o botão Compartilhar no histórico. ✓');
+            pedCarregar(function(){ pedRenderHist(); });
+        });
+    }
+    window.enviarPedido = enviarPedido;
+
+    function pedRenderHist() {
+        var c = document.getElementById('ped-historico');
+        if (!c) return;
+        var meus = _pedData.lista.filter(function(p){ return p.autor === operadorNome && p.tipo === abaReqAtual; })
+            .sort(function(a,b){ return b.id - a.id; }).slice(0, 15);
+        c.innerHTML = meus.length
+            ? meus.map(function(p){
+                var links = (p.links||[]).map(function(l,i){ return '<a href="'+escapeHTML(l)+'" target="_blank" class="text-[10px] text-blue-500 underline break-all block">🔗 Link '+(i+1)+'</a>'; }).join('');
+                return '<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">' +
+                    '<div class="flex items-center justify-between gap-2 flex-wrap mb-1">' +
+                        '<span class="text-sm font-black text-gray-900 dark:text-white">' + escapeHTML(p.nome) + '</span>' +
+                        '<span class="text-[10px] font-bold text-gray-400">' + escapeHTML(p.data) + '</span>' +
+                    '</div>' +
+                    '<p class="text-[11px] text-gray-500 dark:text-gray-400 font-bold mb-1.5">Qtd: ' + escapeHTML(p.qtd) + (p.cat ? ' · ' + escapeHTML(p.cat) : '') + (p.just ? ' · ' + escapeHTML(p.just) : '') + '</p>' +
+                    links +
+                    '<button onclick="pedCompartilhar(' + p.id + ')" class="mt-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-[11px] uppercase tracking-wider active:scale-[0.98] transition-all">📤 Compartilhar</button>' +
+                '</div>';
+            }).join('')
+            : '<div class="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl"><p class="text-sm text-gray-400">Nenhum pedido seu nesta modalidade ainda.</p></div>';
+    }
+    window.pedRenderHist = pedRenderHist;
+    function pedCompartilhar(id) {
+        var p = _pedData.lista.find(function(x){ return x.id === id; });
+        if (!p) return;
+        var corpo = (p.tipo === 'material' ? '📦 ESTOQUE INTERNO' : '🛒 COMPRA EXTERNA') + '\n' +
+            'Item: ' + p.nome + '\nQuantidade: ' + p.qtd +
+            (p.cat ? '\nCategoria: ' + p.cat : '') +
+            (p.just ? '\nJustificativa: ' + p.just : '') +
+            ((p.links||[]).length ? '\nLinks:\n' + p.links.join('\n') : '');
+        var texto = msgTemplate('pedidos', { OPERADOR: p.autor, SETOR: p.setor, DATA: p.data, DADOS_ADICIONAIS: corpo }) ||
+            ('🛒 *PEDIDO — PRUMO*\n\n📅 ' + p.data + '\n👤 ' + p.autor + '\n🏢 Setor: ' + p.setor + '\n\n' + corpo);
+        executarCompartilhamento('Pedido', texto, p.setor);
+    }
+    window.pedCompartilhar = pedCompartilhar;
+
+    // ============================================================
+    // ALMOXARIFADO: inventário (ADM) + retiradas (Manutenção)
+    // Persistência: doc operacoes/almoxarifado { itens, movs }
+    // ============================================================
+    var _almoxData = { itens: [], movs: [] };
+    function _almoxRef() { return db.collection('operacoes').doc('almoxarifado'); }
+    function almoxCarregar(cb) {
+        if (!db) { if (cb) cb(); return; }
+        _almoxRef().get().then(function(doc){
+            if (doc.exists) { _almoxData = doc.data() || {}; }
+            _almoxData.itens = _almoxData.itens || [];
+            _almoxData.movs = _almoxData.movs || [];
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[Almox]', e.message); if (cb) cb(); });
+    }
+    function _almoxTx(fn, cb) {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — tente novamente.', true); return; }
+        db.runTransaction(function(tx){
+            return tx.get(_almoxRef()).then(function(doc){
+                var d = doc.exists ? (doc.data() || {}) : {};
+                d.itens = d.itens || []; d.movs = d.movs || [];
+                var r = fn(d);
+                if (r === false) return Promise.reject(new Error('validacao'));
+                tx.set(_almoxRef(), JSON.parse(JSON.stringify(d)));
+            });
+        }).then(function(){ if (cb) cb(); })
+          .catch(function(e){ if (e.message !== 'validacao') { console.warn('[Almox] tx:', e.message); mostrarToast('Erro ao salvar no almoxarifado.', true); } });
+    }
+    function almoxInit() {
+        var ehAdm = isAdmin;
+        var pAdm = document.getElementById('almox-pane-adm');
+        if (pAdm) pAdm.classList.toggle('hidden', !ehAdm);
+        almoxCarregar(function(){ almoxRender(); });
+    }
+    window.almoxInit = almoxInit;
+    function almoxAddItem() {
+        var nome = (document.getElementById('almox-item-nome').value || '').trim();
+        var qtd  = parseInt(String((document.getElementById('almox-item-qtd')||{}).value||'').replace(/\D/g,'')) || 0;
+        var min  = parseInt(String((document.getElementById('almox-item-min')||{}).value||'').replace(/\D/g,'')) || 0;
+        if (nome.length < 2) return mostrarToast('Informe o nome da peça/item.', true);
+        _almoxTx(function(d){
+            if (d.itens.some(function(i){ return i.nome.toLowerCase() === nome.toLowerCase(); })) { mostrarToast('Item já cadastrado.', true); return false; }
+            d.itens.push({ id: Date.now(), nome: nome, qtd: qtd, min: min });
+        }, function(){
+            ['almox-item-nome','almox-item-qtd','almox-item-min'].forEach(function(id){ document.getElementById(id).value = ''; });
+            mostrarToast('Item cadastrado ✓');
+            almoxCarregar(function(){ almoxRender(); });
+        });
+    }
+    window.almoxAddItem = almoxAddItem;
+    function almoxDelItem(id) {
+        var it = _almoxData.itens.find(function(x){ return x.id === id; });
+        if (!it || !confirm('Apagar o item "' + it.nome + '" do inventário?')) return;
+        _almoxTx(function(d){ d.itens = d.itens.filter(function(x){ return x.id !== id; }); }, function(){
+            mostrarToast('Item removido.');
+            almoxCarregar(function(){ almoxRender(); });
+        });
+    }
+    window.almoxDelItem = almoxDelItem;
+    /** Movimentação de estoque — usada pelo ADM (entrada/saída) e pela Manutenção (saída) */
+    function almoxMovimentar(tipoForcado) {
+        var selId = tipoForcado === 'saida' ? 'almox-ret-item' : 'almox-mov-item';
+        var qtdId = tipoForcado === 'saida' ? 'almox-ret-qtd'  : 'almox-mov-qtd';
+        var itemId = parseInt((document.getElementById(selId)||{}).value) || 0;
+        var qtd = parseInt(String((document.getElementById(qtdId)||{}).value||'').replace(/\D/g,'')) || 0;
+        var tipo = tipoForcado === 'saida' ? 'saida' : ((document.getElementById('almox-mov-tipo')||{}).value || 'entrada');
+        if (!itemId) return mostrarToast('Selecione o item.', true);
+        if (qtd <= 0) return mostrarToast('Informe a quantidade (somente números).', true);
+        var alertaMin = null;
+        _almoxTx(function(d){
+            var it = d.itens.find(function(x){ return x.id === itemId; });
+            if (!it) { mostrarToast('Item não encontrado.', true); return false; }
+            if (tipo === 'saida' && qtd > it.qtd) { mostrarToast('Saldo insuficiente: só há ' + it.qtd + ' un de ' + it.nome + '.', true); return false; }
+            it.qtd = tipo === 'entrada' ? it.qtd + qtd : it.qtd - qtd;
+            if (it.qtd <= it.min) alertaMin = it;
+            d.movs.push({ id: Date.now(), ts: Date.now(), data: new Date().toLocaleDateString('pt-BR'), itemId: it.id, itemNome: it.nome, tipo: tipo, qtd: qtd, autor: operadorNome || '?' });
+        }, function(){
+            var q1 = document.getElementById(qtdId); if (q1) q1.value = '';
+            auditar(tipo === 'entrada' ? 'Almox: entrada' : 'Almox: retirada', qtd + ' un');
+            mostrarToast(tipo === 'entrada' ? 'Entrada registrada ✓' : 'Retirada registrada ✓');
+            if (alertaMin) mostrarToast('⚠️ Estoque mínimo atingido: ' + alertaMin.nome + ' (' + alertaMin.qtd + ' un)', true);
+            almoxCarregar(function(){ almoxRender(); });
+        });
+    }
+    window.almoxMovimentar = almoxMovimentar;
+    function almoxRender() {
+        var opts = '<option value="" disabled selected>Selecione o item...</option>' +
+            _almoxData.itens.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome,'pt-BR'); })
+                .map(function(i){ return '<option value="'+i.id+'">'+escapeHTML(i.nome)+' (saldo: '+i.qtd.toLocaleString('pt-BR')+')</option>'; }).join('');
+        ['almox-mov-item','almox-ret-item'].forEach(function(id){ var el = document.getElementById(id); if (el) el.innerHTML = opts; });
+        var lst = document.getElementById('almox-itens-lista');
+        if (lst) lst.innerHTML = _almoxData.itens.length
+            ? _almoxData.itens.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome,'pt-BR'); }).map(function(i){
+                var baixo = i.qtd <= i.min;
+                return '<div class="flex items-center gap-2 rounded-xl px-3 py-2.5 border ' + (baixo ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700') + '">' +
+                    '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-900 dark:text-white truncate">' + escapeHTML(i.nome) + (baixo ? ' <span class="text-[10px] font-black text-red-600 dark:text-red-400">⚠️ REPOR</span>' : '') + '</p>' +
+                    '<p class="text-[10px] text-gray-400 font-bold">Saldo: ' + i.qtd.toLocaleString('pt-BR') + ' un · Mínimo: ' + i.min.toLocaleString('pt-BR') + ' un</p></div>' +
+                    (isAdmin ? '<button onclick="almoxDelItem(' + i.id + ')" class="text-red-400 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">Apagar</button>' : '') +
+                '</div>';
+            }).join('')
+            : '<p class="text-sm text-gray-400 text-center py-4">Nenhum item cadastrado ainda.</p>';
+        var hm = document.getElementById('almox-movs-lista');
+        if (hm) {
+            var movs = _almoxData.movs.slice().sort(function(a,b){ return b.id - a.id; });
+            if (!isAdmin) movs = movs.filter(function(m){ return m.tipo === 'saida' && m.autor === operadorNome; });
+            hm.innerHTML = movs.slice(0, 20).map(function(m){
+                return '<div class="flex items-center justify-between gap-2 text-xs bg-gray-50 dark:bg-gray-900/50 rounded-lg px-3 py-2">' +
+                    '<span class="font-bold text-gray-700 dark:text-gray-200">' + (m.tipo === 'entrada' ? '📥' : '📤') + ' ' + escapeHTML(m.itemNome) + ' · ' + m.qtd.toLocaleString('pt-BR') + ' un</span>' +
+                    '<span class="text-[10px] text-gray-400 font-bold">' + escapeHTML(m.autor) + ' · ' + escapeHTML(m.data) + '</span>' +
+                '</div>';
+            }).join('') || '<p class="text-xs text-gray-400 text-center py-3">Sem movimentações.</p>';
+        }
+    }
+    /** Alerta do ADM: itens no mínimo ou abaixo */
+    function almoxChecarMinimo() {
+        if (!isAdmin) return;
+        almoxCarregar(function(){
+            var baixos = _almoxData.itens.filter(function(i){ return i.qtd <= i.min; });
+            var badge = document.getElementById('almox-alerta-badge');
+            if (badge) { badge.textContent = baixos.length; badge.classList.toggle('hidden', !baixos.length); }
+            if (baixos.length) mostrarToast('⚠️ Almoxarifado: ' + baixos.length + ' item(ns) no estoque mínimo — ' + baixos.map(function(i){ return i.nome; }).slice(0,3).join(', '), true);
+        });
+    }
+
+    // ============================================================
     // VERSÃO DO APP — incrementar manualmente a cada rodada de
     // atualização (1.2 → 1.3 → 1.4 ...). Aplicada em todo elemento
     // com o atributo [data-app-version].
     // ============================================================
-    var APP_VERSION = '1.2';
+    var APP_VERSION = '1.3';
     function aplicarVersaoUI() {
         var t = 'NO PRUMO V' + APP_VERSION + ' BETA';
         document.querySelectorAll('[data-app-version]').forEach(function(el){ el.textContent = t; });
@@ -4135,15 +4827,17 @@
     }
 
     function abrirFeedback() {
+        // FIX Reportar Problema: abrir o modal IMEDIATAMENTE e carregar depois —
+        // antes, se o Firestore demorava/falhava, o clique parecia não fazer nada
+        var m = document.getElementById(isAdmin ? 'modal-feedback-adm' : 'modal-feedback');
+        if (!m) return;
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
+        m.style.zIndex = '210'; // acima do seletor de temas (z-200)
         if (isAdmin) {
-            fbCarregar(function(){
-                fbRenderAdm();
-                var m = document.getElementById('modal-feedback-adm');
-                m.classList.remove('hidden'); m.classList.add('flex');
-            });
+            var la = document.getElementById('feedback-adm-lista');
+            if (la) la.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Carregando...</p>';
+            fbCarregar(function(){ fbRenderAdm(); });
         } else {
-            var m = document.getElementById('modal-feedback');
-            m.classList.remove('hidden'); m.classList.add('flex');
             fbCarregar(function(){ fbRenderMeus(); });
         }
     }
@@ -4388,29 +5082,60 @@
           .catch(function(e){ console.warn('[MCad] tx:', e.message); mostrarToast('Erro ao salvar cadastro.', true); });
     }
 
-    // CRUD: Equipamentos
+    // ── Sub-abas e modais dos cadastros ──
+    function mcadSwitchTab(t) {
+        var on  = 'flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all';
+        var off = 'flex-1 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl transition-all';
+        ['eq','tipo','tec'].forEach(function(k){
+            var pane = document.getElementById('mcad-tab-' + k);
+            if (pane) pane.classList.toggle('hidden', k !== t);
+            var btn = document.getElementById('btn-mcad-' + k);
+            if (btn) btn.className = k === t ? on : off;
+        });
+    }
+    window.mcadSwitchTab = mcadSwitchTab;
+    function mcadAbrirModal(t) {
+        var m = document.getElementById('modal-mcad-' + t);
+        if (m) { m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex'); }
+    }
+    window.mcadAbrirModal = mcadAbrirModal;
+    function mcadFecharModais() {
+        ['modal-mcad-eq','modal-mcad-tipo','modal-mcad-tec'].forEach(function(id){
+            var m = document.getElementById(id);
+            if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+        });
+    }
+    window.mcadFecharModais = mcadFecharModais;
+
+    // CRUD: Equipamentos (TAG é o primeiro campo obrigatório e única)
     function mcadAddEquip() {
+        var tag   = (document.getElementById('mcad-eq-tag').value || '').trim().toUpperCase();
         var nome  = (document.getElementById('mcad-eq-nome').value || '').trim();
         var setor = document.getElementById('mcad-eq-setor').value;
         var depto = (document.getElementById('mcad-eq-depto').value || '').trim();
+        if (tag.length < 2) return mostrarToast('Informe a TAG do equipamento (1º campo obrigatório).', true);
         if (nome.length < 2) return mostrarToast('Informe o nome do equipamento.', true);
         if (!setor) return mostrarToast('Selecione o setor do equipamento.', true);
         if (!depto) return mostrarToast('Informe o departamento.', true);
-        _mcadTx(function(d){ d.equipamentos.push({ id: Date.now(), nome: nome, setor: setor, departamento: depto }); }, function(){
-            document.getElementById('mcad-eq-nome').value = '';
-            document.getElementById('mcad-eq-depto').value = '';
-            mostrarToast('Equipamento cadastrado ✓');
+        if (_mcadData.equipamentos.some(function(e){ return String(e.tag||'').toUpperCase() === tag; })) return mostrarToast('Já existe um equipamento com a TAG ' + tag + '.', true);
+        _mcadTx(function(d){ d.equipamentos.push({ id: Date.now(), tag: tag, nome: nome, setor: setor, departamento: depto }); }, function(){
+            ['mcad-eq-tag','mcad-eq-nome','mcad-eq-depto'].forEach(function(id){ document.getElementById(id).value = ''; });
+            mcadFecharModais();
+            mostrarToast('Equipamento ' + tag + ' cadastrado ✓');
         });
     }
     window.mcadAddEquip = mcadAddEquip;
     function mcadEditEquip(id) {
         var e = _mcadData.equipamentos.find(function(x){ return x.id === id; });
         if (!e) return;
+        var tag = (prompt('TAG do equipamento:', e.tag || '') || '').trim().toUpperCase();
+        if (!tag) return;
+        if (_mcadData.equipamentos.some(function(x){ return x.id !== id && String(x.tag||'').toUpperCase() === tag; })) return mostrarToast('TAG já usada por outro equipamento.', true);
         var nome  = (prompt('Nome do equipamento:', e.nome) || '').trim();
         if (!nome) return;
         var depto = (prompt('Departamento:', e.departamento || '') || '').trim();
         if (!depto) return;
-        _mcadTx(function(d){ var x = d.equipamentos.find(function(y){ return y.id === id; }); if (x) { x.nome = nome; x.departamento = depto; } }, function(){ mostrarToast('Equipamento atualizado ✓'); });
+        _mcadTx(function(d){ var x = d.equipamentos.find(function(y){ return y.id === id; }); if (x) { x.tag = tag; x.nome = nome; x.departamento = depto; } }, function(){ mostrarToast('Equipamento atualizado ✓'); });
     }
     window.mcadEditEquip = mcadEditEquip;
     function mcadDelEquip(id) {
@@ -4427,6 +5152,7 @@
         if (_mcadData.tipos.indexOf(nome) !== -1) return mostrarToast('Este tipo já existe.', true);
         _mcadTx(function(d){ if (d.tipos.indexOf(nome) === -1) d.tipos.push(nome); }, function(){
             document.getElementById('mcad-tipo-nome').value = '';
+            mcadFecharModais();
             mostrarToast('Tipo adicionado ✓');
         });
     }
@@ -4453,6 +5179,7 @@
         if (nome.length < 2) return mostrarToast('Informe o nome do técnico.', true);
         _mcadTx(function(d){ d.tecnicos.push({ id: Date.now(), nome: nome, tipo: tipo }); }, function(){
             document.getElementById('mcad-tec-nome').value = '';
+            mcadFecharModais();
             mostrarToast('Técnico cadastrado ✓');
         });
     }
@@ -4478,6 +5205,7 @@
         if (elE) elE.innerHTML = _mcadData.equipamentos.length
             ? _mcadData.equipamentos.slice().sort(function(a,b){ return (a.setor+a.nome) < (b.setor+b.nome) ? -1 : 1; }).map(function(e){
                 return '<div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl px-3 py-2.5">' +
+                    (e.tag ? '<span class="shrink-0 text-[10px] font-black bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-md tracking-wider">'+escapeHTML(String(e.tag).toUpperCase())+'</span>' : '') +
                     '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-900 dark:text-white truncate">'+escapeHTML(e.nome)+'</p>' +
                     '<p class="text-[10px] text-gray-400 font-bold">'+escapeHTML(e.setor)+' · '+escapeHTML(e.departamento||'-')+'</p></div>' +
                     '<button onclick="mcadEditEquip('+e.id+')" class="text-blue-500 text-xs font-bold px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20">Editar</button>' +
@@ -4515,16 +5243,11 @@
         document.getElementById('manut-pane-cadastros').classList.toggle('hidden', p !== 'cadastros');
         document.getElementById('btn-manut-pane-painel').className = p === 'painel' ? on : off;
         document.getElementById('btn-manut-pane-cadastros').className = p === 'cadastros' ? on : off;
-        if (p === 'cadastros') mcadCarregar(function(){ mcadRenderAll(); });
+        if (p === 'cadastros') { mcadCarregar(function(){ mcadRenderAll(); }); mcadSwitchTab('eq'); }
     }
     window.manutSwitchPane = manutSwitchPane;
 
     // ── Campos dinâmicos do formulário ──
-    function manutEquipChange(sel) {
-        var outro = document.getElementById('os-equipamento-outro');
-        if (outro) outro.classList.toggle('hidden', sel.value !== '__outro__');
-    }
-    window.manutEquipChange = manutEquipChange;
     function manutRespChange(sel) {
         var terc = document.getElementById('manut-m-resp-terceiro');
         if (terc) terc.classList.toggle('hidden', sel.value !== '__terceiro__');
@@ -4532,23 +5255,36 @@
     window.manutRespChange = manutRespChange;
 
     function _manutPopularFormUser() {
-        var setor = limparEmoji(currentSector);
-        var selE = document.getElementById('os-equipamento');
-        if (selE) {
-            var eqs = _mcadData.equipamentos.filter(function(e){ return !setor || e.setor === setor; });
-            if (!eqs.length) eqs = _mcadData.equipamentos;
-            selE.innerHTML = '<option value="" disabled selected>Selecione...</option>' +
-                eqs.map(function(e){ return '<option value="'+escapeHTML(e.nome)+'" data-depto="'+escapeHTML(e.departamento||'')+'">'+escapeHTML(e.nome)+'</option>'; }).join('') +
-                '<option value="__outro__">Outro (digitar manualmente)</option>';
-        }
+        // Datalist de TAGs para agilizar a digitação no mobile
+        var dl = document.getElementById('os-tags-list');
+        if (dl) dl.innerHTML = _mcadData.equipamentos.filter(function(e){ return e.tag; })
+            .map(function(e){ return '<option value="'+escapeHTML(String(e.tag).toUpperCase())+'">'+escapeHTML(e.nome)+'</option>'; }).join('');
         var selT = document.getElementById('os-tipo');
         if (selT) {
             selT.innerHTML = '<option value="" disabled selected>Selecione...</option>' +
                 _mcadData.tipos.map(function(t){ return '<option>'+escapeHTML(t)+'</option>'; }).join('');
         }
-        var outro = document.getElementById('os-equipamento-outro');
-        if (outro) outro.classList.add('hidden');
     }
+
+    /** Busca o equipamento pela TAG digitada e preenche o vínculo automaticamente */
+    var _osEquipSel = null;
+    function osTagLookup(el) {
+        var tag = (el.value || '').trim().toUpperCase();
+        var res = document.getElementById('os-tag-resultado');
+        var hid = document.getElementById('os-equipamento');
+        _osEquipSel = null;
+        if (!tag) { if (res) { res.textContent = ''; } if (hid) hid.value = ''; return; }
+        var eq = _mcadData.equipamentos.find(function(e){ return String(e.tag||'').toUpperCase() === tag; });
+        if (eq) {
+            _osEquipSel = eq;
+            if (hid) hid.value = eq.nome;
+            if (res) { res.textContent = '✓ ' + eq.nome + (eq.setor ? ' · ' + eq.setor : '') + (eq.departamento ? ' · ' + eq.departamento : ''); res.className = 'text-[11px] font-bold mt-1.5 min-h-[16px] text-emerald-600 dark:text-emerald-400'; }
+        } else {
+            if (hid) hid.value = tag;
+            if (res) { res.textContent = 'TAG não cadastrada — será registrada como texto livre.'; res.className = 'text-[11px] font-bold mt-1.5 min-h-[16px] text-amber-600 dark:text-amber-400'; }
+        }
+    }
+    window.osTagLookup = osTagLookup;
 
     // ── Bibliotecas sob demanda (cacheadas pelo SW após o 1º uso) ──
     function _carregarChartJs(cb) {
@@ -4589,16 +5325,67 @@
         }).catch(function(e){ console.warn('[Manut] carregar:', e.message); if (cb) cb(); });
     }
 
+    var _sinoUltimoSeq = null;
     function manutListen() {
         if (!db || _manutListener) return;
         _manutListener = _manutRef().onSnapshot(function(doc){
             if (!doc.exists) return;
             _manutData = doc.data() || { seq: 0, lista: [] };
             _manutData.lista = _manutData.lista || [];
-            if (currentViewId === 'view-os') manutRenderMinhas();
+            // Notificação interna: nova O.S aberta → alerta técnicos/ADM
+            var seq = parseInt(_manutData.seq) || 0;
+            if (_sinoUltimoSeq !== null && seq > _sinoUltimoSeq && _sinoElegivel()) {
+                var nova = _manutData.lista.find(function(o){ return o.num === seq; });
+                if (nova && nova.solicitante !== operadorNome) {
+                    mostrarToast('🔔 Nova O.S #' + seq + ': ' + (nova.equipamento||'') + ' (' + (nova.setor||'') + ')');
+                }
+            }
+            _sinoUltimoSeq = seq;
+            _sinoAtualizar();
+            if (currentViewId === 'view-os') { manutRenderMinhas(); if (limparEmoji(currentSector) === 'Manutenção') manutRenderFila(); }
             if (currentViewId === 'view-manut-adm') manutRenderAdm();
         }, function(e){ console.warn('[Manut] listener:', e.message); });
     }
+
+    // ── Sininho de notificações (ADM e Manutenção) ──
+    function _sinoElegivel() { return isAdmin || limparEmoji(currentSector) === 'Manutenção'; }
+    function _sinoAtualizar() {
+        var btn = document.getElementById('btn-sino');
+        var badge = document.getElementById('sino-badge');
+        if (!btn) return;
+        var eleg = _sinoElegivel();
+        btn.classList.toggle('hidden', !eleg);
+        btn.classList.toggle('flex', eleg);
+        if (!eleg || !badge) return;
+        var abertas = _manutData.lista.filter(function(o){ return o.status !== 'Concluída'; }).length;
+        badge.textContent = abertas;
+        badge.classList.toggle('hidden', abertas === 0);
+    }
+    function abrirSino() {
+        var m = document.getElementById('modal-sino');
+        if (!m) return;
+        m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex');
+        var render = function(){
+            var lista = document.getElementById('sino-lista');
+            var abertas = _manutData.lista.filter(function(o){ return o.status !== 'Concluída'; })
+                .sort(function(a,b){ return b.num - a.num; });
+            lista.innerHTML = abertas.length
+                ? abertas.map(function(o){
+                    return '<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3">' +
+                        '<div class="flex items-center justify-between gap-2 mb-0.5"><span class="text-xs font-black text-gray-900 dark:text-white">#' + o.num + ' · ' + escapeHTML(o.equipamento||'') + '</span>' + manutBadge(o.status) + '</div>' +
+                        '<p class="text-[11px] text-gray-500 dark:text-gray-400">' + escapeHTML(o.setor||'') + ' · ' + escapeHTML(o.solicitante||'') + ' · ' + escapeHTML(o.abertura||'') + '</p>' +
+                    '</div>';
+                }).join('')
+                : '<p class="text-sm text-gray-400 text-center py-6">Nenhuma O.S em aberto. 🎉</p>';
+        };
+        manutCarregar(render);
+    }
+    window.abrirSino = abrirSino;
+    function fecharSino() {
+        var m = document.getElementById('modal-sino');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.fecharSino = fecharSino;
 
     /** Atualização atômica: lê o doc, aplica fn(data) e grava na mesma transação */
     function _manutTx(fn, cb, cbErr) {
@@ -4637,25 +5424,24 @@
 
     // ── Visão do colaborador ──
     function manutInitUser() {
-        var chipS = document.getElementById('manut-solic-chip');
-        var chipT = document.getElementById('manut-setor-chip');
-        if (chipS) chipS.textContent = operadorNome || '—';
-        if (chipT) chipT.textContent = limparEmoji(currentSector) || (isAdmin ? 'Administração' : '—');
+        // Solicitante e setor são capturados de forma oculta (operadorNome/currentSector)
+        var ehManut = limparEmoji(currentSector) === 'Manutenção';
+        var tit = document.getElementById('os-view-titulo');
+        if (tit) tit.textContent = ehManut ? 'Gestão de O.S' : 'Abertura de O.S';
+        var fila = document.getElementById('manut-fila-wrap');
+        if (fila) fila.classList.toggle('hidden', !ehManut);
         mcadCarregar(function(){ _manutPopularFormUser(); });
-        manutCarregar(function(){ manutRenderMinhas(); });
+        manutCarregar(function(){ manutRenderMinhas(); if (ehManut) manutRenderFila(); });
         manutListen();
     }
     window.manutInitUser = manutInitUser;
 
     function abrirOSManutencao() {
-        var selE = document.getElementById('os-equipamento');
-        var eq = selE ? selE.value : '';
-        var depto = '';
-        if (eq === '__outro__') {
-            eq = (document.getElementById('os-equipamento-outro').value || '').trim();
-        } else if (selE && selE.selectedIndex >= 0) {
-            depto = selE.options[selE.selectedIndex].getAttribute('data-depto') || '';
-        }
+        var tagEl = document.getElementById('os-tag');
+        var tag = tagEl ? (tagEl.value || '').trim().toUpperCase() : '';
+        if (!tag) return mostrarToast('Digite a TAG do equipamento.', true);
+        var eq = _osEquipSel ? _osEquipSel.nome : tag;
+        var depto = _osEquipSel ? (_osEquipSel.departamento || '') : '';
         var tipo = document.getElementById('os-tipo') ? document.getElementById('os-tipo').value : '';
         var desc = (document.getElementById('os-problema').value || '').trim();
         if (!eq || eq.length < 2) return mostrarToast('Selecione ou digite o equipamento.', true);
@@ -4673,6 +5459,7 @@
                 setor: limparEmoji(currentSector) || (isAdmin ? 'Administração' : '?'),
                 departamento: depto,
                 equipamento: eq,
+                tag: tag,
                 tipo: tipo,
                 descricao: desc,
                 status: 'Pendente',
@@ -4682,14 +5469,17 @@
             });
             return d.seq;
         }, function(num){
-            if (selE) selE.selectedIndex = 0;
-            var outro = document.getElementById('os-equipamento-outro');
-            if (outro) { outro.value = ''; outro.classList.add('hidden'); }
+            if (tagEl) tagEl.value = '';
+            _osEquipSel = null;
+            var resTag = document.getElementById('os-tag-resultado'); if (resTag) resTag.textContent = '';
+            var hidEq = document.getElementById('os-equipamento'); if (hidEq) hidEq.value = '';
             document.getElementById('os-problema').value = '';
             if (document.getElementById('os-tipo')) document.getElementById('os-tipo').selectedIndex = 0;
             saveData(); // grava estado limpo do formulário do setor
+            fecharModalOS();
+            auditar('O.S aberta', '#' + num + ' ' + eq);
             mostrarToast('O.S #' + num + ' aberta com sucesso! ✓');
-            manutCarregar(function(){ manutRenderMinhas(); });
+            manutCarregar(function(){ manutRenderMinhas(); if (limparEmoji(currentSector) === 'Manutenção') manutRenderFila(); });
         });
     }
     window.abrirOSManutencao = abrirOSManutencao;
@@ -4721,13 +5511,82 @@
         }).join('');
     }
 
+    // ── Pop-up de abertura de O.S ──
+    function abrirModalOS() {
+        var m = document.getElementById('modal-os-form');
+        if (m) { m.classList.remove('hidden', 'opacity-0'); m.classList.add('flex'); }
+    }
+    window.abrirModalOS = abrirModalOS;
+    function fecharModalOS() {
+        var m = document.getElementById('modal-os-form');
+        if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    window.fecharModalOS = fecharModalOS;
+
+    // ── Fila de execução da Manutenção: contador + Iniciar / Fechar O.S ──
+    function manutRenderFila() {
+        var lista = document.getElementById('manut-fila-lista');
+        var cont = document.getElementById('manut-fila-contador');
+        if (!lista) return;
+        var abertas = _manutData.lista.filter(function(o){ return o.status !== 'Concluída'; })
+            .sort(function(a,b){ return a.num - b.num; });
+        if (cont) cont.textContent = abertas.length;
+        lista.innerHTML = abertas.length
+            ? abertas.map(function(o){
+                var emAnd = o.status === 'Em Andamento';
+                return '<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">' +
+                    '<div class="flex items-center justify-between gap-2 mb-1.5 flex-wrap">' +
+                        '<span class="text-sm font-black text-gray-900 dark:text-white">#' + o.num + ' · ' + escapeHTML(o.equipamento||'') + '</span>' + manutBadge(o.status) +
+                    '</div>' +
+                    '<p class="text-xs text-gray-600 dark:text-gray-300 mb-1">' + escapeHTML(o.descricao||'') + '</p>' +
+                    '<p class="text-[10px] text-gray-400 font-bold mb-3">' + escapeHTML(o.setor||'') + ' · ' + escapeHTML(o.solicitante||'') + ' · ' + escapeHTML(o.abertura||'') + ' ' + escapeHTML(o.aberturaHora||'') + (o.responsavel ? ' · 👷 ' + escapeHTML(o.responsavel) : '') + '</p>' +
+                    '<div class="grid grid-cols-2 gap-2">' +
+                        (!emAnd ? '<button onclick="manutFilaIniciar(' + o.num + ')" class="py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">▶ Iniciar</button>' : '<span class="py-3 text-center text-xs font-bold text-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-xl">🔄 Em execução</span>') +
+                        '<button onclick="manutFilaFechar(' + o.num + ')" class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-[0.97] transition-all">✓ Fechar O.S</button>' +
+                    '</div>' +
+                '</div>';
+            }).join('')
+            : '<div class="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl"><p class="text-sm text-gray-400">Nenhuma O.S em aberto. 🎉</p></div>';
+    }
+    function manutFilaIniciar(num) {
+        _manutTx(function(d){
+            var o = d.lista.find(function(x){ return x.num === num; });
+            if (!o) return;
+            o.status = 'Em Andamento';
+            if (!o.responsavel) o.responsavel = operadorNome || '';
+        }, function(){
+            mostrarToast('O.S #' + num + ' em execução! ▶');
+            manutCarregar(function(){ manutRenderFila(); manutRenderMinhas(); });
+        });
+    }
+    window.manutFilaIniciar = manutFilaIniciar;
+    function manutFilaFechar(num) {
+        var acao = (prompt('O que foi feito para resolver? (obrigatório)') || '').trim();
+        if (!acao) return mostrarToast('Descreva as ações realizadas para fechar a O.S.', true);
+        var agora = new Date();
+        _manutTx(function(d){
+            var o = d.lista.find(function(x){ return x.num === num; });
+            if (!o) return;
+            o.status = 'Concluída';
+            o.acao = acao;
+            if (!o.responsavel) o.responsavel = operadorNome || '';
+            o.fechamento = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            o.fechamentoTs = agora.getTime();
+        }, function(){
+            auditar('O.S fechada', '#' + num);
+            mostrarToast('O.S #' + num + ' fechada! ✅');
+            manutCarregar(function(){ manutRenderFila(); manutRenderMinhas(); });
+        });
+    }
+    window.manutFilaFechar = manutFilaFechar;
+
     // ── Visão do gestor ──
     function manutInitAdm() {
         var de = document.getElementById('manut-de'), ate = document.getElementById('manut-ate');
         var hoje = new Date();
         if (de && !de.value)  de.value  = hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'-01';
         if (ate && !ate.value) ate.value = _manutISO(hoje.getTime());
-        mcadCarregar(function(){ manutCarregar(function(){ manutRenderAdm(); }); });
+        mcadCarregar(function(){ _manutPopularFormUser(); manutCarregar(function(){ manutRenderAdm(); }); });
         manutListen();
     }
     window.manutInitAdm = manutInitAdm;
@@ -4746,6 +5605,43 @@
             return true;
         });
     }
+
+    // Estilo dos gráficos analíticos (Barras / Linhas / Rosca)
+    var _manutChartEstilo = 'bar';
+    function manutSetChartEstilo(e) {
+        _manutChartEstilo = e;
+        var on  = 'px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-900 text-white dark:bg-white dark:text-gray-900 transition-all';
+        var off = 'px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all';
+        ['bar','linha','rosca'].forEach(function(k){
+            var b = document.getElementById('btn-gest-' + k);
+            if (b) b.className = k === e ? on : off;
+        });
+        manutRenderAdm();
+    }
+    window.manutSetChartEstilo = manutSetChartEstilo;
+    /** Converte um dataset de barras para o estilo escolhido */
+    function _manutCfgEstilo(cfg, coresRosca) {
+        if (_manutChartEstilo === 'linha') {
+            cfg.type = 'line';
+            cfg.data.datasets.forEach(function(ds){
+                ds.borderColor = ds.backgroundColor;
+                ds.backgroundColor = 'transparent';
+                ds.tension = 0.3; ds.pointRadius = 4; ds.borderWidth = 2.5;
+            });
+        } else if (_manutChartEstilo === 'rosca') {
+            // Rosca: soma os datasets num único anel por categoria
+            var labels = cfg.data.labels;
+            var somas = labels.map(function(_, i){
+                return cfg.data.datasets.reduce(function(s, ds){ return s + (Number(ds.data[i]) || 0); }, 0);
+            });
+            cfg.type = 'doughnut';
+            cfg.data.datasets = [{ data: somas, backgroundColor: coresRosca, borderWidth: 2 }];
+            cfg.options = { responsive: true, maintainAspectRatio: false, cutout: '58%',
+                plugins: { legend: { display: true, position: 'right', labels: { color: (cfg.options.plugins.legend.labels||{}).color || '#6b7280', font: { size: 10, weight: 'bold' }, boxWidth: 12 } } } };
+        }
+        return cfg;
+    }
+    var _CORES_ROSCA = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#84cc16','#f97316','#64748b','#a855f7','#14b8a6'];
 
     var _manutCharts = {};
     function _manutChart(id, cfg) {
@@ -4878,7 +5774,7 @@
         _carregarChartJs(function(){
             if (!window.Chart) return;
             var cores = _manutChartCores();
-            _manutChart('manut-canvas-tipo', {
+            _manutChart('manut-canvas-tipo', _manutCfgEstilo({
                 type: 'bar',
                 data: {
                     labels: ag.tipos,
@@ -4888,25 +5784,25 @@
                     ]
                 },
                 options: _manutChartOpts(cores, true)
-            });
-            _manutChart('manut-canvas-mes', {
+            }, _CORES_ROSCA));
+            _manutChart('manut-canvas-mes', _manutCfgEstilo({
                 type: 'bar',
                 data: {
                     labels: ag.mesKeys,
                     datasets: [{ label: 'O.S abertas', data: ag.mesKeys.map(function(k){ return ag.porMes[k].q; }), backgroundColor: cores.azul, borderRadius: 4, maxBarThickness: 34 }]
                 },
                 options: _manutChartOpts(cores, false)
-            });
+            }, _CORES_ROSCA));
             var optsDep = _manutChartOpts(cores, false);
             optsDep.plugins.tooltip = { callbacks: { afterLabel: function(ctx){ return 'Custo: ' + _manutMoeda(ag.porDepto[ctx.label] ? ag.porDepto[ctx.label].custo : 0); } } };
-            _manutChart('manut-canvas-depto', {
+            _manutChart('manut-canvas-depto', _manutCfgEstilo({
                 type: 'bar',
                 data: {
                     labels: ag.depKeys,
                     datasets: [{ label: 'Qtd O.S', data: ag.depKeys.map(function(k){ return ag.porDepto[k].q; }), backgroundColor: cores.azul, borderRadius: 4, maxBarThickness: 34 }]
                 },
                 options: optsDep
-            });
+            }, _CORES_ROSCA));
         });
     }
     window.manutRenderAdm = manutRenderAdm;
@@ -5117,7 +6013,7 @@
         iniciarListenersPills();
 
         // Prévia ao vivo da carga líquida no formulário de turnos
-        ['adm-turno-inicio','adm-turno-fim','adm-turno-intervalo-inicio','adm-turno-intervalo-fim'].forEach(function(id){
+        ['adm-turno-inicio','adm-turno-fim','adm-turno-intervalo-dur'].forEach(function(id){
             var el = document.getElementById(id);
             if (el) el.addEventListener('change', admTurnoPreview);
         });
@@ -5135,6 +6031,11 @@
                 if (operadorNome) iniciarListenerFirestore();
                 fbChecarNotificacoes();
                 edCarregar(function(){ edAplicarTudo(); });
+                // Sininho: ADM e Manutenção acompanham O.S em tempo real desde o boot
+                if (operadorNome && _sinoElegivel()) {
+                    manutCarregar(function(){ _sinoUltimoSeq = parseInt(_manutData.seq) || 0; _sinoAtualizar(); });
+                    manutListen();
+                }
             });
         });
 
@@ -5219,6 +6120,7 @@
             if (adm) { adm.classList.add('hidden'); adm.classList.remove('flex'); }
         }
         fbChecarNotificacoes();
+        setTimeout(function(){ if (db) almoxChecarMinimo(); }, 2500);
     }
 
     // ── Admin Sector Grid ──
@@ -5294,6 +6196,7 @@
         var modal = document.getElementById('modal-login');
         if (modal) { modal.classList.add('opacity-0'); setTimeout(function(){ modal.classList.add('hidden'); }, 500); }
         exibirBoasVindas();
+        auditar('Login', (isAdmin ? 'perfil ADM' : 'setor ' + limparEmoji(setor)));
         mostrarToast('Bem-vindo, ' + nome + '!');
         navigate(isAdmin ? 'view-menu' : 'view-submenu', isAdmin ? null : currentSector, true);
         iniciarListenerFirestore();
@@ -5661,7 +6564,7 @@
                         '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 dark:bg-gray-900/50 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">'+escapeHTML(t.setor||'')+'</span>'+
                     '</div>'+
                     '<span class="text-xs text-gray-500 font-semibold">⏰ '+escapeHTML(t.inicio)+' → '+escapeHTML(t.fim)+'</span>'+
-                    ((t.intervaloInicio&&t.intervaloFim)?'<span class="text-[10px] text-amber-500 font-semibold ml-2">☕ '+escapeHTML(t.intervaloInicio)+' → '+escapeHTML(t.intervaloFim)+'</span>':'')+
+                    ((t.intervaloMin||((t.intervaloInicio&&t.intervaloFim)&&calcMinutos(t.intervaloInicio,t.intervaloFim)))?'<span class="text-[10px] text-amber-500 font-semibold ml-2">☕ '+_minParaHHMM(t.intervaloMin||calcMinutos(t.intervaloInicio,t.intervaloFim))+' de pausa</span>':'')+
                     (function(){ var hd = t.horasDisponiveisMin !== undefined ? t.horasDisponiveisMin : Math.max(0, calcMinutos(t.inicio,t.fim) - (t.intervaloMin||0)); return '<span class="text-[10px] font-black text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-1.5 py-0.5 rounded ml-2">⚡ '+Math.floor(hd/60)+'h'+String(hd%60).padStart(2,'0')+' líquidas</span>'; })()+
                     ((t.colaboradores&&t.colaboradores.length)?'<span class="block text-[10px] text-gray-500 font-medium mt-0.5">👥 '+escapeHTML(t.colaboradores.join(', '))+'</span>':'')+
                     '<span class="block text-[10px] text-gray-400 font-medium mt-0.5">📅 '+escapeHTML(dias)+'</span>'+
@@ -5710,10 +6613,8 @@
         if (ini) ini.value = t.inicio || '';
         var fim = document.getElementById('edit-turno-fim');
         if (fim) fim.value = t.fim || '';
-        var intIni = document.getElementById('edit-turno-intervalo-inicio');
-        if (intIni) intIni.value = t.intervaloInicio || '';
-        var intFim = document.getElementById('edit-turno-intervalo-fim');
-        if (intFim) intFim.value = t.intervaloFim || '';
+        var intDur = document.getElementById('edit-turno-intervalo-dur');
+        if (intDur) intDur.value = t.intervaloDur || (t.intervaloMin ? _minParaHHMM(t.intervaloMin) : (t.intervaloInicio&&t.intervaloFim ? _minParaHHMM(calcMinutos(t.intervaloInicio,t.intervaloFim)) : ''));
         document.querySelectorAll('#edit-turno-dias input').forEach(function(c){
             c.checked = t.dias && t.dias.indexOf(c.value) !== -1;
         });
@@ -5751,10 +6652,10 @@
         t.inicio = inicio;
         t.fim    = fim;
         t.dias   = dias;
-        t.intervaloInicio = (document.getElementById('edit-turno-intervalo-inicio')||{}).value||'';
-        t.intervaloFim    = (document.getElementById('edit-turno-intervalo-fim')||{}).value||'';
+        t.intervaloDur = (document.getElementById('edit-turno-intervalo-dur')||{}).value||'';
+        t.intervaloInicio = ''; t.intervaloFim = ''; // legado
         // FIX: recalcular carga líquida ao editar (antes ficava desatualizada)
-        t.intervaloMin = (t.intervaloInicio && t.intervaloFim) ? calcMinutos(t.intervaloInicio, t.intervaloFim) : 0;
+        t.intervaloMin = _durParaMin(t.intervaloDur);
         var brutoEd = calcMinutos(t.inicio, t.fim);
         if (t.intervaloMin >= brutoEd) return mostrarToast('O intervalo é maior ou igual à duração do turno.', true);
         t.horasDisponiveisMin = brutoEd - t.intervaloMin;
@@ -5764,25 +6665,18 @@
     }
     window.salvarEdicaoTurno = salvarEdicaoTurno;
 
-    // ── Planejamento Operacional: abas Turnos (passo 1) → Metas (passo 2) ──
-    function planSwitchPane(p) {
-        var on  = 'flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all';
-        var off = 'flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all';
-        document.getElementById('plan-pane-turnos').classList.toggle('hidden', p !== 'turnos');
-        document.getElementById('plan-pane-metas').classList.toggle('hidden', p !== 'metas');
-        document.getElementById('btn-plan-turnos').className = p === 'turnos' ? on : off;
-        document.getElementById('btn-plan-metas').className = p === 'metas' ? on : off;
-        if (p === 'metas') {
-            var turnos = (appData.config && appData.config.turnos) || [];
-            if (!turnos.length) mostrarToast('Passo 1 primeiro: cadastre ao menos um turno para basear as metas.', true);
-            _editMetaIdx = -1;
-            renderMetasHistorico();
-            atualizarMetasInfo();
-        } else {
-            renderTurnosAdm();
-        }
+    // ── Planejamento Operacional: blocos independentes (Turnos e Metas) ──
+    /** Converte duração "HH:MM" em minutos (ex.: "01:08" → 68) */
+    function _durParaMin(s) {
+        var m = String(s||'').match(/^(\d{1,2}):(\d{2})$/);
+        if (!m) return 0;
+        return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
     }
-    window.planSwitchPane = planSwitchPane;
+    /** Converte minutos em "Xh YYm" legível */
+    function _minParaHHMM(min) {
+        min = parseInt(min, 10) || 0;
+        return Math.floor(min/60) + 'h' + String(min%60).padStart(2, '0');
+    }
 
     /** Prévia ao vivo da carga horária líquida no formulário de turno */
     function admTurnoPreview() {
@@ -5792,9 +6686,7 @@
         var fim = (document.getElementById('adm-turno-fim')||{}).value||'';
         if (!ini || !fim) { el.classList.add('hidden'); return; }
         var bruto = calcMinutos(ini, fim);
-        var iIni = (document.getElementById('adm-turno-intervalo-inicio')||{}).value||'';
-        var iFim = (document.getElementById('adm-turno-intervalo-fim')||{}).value||'';
-        var intv = (iIni && iFim) ? calcMinutos(iIni, iFim) : 0;
+        var intv = _durParaMin((document.getElementById('adm-turno-intervalo-dur')||{}).value||'');
         var liq = bruto - intv;
         if (liq <= 0) { el.classList.remove('hidden'); el.textContent = '⚠️ Intervalo maior que o turno — corrija os horários.'; return; }
         el.classList.remove('hidden');
@@ -5818,8 +6710,8 @@
         var inicio = document.getElementById('adm-turno-inicio').value;
         var fim    = document.getElementById('adm-turno-fim').value;
         var dias   = Array.from(document.querySelectorAll('#adm-turno-dias input:checked')).map(function(c){ return c.value; });
-        var intervaloInicio = (document.getElementById('adm-turno-intervalo-inicio')||{}).value||'';
-        var intervaloFim    = (document.getElementById('adm-turno-intervalo-fim')||{}).value||'';
+        var intervaloDur = (document.getElementById('adm-turno-intervalo-dur')||{}).value||'';
+        var intervaloInicio = '', intervaloFim = ''; // legado — modelo novo usa duração total
         if (!nome)           return mostrarToast('Selecione o nome do turno (1°, 2° ou 3°).', true);
         if (!setores.length) return mostrarToast('Selecione ao menos um setor.', true);
         if (!inicio || !fim) return mostrarToast('Informe o horário de início e fim.', true);
@@ -5829,7 +6721,7 @@
         // FIX duplicidade: impede dois turnos com o mesmo nome no mesmo setor
         var dup = appData.config.turnos.find(function(t){ return t.nome === nome && setores.indexOf(t.setor) !== -1; });
         if (dup) return mostrarToast('Já existe "' + nome + '" para ' + limparEmoji(dup.setor) + '. Edite ou remova o existente.', true);
-        var intervaloMin = (intervaloInicio && intervaloFim) ? calcMinutos(intervaloInicio, intervaloFim) : 0;
+        var intervaloMin = _durParaMin(intervaloDur);
         var brutoMin = calcMinutos(inicio, fim);
         // FIX cálculo: intervalo não pode consumir o turno inteiro
         if (intervaloMin >= brutoMin) return mostrarToast('O intervalo é maior ou igual à duração do turno. Verifique os horários.', true);
@@ -5849,15 +6741,14 @@
         });
         if (conflito) return mostrarToast('⚠️ ' + conflito.nome + ' já está no ' + conflito.turno + ' de ' + limparEmoji(conflito.setor) + ' em dias coincidentes.', true);
         setores.forEach(function(setor) {
-            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias, intervaloInicio: intervaloInicio, intervaloFim: intervaloFim, intervaloMin: intervaloMin, horasDisponiveisMin: horasDisponiveisMin, colaboradores: colabs });
+            appData.config.turnos.push({ nome: nome, setor: setor, inicio: inicio, fim: fim, dias: dias, intervaloDur: intervaloDur, intervaloInicio: intervaloInicio, intervaloFim: intervaloFim, intervaloMin: intervaloMin, horasDisponiveisMin: horasDisponiveisMin, colaboradores: colabs });
         });
         var colabsEl = document.getElementById('adm-turno-colabs'); if (colabsEl) colabsEl.value = '';
         var prevEl = document.getElementById('adm-turno-liquida'); if (prevEl) prevEl.classList.add('hidden');
         if (nomeEl) nomeEl.value = '';
         document.getElementById('adm-turno-inicio').value = '';
         document.getElementById('adm-turno-fim').value = '';
-        var intIni = document.getElementById('adm-turno-intervalo-inicio'); if(intIni) intIni.value='';
-        var intFim = document.getElementById('adm-turno-intervalo-fim');    if(intFim) intFim.value='';
+        var intDur = document.getElementById('adm-turno-intervalo-dur'); if(intDur) intDur.value='';
         document.querySelectorAll('#adm-turno-dias input').forEach(function(c){ c.checked = false; });
         document.querySelectorAll('#adm-turno-setores input').forEach(function(c){ c.checked = false; });
         salvarMetasAdm(); renderTurnosAdm(); renderShiftCards();
@@ -6142,9 +7033,9 @@
         hide('btn-menu-produtividade', cleanSetor==='Manutenção'||cleanSetor==='Operações');
         hide('btn-menu-quebra',   cleanSetor!=='Recebimento');
         hide('btn-menu-retencao', cleanSetor!=='Rebenefício'&&cleanSetor!=='TESTE');
-        hide('btn-menu-horimetro',cleanSetor!=='Manutenção');
         var setoresOP = ['Recebimento','Rebenefício','Expedição','Embalagem','TESTE'];
         hide('btn-menu-op', !setoresOP.some(function(s){ return cleanSetor.includes(s); }));
+        hide('btn-menu-almox', cleanSetor !== 'Manutenção');
     }
 
     function renderView(viewId, sectorName) {
@@ -6170,6 +7061,8 @@
         if (viewId === 'view-os') { manutInitUser(); }
         if (viewId === 'view-manut-adm') { manutInitAdm(); }
         if (viewId === 'view-cronograma') { cronoInit(); }
+        if (viewId === 'view-almox') { almoxInit(); }
+        if (viewId === 'view-requisicao') { pedInit(); }
         atualizarDesktopSidebar();
         // Editor Visual: aplica personalizações na view recém-exibida
         edAplicarTudo();
@@ -6193,7 +7086,7 @@
     }
 
     window.addEventListener('popstate', function(event){
-        ['modal-atividades','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os','modal-feedback','modal-feedback-adm','modal-bug','modal-nova-atv','modal-op-form','modal-templates'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
+        ['modal-atividades','modal-adm-email','modal-historico','modal-gerenciar-servicos','modal-editar-atv','modal-editar-prod','modal-prod-detalhe','modal-editar-turno','modal-nova-meta','modal-manut-os','modal-feedback','modal-feedback-adm','modal-bug','modal-nova-atv','modal-op-form','modal-templates','modal-os-form','modal-sino','modal-ped-mat','modal-ped-comp','modal-mcad-eq','modal-mcad-tipo','modal-mcad-tec','modal-auditoria','modal-emoji'].forEach(function(id){ var m=document.getElementById(id); if(m){ m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); } });
         editingBlockId = null;
         if (event.state && event.state.viewId) renderView(event.state.viewId, event.state.sectorName);
         else history.replaceState({ viewId: currentViewId, sectorName: currentSector }, '');
@@ -6406,7 +7299,7 @@
     }
 
     function getEmptySectorState() {
-        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:'',opRef:'',opCliente:''}], horInicial:'',horFinal:'', tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
+        return { timeBlocks:[{id:Date.now(),start:'',end:'',ref:'',bags:'',obs:'',activity:'',opRef:'',opCliente:''}], tolAmostra:'',tolPerc:'', atvServico:'',atvSacas:'',atvAjuda:'Não',atvAjudaQtd:'',atvProjecao:'', justificativa:'',shiftName:'',shiftStart:'',shiftEnd:'', osEquipamento:'',osProblema:'', reqMatNome:'',reqMatQtd:'',reqMatJust:'', reqComprasItens:[] };
     }
 
     function loadDataParaTela() {
@@ -6436,7 +7329,6 @@
             renderTimeBlocks(); calcTotalProductivity();
             renderHistoricoProducao();
         }
-        if (currentViewId === 'view-horimetro') { document.getElementById('hor-inicial').value=st.horInicial||''; document.getElementById('hor-final').value=st.horFinal||''; calcHorimetro(); }
         if (currentViewId === 'view-percentage') { document.getElementById('tol-amostra').value=st.tolAmostra||''; document.getElementById('tol-perc').value=st.tolPerc||''; calcTolerancia(); }
         if (currentViewId === 'view-atividades') {
             var servicoVal = st.atvServico || '';
@@ -6464,7 +7356,7 @@
     }
 
     function saveData() {
-        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-op','view-cronograma','view-planejamento'].includes(currentViewId)) return;
+        if (!currentSector || ['view-menu','view-submenu','view-divisao-quebra','view-op','view-cronograma','view-planejamento','view-almox'].includes(currentViewId)) return;
         if (!appData[workingDate]) appData[workingDate] = {};
         if (!appData[workingDate][currentSector]) appData[workingDate][currentSector] = getEmptySectorState();
         var st = appData[workingDate][currentSector];
@@ -6477,7 +7369,6 @@
             st.shiftIntervalStart = document.getElementById('shift-intervalo-inicio') ? document.getElementById('shift-intervalo-inicio').value ||'' : '';
             st.shiftIntervalEnd   = document.getElementById('shift-intervalo-fim')    ? document.getElementById('shift-intervalo-fim').value    ||'' : '';
         }
-        if (currentViewId === 'view-horimetro')  { st.horInicial=document.getElementById('hor-inicial').value; st.horFinal=document.getElementById('hor-final').value; }
         if (currentViewId === 'view-percentage') { st.tolAmostra=document.getElementById('tol-amostra').value; st.tolPerc=document.getElementById('tol-perc').value; }
         if (currentViewId === 'view-atividades') {
             st.atvServico  = document.getElementById('atv-servico').value;
@@ -6498,7 +7389,7 @@
         var subtitle = document.getElementById('header-sector-subtitle');
         if(foot) foot.classList.add('hidden');
 
-        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-planejamento':'Planejamento','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-horimetro':'Horímetro','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção','view-cronograma':'Cronograma'};
+        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-planejamento':'Planejamento','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção','view-cronograma':'Cronograma','view-almox':'Almoxarifado'};
         var crumbCls = 'text-[11px] font-bold uppercase tracking-[0.2em]';
         var crumbLink = 'cursor-pointer hover:underline underline-offset-2';
 
@@ -6525,7 +7416,7 @@
                 setTimeout(function(){ _applySubmenuOrder(); _initDragSubmenu(); }, 50);
             }
         }
-        if (['view-os','view-requisicao'].includes(viewId) && foot) { foot.classList.remove('hidden'); foot.classList.add('block'); }
+        if (viewId === 'view-os' && foot) { foot.classList.remove('hidden'); foot.classList.add('block'); }
         // Boletim usa botão inline — footer não é exibido para esse view
         if (viewId==='view-planejamento') {
             _editMetaIdx = -1;
@@ -6614,21 +7505,6 @@
         document.getElementById('res-tolerancia').textContent = (!isNaN(a)&&!isNaN(p)&&a>0)?((a*p)/100).toFixed(2).replace('.',','):'0,00';
         debouncedSave();
     }
-
-    function maskHorimetro(input) {
-        var val=input.value.replace(/[^\d,]/g,'').split(',');
-        if(val.length>2) val=[val[0],val.slice(1).join('')];
-        var iP=val[0]?parseInt(val[0],10).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.') :'';
-        input.value=val.length>1?iP+','+val[1]:iP;
-        calcHorimetro();
-    }
-    function calcHorimetro() {
-        var inc=parseFloat(document.getElementById('hor-inicial').value.replace(/\./g,'').replace(',','.')), fnl=parseFloat(document.getElementById('hor-final').value.replace(/\./g,'').replace(',','.'));
-        var res=document.getElementById('res-horimetro');
-        if(res){ if(!isNaN(inc)&&!isNaN(fnl)&&fnl>=inc){ var d=fnl-inc; res.textContent=Math.floor(d)+'.'+String(Math.round((d-Math.floor(d))*60)).padStart(2,'0'); } else { res.textContent=fnl<inc?'Erro':'0.00'; } }
-        debouncedSave();
-    }
-
 
     function calcMinutos(start, end) {
         if (!start||!end) return 0;
@@ -7059,7 +7935,14 @@
         abaReqAtual=t;
         document.getElementById('tab-req-material').classList.toggle('hidden',t!=='material');
         document.getElementById('tab-req-compra').classList.toggle('hidden',t!=='compra');
-        ['material','compra'].forEach(function(tab){ var btn=document.getElementById('btn-tab-req-'+tab); if(!btn) return; var active=t===tab; btn.className=active?"flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm transition-all":"flex-1 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 rounded-xl hover:text-gray-900 dark:hover:text-white transition-all"; });
+        // Distinção visual nítida entre as duas modalidades
+        var bM=document.getElementById('btn-tab-req-material'), bC=document.getElementById('btn-tab-req-compra');
+        var base='py-4 px-3 rounded-2xl border-2 text-left transition-all active:scale-[0.98]';
+        if(bM) bM.className=base+(t==='material'?' bg-blue-600 border-blue-600 text-white shadow-md':' bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300');
+        if(bC) bC.className=base+(t==='compra'?' bg-orange-600 border-orange-600 text-white shadow-md':' bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300');
+        var lbl=document.getElementById('ped-hist-tipo-lbl');
+        if(lbl) lbl.textContent=t==='material'?'Estoque Interno':'Compras Externas';
+        if (typeof pedRenderHist === 'function') pedRenderHist();
     }
 
     function addReqCompraItem() {
@@ -7082,6 +7965,7 @@
 
     function renderReqComprasItens() {
         var cont=document.getElementById('req-compras-list');
+        if(!cont) return;
         var list=(appData[workingDate]&&appData[workingDate][currentSector]&&appData[workingDate][currentSector].reqComprasItens)||[];
         cont.innerHTML=list.map(function(i){
             return `<div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 relative shadow-sm group"><button onclick="removeReqCompraItem(${i.id})" class="absolute top-3 right-3 text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors active:scale-95"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 12 12"><path d="M2 2l8 8M2 10l8-8"/></svg></button><div class="font-bold text-gray-900 dark:text-white pr-10 text-base">${escapeHTML(i.comp)}</div><div class="flex items-center gap-2 mt-2"><span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold px-2 py-1 rounded">Qtd: ${escapeHTML(i.qtd)}</span><span class="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold px-2 py-1 rounded border border-blue-100 dark:border-blue-800/50">${escapeHTML(i.cat)}</span></div><div class="text-sm text-gray-500 dark:text-gray-400 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 italic">"${escapeHTML(i.just)}"</div></div>`;
@@ -7137,7 +8021,7 @@
     function _renderSetorLinhas(setor, st) {
         var linhas='', blocks=(st.timeBlocks||[]).filter(function(b){ return b.start||b.bags||b.ref; });
         var cleanSetor=limparEmoji(setor);
-        if(!blocks.length&&!st.atvServico&&!(cleanSetor==='Manutenção'&&st.horInicial)) return '';
+        if(!blocks.length&&!st.atvServico) return '';
         linhas+='<tr><td colspan="4" class="sector-header">SETOR: '+cleanSetor.toUpperCase()+'</td></tr>';
         if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.shiftName&&st.shiftStart&&st.shiftEnd)
             linhas+='<tr style="background-color:#fffbeb;"><td colspan="4" style="color:#b45309;font-size:11px;font-weight:bold;text-align:center;padding:8px;">⏱️ Turno: '+escapeHTML(st.shiftName)+' ('+escapeHTML(st.shiftStart)+' às '+escapeHTML(st.shiftEnd)+')</td></tr>';
@@ -7157,7 +8041,6 @@
             if((totalM>0||shiftMin>0)&&(totalS<metaT||media<metaH)) linhas+='<tr style="background-color:#fef2f2;"><td colspan="4" style="color:#b91c1c;font-size:12px;padding:10px;"><b>⚠️ Justificativa de Meta:</b> '+escapeHTML(st.justificativa)+'</td></tr>';
         }
         if(st.atvServico){ var ajuda=st.atvAjuda==='Sim'?' | +'+(escapeHTML(st.atvAjudaQtd)||'?')+' pessoas':''; linhas+='<tr style="background-color:#f8fafc;"><td style="font-style:italic;color:#475569;font-size:11px;">(Planejamento do Dia)</td><td style="text-align:right;color:#475569;font-weight:bold;">'+(escapeHTML(st.atvSacas)||'-')+'</td><td style="color:#475569;text-align:center">-</td><td style="color:#475569;">'+escapeHTML(st.atvServico)+ajuda+(st.atvProjecao?' | Entrega: '+escapeHTML(st.atvProjecao):'')+' </td></tr>'; }
-        if(cleanSetor==='Manutenção'&&st.horInicial&&st.horFinal){ var ini=parseFloat(st.horInicial.replace(/\./g,'').replace(',','.')), fim=parseFloat(st.horFinal.replace(/\./g,'').replace(',','.')); if(!isNaN(ini)&&!isNaN(fim)&&fim>=ini){ var df=fim-ini; linhas+='<tr style="background-color:#eff6ff;"><td colspan="4" style="color:#1d4ed8;font-size:12px;padding:10px;text-align:center"><b>⏱️ Horímetro Registrado:</b> '+Math.floor(df)+'.'+String(Math.round((df-Math.floor(df))*60)).padStart(2,'0')+'h</td></tr>'; } }
         return linhas;
     }
 
@@ -7410,6 +8293,7 @@
         if(linhasBlocks) texto+='*Relatório de Atividades:*\n'+linhasBlocks+'\n';
         if((cleanSetor.includes('Rebenefício')||cleanSetor.includes('TESTE'))&&st.justificativa){ var metaH=parseFloat(appData.config&&appData.config.metaRebeneficioHora)||55, metaT=parseFloat(appData.config&&appData.config.metaRebeneficioTurno)||500; var media=tempoConsid>0&&totalSacas>0?totalSacas/(tempoConsid/60):0; if((totalMin>0||shiftMin>0)&&(totalSacas<metaT||media<metaH)) texto+='⚠️ *Justificativa de Meta:* '+st.justificativa+'\n\n'; }
         texto+='─'.repeat(25)+'\n📦 *Volume Diário:* '+totalSacas.toLocaleString('pt-BR')+' sacas';
+        auditar('Boletim compartilhado', totalSacas.toLocaleString('pt-BR') + ' sc');
         executarCompartilhamento('Boletim '+cleanSetor,texto,cleanSetor);
     }
 
