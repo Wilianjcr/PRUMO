@@ -1126,6 +1126,13 @@
                                     <div class="text-xs text-violet-100 font-normal">Tags • WhatsApp</div>
                                 </div>
                             </button>
+                            <button onclick="navigate('view-teste-excel')" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-md flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-slate-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🧮</div>
+                                <div class="text-left">
+                                    <div class="text-sm uppercase tracking-wider heading-font">Teste</div>
+                                    <div class="text-xs text-slate-200 font-normal">Planilha Eletrônica • Beta</div>
+                                </div>
+                            </button>
                         </div>
 
                         <!-- ── Setores (ADM) ── -->
@@ -2057,6 +2064,39 @@
                                 <button onclick="enviarPedido('compra')" class="flex-[2] py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-2xl text-sm uppercase tracking-wider active:scale-[0.98] transition-all shadow-md">Salvar Pedido</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-teste-excel" class="view-hidden w-full flex flex-col min-h-full p-4 md:p-8">
+                <div class="w-full max-w-6xl mx-auto flex flex-col gap-4 pb-10">
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div>
+                            <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-widest heading-font">Planilha Eletrônica</h2>
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Área restrita ao Administrador • Beta</p>
+                        </div>
+                        <span class="text-[10px] font-black px-3 py-1.5 rounded-full bg-slate-800 text-white uppercase tracking-widest w-fit">🔒 Somente ADM</span>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-soft flex flex-col md:flex-row md:items-center gap-3">
+                        <select id="tx-doc-select" onchange="txSelecionarDocumento(this.value)" class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer">
+                            <option value="">Carregando documentos...</option>
+                        </select>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="txNovaPlanilha()" class="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-95 transition-all">➕ Nova</button>
+                            <button onclick="txRenomearDocumento()" class="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-95 transition-all">✏️ Renomear</button>
+                            <button onclick="txExcluirDocumento()" class="px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold rounded-xl text-xs uppercase tracking-wider active:scale-95 transition-all">🗑️ Excluir</button>
+                            <button onclick="txSalvarDocumento()" class="px-5 py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs uppercase tracking-wider active:scale-95 transition-all shadow-md">💾 Salvar</button>
+                        </div>
+                    </div>
+                    <p id="tx-status" class="text-[11px] font-bold text-gray-400 min-h-[16px] px-1"></p>
+
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft overflow-hidden relative" style="height:74vh;min-height:420px;">
+                        <div id="tx-loading" class="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-3 text-gray-400 bg-white dark:bg-gray-800">
+                            <div class="w-10 h-10 border-4 border-gray-300 border-t-gray-700 dark:border-t-gray-300 rounded-full animate-spin"></div>
+                            <span class="text-xs font-bold uppercase tracking-widest">Carregando motor de planilha...</span>
+                        </div>
+                        <iframe id="tx-iframe" class="hidden w-full h-full" style="border:0;" title="Planilha Eletrônica"></iframe>
                     </div>
                 </div>
             </div>
@@ -5304,6 +5344,238 @@
         document.head.appendChild(s);
     }
 
+    // ══════════════ Teste — Planilha Eletrônica (ADM) ══════════════
+    // Motor Luckysheet rodando isolado dentro de um <iframe srcdoc>: zero conflito de CSS
+    // com o Tailwind/global do app e carregamento 100% sob demanda (só baixa ao abrir a aba).
+    function _txRef() { return db.collection('operacoes').doc('planilhas'); }
+    var _txDocs = [];
+    var _txDocAtualId = null;
+    var _txNovoNomePendente = '';
+    var _txFrameReady = false;
+    var _txFrameBuilding = false;
+    var _txDirty = false;
+    var _txSalvando = false;
+
+    var _TX_LUCKY_VER = '2.1.13';
+    var _TX_IFRAME_HTML = [
+        '<!doctype html><html><head><meta charset="utf-8">',
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@' + _TX_LUCKY_VER + '/dist/plugins/css/pluginsCss.css">',
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@' + _TX_LUCKY_VER + '/dist/plugins/plugins.css">',
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@' + _TX_LUCKY_VER + '/dist/css/luckysheet.css">',
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet@' + _TX_LUCKY_VER + '/dist/assets/iconfont/iconfont.css">',
+        '<style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#fff;}#lucky{width:100%;height:100%;}</style>',
+        '</head><body>',
+        '<div id="lucky"></div>',
+        '<script src="https://cdn.jsdelivr.net/npm/luckysheet@' + _TX_LUCKY_VER + '/dist/plugins/js/plugin.js"><\/script>',
+        '<script src="https://cdn.jsdelivr.net/npm/luckysheet@' + _TX_LUCKY_VER + '/dist/luckysheet.umd.js"><\/script>',
+        '<script>',
+        'function _boot(sheets){',
+        '  try { if (window._luckyBooted && window.luckysheet) luckysheet.destroy(); } catch(e){}',
+        '  window._luckyBooted = true;',
+        '  luckysheet.create({',
+        '    container: "lucky",',
+        '    lang: "pt",',
+        '    showinfobar: false,',
+        '    data: (sheets && sheets.length) ? sheets : undefined,',
+        '    title: "Planilha",',
+        '    hook: { updated: function(){ parent.postMessage({ txType: "dirty" }, "*"); } }',
+        '  });',
+        '}',
+        'window.addEventListener("message", function(ev){',
+        '  var msg = ev.data || {};',
+        '  if (msg.txType === "load") { _boot(msg.sheets); }',
+        '  else if (msg.txType === "getData") {',
+        '    try { parent.postMessage({ txType: "data", sheets: luckysheet.getAllSheets() }, "*"); }',
+        '    catch(e) { parent.postMessage({ txType: "data", sheets: null }, "*"); }',
+        '  }',
+        '});',
+        '(function _waitReady(){',
+        '  if (window.luckysheet) parent.postMessage({ txType: "ready" }, "*");',
+        '  else setTimeout(_waitReady, 80);',
+        '})();',
+        '<\/script>',
+        '</body></html>'
+    ].join('');
+
+    window.addEventListener('message', function(ev){
+        var msg = ev.data || {};
+        if (msg.txType === 'ready') {
+            _txFrameReady = true;
+            _txFrameBuilding = false;
+            var loading = document.getElementById('tx-loading');
+            var iframe  = document.getElementById('tx-iframe');
+            if (loading) loading.classList.add('hidden');
+            if (iframe)  iframe.classList.remove('hidden');
+            _txAplicarDocumentoAtual();
+        } else if (msg.txType === 'data') {
+            _txReceberDadosParaSalvar(msg.sheets);
+        } else if (msg.txType === 'dirty') {
+            _txDirty = true;
+            _txSetStatus('Alterações não salvas — clique em 💾 Salvar.');
+        }
+    });
+
+    function _txSetStatus(txt) { var el = document.getElementById('tx-status'); if (el) el.textContent = txt || ''; }
+    function _txConfirmarDescarte() { return !_txDirty || confirm('Existem alterações não salvas nesta planilha. Deseja continuar e descartá-las?'); }
+
+    function txCarregar(cb) {
+        if (!db) { if (cb) cb(); return; }
+        _txRef().get().then(function(doc){
+            var d = doc.exists ? (doc.data() || {}) : {};
+            _txDocs = d.documentos || [];
+            if (cb) cb();
+        }).catch(function(e){ console.warn('[Teste]', e.message); _txDocs = []; if (cb) cb(); });
+    }
+    function _txTx(fn, cb) {
+        if (!db || !navigator.onLine) { mostrarToast('Sem conexão — tente novamente.', true); return; }
+        db.runTransaction(function(tx){
+            return tx.get(_txRef()).then(function(doc){
+                var d = doc.exists ? (doc.data() || {}) : {};
+                d.documentos = d.documentos || [];
+                var r = fn(d);
+                if (r === false) return Promise.reject(new Error('validacao'));
+                tx.set(_txRef(), JSON.parse(JSON.stringify(d)));
+            });
+        }).then(function(){ if (cb) cb(); })
+          .catch(function(e){ if (e.message !== 'validacao') { console.warn('[Teste] tx:', e.message); mostrarToast('Erro ao salvar a planilha.', true); } });
+    }
+
+    function _txPopularSelect() {
+        var sel = document.getElementById('tx-doc-select');
+        if (!sel) return;
+        if (!_txDocs.length) {
+            sel.innerHTML = '<option value="">Nenhuma planilha salva — clique em ➕ Nova</option>';
+            return;
+        }
+        var ordenados = _txDocs.slice().sort(function(a,b){ return (b.atualizadoEm||0) - (a.atualizadoEm||0); });
+        sel.innerHTML = ordenados.map(function(d){
+            return '<option value="'+d.id+'" '+(d.id===_txDocAtualId?'selected':'')+'>'+escapeHTML(d.nome)+'</option>';
+        }).join('');
+    }
+
+    function _txMontarIframe() {
+        var iframe = document.getElementById('tx-iframe');
+        if (!iframe) return;
+        if (_txFrameReady || _txFrameBuilding) return; // já carregado nesta sessão — preserva edição em curso
+        _txFrameBuilding = true;
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads');
+        iframe.srcdoc = _TX_IFRAME_HTML;
+    }
+
+    function _txAplicarDocumentoAtual() {
+        var iframe = document.getElementById('tx-iframe');
+        if (!iframe || !_txFrameReady) return;
+        var doc = _txDocs.find(function(d){ return d.id === _txDocAtualId; });
+        var sheets = null;
+        if (doc && doc.dados) { try { sheets = JSON.parse(doc.dados); } catch(e) { sheets = null; } }
+        iframe.contentWindow.postMessage({ txType: 'load', sheets: sheets }, '*');
+        _txDirty = false;
+        _txSetStatus(doc ? ('Documento: ' + doc.nome) : 'Nova planilha (ainda não salva) — clique em 💾 Salvar.');
+    }
+
+    function testeExcelInit() {
+        if (!isAdmin) return;
+        txCarregar(function(){
+            if (!_txDocAtualId || !_txDocs.some(function(d){ return d.id === _txDocAtualId; })) {
+                var ordenados = _txDocs.slice().sort(function(a,b){ return (b.atualizadoEm||0) - (a.atualizadoEm||0); });
+                _txDocAtualId = ordenados.length ? ordenados[0].id : null;
+            }
+            _txPopularSelect();
+            _txMontarIframe();
+        });
+    }
+    window.testeExcelInit = testeExcelInit;
+
+    function txSelecionarDocumento(id) {
+        if (!_txConfirmarDescarte()) { _txPopularSelect(); return; }
+        _txDocAtualId = id || null;
+        _txAplicarDocumentoAtual();
+    }
+    window.txSelecionarDocumento = txSelecionarDocumento;
+
+    function txNovaPlanilha() {
+        if (!_txConfirmarDescarte()) return;
+        var nome = prompt('Nome da nova planilha:', '');
+        if (nome === null) return;
+        nome = (nome || '').trim() || ('Planilha ' + (_txDocs.length + 1));
+        _txDocAtualId = null;
+        _txNovoNomePendente = nome;
+        var sel = document.getElementById('tx-doc-select');
+        if (sel) {
+            var opt = document.createElement('option');
+            opt.value = ''; opt.textContent = nome + ' (novo, não salvo)'; opt.selected = true;
+            sel.insertBefore(opt, sel.firstChild);
+        }
+        if (_txFrameReady) { document.getElementById('tx-iframe').contentWindow.postMessage({ txType: 'load', sheets: null }, '*'); }
+        _txDirty = false;
+        _txSetStatus('Nova planilha "' + nome + '" — clique em 💾 Salvar para gravar no Firestore.');
+    }
+    window.txNovaPlanilha = txNovaPlanilha;
+
+    function txSalvarDocumento() {
+        var iframe = document.getElementById('tx-iframe');
+        if (!iframe || !_txFrameReady) return mostrarToast('Aguarde o motor de planilha carregar.', true);
+        _txSalvando = true;
+        iframe.contentWindow.postMessage({ txType: 'getData' }, '*');
+    }
+    window.txSalvarDocumento = txSalvarDocumento;
+
+    function _txReceberDadosParaSalvar(sheets) {
+        if (!_txSalvando) return;
+        _txSalvando = false;
+        if (!sheets) return mostrarToast('Não foi possível ler os dados da planilha.', true);
+        var json = JSON.stringify(sheets);
+        if (json.length > 900000) return mostrarToast('Planilha muito grande para salvar (limite ~900KB por documento).', true);
+        var agora = Date.now();
+        var docAtual = _txDocAtualId ? _txDocs.find(function(d){ return d.id === _txDocAtualId; }) : null;
+        var nome = docAtual ? docAtual.nome : _txNovoNomePendente;
+        var id = _txDocAtualId || ('tx_' + agora);
+        _txTx(function(d){
+            var existente = d.documentos.find(function(x){ return x.id === id; });
+            if (existente) { existente.dados = json; existente.atualizadoEm = agora; if (nome) existente.nome = nome; }
+            else d.documentos.push({ id: id, nome: nome || 'Planilha', dados: json, criadoEm: agora, atualizadoEm: agora });
+        }, function(){
+            _txDocAtualId = id;
+            _txDirty = false;
+            txCarregar(function(){ _txPopularSelect(); _txSetStatus('Salvo ✓ · ' + new Date(agora).toLocaleTimeString('pt-BR')); });
+            auditar('Planilha salva', nome || id);
+            mostrarToast('Planilha salva ✓');
+        });
+    }
+
+    function txRenomearDocumento() {
+        if (!_txDocAtualId) return mostrarToast('Salve a planilha antes de renomear.', true);
+        var atual = _txDocs.find(function(d){ return d.id === _txDocAtualId; });
+        if (!atual) return;
+        var nome = prompt('Novo nome:', atual.nome);
+        if (!nome) return;
+        nome = nome.trim(); if (!nome) return;
+        _txTx(function(d){
+            var it = d.documentos.find(function(x){ return x.id === _txDocAtualId; });
+            if (!it) return false;
+            it.nome = nome; it.atualizadoEm = Date.now();
+        }, function(){
+            auditar('Planilha renomeada', nome);
+            txCarregar(function(){ _txPopularSelect(); mostrarToast('Renomeado ✓'); });
+        });
+    }
+    window.txRenomearDocumento = txRenomearDocumento;
+
+    function txExcluirDocumento() {
+        if (!_txDocAtualId) return mostrarToast('Selecione uma planilha salva para excluir.', true);
+        var atual = _txDocs.find(function(d){ return d.id === _txDocAtualId; });
+        if (!atual) return;
+        if (!confirm('Excluir a planilha "' + atual.nome + '"? Esta ação não pode ser desfeita.')) return;
+        _txTx(function(d){
+            d.documentos = d.documentos.filter(function(x){ return x.id !== _txDocAtualId; });
+        }, function(){
+            auditar('Planilha excluída', atual.nome);
+            _txDocAtualId = null;
+            txCarregar(function(){ _txPopularSelect(); _txAplicarDocumentoAtual(); mostrarToast('Excluída ✓'); });
+        });
+    }
+    window.txExcluirDocumento = txExcluirDocumento;
+
     /** Custo da O.S — novo campo único, com retrocompatibilidade (M.O + Peças) */
     function _manutCusto(o) {
         var c = Number(o.custo);
@@ -7039,6 +7311,7 @@
     }
 
     function renderView(viewId, sectorName) {
+        if (viewId === 'view-teste-excel' && !isAdmin) { viewId = 'view-menu'; }
         saveData();
         _prodFormDirty = false; // Ao navegar, descarta estado "sujo" do form anterior
         if (sectorName) currentSector = sectorName;
@@ -7063,6 +7336,7 @@
         if (viewId === 'view-cronograma') { cronoInit(); }
         if (viewId === 'view-almox') { almoxInit(); }
         if (viewId === 'view-requisicao') { pedInit(); }
+        if (viewId === 'view-teste-excel') { testeExcelInit(); }
         atualizarDesktopSidebar();
         // Editor Visual: aplica personalizações na view recém-exibida
         edAplicarTudo();
@@ -7389,7 +7663,7 @@
         var subtitle = document.getElementById('header-sector-subtitle');
         if(foot) foot.classList.add('hidden');
 
-        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-planejamento':'Planejamento','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção','view-cronograma':'Cronograma','view-almox':'Almoxarifado'};
+        var VIEW_LABELS = {'view-atividades':'Atividades','view-productivity':'Boletim','view-planejamento':'Planejamento','view-os':'Nova O.S','view-requisicao':'Pedidos','view-op':'Ordem de Prod.','view-percentage':'Tolerância','view-divisao-quebra':'Div. / Quebra','view-manut-adm':'Manutenção','view-cronograma':'Cronograma','view-almox':'Almoxarifado','view-teste-excel':'Teste'};
         var crumbCls = 'text-[11px] font-bold uppercase tracking-[0.2em]';
         var crumbLink = 'cursor-pointer hover:underline underline-offset-2';
 
